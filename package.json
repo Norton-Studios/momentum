@@ -1,0 +1,31 @@
+{
+  "name": "developer-productivity",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "api",
+    "crons",
+    "data-sources/*",
+    "e2e-tests",
+    "frontend",
+    "metrics/*",
+    "reports/*"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "format": "biome format --write .",
+    "lint": "biome lint --apply .",
+    "start:api": "npm run dev --workspace=api",
+    "start:frontend": "npm run dev --workspace=frontend",
+    "dev": "concurrently \"npm:start:*\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@biomejs/biome": "^2.0.4",
+    "concurrently": "^9.1.2",
+    "typescript": "^5.8.3"
+  }
+}

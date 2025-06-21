@@ -1,0 +1,23 @@
+# Dependency directories
+node_modules/
+
+# Build output
+dist/
+build/
+public/build/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Environment variables
+.env
+.env.*.local
+.env.local
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Biome
+# We want to commit the biome.json file to the repo
+# biome.json
