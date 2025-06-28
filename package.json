@@ -5,6 +5,7 @@
   "workspaces": [
     "api",
     "crons",
+    "database",
     "data-sources/*",
     "e2e-tests",
     "frontend",
@@ -17,6 +18,7 @@
     "lint": "biome lint --apply .",
     "start:api": "npm run dev --workspace=api",
     "start:frontend": "npm run dev --workspace=frontend",
+    "start:db": "npm run dev --workspace=database",
     "dev": "concurrently \"npm:start:*\""
   },
   "keywords": [],
