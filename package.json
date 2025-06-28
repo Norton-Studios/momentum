@@ -8,7 +8,7 @@
     "data-sources/*",
     "e2e-tests",
     "frontend",
-    "metrics/*",
+    "resources/*",
     "reports/*"
   ],
   "scripts": {

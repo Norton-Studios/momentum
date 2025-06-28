@@ -1,0 +1,34 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  schemas  = ["scm", "core"]
+}
+
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["multiSchema"]
+}
+
+model Repository {
+  id         Int    @id @default(autoincrement())
+  name       String
+  url        String @unique
+  externalId String @unique @map("external_id")
+
+  teams TeamRepository[]
+
+  @@map("repository")
+  @@schema("scm")
+}
+
+// This is a reference to a model in another schema.
+model TeamRepository {
+  teamId       Int
+  repositoryId Int
+
+  repository Repository @relation(fields: [repositoryId], references: [id])
+
+  @@id([teamId, repositoryId])
+  @@map("team_repository")
+  @@schema("core")
+}

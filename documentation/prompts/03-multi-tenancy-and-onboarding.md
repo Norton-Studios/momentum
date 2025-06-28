@@ -12,7 +12,7 @@ This phase implements the SaaS-specific features for managing different clients.
 *   **Prompt for AI Agent:**
     > "Create a sign-up page in the Remix frontend and a corresponding API endpoint. When a new user signs up, the API should:
     > 1.  Create a new, dedicated PostgreSQL database for them.
-    > 2.  Run all Prisma migrations from all `db` folders (`metrics/*/db`, `data-sources/*/db`, etc.) against the new database.
+    > 2.  Run all Prisma migrations from all `db` folders (`resources/*/db`, `data-sources/*/db`, etc.) against the new database.
     > 3.  Save the new tenant's details, including the connection string, to the main `Tenant` table."
 
 **Task 3.3: Build the Onboarding UI (Teams & Repositories)**
@@ -23,6 +23,6 @@ This phase implements the SaaS-specific features for managing different clients.
 **Task 3.4: Implement Repository-to-Team Mapping Logic**
 *   **Goal:** Create the backend logic for assigning repositories to teams.
 *   **Prompt for AI Agent:**
-    > "Implement the mandatory `repositories` and `teams` metrics. Create the Prisma schema for these tables in `metrics/teams/db` and `metrics/repositories/db`. In the API, create endpoints to manage these mappings. Implement two methods for assigning repositories to teams:
+    > "Implement the mandatory `repositories` and `teams` resources. Create the Prisma schema for these tables in `resources/teams/db` and `resources/repositories/db`. In the API, create endpoints to manage these mappings. Implement two methods for assigning repositories to teams:
     > 1.  A regex matcher on the repository name.
     > 2.  A label/tag system."

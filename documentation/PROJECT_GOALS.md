@@ -1,6 +1,6 @@
 # Project Goals
 
-1.  **Extensible Platform:** Create a highly modular, plugin-based system where new data sources (e.g., Jenkins, GitHub), metrics (e.g., pipeline runs, code churn), and reports can be added with minimal effort.
+1.  **Extensible Platform:** Create a highly modular, plugin-based system where new data sources (e.g., Jenkins, GitHub), resources (e.g., pipeline runs, code churn), and reports can be added with minimal effort.
 
 2.  **Flexible Deployment:** The application must support two primary deployment models:
     *   A multi-client SaaS platform with data isolation between tenants.

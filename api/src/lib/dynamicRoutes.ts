@@ -5,7 +5,7 @@ import path from 'path';
 export async function loadRoutes(): Promise<Router[]> {
   const router = Router();
   const patterns = [
-    '../metrics/*/api/index.ts',
+    '../resources/*/api/index.ts',
     '../data-sources/*/api/index.ts',
     '../reports/*/api/index.ts',
   ];

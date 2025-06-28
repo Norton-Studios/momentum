@@ -1,0 +1,44 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  schemas  = ["core", "scm"]
+}
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["multiSchema"]
+}
+
+model Team {
+  id   Int    @id @default(autoincrement())
+  name String
+
+  repositories TeamRepository[]
+
+  @@map("team")
+  @@schema("core")
+}
+
+model TeamRepository {
+  teamId       Int
+  repositoryId Int
+
+  team       Team       @relation(fields: [teamId], references: [id])
+  repository Repository @relation(fields: [repositoryId], references: [id])
+
+  @@id([teamId, repositoryId])
+  @@map("team_repository")
+  @@schema("core")
+}
+
+model Repository {
+  id         Int    @id @default(autoincrement())
+  name       String
+  url        String @unique
+  externalId String @unique @map("external_id")
+
+  teams TeamRepository[]
+
+  @@map("repository")
+  @@schema("scm")
+}
