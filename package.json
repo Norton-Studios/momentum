@@ -3,14 +3,14 @@
   "version": "1.0.0",
   "private": true,
   "workspaces": [
-    "api",
-    "crons",
-    "database",
-    "data-sources/*",
+    "apps/api",
+    "apps/crons",
+    "apps/database",
+    "plugins/data-sources/*",
     "e2e-tests",
-    "frontend",
-    "resources/*",
-    "reports/*"
+    "apps/frontend",
+    "plugins/resources/*",
+    "plugins/reports/*"
   ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
