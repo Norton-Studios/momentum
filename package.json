@@ -6,9 +6,9 @@
     "apps/api",
     "apps/crons",
     "apps/database",
-    "plugins/data-sources/*",
-    "e2e-tests",
     "apps/frontend",
+    "e2e-tests",
+    "plugins/data-sources/*",
     "plugins/resources/*",
     "plugins/reports/*"
   ],
