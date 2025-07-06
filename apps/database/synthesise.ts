@@ -3,43 +3,38 @@ import fs from "fs/promises";
 import path from "path";
 
 async function synthesise() {
-  const schemaDir = path.join(__dirname, "../../plugins/resources");
+  const baseSchemaPath = path.join(__dirname, "prisma/schema.prisma");
+  const baseSchema = await fs.readFile(baseSchemaPath, "utf-8");
+
+  const resourcesDir = path.join(__dirname, "../../plugins/resources");
   const schemaPaths = await fg("**/db/schema.prisma", {
-    cwd: schemaDir,
+    cwd: resourcesDir,
     absolute: true,
   });
 
-  let combinedSchema = "";
-  let dataSource = "";
-  let generator = "";
+  let combinedSchema = baseSchema;
+  const definedModels = new Set<string>();
 
   for (const schemaPath of schemaPaths) {
     const schemaContent = await fs.readFile(schemaPath, "utf-8");
-    const lines = schemaContent.split("\n");
-
-    if (!dataSource) {
-      dataSource = lines.find((line) => line.startsWith("datasource")) || "";
-    }
-    if (!generator) {
-      generator = lines.find((line) => line.startsWith("generator")) || "";
-    }
-
-    const modelLines = lines.filter(
-      (line) =>
-        line.startsWith("model") ||
-        line.startsWith("enum") ||
-        line.startsWith("type") ||
-        line.startsWith("  ") ||
-        line.startsWith("}"),
+    const modelDefinitions = schemaContent.match(
+      /(^(model|enum|type)[\s\S]*?^})/gm,
     );
 
-    combinedSchema += modelLines.join("\n") + "\n\n";
+    if (modelDefinitions) {
+      for (const model of modelDefinitions) {
+        const modelNameMatch = model.match(/^(?:model|enum|type)\s+(\w+)/);
+        if (modelNameMatch && !definedModels.has(modelNameMatch[1])) {
+          combinedSchema += `\n${model}`;
+          definedModels.add(modelNameMatch[1]);
+        }
+      }
+    }
   }
 
-  const finalSchema = `${dataSource}\n${generator}\n\n${combinedSchema}`;
   const buildDir = path.join(__dirname, "build");
   await fs.mkdir(buildDir, { recursive: true });
-  await fs.writeFile(path.join(buildDir, "schema.prisma"), finalSchema);
+  await fs.writeFile(path.join(buildDir, "schema.prisma"), combinedSchema);
 
   console.log("Prisma schema synthesised successfully!");
 }

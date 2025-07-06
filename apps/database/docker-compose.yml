@@ -1,12 +1,11 @@
-version: '3.8'
 services:
   postgres:
-    image: postgres:13
+    image: postgres:17
     restart: always
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
-      POSTGRES_DB: devprod
+      POSTGRES_DB: dp-dev
     ports:
       - '5432:5432'
     volumes:

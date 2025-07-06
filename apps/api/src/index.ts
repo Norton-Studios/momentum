@@ -7,13 +7,13 @@ const port = process.env.PORT || 3001;
 app.use(express.json());
 
 async function startServer() {
-  app.get("/api", (req, res) => {
+  app.get("/", (req, res) => {
     res.json({ message: "API is running" });
   });
 
   const dynamicRoutes = await loadRoutes();
   for (const router of dynamicRoutes) {
-    app.use("/api", router);
+    app.use("/", router);
   }
 
   app.listen(port, () => {
@@ -22,3 +22,5 @@ async function startServer() {
 }
 
 startServer();
+
+export const viteNodeApp = app;

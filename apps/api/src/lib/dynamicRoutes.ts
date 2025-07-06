@@ -1,33 +1,21 @@
 import { Router } from "express";
-import fg from "fast-glob";
-import path from "path";
 
 export async function loadRoutes(): Promise<Router[]> {
-  const router = Router();
-  const patterns = [
-    "../resources/*/api/index.ts",
-    "../data-sources/*/api/index.ts",
-    "../reports/*/api/index.ts",
-  ];
-
-  const routePaths = await fg(patterns, {
-    absolute: true,
-    cwd: __dirname,
-  });
+  const modules = import.meta.glob(
+    "../../plugins/{resources,data-sources,reports}/*/api/index.ts",
+  );
 
   const routes: Router[] = [];
 
-  for (const routePath of routePaths) {
+  for (const path in modules) {
     try {
-      const module = await import(routePath);
+      const module = (await modules[path]()) as { default: Router };
       if (module.default && typeof module.default === "function") {
         routes.push(module.default);
-        console.log(
-          `Loaded routes from: ${path.relative(process.cwd(), routePath)}`,
-        );
+        console.log(`Loaded routes from: ${path}`);
       }
     } catch (error) {
-      console.error(`Error loading routes from ${routePath}:`, error);
+      console.error(`Error loading routes from ${path}:`, error);
     }
   }
 

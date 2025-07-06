@@ -19,6 +19,6 @@ This document outlines the rules and guidelines for any AI agent contributing to
 
 7.  **Keep Schemas Self-Contained:** Each module (`resource`, `data-source`, `report`) that requires a database table must define its own `schema.prisma` file within a `db` sub-folder. Do not add tables for a specific module to a core or shared schema file. The database creation process will automatically combine these schemas.
 
-8.  **Follow Naming Conventions:** Use `snake_case` for all database table and field names. Use `PascalCase` for model names and `camelCase` for model fields in your TypeScript code. Prisma's `@@map` and `@map` attributes should be used to achieve this.
+8.  **Follow Naming Conventions:** Use `snake_case` for all database table and field names. Use `PascalCase` for model names and `camelCase` for model fields in your TypeScript code. Prisma's `@@map` and `@map` attributes should be used to achieve this.n
 
 9.  **Secure by Default:** Treat all configuration and secrets (API keys, database connection strings) as sensitive information. They must be loaded from environment variables. Never hardcode secrets into the source code. Every package that requires environment variables should include an `.env.example` file documenting the required variables.
