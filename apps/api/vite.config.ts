@@ -1,6 +1,6 @@
-import { defineConfig } from 'vite';
-import { VitePluginNode } from 'vite-plugin-node';
-import tsconfigPaths from 'vite-tsconfig-paths';
+import { defineConfig } from "vite";
+import { VitePluginNode } from "vite-plugin-node";
+import tsconfigPaths from "vite-tsconfig-paths";
 
 export default defineConfig({
   server: {
@@ -8,17 +8,17 @@ export default defineConfig({
   },
   plugins: [
     ...VitePluginNode({
-      adapter: 'express',
-      appPath: './src/index.ts',
-      exportName: 'viteNodeApp',
-      tsCompiler: 'esbuild',
+      adapter: "express",
+      appPath: "./src/index.ts",
+      exportName: "viteNodeApp",
+      tsCompiler: "esbuild",
     }),
     tsconfigPaths(),
   ],
   build: {
     rollupOptions: {
       output: {
-        format: 'esm',
+        format: "esm",
       },
     },
   },

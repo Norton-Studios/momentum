@@ -13,9 +13,9 @@
     "plugins/reports/*"
   ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "npm test -ws",
     "format": "biome format --write .",
-    "lint": "biome lint --apply .",
+    "lint": "biome lint .",
     "start:api": "npm run dev --workspace=api",
     "start:frontend": "npm run dev --workspace=frontend",
     "start:db": "npm run dev --workspace=database",

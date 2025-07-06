@@ -1,11 +1,11 @@
-import { PrismaClient } from '@prisma/client';
-import { Router } from 'express';
+import { PrismaClient } from "@prisma/client";
+import { Router } from "express";
 
 const prisma = new PrismaClient();
 const router = Router();
 
 // Create
-router.post('/team', async (req, res) => {
+router.post("/team", async (req, res) => {
   const { name } = req.body;
   const team = await prisma.team.create({
     data: { name },
@@ -14,7 +14,7 @@ router.post('/team', async (req, res) => {
 });
 
 // Read (all)
-router.get('/team', async (req, res) => {
+router.get("/team", async (req, res) => {
   const teams = await prisma.team.findMany({
     include: { repositories: true },
   });
@@ -22,7 +22,7 @@ router.get('/team', async (req, res) => {
 });
 
 // Read (one)
-router.get('/team/:id', async (req, res) => {
+router.get("/team/:id", async (req, res) => {
   const { id } = req.params;
   const team = await prisma.team.findUnique({
     where: { id: Number(id) },
@@ -32,7 +32,7 @@ router.get('/team/:id', async (req, res) => {
 });
 
 // Update
-router.put('/team/:id', async (req, res) => {
+router.put("/team/:id", async (req, res) => {
   const { id } = req.params;
   const { name } = req.body;
   const team = await prisma.team.update({
@@ -43,7 +43,7 @@ router.put('/team/:id', async (req, res) => {
 });
 
 // Delete
-router.delete('/team/:id', async (req, res) => {
+router.delete("/team/:id", async (req, res) => {
   const { id } = req.params;
   await prisma.teamRepository.deleteMany({
     where: { teamId: Number(id) },
@@ -51,11 +51,11 @@ router.delete('/team/:id', async (req, res) => {
   await prisma.team.delete({
     where: { id: Number(id) },
   });
-  res.json({ message: 'Team deleted' });
+  res.json({ message: "Team deleted" });
 });
 
 // Add repository to team
-router.post('/team/:teamId/repository/:repositoryId', async (req, res) => {
+router.post("/team/:teamId/repository/:repositoryId", async (req, res) => {
   const { teamId, repositoryId } = req.params;
   const teamRepository = await prisma.teamRepository.create({
     data: {
@@ -67,7 +67,7 @@ router.post('/team/:teamId/repository/:repositoryId', async (req, res) => {
 });
 
 // Remove repository from team
-router.delete('/team/:teamId/repository/:repositoryId', async (req, res) => {
+router.delete("/team/:teamId/repository/:repositoryId", async (req, res) => {
   const { teamId, repositoryId } = req.params;
   await prisma.teamRepository.delete({
     where: {
@@ -77,7 +77,7 @@ router.delete('/team/:teamId/repository/:repositoryId', async (req, res) => {
       },
     },
   });
-  res.json({ message: 'Repository removed from team' });
+  res.json({ message: "Repository removed from team" });
 });
 
 export default router;

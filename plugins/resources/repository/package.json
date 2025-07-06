@@ -5,11 +5,15 @@
   "prisma": {
     "schema": "db/schema.prisma"
   },
+  "scripts": {
+    "test": "vitest"
+  },
   "dependencies": {
     "@prisma/client": "^5.17.0",
     "express": "^5.1.0"
   },
   "devDependencies": {
-    "@types/express": "^5.0.3"
+    "@types/express": "^5.0.3",
+    "vitest": "^3.2.4"
   }
 }

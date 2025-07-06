@@ -1,11 +1,11 @@
-import { PrismaClient } from '@prisma/client';
-import { Router } from 'express';
+import { PrismaClient } from "@prisma/client";
+import { Router } from "express";
 
 const prisma = new PrismaClient();
 const router = Router();
 
 // Create
-router.post('/repository', async (req, res) => {
+router.post("/repository", async (req, res) => {
   const { name, url, externalId } = req.body;
   const repository = await prisma.repository.create({
     data: { name, url, externalId },
@@ -14,13 +14,13 @@ router.post('/repository', async (req, res) => {
 });
 
 // Read (all)
-router.get('/repository', async (req, res) => {
+router.get("/repository", async (req, res) => {
   const repositories = await prisma.repository.findMany();
   res.json(repositories);
 });
 
 // Read (one)
-router.get('/repository/:id', async (req, res) => {
+router.get("/repository/:id", async (req, res) => {
   const { id } = req.params;
   const repository = await prisma.repository.findUnique({
     where: { id: Number(id) },
@@ -29,7 +29,7 @@ router.get('/repository/:id', async (req, res) => {
 });
 
 // Update
-router.put('/repository/:id', async (req, res) => {
+router.put("/repository/:id", async (req, res) => {
   const { id } = req.params;
   const { name, url, externalId } = req.body;
   const repository = await prisma.repository.update({
@@ -40,12 +40,12 @@ router.put('/repository/:id', async (req, res) => {
 });
 
 // Delete
-router.delete('/repository/:id', async (req, res) => {
+router.delete("/repository/:id", async (req, res) => {
   const { id } = req.params;
   await prisma.repository.delete({
     where: { id: Number(id) },
   });
-  res.json({ message: 'Repository deleted' });
+  res.json({ message: "Repository deleted" });
 });
 
 export default router;
