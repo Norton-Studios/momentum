@@ -5,18 +5,16 @@
   "workspaces": [
     "apps/*",
     "e2e-tests",
-    "plugins/data-sources/*",
-    "plugins/resources/*",
-    "plugins/reports/*"
+    "plugins/*/*"
   ],
   "scripts": {
-    "test": "npm test -ws",
+    "test": "yarn workspaces run test",
     "format": "biome format --write .",
     "lint": "biome lint .",
-    "start:api": "npm run dev --workspace=api",
-    "start:frontend": "npm run dev --workspace=frontend",
-    "start:db": "npm run dev --workspace=database",
-    "dev": "concurrently \"npm:start:*\""
+    "start:api": "yarn workspace @developer-productivity/api run dev",
+    "start:frontend": "yarn workspace @developer-productivity/frontend run dev",
+    "start:db": "yarn workspace @developer-productivity/database run dev",
+    "dev": "concurrently \"yarn:start:*\""
   },
   "keywords": [],
   "author": "",
@@ -26,5 +24,6 @@
     "@biomejs/biome": "^2.0.4",
     "concurrently": "^9.1.2",
     "typescript": "^5.8.3"
-  }
+  },
+  "packageManager": "yarn@4.9.2"
 }

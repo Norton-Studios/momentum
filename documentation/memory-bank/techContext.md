@@ -11,7 +11,7 @@
 
 ## Development & Tooling
 
--   **Package Manager:** `npm` is the package manager for the project.
+-   **Package Manager:** `yarn` (specifically Yarn Berry) is the package manager for the project.
 -   **Code Formatting & Linting:** Biome is used for code formatting and linting to ensure a consistent and high-quality codebase. The command `npm run format` should be run before committing code.
 -   **Testing:**
     -   Unit and integration tests are written with Vitest.

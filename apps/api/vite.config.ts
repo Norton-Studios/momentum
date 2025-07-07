@@ -5,9 +5,9 @@ import tsconfigPaths from "vite-tsconfig-paths";
 export default defineConfig({
   server: {
     port: 3001,
-  },
-  watch: {
-    ignored: ["**/node_modules/**", "**/dist/**"],
+    watch: {
+      ignored: ["**/node_modules/**", "**/dist/**"],
+    },
   },
   plugins: [
     ...VitePluginNode({
@@ -18,6 +18,9 @@ export default defineConfig({
     }),
     tsconfigPaths(),
   ],
+  resolve: {
+    preserveSymlinks: false
+  },
   build: {
     rollupOptions: {
       output: {

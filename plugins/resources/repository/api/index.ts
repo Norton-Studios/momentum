@@ -1,7 +1,6 @@
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@developer-productivity/database";
 import { Router } from "express";
 
-const prisma = new PrismaClient();
 const router = Router();
 
 // Create

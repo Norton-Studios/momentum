@@ -1,22 +1,24 @@
 {
   "name": "@developer-productivity/database",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "src/index.ts",
   "scripts": {
     "test": "vitest",
     "dev": "docker compose up -d",
     "synthesise": "tsx src/synthesise.ts && npx prisma format --schema=build/schema.prisma",
-    "migrate": "npm run synthesise && prisma migrate dev --schema=build/schema.prisma"
+    "migrate": "run synthesise && prisma migrate dev --schema=build/schema.prisma",
+    "generate": "run synthesise && prisma generate --schema=build/schema.prisma"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "@prisma/client": "^6.11.1",
-    "prisma": "^6.10.1"
+    "@prisma/client": "6.11.1",
+    "fast-glob": "^3.3.3"
   },
   "devDependencies": {
+    "prisma": "6.11.1",
     "tsx": "^4.16.2",
     "vitest": "^3.2.4"
   }

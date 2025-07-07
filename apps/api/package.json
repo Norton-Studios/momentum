@@ -10,6 +10,7 @@
     "test": "vitest"
   },
   "dependencies": {
+    "@developer-productivity/database": "workspace:^",
     "express": "^5.1.0",
     "fast-glob": "^3.3.3"
   },

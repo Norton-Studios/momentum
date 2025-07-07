@@ -3,10 +3,10 @@ import fs from "fs/promises";
 import path from "path";
 
 async function synthesise() {
-  const baseSchemaPath = path.join(__dirname, "prisma/schema.prisma");
+  const baseSchemaPath = path.join(__dirname, "../prisma/schema.prisma");
   const baseSchema = await fs.readFile(baseSchemaPath, "utf-8");
 
-  const resourcesDir = path.join(__dirname, "../../plugins/resources");
+  const resourcesDir = path.join(__dirname, "../../../plugins/resources");
   const schemaPaths = await fg("**/db/schema.prisma", {
     cwd: resourcesDir,
     absolute: true,
