@@ -1,5 +1,5 @@
 {
-  "name": "api",
+  "name": "@developer-productivity/api",
   "version": "1.0.0",
   "private": true,
   "main": "dist/index.js",
@@ -16,7 +16,6 @@
   "devDependencies": {
     "@types/express": "^4.17.21",
     "@types/node": "^24.0.3",
-    "nodemon": "^3.1.0",
     "typescript": "^5.8.3",
     "vite": "^4.5.3",
     "vite-plugin-node": "^3.1.0",

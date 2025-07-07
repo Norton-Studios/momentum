@@ -1,12 +1,12 @@
 import { Router } from "express";
 
 export async function loadRoutes(): Promise<Router[]> {
+  console.log("Loading routes from plugins...");
   const modules = import.meta.glob(
-    "../../plugins/{resources,data-sources,reports}/*/api/index.ts",
+    "../../../../plugins/{resources,data-sources,reports}/*/api/index.ts",
   );
 
   const routes: Router[] = [];
-
   for (const path in modules) {
     try {
       const module = (await modules[path]()) as { default: Router };

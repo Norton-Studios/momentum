@@ -23,8 +23,6 @@ This document outlines the rules and guidelines for any AI agent contributing to
 
 9.  **Secure by Default:** Treat all configuration and secrets (API keys, database connection strings) as sensitive information. They must be loaded from environment variables. Never hardcode secrets into the source code. Every package that requires environment variables should include an `.env.example` file documenting the required variables.
 
-10. **Use the Memory Bank:** Always refer to the Memory Bank documentation for context on existing features, architectural decisions, and technical constraints. If you find gaps or outdated information, update the relevant files in `documentation/memory-bank/`.
+10. **Communicate Changes:** If you make significant changes to the architecture, data model, or core functionality, document these changes in the Memory Bank and notify the team. Use the `progress.md` file to track major milestones and decisions.
 
-11. **Communicate Changes:** If you make significant changes to the architecture, data model, or core functionality, document these changes in the Memory Bank and notify the team. Use the `progress.md` file to track major milestones and decisions.
-
-12. **Assume the dev server is already running:** When working on the project, assume that the development server is already running. This means you should not include instructions to start the server in your documentation or commit messages unless it is a new setup or a significant change that requires it. It has hot reloading enabled, so changes will be reflected immediately without needing to restart the server.
+11. **Assume the dev server is already running:** When working on the project, assume that the development server is already running. This means you should not include instructions to start the server in your documentation or commit messages unless it is a new setup or a significant change that requires it. It has hot reloading enabled, so changes will be reflected immediately without needing to restart the server.

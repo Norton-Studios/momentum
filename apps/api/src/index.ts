@@ -1,14 +1,16 @@
 import express from "express";
 import { loadRoutes } from "./lib/dynamicRoutes";
+import { prisma } from "@developer-productivity/database";
 
-const app = express();
 const port = process.env.PORT || 3001;
 
-app.use(express.json());
+async function createApp() {
+  const app = express();
+  app.use(express.json());
 
-async function startServer() {
-  app.get("/", (req, res) => {
-    res.json({ message: "API is running" });
+  app.get("/", async (req, res) => {
+    const users = await prisma.user.findMany();
+    res.json({ message: "API is running", users });
   });
 
   const dynamicRoutes = await loadRoutes();
@@ -16,11 +18,22 @@ async function startServer() {
     app.use("/", router);
   }
 
-  app.listen(port, () => {
-    console.log(`API server listening on port ${port}`);
+  return app;
+}
+
+let viteNodeApp = await createApp();
+
+if (import.meta.hot) {
+  import.meta.hot.accept(async (mod) => {
+    console.log("HMR update detected. Re-loading API routes...");
+    if (mod) {
+      mod.viteNodeApp = await createApp();
+    }
   });
 }
 
-startServer();
+viteNodeApp.listen(port, () => {
+  console.log(`API server listening on port ${port}`);
+});
 
-export const viteNodeApp = app;
+export { viteNodeApp };

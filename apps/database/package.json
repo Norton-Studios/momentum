@@ -1,11 +1,11 @@
 {
-  "name": "database",
+  "name": "@developer-productivity/database",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
     "test": "vitest",
     "dev": "docker compose up -d",
-    "synthesise": "tsx synthesise.ts && npx prisma format --schema=build/schema.prisma",
+    "synthesise": "tsx src/synthesise.ts && npx prisma format --schema=build/schema.prisma",
     "migrate": "npm run synthesise && prisma migrate dev --schema=build/schema.prisma"
   },
   "keywords": [],

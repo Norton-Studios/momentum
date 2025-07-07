@@ -3,10 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "workspaces": [
-    "apps/api",
-    "apps/crons",
-    "apps/database",
-    "apps/frontend",
+    "apps/*",
     "e2e-tests",
     "plugins/data-sources/*",
     "plugins/resources/*",
