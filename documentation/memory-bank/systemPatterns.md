@@ -14,9 +14,16 @@ The entire project is housed in a single monorepo, with individual applications 
 The system is designed for extensibility through plugins. Core applications are built to dynamically discover and integrate functionality from the `plugins` directory at runtime.
 
 -   **Dynamic Routing:** The API server (`apps/api`) automatically discovers and registers API endpoints defined within `plugins/resources/*/api/index.ts` and `plugins/reports/*/api/index.ts`.
--   **Dynamic Cron Jobs:** The cron scheduler (`apps/crons`) dynamically loads and schedules jobs defined within `plugins/data-sources/*/src/index.ts` and `plugins/reports/*/src/index.ts`.
+-   **Dynamic Cron Jobs:** The cron scheduler (`apps/crons`) dynamically loads and schedules jobs defined within `plugins/data-sources/*/*.ts` and `plugins/reports/*/*.ts`.
 
 This pattern allows new features to be added by simply creating a new plugin package, without modifying the core application code.
+
+### Data Source Contract
+
+Data sources are responsible for ingesting data into the system. They are discovered and run by the cron scheduler. To be a valid data source, a file must export two constants:
+
+-   `resources: string[]`: An array of strings specifying which resource(s) the data source provides data for.
+-   `run = async (db: any) => {}`: The main function that performs the data collection. It receives a Prisma client instance as an argument.
 
 ## 3. Multi-Tenant Data Isolation
 

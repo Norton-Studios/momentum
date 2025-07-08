@@ -8,7 +8,7 @@
     "plugins/*/*"
   ],
   "scripts": {
-    "test": "yarn workspaces run test",
+    "test": "yarn workspaces foreach -A run test",
     "format": "biome format --write .",
     "lint": "biome lint .",
     "start:api": "yarn workspace @developer-productivity/api run dev",

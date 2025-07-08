@@ -6,20 +6,19 @@ The project is in its initial phase. The foundational monorepo structure, core a
 
 ## What Works
 
--   **Core Repository Structure:** The monorepo is set up with npm workspaces, containing placeholders for the `api`, `frontend`, and `crons` applications, as well as the `plugins` directory.
+-   **Core Repository Structure:** The monorepo is set up with Yarn workspaces, containing placeholders for the `api`, `frontend`, and `crons` applications, as well as the `plugins` directory.
 -   **Database Schema Synthesis:** The mechanism for combining modular Prisma schemas from plugins into a single, unified schema is implemented.
--   **Dynamic Module Loading (Conceptual):** The core applications are designed to support dynamic loading of plugins, but no plugins have been fully implemented yet.
--   **Memory Bank:** The core documentation files for the Memory Bank have been created.
+-   **GitHub Data Source:** The `github` data source plugin is implemented and can fetch repository data from the GitHub API.
+-   **Repository Resource:** The `repository` resource plugin is implemented with an API to expose the collected data.
+-   **Memory Bank:** The core documentation files for the Memory Bank have been created and updated.
 
 ## What's Left to Build
 
-Everything. The immediate next steps will involve building out the core functionalities:
-
 1.  **User & Tenant Management:** Implement the authentication and multi-tenancy logic in the API.
-2.  **First Resource Plugin:** Create the first fully functional resource plugin (e.g., `team` or `repository`).
-3.  **First Data Source Plugin:** Create a data source plugin (e.g., for GitHub) to start collecting data.
-4.  **Frontend Scaffolding:** Build out the basic UI components for displaying data.
-5.  **Reporting Engine:** Implement the initial version of the reporting engine.
+2.  **Cron Job Runner:** Implement the cron job runner in `apps/crons` to execute the data source plugins.
+3.  **Frontend Scaffolding:** Build out the basic UI components for displaying data.
+4.  **Reporting Engine:** Implement the initial version of the reporting engine.
+5.  **More Plugins:** Continue to build out more data source and resource plugins.
 
 ## Known Issues
 
