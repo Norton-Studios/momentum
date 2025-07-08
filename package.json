@@ -14,7 +14,7 @@
     "start:api": "yarn workspace @developer-productivity/api run dev",
     "start:frontend": "yarn workspace @developer-productivity/frontend run dev",
     "start:db": "yarn workspace @developer-productivity/database run dev",
-    "dev": "concurrently \"yarn:start:*\""
+    "dev": "yarn workspace @developer-productivity/database run generate && concurrently \"yarn:start:*\""
   },
   "keywords": [],
   "author": "",

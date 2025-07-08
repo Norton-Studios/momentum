@@ -1,7 +1,6 @@
 import { Router } from "express";
 
 export async function loadRoutes(): Promise<Router[]> {
-  console.log("Loading routes from plugins...");
   const modules = import.meta.glob(
     "../../../../plugins/{resources,data-sources,reports}/*/api/index.ts",
   );

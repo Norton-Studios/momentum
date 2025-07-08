@@ -9,8 +9,7 @@ async function createApp() {
   app.use(express.json());
 
   app.get("/", async (req, res) => {
-    const users = await prisma.user.findMany();
-    res.json({ message: "API is running", users });
+    res.json({ message: "API is up" });
   });
 
   const dynamicRoutes = await loadRoutes();
