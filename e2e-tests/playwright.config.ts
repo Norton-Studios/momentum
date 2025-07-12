@@ -18,7 +18,7 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: "npm run dev --workspace=frontend",
+    command: "yarn workspace @developer-productivity/frontend run dev",
     url: "http://localhost:5173",
     reuseExistingServer: !process.env.CI,
   },

@@ -19,6 +19,12 @@ npm-debug.log*
 # TypeScript cache
 *.tsbuildinfo
 
+# Testing
+test-results/
+playwright-report/
+coverage/
+.nyc_output/
+
 # Biome
 # We want to commit the biome.json file to the repo
 # biome.json

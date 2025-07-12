@@ -1,0 +1,28 @@
+{
+  "name": "@developer-productivity/resource-commit",
+  "version": "0.0.1",
+  "description": "Commit resource plugin for developer productivity platform",
+  "type": "module",
+  "main": "api/index.ts",
+  "prisma": {
+    "schema": "db/schema.prisma"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest watch"
+  },
+  "peerDependencies": {
+    "@types/express": "^5.0.3",
+    "express": "^5.1.0"
+  },
+  "devDependencies": {
+    "@developer-productivity/database": "workspace:*",
+    "@types/node": "22.10.2",
+    "@types/supertest": "^6.0.2",
+    "@vitest/ui": "2.1.8",
+    "supertest": "7.0.0",
+    "typescript": "5.7.2",
+    "vite": "6.0.5",
+    "vitest": "2.1.8"
+  }
+}

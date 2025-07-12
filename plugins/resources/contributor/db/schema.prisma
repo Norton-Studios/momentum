@@ -1,0 +1,71 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["multiSchema"]
+}
+
+model Contributor {
+  id              String    @id @default(cuid())
+  externalId      String    @unique @map("external_id")
+  name            String
+  email           String    @unique
+  username        String?   @unique
+  avatarUrl       String?   @map("avatar_url")
+  bio             String?
+  company         String?
+  location        String?
+  website         String?
+  twitterUsername String?   @map("twitter_username")
+  githubUsername  String?   @map("github_username")
+  gitlabUsername  String?   @map("gitlab_username")
+  isActive        Boolean   @default(true) @map("is_active")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  // Relationships
+  commits         Commit[]
+  teams           TeamContributor[]
+
+  @@map("contributors")
+  @@schema("core")
+}
+
+model TeamContributor {
+  id            String      @id @default(cuid())
+  teamId        String      @map("team_id")
+  team          Team        @relation(fields: [teamId], references: [id])
+  contributorId String      @map("contributor_id")
+  contributor   Contributor @relation(fields: [contributorId], references: [id])
+  role          String?     // e.g., "admin", "member", "viewer"
+  joinedAt      DateTime    @default(now()) @map("joined_at")
+  leftAt        DateTime?   @map("left_at")
+  isActive      Boolean     @default(true) @map("is_active")
+  createdAt     DateTime    @default(now()) @map("created_at")
+  updatedAt     DateTime    @updatedAt @map("updated_at")
+
+  @@unique([teamId, contributorId])
+  @@map("team_contributors")
+  @@schema("core")
+}
+
+// Reference models (defined elsewhere but needed for relationships)
+model Team {
+  id           String            @id @default(cuid())
+  contributors TeamContributor[]
+
+  @@map("teams")
+  @@schema("core")
+}
+
+model Commit {
+  id            String      @id @default(cuid())
+  authorEmail   String      @map("author_email")
+  contributor   Contributor? @relation(fields: [authorEmail], references: [email])
+
+  @@map("commits")
+  @@schema("scm")
+}

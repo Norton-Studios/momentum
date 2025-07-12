@@ -19,7 +19,7 @@ export default defineConfig({
     tsconfigPaths(),
   ],
   resolve: {
-    preserveSymlinks: false
+    preserveSymlinks: false,
   },
   build: {
     rollupOptions: {

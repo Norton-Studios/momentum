@@ -24,6 +24,11 @@ router.get("/repository/:id", async (req, res) => {
   const repository = await prisma.repository.findUnique({
     where: { id: Number(id) },
   });
+
+  if (!repository) {
+    return res.status(404).json({ error: "Repository not found" });
+  }
+
   res.json(repository);
 });
 

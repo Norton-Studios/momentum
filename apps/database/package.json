@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "src/index.ts",
   "scripts": {
-    "test": "vitest",
+    "test": "vitest run",
     "dev": "docker compose up -d",
     "synthesise": "tsx src/synthesise.ts && npx prisma format --schema=build/schema.prisma",
     "migrate": "run synthesise && prisma migrate dev --schema=build/schema.prisma",

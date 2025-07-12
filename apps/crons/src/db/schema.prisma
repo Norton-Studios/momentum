@@ -1,0 +1,20 @@
+// Data source import run tracking
+model DataSourceRun {
+  id                   String                @id @default(cuid())
+  dataSource           String                @map("data_source") // name of the data source (e.g., "github-repository")
+  startedAt            DateTime              @default(now()) @map("started_at")
+  completedAt          DateTime?             @map("completed_at")
+  status               DataSourceRunStatus   @default(RUNNING)
+  error                String?
+  lastFetchedDataDate  DateTime?             @map("last_fetched_data_date") // tracks the latest data point collected
+  
+  @@map("data_source_run")
+  @@index([dataSource])
+  @@index([startedAt])
+}
+
+enum DataSourceRunStatus {
+  RUNNING
+  COMPLETED
+  FAILED
+}

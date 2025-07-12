@@ -1,0 +1,42 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["multiSchema"]
+}
+
+model Commit {
+  id                 String      @id @default(cuid())
+  externalId         String      @unique @map("external_id")
+  repositoryId       String      @map("repository_id")
+  repository         Repository  @relation(fields: [repositoryId], references: [id])
+  sha                String      @unique
+  message            String
+  authorName         String      @map("author_name")
+  authorEmail        String      @map("author_email")
+  authorDate         DateTime    @map("author_date")
+  committerName      String      @map("committer_name")
+  committerEmail     String      @map("committer_email")
+  committerDate      DateTime    @map("committer_date")
+  url                String?
+  additions          Int         @default(0)
+  deletions          Int         @default(0)
+  changedFiles       Int         @default(0) @map("changed_files")
+  parentShas         String[]    @map("parent_shas")
+  createdAt          DateTime    @default(now()) @map("created_at")
+  updatedAt          DateTime    @updatedAt @map("updated_at")
+
+  @@map("commits")
+  @@schema("scm")
+}
+
+model Repository {
+  id          String   @id @default(cuid())
+  commits     Commit[]
+  
+  @@map("repositories")
+  @@schema("scm")
+}

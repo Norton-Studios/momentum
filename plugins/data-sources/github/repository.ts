@@ -1,14 +1,14 @@
-import { Octokit } from '@octokit/rest';
-import 'dotenv/config';
+import { Octokit } from "@octokit/rest";
+import "dotenv/config";
 
-export const resources: string[] = ['repository'];
+export const resources: string[] = ["repository"];
 
 const octokit = new Octokit({
   auth: process.env.GITHUB_TOKEN,
 });
 
 export const run = async (db: any) => {
-  console.log('Importing repositories from GitHub...');
+  console.log("Importing repositories from GitHub...");
 
   const { data: repos } = await octokit.repos.listForAuthenticatedUser({
     per_page: 100,
