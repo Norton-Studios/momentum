@@ -19,7 +19,7 @@ async function createApp() {
   const authMiddleware = createAuthMiddleware(prisma);
   app.use(authMiddleware);
 
-  app.get("/", async (req, res) => {
+  app.get("/", async (_req, res) => {
     res.json({ message: "API is up" });
   });
 
@@ -31,7 +31,7 @@ async function createApp() {
   return app;
 }
 
-let viteNodeApp = await createApp();
+const viteNodeApp = await createApp();
 
 if (import.meta.hot) {
   import.meta.hot.accept(async (mod) => {

@@ -1,5 +1,5 @@
-import { Request, Response, NextFunction } from 'express'
-import { PrismaClient } from '@developer-productivity/database'
+import type { Request, Response, NextFunction } from 'express'
+import type { PrismaClient } from '@developer-productivity/database'
 import bcrypt from 'bcrypt'
 
 interface AuthenticatedRequest extends Request {

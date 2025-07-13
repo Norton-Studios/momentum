@@ -1,8 +1,8 @@
-import { FullConfig } from '@playwright/test';
+import type { FullConfig } from '@playwright/test';
 import { E2EEnvironment } from './utils/environment';
 import { TestAPI } from './utils/test-api';
 
-async function globalSetup(config: FullConfig) {
+async function globalSetup(_config: FullConfig) {
   console.log('🌍 Starting E2E environment and test data setup...');
   
   // Start the environment

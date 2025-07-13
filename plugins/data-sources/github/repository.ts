@@ -7,7 +7,7 @@ const octokit = new Octokit({
   auth: process.env.GITHUB_TOKEN,
 });
 
-export const run = async (db: any) => {
+export const run = async (db: { repository: { upsert: (args: { where: { externalId: string }; update: Record<string, unknown>; create: Record<string, unknown> }) => Promise<unknown> } }) => {
   console.log("Importing repositories from GitHub...");
 
   const { data: repos } = await octokit.repos.listForAuthenticatedUser({

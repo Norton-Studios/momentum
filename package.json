@@ -8,9 +8,12 @@
     "plugins/*/*"
   ],
   "scripts": {
-    "test": "yarn workspaces foreach -A --exclude e2e-tests run test",
+    "test": "turbo test",
+    "test:changed": "turbo test --filter='...[HEAD^1]'",
     "format": "biome format --write .",
-    "lint": "biome lint .",
+    "lint": "turbo lint",
+    "lint:changed": "turbo lint --filter='...[HEAD^1]'",
+    "build": "turbo build",
     "start:api": "yarn workspace @developer-productivity/api run dev",
     "start:frontend": "yarn workspace @developer-productivity/frontend run dev",
     "start:db": "yarn workspace @developer-productivity/database run dev",
@@ -23,6 +26,7 @@
   "devDependencies": {
     "@biomejs/biome": "^2.0.4",
     "concurrently": "^9.1.2",
+    "turbo": "^2.5.4",
     "typescript": "^5.8.3"
   },
   "packageManager": "yarn@4.9.2"

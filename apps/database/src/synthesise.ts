@@ -1,6 +1,6 @@
 import fg from "fast-glob";
-import fs from "fs/promises";
-import path from "path";
+import fs from "node:fs/promises";
+import path from "node:path";
 
 async function synthesise() {
   const baseSchemaPath = path.join(__dirname, "../prisma/schema.prisma");

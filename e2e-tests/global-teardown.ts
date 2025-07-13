@@ -1,7 +1,7 @@
-import { FullConfig } from '@playwright/test';
+import type { FullConfig } from '@playwright/test';
 import { E2EEnvironment } from './utils/environment';
 
-async function globalTeardown(config: FullConfig) {
+async function globalTeardown(_config: FullConfig) {
   console.log('🌍 Tearing down E2E environment...');
   
   try {

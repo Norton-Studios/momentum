@@ -1,5 +1,5 @@
 import fg from "fast-glob";
-import path from "path";
+import path from "node:path";
 import pGraph from "p-graph";
 import { PrismaClient } from "@developer-productivity/database";
 

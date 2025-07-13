@@ -6,7 +6,7 @@
   "scripts": {
     "build": "remix vite:build",
     "dev": "remix vite:dev",
-    "lint": "biome lint --apply .",
+    "lint": "biome lint .",
     "typecheck": "tsc",
     "test": "vitest run",
     "test:ui": "vitest --ui"

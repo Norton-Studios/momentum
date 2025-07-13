@@ -38,7 +38,7 @@ export class TestAPI {
   }
   
   // Create a team using tenant credentials
-  async createTeam(user: TestUser, name: string): Promise<any> {
+  async createTeam(user: TestUser, name: string): Promise<{ id: number; name: string }> {
     const response = await axios.post(`${this.baseURL}/team`, {
       name
     }, {
@@ -51,7 +51,7 @@ export class TestAPI {
   }
   
   // Get teams for a user
-  async getTeams(user: TestUser): Promise<any[]> {
+  async getTeams(user: TestUser): Promise<Array<{ id: number; name: string }>> {
     const response = await axios.get(`${this.baseURL}/teams`, {
       headers: {
         'Authorization': this.createAuthHeader(user)

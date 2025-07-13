@@ -3,17 +3,26 @@ import { TestAPI } from '../utils/test-api.js';
 
 test.describe('Basic E2E Tests', () => {
   let api: TestAPI;
-  let testUser: any;
+  let testUser: {
+    email: string;
+    password: string;
+    apiToken: string;
+    tenantId: string;
+  };
 
   test.beforeAll(async () => {
     api = new TestAPI();
     
     // Get test user from environment (created in global setup)
+    if (!process.env.TEST_USER_EMAIL || !process.env.TEST_USER_PASSWORD || !process.env.TEST_USER_API_TOKEN || !process.env.TEST_TENANT_ID) {
+      throw new Error('Missing required test environment variables');
+    }
+    
     testUser = {
-      email: process.env.TEST_USER_EMAIL!,
-      password: process.env.TEST_USER_PASSWORD!,
-      apiToken: process.env.TEST_USER_API_TOKEN!,
-      tenantId: process.env.TEST_TENANT_ID!
+      email: process.env.TEST_USER_EMAIL,
+      password: process.env.TEST_USER_PASSWORD,
+      apiToken: process.env.TEST_USER_API_TOKEN,
+      tenantId: process.env.TEST_TENANT_ID
     };
   });
 
@@ -47,7 +56,10 @@ test.describe('Basic E2E Tests', () => {
   });
 
   test('Frontend is running on correct port', async ({ page }) => {
-    const frontendUrl = process.env.E2E_FRONTEND_URL!;
+    const frontendUrl = process.env.E2E_FRONTEND_URL;
+    if (!frontendUrl) {
+      throw new Error('E2E_FRONTEND_URL environment variable is required');
+    }
     
     try {
       await page.goto(frontendUrl);

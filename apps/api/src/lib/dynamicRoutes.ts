@@ -1,4 +1,4 @@
-import { Router } from "express";
+import type { Router } from "express";
 
 export async function loadRoutes(): Promise<Router[]> {
   const modules = import.meta.glob(
