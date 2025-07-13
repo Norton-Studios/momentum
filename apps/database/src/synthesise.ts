@@ -32,7 +32,7 @@ async function synthesise() {
     }
   }
 
-  const buildDir = path.join(__dirname, "build");
+  const buildDir = path.join(__dirname, "../build");
   await fs.mkdir(buildDir, { recursive: true });
   await fs.writeFile(path.join(buildDir, "schema.prisma"), combinedSchema);
 

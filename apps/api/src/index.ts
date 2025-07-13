@@ -1,6 +1,7 @@
 import express from "express";
 import { loadRoutes } from "./lib/dynamicRoutes";
 import { prisma } from "@developer-productivity/database";
+import { createAuthMiddleware } from "./middleware/auth";
 
 const port = process.env.PORT || 3001;
 
@@ -8,11 +9,21 @@ async function createApp() {
   const app = express();
   app.use(express.json());
 
+  // Make database available to routes
+  app.set('db', prisma);
+
+  // Load dynamic routes first (includes tenant routes with /tenant endpoint)
+  const dynamicRoutes = await loadRoutes();
+  
+  // Apply authentication middleware (it will skip /tenant POST)
+  const authMiddleware = createAuthMiddleware(prisma);
+  app.use(authMiddleware);
+
   app.get("/", async (req, res) => {
     res.json({ message: "API is up" });
   });
 
-  const dynamicRoutes = await loadRoutes();
+  // Register all dynamic routes
   for (const router of dynamicRoutes) {
     app.use("/", router);
   }

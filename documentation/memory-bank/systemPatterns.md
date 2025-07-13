@@ -27,10 +27,11 @@ Data sources are responsible for ingesting data into the system. They are discov
 
 ## 3. Multi-Tenant Data Isolation
 
-The platform supports both multi-tenant (SaaS) and single-tenant (self-hosted) deployments.
+The platform supports both multi-tenant (SaaS) and single-tenant (self-hosted) deployments using a single-database approach.
 
--   **SaaS Model:** Each tenant's data is stored in a completely separate, isolated database. A central `main` database holds tenant metadata, including the connection string for their specific database. The API layer is responsible for identifying the tenant (e.g., via JWT) and dynamically switching to the correct database connection for each request.
--   **Self-Hosted Model:** A single database is used for the entire instance.
+-   **SaaS Model:** All tenants share a single database with data isolation achieved through tenant_id filtering. The API layer identifies the tenant through authenticated user credentials and ensures all queries include proper tenant context to prevent cross-tenant data access.
+-   **Self-Hosted Model:** A single database is used for the entire instance, typically with a single tenant.
+-   **Authentication:** Uses Basic Auth scheme with bcrypt-hashed passwords and API tokens for secure tenant identification.
 
 ## 4. Centralized Data Orchestration
 

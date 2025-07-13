@@ -64,7 +64,7 @@ graph TD
     -   **Data Sources:** Responsible for collecting data from external systems (e.g., GitHub, Jira) and ingesting it into the appropriate resource schemas. They are managed by the `crons` application.
     -   **Reports:** Process the data from resources to generate insights and analytics.
 -   The core systems (`api`, `frontend`, `crons`) in the `apps` directory are designed to dynamically discover and integrate these packages. For example, the API server will automatically load any route definitions found in `plugins/resources/*/api`.
--   **Multi-Tenancy:** For the SaaS version, each client (tenant) has their own isolated database. A central `main` database stores tenant metadata, including connection details, allowing the API to switch database connections dynamically based on the authenticated user.
+-   **Multi-Tenancy:** For the SaaS version, all tenants share a single database with data isolation achieved through tenant_id filtering. Each request is authenticated and associated with a tenant context, ensuring proper data isolation in all queries.
 -   **Data Orchestration:** A core cron job acts as an orchestrator, managing the data collection lifecycle. It uses a dependency graph to ensure data sources are polled in the correct order and tracks collection windows to gather data incrementally.
 
 ## Data Model

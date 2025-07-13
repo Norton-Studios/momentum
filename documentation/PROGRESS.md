@@ -130,7 +130,7 @@ This document tracks the implementation progress of all plugins (resources, data
   - [ ] Unit tests
 
 - [ ] **GitHub - Actions** (Pipeline/Build) ⏳
-  - [ ] Fetch workflow runs
+  - [ ] Fetch workflow runsTenant
   - [ ] Map to Pipeline/Build resources
   - [ ] Fetch job details
   - [ ] Map to BuildStep resource
@@ -272,6 +272,33 @@ This document tracks the implementation progress of all plugins (resources, data
 
 ## Infrastructure & Core Features
 
+- [x] **Tenant Management & Authentication** ✅
+  - [x] Create Tenant resource plugin
+    - [x] Move Tenant model from apps/database to plugins/resources/tenant
+    - [x] Add User model with email and api_token fields
+    - [x] Add TenantDataSourceConfig model (id, tenant_id, data_source, key, value)
+    - [x] Implement unique constraint on (tenant_id, data_source, key)
+  - [x] Authentication Implementation
+    - [x] Create authentication middleware for apps/api
+    - [x] Implement Basic Auth scheme (base64 username:password)
+    - [x] Validate api_token against User table
+    - [x] Store passwords using bcrypt (hashed and salted)
+  - [x] Tenant Creation Endpoint
+    - [x] POST /tenant endpoint (unauthenticated)
+    - [x] Requires system admin token from environment variable
+    - [x] Takes admin email address as input
+    - [x] Generates secure password for admin user
+    - [x] Returns password in response (one-time only)
+  - [x] Middleware Integration
+    - [x] Apply auth middleware to all routes except /tenant
+    - [x] Extract tenant context from authenticated user
+    - [x] Pass tenant context to all downstream operations
+  - [ ] Security Considerations
+    - [x] Use strong password generation (min 16 chars, mixed case, numbers, symbols)
+    - [ ] Implement rate limiting on authentication endpoints
+    - [ ] Add audit logging for tenant creation
+    - [ ] Consider implementing password reset flow
+
 - [ ] **Collection Window Tracking** ⏳
   - [ ] Design tracking schema
   - [ ] Implement incremental collection
@@ -288,12 +315,21 @@ This document tracks the implementation progress of all plugins (resources, data
   - [ ] Implement job processing
   - [ ] Add retry logic
 
-- [ ] **Multi-Tenant Database Switching** ⏳
-  - [ ] Implement tenant isolation
-  - [ ] Add to all plugins
-  - [ ] Test tenant boundaries
+- [ ] **Multi-Tenant Data Isolation** ⏳
+  - [ ] Implement tenant filtering in queries
+  - [ ] Add tenant context to all plugins
+  - [ ] Test tenant data boundaries
 
 ## Testing & Documentation
+
+- [ ] **End-to-End Testing Infrastructure** ⏳
+  - [ ] Implement testcontainers PostgreSQL setup
+  - [ ] Create programmatic migration runner
+  - [ ] Build test orchestration system
+  - [ ] Implement API server test bootstrapping
+  - [ ] Create tenant creation and auth test flows
+  - [ ] Add multi-tenant data isolation tests
+  - [ ] Set up CI/CD integration
 
 - [ ] **Integration Tests** ⏳
   - [ ] Cross-plugin integration tests

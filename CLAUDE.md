@@ -163,10 +163,10 @@ routes.forEach(route => {
 
 ## Multi-Tenancy Considerations
 
-- In SaaS mode, each request must identify the tenant (via JWT or subdomain)
-- The API dynamically switches database connections based on tenant
-- Tenant metadata is stored in a central `main` database
-- Always consider tenant isolation in queries and operations
+- All tenants share a single database with data isolation via tenant_id
+- Each request must identify the tenant through authenticated user context
+- Tenant filtering should be applied to all queries in resource plugins
+- Always include tenant_id in queries to ensure proper data isolation
 
 ## Common Pitfalls to Avoid
 

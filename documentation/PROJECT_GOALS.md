@@ -12,4 +12,4 @@
 
 5.  **Idempotent & Reliable Data Collection:** Data collection processes must be reliable, resumable, and idempotent, ensuring that running the same collection process multiple times does not produce duplicate data.
 
-6.  **User-Friendly Onboarding:** For the SaaS version, provide a smooth onboarding experience for new clients, including dynamic database provisioning and initial configuration of teams and repositories.
+6.  **User-Friendly Onboarding:** For the SaaS version, provide a smooth onboarding experience for new clients, including tenant setup and initial configuration of teams and repositories.

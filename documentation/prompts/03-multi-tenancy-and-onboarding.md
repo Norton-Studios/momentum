@@ -1,19 +1,15 @@
 # Phase 3: Multi-Tenancy & Onboarding
 
-This phase implements the SaaS-specific features for managing different clients.
+This phase implements the SaaS-specific features for managing different clients using single-database multi-tenancy.
 
-**Task 3.1: Implement Dynamic Database Connection Switching**
-*   **Goal:** Allow the API to connect to different tenant databases on the fly.
-*   **Prompt for AI Agent:**
-    > "In the core API, create a middleware for Express. This middleware should identify the tenant (e.g., from a subdomain or JWT token) and use the `Tenant` table from the main database to get the correct database connection string. It should then create and cache a Prisma Client instance for that tenant's database, making it available on the request object for subsequent route handlers."
+**Task 3.1: Implement Tenant Authentication & Context** ✅
+*   **Goal:** Allow the API to identify and isolate tenant data.
+*   **Status:** Completed - Authentication middleware identifies tenants through user credentials and passes tenant context to all routes.
 
-**Task 3.2: Create the Tenant Sign-up and Database Creation Flow**
-*   **Goal:** Build the user-facing sign-up process that provisions a new database.
-*   **Prompt for AI Agent:**
-    > "Create a sign-up page in the Remix frontend and a corresponding API endpoint. When a new user signs up, the API should:
-    > 1.  Create a new, dedicated PostgreSQL database for them.
-    > 2.  Run all Prisma migrations from all `db` folders (`resources/*/db`, `data-sources/*/db`, etc.) against the new database.
-    > 3.  Save the new tenant's details, including the connection string, to the main `Tenant` table."
+**Task 3.2: Create the Tenant Sign-up Flow** ✅
+*   **Goal:** Build the tenant creation process.
+*   **Status:** Completed - POST /tenant endpoint creates new tenants with admin users in shared database.
+*   **Implementation:** Uses system admin token for security, generates secure passwords, creates tenant and admin user records.
 
 **Task 3.3: Build the Onboarding UI (Teams & Repositories)**
 *   **Goal:** Create the initial setup screen for new clients.

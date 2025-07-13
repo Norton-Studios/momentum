@@ -3,18 +3,36 @@ import { Router } from "express";
 
 const router = Router();
 
+// Get tenant context from authenticated user
+function getTenantId(req: any): string {
+  return req.user?.tenantId;
+}
+
 // Create
 router.post("/team", async (req, res) => {
   const { name } = req.body;
+  const tenantId = getTenantId(req);
+  
+  if (!tenantId) {
+    return res.status(401).json({ error: 'Tenant context required' });
+  }
+  
   const team = await prisma.team.create({
-    data: { name },
+    data: { name, tenantId },
   });
   res.json(team);
 });
 
 // Read (all)
-router.get("/team", async (req, res) => {
+router.get("/teams", async (req, res) => {
+  const tenantId = getTenantId(req);
+  
+  if (!tenantId) {
+    return res.status(401).json({ error: 'Tenant context required' });
+  }
+  
   const teams = await prisma.team.findMany({
+    where: { tenantId },
     include: { repositories: true },
   });
   res.json(teams);
@@ -23,10 +41,24 @@ router.get("/team", async (req, res) => {
 // Read (one)
 router.get("/team/:id", async (req, res) => {
   const { id } = req.params;
-  const team = await prisma.team.findUnique({
-    where: { id: Number(id) },
+  const tenantId = getTenantId(req);
+  
+  if (!tenantId) {
+    return res.status(401).json({ error: 'Tenant context required' });
+  }
+  
+  const team = await prisma.team.findFirst({
+    where: { 
+      id: Number(id),
+      tenantId 
+    },
     include: { repositories: true },
   });
+  
+  if (!team) {
+    return res.status(404).json({ error: 'Team not found' });
+  }
+  
   res.json(team);
 });
 
@@ -34,16 +66,49 @@ router.get("/team/:id", async (req, res) => {
 router.put("/team/:id", async (req, res) => {
   const { id } = req.params;
   const { name } = req.body;
-  const team = await prisma.team.update({
-    where: { id: Number(id) },
+  const tenantId = getTenantId(req);
+  
+  if (!tenantId) {
+    return res.status(401).json({ error: 'Tenant context required' });
+  }
+  
+  const team = await prisma.team.updateMany({
+    where: { 
+      id: Number(id),
+      tenantId 
+    },
     data: { name },
   });
-  res.json(team);
+  
+  if (team.count === 0) {
+    return res.status(404).json({ error: 'Team not found' });
+  }
+  
+  const updatedTeam = await prisma.team.findFirst({
+    where: { id: Number(id), tenantId }
+  });
+  
+  res.json(updatedTeam);
 });
 
 // Delete
 router.delete("/team/:id", async (req, res) => {
   const { id } = req.params;
+  const tenantId = getTenantId(req);
+  
+  if (!tenantId) {
+    return res.status(401).json({ error: 'Tenant context required' });
+  }
+  
+  // Verify team belongs to tenant before deleting
+  const team = await prisma.team.findFirst({
+    where: { id: Number(id), tenantId }
+  });
+  
+  if (!team) {
+    return res.status(404).json({ error: 'Team not found' });
+  }
+  
   await prisma.teamRepository.deleteMany({
     where: { teamId: Number(id) },
   });

@@ -10,14 +10,19 @@ generator client {
 }
 
 model Team {
-  id   Int    @id @default(autoincrement())
-  name String
+  id       Int    @id @default(autoincrement())
+  name     String
+  tenantId String @map("tenant_id")
 
+  tenant       Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   repositories TeamRepository[]
 
+  @@index([tenantId])
   @@map("team")
   @@schema("core")
 }
+
+// Tenant model is defined in the tenant resource plugin
 
 model TeamRepository {
   teamId       Int

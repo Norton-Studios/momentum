@@ -36,7 +36,7 @@ model Contributor {
 
 model TeamContributor {
   id            String      @id @default(cuid())
-  teamId        String      @map("team_id")
+  teamId        Int         @map("team_id")
   team          Team        @relation(fields: [teamId], references: [id])
   contributorId String      @map("contributor_id")
   contributor   Contributor @relation(fields: [contributorId], references: [id])
@@ -52,14 +52,7 @@ model TeamContributor {
   @@schema("core")
 }
 
-// Reference models (defined elsewhere but needed for relationships)
-model Team {
-  id           String            @id @default(cuid())
-  contributors TeamContributor[]
-
-  @@map("teams")
-  @@schema("core")
-}
+// Team model is defined in the team resource plugin
 
 model Commit {
   id            String      @id @default(cuid())

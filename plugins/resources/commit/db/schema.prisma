@@ -11,7 +11,7 @@ generator client {
 model Commit {
   id                 String      @id @default(cuid())
   externalId         String      @unique @map("external_id")
-  repositoryId       String      @map("repository_id")
+  repositoryId       Int         @map("repository_id")
   repository         Repository  @relation(fields: [repositoryId], references: [id])
   sha                String      @unique
   message            String
@@ -34,7 +34,7 @@ model Commit {
 }
 
 model Repository {
-  id          String   @id @default(cuid())
+  id          Int      @id @default(autoincrement())
   commits     Commit[]
   
   @@map("repositories")

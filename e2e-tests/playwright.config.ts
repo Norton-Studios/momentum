@@ -1,25 +1,32 @@
 import { defineConfig, devices } from "@playwright/test";
+import { fileURLToPath } from 'url';
+import { dirname, resolve } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 export default defineConfig({
   testDir: "./tests",
-  fullyParallel: true,
+  timeout: 30000,
+  fullyParallel: false,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
-  reporter: "html",
+  workers: 1,
+  reporter: [["list"]],
+  
+  globalSetup: resolve(__dirname, './global-setup.ts'),
+  globalTeardown: resolve(__dirname, './global-teardown.ts'),
+  
   use: {
-    baseURL: "http://localhost:5173", // Port for frontend dev server
+    baseURL: "http://localhost:3000",
     trace: "on-first-retry",
+    screenshot: "only-on-failure",
   },
+  
   projects: [
     {
       name: "chromium",
       use: { ...devices["Desktop Chrome"] },
     },
   ],
-  webServer: {
-    command: "yarn workspace @developer-productivity/frontend run dev",
-    url: "http://localhost:5173",
-    reuseExistingServer: !process.env.CI,
-  },
 });

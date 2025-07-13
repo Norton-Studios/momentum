@@ -11,10 +11,13 @@
   },
   "dependencies": {
     "@developer-productivity/database": "workspace:^",
+    "bcrypt": "^5.1.1",
     "express": "^5.1.0",
-    "fast-glob": "^3.3.3"
+    "fast-glob": "^3.3.3",
+    "zod": "^3.24.1"
   },
   "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
     "@types/express": "^5.0.3",
     "@types/node": "^24.0.3",
     "@types/supertest": "^6.0.3",
