@@ -1,6 +1,6 @@
 import { FullConfig } from '@playwright/test';
-import { E2EEnvironment } from './utils/environment.ts';
-import { TestAPI } from './utils/test-api.ts';
+import { E2EEnvironment } from './utils/environment';
+import { TestAPI } from './utils/test-api';
 
 async function globalSetup(config: FullConfig) {
   console.log('🌍 Starting E2E environment and test data setup...');

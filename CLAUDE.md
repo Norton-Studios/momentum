@@ -153,6 +153,8 @@ routes.forEach(route => {
 4. **Adding Tests to New Plugins**:
    - Always use `"test": "vitest run"` in package.json for non-interactive testing
    - Add `vitest.config.ts` with `passWithNoTests: true` if no tests exist yet
+   - **Co-locate tests with the files they test** using `.test.ts` suffix (e.g., `api/index.test.ts` for `api/index.ts`)
+   - Do NOT create separate `tests/` directories - tests should be next to the source files
    - Mock `@developer-productivity/database` import using `vi.mock()`
    - Test API endpoints using Supertest and Express
 
