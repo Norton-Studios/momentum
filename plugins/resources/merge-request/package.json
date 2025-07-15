@@ -1,5 +1,5 @@
 {
-  "name": "@developer-productivity/resource-merge-request",
+  "name": "@mmtm/resource-merge-request",
   "version": "1.0.0",
   "main": "api/index.ts",
   "prisma": {

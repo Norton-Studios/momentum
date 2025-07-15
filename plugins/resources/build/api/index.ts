@@ -1,4 +1,4 @@
-import { prisma } from "@developer-productivity/database";
+import { prisma } from "@mmtm/database";
 import { Router } from "express";
 
 const router = Router();

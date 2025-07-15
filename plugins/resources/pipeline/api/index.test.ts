@@ -4,7 +4,7 @@ import express from "express";
 import router from "./index";
 
 // Mock the database
-vi.mock("@developer-productivity/database", () => {
+vi.mock("@mmtm/database", () => {
   const mockPrisma = {
     pipeline: {
       create: vi.fn(),
