@@ -73,6 +73,44 @@ developer-productivity/
    - Can expose API endpoints and scheduled jobs
    - Support multiple delivery methods (email, SFTP, etc.)
 
+### Naming Conventions
+
+Follow these strict naming conventions throughout the project:
+
+1. **Database Tables and Fields**:
+   - Must be singular and snake_case: `user`, `merge_request`, `created_at`
+   - Use Prisma `@@map` for table names and `@map` for field names to provide camelCase aliases
+   - Example:
+     ```prisma
+     model User {
+       id        String   @id @default(cuid())
+       createdAt DateTime @default(now()) @map("created_at")
+       firstName String   @map("first_name")
+       
+       @@map("user")
+     }
+     ```
+
+2. **TypeScript Variables**:
+   - Use camelCase: `userId`, `createdAt`, `mergeRequest`
+   - Boolean variables should be prefixed with `is`, `has`, or `can`: `isActive`, `hasPermission`
+
+3. **Classes and Interfaces**:
+   - Use PascalCase: `UserService`, `MergeRequest`, `ApiResponse`
+   - Interfaces should be descriptive without `I` prefix: `UserRepository`, `DatabaseConnection`
+
+4. **Constants**:
+   - Use SCREAMING_SNAKE_CASE: `MAX_RETRY_ATTEMPTS`, `DEFAULT_PAGE_SIZE`
+
+5. **File and Directory Names**:
+   - Use kebab-case for files: `user-service.ts`, `merge-request.model.ts`
+   - Use kebab-case for directories: `data-sources`, `merge-request`
+
+6. **API Endpoints**:
+   - Use kebab-case with plural nouns: `/users`, `/merge-requests`
+   - Use singular for specific resources: `/user/:id`, `/merge-request/:id`
+   - Use singular for resource creation, e.g., `POST /user` to create a new user
+
 ### Dynamic Loading Pattern
 
 The core applications use dynamic imports to discover plugins:
