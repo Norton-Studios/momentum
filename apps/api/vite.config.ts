@@ -18,6 +18,9 @@ export default defineConfig({
     }),
     tsconfigPaths(),
   ],
+  optimizeDeps: {
+    exclude: ["mock-aws-s3", "aws-sdk", "nock"],
+  },
   resolve: {
     preserveSymlinks: false,
   },
@@ -26,6 +29,7 @@ export default defineConfig({
       output: {
         format: "esm",
       },
+      external: ["mock-aws-s3", "aws-sdk", "nock"],
     },
   },
 });
