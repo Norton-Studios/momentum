@@ -10,6 +10,7 @@
   "scripts": {
     "test": "turbo test",
     "test:changed": "turbo test --filter='...[HEAD^1]'",
+    "test:e2e": "yarn workspace e2e-tests run test:e2e",
     "format": "biome format --write .",
     "lint": "turbo lint",
     "lint:changed": "turbo lint --filter='...[HEAD^1]'",

@@ -9,7 +9,7 @@ generator client {
 }
 
 model Commit {
-  id                 String      @id @default(cuid())
+  id                 Int         @id @default(autoincrement())
   externalId         String      @unique @map("external_id")
   repositoryId       Int         @map("repository_id")
   repository         Repository  @relation(fields: [repositoryId], references: [id])
@@ -28,6 +28,9 @@ model Commit {
   parentShas         String[]    @map("parent_shas")
   createdAt          DateTime    @default(now()) @map("created_at")
   updatedAt          DateTime    @updatedAt @map("updated_at")
+
+  mergeRequests      MergeRequestCommit[]
+  builds             Build[]
 
   @@map("commits")
   @@schema("scm")

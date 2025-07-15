@@ -1,0 +1,97 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  schemas  = ["core", "scm"]
+}
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["multiSchema"]
+}
+
+model MergeRequest {
+  id              Int       @id @default(autoincrement())
+  tenantId        String    @map("tenant_id")
+  repositoryId    Int       @map("repository_id")
+  externalId      String    @map("external_id")
+  number          Int
+  title           String
+  description     String?
+  state           String    // open, merged, closed
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+  mergedAt        DateTime? @map("merged_at")
+  closedAt        DateTime? @map("closed_at")
+  authorId        Int       @map("author_id")
+  assigneeId      Int?      @map("assignee_id")
+  sourceBranch    String    @map("source_branch")
+  targetBranch    String    @map("target_branch")
+  isDraft         Boolean   @default(false) @map("is_draft")
+  linesAdded      Int       @default(0) @map("lines_added")
+  linesRemoved    Int       @default(0) @map("lines_removed")
+  filesChanged    Int       @default(0) @map("files_changed")
+  reviewsCount    Int       @default(0) @map("reviews_count")
+  commentsCount   Int       @default(0) @map("comments_count")
+  url             String
+
+  // Relationships
+  tenant     Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  repository Repository  @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
+  author     Contributor @relation("MergeRequestAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  assignee   Contributor? @relation("MergeRequestAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
+  commits    MergeRequestCommit[]
+
+  @@unique([tenantId, repositoryId, externalId])
+  @@index([tenantId])
+  @@index([repositoryId])
+  @@index([authorId])
+  @@index([state])
+  @@index([createdAt])
+  @@index([mergedAt])
+  @@map("merge_requests")
+  @@schema("scm")
+}
+
+model MergeRequestCommit {
+  id             Int          @id @default(autoincrement())
+  tenantId       String       @map("tenant_id")
+  mergeRequestId Int          @map("merge_request_id")
+  commitId       Int          @map("commit_id")
+  createdAt      DateTime     @default(now()) @map("created_at")
+
+  tenant       Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  mergeRequest MergeRequest @relation(fields: [mergeRequestId], references: [id], onDelete: Cascade)
+  commit       Commit       @relation(fields: [commitId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, mergeRequestId, commitId])
+  @@index([tenantId])
+  @@index([mergeRequestId])
+  @@index([commitId])
+  @@map("merge_request_commits")
+  @@schema("scm")
+}
+
+// Reference models from other plugins - these are comments for reference
+// model Tenant {
+//   id String @id @default(cuid())
+//   @@schema("core")
+// }
+
+// model Repository {
+//   id Int @id @default(autoincrement())
+//   tenantId String
+//   @@schema("scm")
+// }
+
+// model Contributor {
+//   id Int @id @default(autoincrement())
+//   tenantId String
+//   @@schema("core")
+// }
+
+// model Commit {
+//   id Int @id @default(autoincrement())
+//   tenantId String
+//   repositoryId Int
+//   @@schema("scm")
+// }

@@ -9,7 +9,7 @@ generator client {
 }
 
 model Contributor {
-  id              String    @id @default(cuid())
+  id              Int       @id @default(autoincrement())
   externalId      String    @unique @map("external_id")
   name            String
   email           String    @unique
@@ -27,18 +27,20 @@ model Contributor {
   updatedAt       DateTime  @updatedAt @map("updated_at")
 
   // Relationships
-  commits         Commit[]
-  teams           TeamContributor[]
+  commits               Commit[]
+  teams                 TeamContributor[]
+  authoredMergeRequests MergeRequest[] @relation("MergeRequestAuthor")
+  assignedMergeRequests MergeRequest[] @relation("MergeRequestAssignee")
 
   @@map("contributors")
   @@schema("core")
 }
 
 model TeamContributor {
-  id            String      @id @default(cuid())
+  id            Int         @id @default(autoincrement())
   teamId        Int         @map("team_id")
   team          Team        @relation(fields: [teamId], references: [id])
-  contributorId String      @map("contributor_id")
+  contributorId Int         @map("contributor_id")
   contributor   Contributor @relation(fields: [contributorId], references: [id])
   role          String?     // e.g., "admin", "member", "viewer"
   joinedAt      DateTime    @default(now()) @map("joined_at")
@@ -55,7 +57,7 @@ model TeamContributor {
 // Team model is defined in the team resource plugin
 
 model Commit {
-  id            String      @id @default(cuid())
+  id            Int         @id @default(autoincrement())
   authorEmail   String      @map("author_email")
   contributor   Contributor? @relation(fields: [authorEmail], references: [email])
 

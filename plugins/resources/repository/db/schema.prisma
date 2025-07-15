@@ -24,7 +24,10 @@ model Repository {
   createdAt   DateTime @map("created_at")
   updatedAt   DateTime @map("updated_at")
 
-  teams TeamRepository[]
+  teams        TeamRepository[]
+  commits      Commit[]
+  mergeRequests MergeRequest[]
+  pipelines    Pipeline[]
 
   @@map("repository")
   @@schema("scm")

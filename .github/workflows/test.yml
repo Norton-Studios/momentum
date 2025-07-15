@@ -91,6 +91,9 @@ jobs:
       - name: Install dependencies
         run: yarn install --immutable
 
+      - name: Generate Prisma client
+        run: yarn workspace @developer-productivity/database run generate
+
       - name: Setup Turbo cache
         uses: actions/cache@v4
         with:
@@ -136,6 +139,9 @@ jobs:
 
       - name: Install dependencies
         run: yarn install --immutable
+
+      - name: Generate Prisma client
+        run: yarn workspace @developer-productivity/database run generate
 
       - name: Install Playwright browsers
         run: yarn workspace e2e-tests run playwright install --with-deps
