@@ -7,7 +7,7 @@ End-to-end tests for the Developer Productivity platform with integrated environ
 Just run the tests - they handle everything automatically:
 
 ```bash
-yarn test
+yarn test:e2e
 ```
 
 This will:
@@ -28,19 +28,19 @@ yarn bootstrap
 
 Then run tests repeatedly:
 ```bash
-yarn test
+yarn test:e2e
 ```
 
 The bootstrap script keeps services running until you press Ctrl+C.
 
 ## How it works
 
-### Integrated Mode (`yarn test`)
+### Integrated Mode (`yarn test:e2e`)
 - **Global Setup**: Starts environment + creates test data
 - **Tests**: Run against the live environment
 - **Global Teardown**: Stops all services and containers
 
-### Development Mode (`yarn bootstrap` + `yarn test`)
+### Development Mode (`yarn bootstrap` + `yarn test:e2e`)
 - **Bootstrap**: Starts environment and keeps it running
 - **Tests**: Skip environment startup (faster iteration)
 
@@ -82,7 +82,7 @@ Available in tests via environment variables:
 
 ```
 ┌─────────────────┐
-│  yarn test      │
+│  yarn test:e2e  │
 └─────────────────┘
          │
     ┌────▼─────────────────────────────┐
@@ -130,11 +130,11 @@ e2e-tests/
 
 ```bash
 # Run tests (recommended)
-yarn test
+yarn test:e2e
 
 # Development mode
 yarn bootstrap    # Start and keep environment running
-yarn test        # Run tests against running environment
+yarn test:e2e    # Run tests against running environment
 
 # Debug tests
 yarn test:debug
