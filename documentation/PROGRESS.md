@@ -31,11 +31,11 @@ This document tracks the implementation progress of all plugins (resources, data
   - [x] Relationships (Repository, Contributor)
   - [x] Unit tests
 
-- [ ] **Merge Request** ⏳
-  - [ ] Database schema design
-  - [ ] CRUD API endpoints
-  - [ ] Relationships (Repository, Contributor, Commit)
-  - [ ] Unit tests
+- [x] **Merge Request** ✅
+  - [x] Database schema design
+  - [x] CRUD API endpoints
+  - [x] Relationships (Repository, Contributor, Commit)
+  - [x] Unit tests
 
 - [x] **Contributor** ✅
   - [x] Database schema design
@@ -43,11 +43,11 @@ This document tracks the implementation progress of all plugins (resources, data
   - [x] Relationships (Team, Repository, Commit, MergeRequest)
   - [x] Unit tests
 
-- [ ] **Pipeline** ⏳
-  - [ ] Database schema design
-  - [ ] CRUD API endpoints
-  - [ ] Relationships (Repository, MergeRequest)
-  - [ ] Unit tests
+- [x] **Pipeline** ✅
+  - [x] Database schema design
+  - [x] CRUD API endpoints
+  - [x] Relationships (Repository, MergeRequest)
+  - [x] Unit tests
 
 - [ ] **Build** (Pipeline Execution) ⏳
   - [ ] Database schema design

@@ -1,0 +1,67 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  schemas  = ["core", "scm"]
+}
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["multiSchema"]
+}
+
+model Pipeline {
+  id              Int       @id @default(autoincrement())
+  tenantId        String    @map("tenant_id")
+  repositoryId    Int       @map("repository_id")
+  mergeRequestId  Int?      @map("merge_request_id")
+  externalId      String    @map("external_id")
+  name            String
+  description     String?
+  status          String    // pending, running, success, failed, cancelled
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+  startedAt       DateTime? @map("started_at")
+  finishedAt      DateTime? @map("finished_at")
+  duration        Int?      // Duration in seconds
+  branch          String
+  commit          String?
+  triggeredBy     String?   @map("triggered_by")
+  source          String    // github_actions, gitlab_ci, jenkins, etc.
+  url             String
+
+  // Relationships
+  tenant       Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  repository   Repository    @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
+  mergeRequest MergeRequest? @relation(fields: [mergeRequestId], references: [id], onDelete: SetNull)
+  builds       Build[]
+
+  @@unique([tenantId, repositoryId, externalId])
+  @@index([tenantId])
+  @@index([repositoryId])
+  @@index([mergeRequestId])
+  @@index([status])
+  @@index([createdAt])
+  @@index([finishedAt])
+  @@index([branch])
+  @@map("pipelines")
+  @@schema("scm")
+}
+
+// Reference models from other plugins - these are comments for reference
+// model Tenant {
+//   id String @id @default(cuid())
+//   @@schema("core")
+// }
+
+// model Repository {
+//   id Int @id @default(autoincrement())
+//   tenantId String
+//   @@schema("scm")
+// }
+
+// model MergeRequest {
+//   id Int @id @default(autoincrement())
+//   tenantId String
+//   repositoryId Int
+//   @@schema("scm")
+// }

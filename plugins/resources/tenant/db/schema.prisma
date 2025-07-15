@@ -6,6 +6,11 @@ model Tenant {
 
   users                   User[]
   tenantDataSourceConfigs TenantDataSourceConfig[]
+  mergeRequests           MergeRequest[]
+  pipelines               Pipeline[]
+  builds                  Build[]
+  buildSteps              BuildStep[]
+  mergeRequestCommits     MergeRequestCommit[]
 
   @@map("tenant")
   @@schema("core")
