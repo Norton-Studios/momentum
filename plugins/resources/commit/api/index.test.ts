@@ -24,7 +24,7 @@ const app = express();
 app.use(express.json());
 app.use(router);
 
-import { prisma } from "@developer-productivity/database";
+import { prisma } from "@mmtm/database";
 
 describe("Commit API", () => {
   beforeEach(() => {
