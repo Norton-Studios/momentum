@@ -2,13 +2,13 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@developer-productivity/api": ["apps/api/src"],
-      "@developer-productivity/database": ["apps/database/src"],
-      "@developer-productivity/frontend": ["apps/frontend/src"],
-      "@developer-productivity/resource-repository": [
+      "@mmtm/api": ["apps/api/src"],
+      "@mmtm/database": ["apps/database/src"],
+      "@mmtm/frontend": ["apps/frontend/src"],
+      "@mmtm/resource-repository": [
         "plugins/resources/repository/src"
       ],
-      "@developer-productivity/resource-team": ["plugins/resources/team/src"]
+      "@mmtm/resource-team": ["plugins/resources/team/src"]
     },
     "esModuleInterop": true /* Emit additional JavaScript to ease support for importing CommonJS modules. This enables 'allowSyntheticDefaultImports' for type compatibility. */,
     "forceConsistentCasingInFileNames": true /* Ensure that casing is correct in imports. */,

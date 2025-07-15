@@ -1,5 +1,5 @@
 {
-  "name": "@developer-productivity/resource-contributor",
+  "name": "@mmtm/resource-contributor",
   "version": "0.0.1",
   "description": "Contributor resource plugin for developer productivity platform",
   "type": "module",
@@ -16,7 +16,7 @@
     "express": "^5.1.0"
   },
   "devDependencies": {
-    "@developer-productivity/database": "workspace:*",
+    "@mmtm/database": "workspace:*",
     "@types/node": "22.10.2",
     "@types/supertest": "^6.0.2",
     "@vitest/ui": "2.1.9",

@@ -1,5 +1,5 @@
 {
-  "name": "@developer-productivity/frontend",
+  "name": "@mmtm/frontend",
   "private": true,
   "sideEffects": false,
   "type": "module",

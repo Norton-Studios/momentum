@@ -1,5 +1,5 @@
 {
-  "name": "developer-productivity",
+  "name": "momentum",
   "version": "1.0.0",
   "private": true,
   "workspaces": [
@@ -15,10 +15,10 @@
     "lint": "turbo lint",
     "lint:changed": "turbo lint --filter='...[HEAD^1]'",
     "build": "turbo build",
-    "start:api": "yarn workspace @developer-productivity/api run dev",
-    "start:frontend": "yarn workspace @developer-productivity/frontend run dev",
-    "start:db": "yarn workspace @developer-productivity/database run dev",
-    "dev": "yarn workspace @developer-productivity/database run generate && concurrently \"yarn:start:*\""
+    "start:api": "yarn workspace @mmtm/api run dev",
+    "start:frontend": "yarn workspace @mmtm/frontend run dev",
+    "start:db": "yarn workspace @mmtm/database run dev",
+    "dev": "yarn workspace @mmtm/database run generate && concurrently \"yarn:start:*\""
   },
   "keywords": [],
   "author": "",

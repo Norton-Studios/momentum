@@ -3,7 +3,7 @@ import request from "supertest";
 import express from "express";
 import router from "./index";
 
-vi.mock("@developer-productivity/database", () => {
+vi.mock("@mmtm/database", () => {
   const mockRepositories = [
     { id: 1, name: "repo1", url: "http://repo1.com", externalId: "ext1" },
     { id: 2, name: "repo2", url: "http://repo2.com", externalId: "ext2" },
@@ -27,7 +27,7 @@ const app = express();
 app.use(express.json());
 app.use(router);
 
-import { prisma } from "@developer-productivity/database";
+import { prisma } from "@mmtm/database";
 
 describe("Repository API", () => {
   it("GET /repository should return all repositories", async () => {

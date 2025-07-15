@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { PrismaClient } from '@developer-productivity/database'
+import { PrismaClient } from '@mmtm/database'
 import { z } from 'zod'
 import bcrypt from 'bcrypt'
 import crypto from 'crypto'

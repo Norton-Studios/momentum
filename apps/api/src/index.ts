@@ -1,6 +1,6 @@
 import express from "express";
 import { loadRoutes } from "./lib/dynamicRoutes";
-import { prisma } from "@developer-productivity/database";
+import { prisma } from "@mmtm/database";
 import { createAuthMiddleware } from "./middleware/auth";
 
 const port = process.env.PORT || 3001;
