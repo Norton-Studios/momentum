@@ -31,3 +31,8 @@ coverage/
 
 # Turborepo
 .turbo/
+
+
+# intellij
+.idea/
+
