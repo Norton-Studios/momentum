@@ -32,7 +32,7 @@ model Commit {
   mergeRequests      MergeRequestCommit[]
   builds             Build[]
 
-  @@map("commits")
+  @@map("commit")
   @@schema("scm")
 }
 
@@ -40,6 +40,6 @@ model Repository {
   id          Int      @id @default(autoincrement())
   commits     Commit[]
   
-  @@map("repositories")
+  @@map("repository")
   @@schema("scm")
 }

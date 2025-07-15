@@ -32,7 +32,7 @@ model Contributor {
   authoredMergeRequests MergeRequest[] @relation("MergeRequestAuthor")
   assignedMergeRequests MergeRequest[] @relation("MergeRequestAssignee")
 
-  @@map("contributors")
+  @@map("contributor")
   @@schema("core")
 }
 
@@ -50,7 +50,7 @@ model TeamContributor {
   updatedAt     DateTime    @updatedAt @map("updated_at")
 
   @@unique([teamId, contributorId])
-  @@map("team_contributors")
+  @@map("team_contributor")
   @@schema("core")
 }
 
@@ -61,6 +61,6 @@ model Commit {
   authorEmail   String      @map("author_email")
   contributor   Contributor? @relation(fields: [authorEmail], references: [email])
 
-  @@map("commits")
+  @@map("commit")
   @@schema("scm")
 }

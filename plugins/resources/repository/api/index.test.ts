@@ -30,8 +30,8 @@ app.use(router);
 import { prisma } from "@developer-productivity/database";
 
 describe("Repository API", () => {
-  it("GET /repository should return all repositories", async () => {
-    const res = await request(app).get("/repository");
+  it("GET /repositories should return all repositories", async () => {
+    const res = await request(app).get("/repositories");
     expect(res.status).toBe(200);
     expect(res.body).toHaveLength(2);
     expect(res.body[0]).toHaveProperty("name", "repo1");

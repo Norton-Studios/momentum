@@ -13,7 +13,7 @@ router.post("/repository", async (req, res) => {
 });
 
 // Read (all)
-router.get("/repository", async (_req, res) => {
+router.get("/repositories", async (_req, res) => {
   const repositories = await prisma.repository.findMany();
   res.json(repositories);
 });
