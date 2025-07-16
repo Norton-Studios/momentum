@@ -138,8 +138,6 @@ Key environment variables:
 4. Run tests and linting
 5. Submit a pull request
 
-See [CONTRIBUTING.md](documentation/CONTRIBUTING.md) for detailed guidelines.
-
 ## License
 
 [MIT License](LICENSE)
