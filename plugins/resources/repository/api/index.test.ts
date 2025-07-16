@@ -37,7 +37,6 @@ app.use((req, _res, next) => {
 
 app.use(router);
 
-
 describe("Repository API", () => {
   it("GET /repositories should return all repositories", async () => {
     const res = await request(app).get("/repositories");

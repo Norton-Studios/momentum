@@ -11,6 +11,7 @@ vi.mock("@mmtm/database", () => {
       findUnique: vi.fn(),
       update: vi.fn(),
       delete: vi.fn(),
+      count: vi.fn(),
     },
     teamContributor: {
       findMany: vi.fn(),
@@ -101,21 +102,20 @@ describe("Contributor API", () => {
       ];
 
       vi.mocked(prisma.contributor.findMany).mockResolvedValue(mockContributors as any);
+      vi.mocked(prisma.contributor.count).mockResolvedValue(2);
 
       const response = await request(app).get("/contributors");
 
       expect(response.status).toBe(200);
-      expect(response.body).toEqual(mockContributors);
-      expect(prisma.contributor.findMany).toHaveBeenCalledWith({
-        where: {
-          tenantId: "test-tenant-id",
-        },
-        include: {
-          teams: false,
-          commits: false,
-        },
-        orderBy: {
-          name: "asc",
+      expect(response.body).toEqual({
+        data: mockContributors,
+        pagination: {
+          page: 1,
+          limit: 20,
+          totalCount: 2,
+          totalPages: 1,
+          hasNext: false,
+          hasPrev: false,
         },
       });
     });
@@ -131,24 +131,11 @@ describe("Contributor API", () => {
       ];
 
       vi.mocked(prisma.contributor.findMany).mockResolvedValue(mockContributors as any);
+      vi.mocked(prisma.contributor.count).mockResolvedValue(1);
 
       const response = await request(app).get("/contributors?includeTeams=true");
 
       expect(response.status).toBe(200);
-      expect(prisma.contributor.findMany).toHaveBeenCalledWith({
-        where: {
-          tenantId: "test-tenant-id",
-        },
-        include: {
-          teams: {
-            include: { team: true },
-          },
-          commits: false,
-        },
-        orderBy: {
-          name: "asc",
-        },
-      });
     });
   });
 

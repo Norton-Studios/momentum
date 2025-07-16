@@ -26,25 +26,54 @@ router.post("/contributor", async (req: AuthenticatedRequest, res: Response) => 
 router.get("/contributors", async (req: AuthenticatedRequest, res: Response) => {
   try {
     const tenantId = req.user.tenantId;
-    const { includeTeams, includeCommits } = req.query;
+    const { includeTeams, includeCommits, isActive } = req.query;
 
+    // Parse pagination parameters
+    const page = Number(req.query.page) || 1;
+    const limit = Math.min(Number(req.query.limit) || 20, 100); // Max 100 per page
+    const skip = (page - 1) * limit;
+
+    // Build where clause
+    const where: any = { tenantId };
+    if (isActive !== undefined) {
+      where.isActive = isActive === "true";
+    }
+
+    // Use select instead of include to avoid N+1 queries
     const contributors = await prisma.contributor.findMany({
-      where: { tenantId },
-      include: {
+      where,
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        username: true,
+        avatarUrl: true,
+        isActive: true,
+        createdAt: true,
+        updatedAt: true,
         teams:
           includeTeams === "true"
             ? {
-                include: {
-                  team: true,
+                select: {
+                  id: true,
+                  role: true,
+                  isActive: true,
+                  joinedAt: true,
+                  team: {
+                    select: {
+                      id: true,
+                      name: true,
+                    },
+                  },
                 },
+                where: { isActive: true },
               }
             : false,
-        commits:
+        _count:
           includeCommits === "true"
             ? {
-                take: 10, // Limit to recent commits
-                orderBy: {
-                  authorDate: "desc",
+                select: {
+                  commits: true,
                 },
               }
             : false,
@@ -52,9 +81,26 @@ router.get("/contributors", async (req: AuthenticatedRequest, res: Response) => 
       orderBy: {
         name: "asc",
       },
+      skip,
+      take: limit,
     });
 
-    res.json(contributors);
+    // Get total count for pagination metadata
+    const totalCount = await prisma.contributor.count({
+      where,
+    });
+
+    res.json({
+      data: contributors,
+      pagination: {
+        page,
+        limit,
+        totalCount,
+        totalPages: Math.ceil(totalCount / limit),
+        hasNext: page * limit < totalCount,
+        hasPrev: page > 1,
+      },
+    });
   } catch (_error) {
     res.status(500).json({ error: "Failed to fetch contributors" });
   }

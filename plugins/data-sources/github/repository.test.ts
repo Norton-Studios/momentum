@@ -36,7 +36,11 @@ vi.mock("@octokit/rest", () => ({
 
 describe("GitHub Repository Data Source", () => {
   it("should fetch repositories and upsert them into the database", async () => {
-    await run(mockDb);
+    const startDate = new Date("2024-01-01");
+    const endDate = new Date("2024-12-31");
+    const tenantId = "test-tenant-id";
+
+    await run(mockDb as any, startDate, endDate, tenantId);
 
     expect(mockDb.repository.upsert).toHaveBeenCalledOnce();
     const upsertArg = mockDb.repository.upsert.mock.calls[0][0];
@@ -44,5 +48,6 @@ describe("GitHub Repository Data Source", () => {
     expect(upsertArg.where.externalId).toBe("1");
     expect(upsertArg.create.name).toBe("test-repo");
     expect(upsertArg.create.owner).toBe("test-owner");
+    expect(upsertArg.create.tenantId).toBe("test-tenant-id");
   });
 });

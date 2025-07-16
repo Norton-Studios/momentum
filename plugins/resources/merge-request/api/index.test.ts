@@ -12,6 +12,7 @@ vi.mock("@mmtm/database", () => {
       findUnique: vi.fn(),
       update: vi.fn(),
       delete: vi.fn(),
+      count: vi.fn(),
     },
   };
   return { prisma: mockPrisma };
@@ -80,11 +81,22 @@ describe("Merge Request API", () => {
 
     const { prisma } = await import("@mmtm/database");
     vi.mocked(prisma.mergeRequest.findMany).mockResolvedValue(mockMergeRequests);
+    vi.mocked(prisma.mergeRequest.count).mockResolvedValue(2);
 
     const response = await request(app).get("/merge-requests");
 
     expect(response.status).toBe(200);
-    expect(response.body).toEqual(mockMergeRequests);
+    expect(response.body).toEqual({
+      data: mockMergeRequests,
+      pagination: {
+        page: 1,
+        limit: 20,
+        totalCount: 2,
+        totalPages: 1,
+        hasNext: false,
+        hasPrev: false,
+      },
+    });
   });
 
   it("should get a specific merge request", async () => {

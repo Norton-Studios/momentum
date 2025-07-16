@@ -1,3 +1,4 @@
+import type { PrismaClient } from "@mmtm/database";
 import { Octokit } from "@octokit/rest";
 import "dotenv/config";
 
@@ -7,15 +8,13 @@ const octokit = new Octokit({
   auth: process.env.GITHUB_TOKEN,
 });
 
-export const run = async (db: {
-  repository: {
-    upsert: (args: { where: { externalId: string }; update: Record<string, unknown>; create: Record<string, unknown> }) => Promise<unknown>;
-  };
-}) => {
+export const run = async (db: PrismaClient, startDate: Date, endDate: Date, tenantId: string) => {
   console.log("Importing repositories from GitHub...");
 
   const { data: repos } = await octokit.repos.listForAuthenticatedUser({
     per_page: 100,
+    since: startDate.toISOString(),
+    until: endDate.toISOString(),
   });
 
   for (const repo of repos) {
@@ -32,6 +31,7 @@ export const run = async (db: {
       forks: repo.forks_count ?? 0,
       issues: repo.open_issues_count ?? 0,
       externalId: repo.id.toString(),
+      tenantId,
       createdAt: repo.created_at ? new Date(repo.created_at) : new Date(),
       updatedAt: repo.updated_at ? new Date(repo.updated_at) : new Date(),
     };

@@ -34,6 +34,12 @@ model Commit {
   mergeRequests      MergeRequestCommit[]
   builds             Build[]
 
+  @@index([repositoryId])
+  @@index([tenantId])
+  @@index([authorDate])
+  @@index([authorEmail])
+  @@index([tenantId, repositoryId])
+  @@index([tenantId, authorDate])
   @@map("commit")
   @@schema("scm")
 }
