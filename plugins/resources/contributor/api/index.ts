@@ -1,5 +1,5 @@
 import { Router, type Response } from "express";
-import { prisma } from "@developer-productivity/database";
+import { prisma } from "@mmtm/database";
 import type { AuthenticatedRequest } from "../../../../apps/api/src/middleware/auth";
 
 const router = Router();

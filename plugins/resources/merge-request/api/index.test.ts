@@ -4,7 +4,7 @@ import express from "express";
 import router from "./index";
 
 // Mock the database
-vi.mock("@developer-productivity/database", () => {
+vi.mock("@mmtm/database", () => {
   const mockPrisma = {
     mergeRequest: {
       create: vi.fn(),
@@ -47,7 +47,7 @@ describe("Merge Request API", () => {
       state: "open",
     };
 
-    const { prisma } = await import("@developer-productivity/database");
+    const { prisma } = await import("@mmtm/database");
     vi.mocked(prisma.mergeRequest.create).mockResolvedValue(mockMergeRequest);
 
     const response = await request(app).post("/merge-request").send({
@@ -78,7 +78,7 @@ describe("Merge Request API", () => {
       },
     ];
 
-    const { prisma } = await import("@developer-productivity/database");
+    const { prisma } = await import("@mmtm/database");
     vi.mocked(prisma.mergeRequest.findMany).mockResolvedValue(mockMergeRequests);
 
     const response = await request(app).get("/merge-requests");
@@ -95,7 +95,7 @@ describe("Merge Request API", () => {
       state: "open",
     };
 
-    const { prisma } = await import("@developer-productivity/database");
+    const { prisma } = await import("@mmtm/database");
     vi.mocked(prisma.mergeRequest.findUnique).mockResolvedValue(mockMergeRequest);
 
     const response = await request(app).get("/merge-request/1");
@@ -105,7 +105,7 @@ describe("Merge Request API", () => {
   });
 
   it("should return 404 for non-existent merge request", async () => {
-    const { prisma } = await import("@developer-productivity/database");
+    const { prisma } = await import("@mmtm/database");
     vi.mocked(prisma.mergeRequest.findUnique).mockResolvedValue(null);
 
     const response = await request(app).get("/merge-request/999");
@@ -122,7 +122,7 @@ describe("Merge Request API", () => {
       state: "merged",
     };
 
-    const { prisma } = await import("@developer-productivity/database");
+    const { prisma } = await import("@mmtm/database");
     vi.mocked(prisma.mergeRequest.update).mockResolvedValue(mockUpdatedMergeRequest);
 
     const response = await request(app).put("/merge-request/1").send({
@@ -135,7 +135,7 @@ describe("Merge Request API", () => {
   });
 
   it("should delete a merge request", async () => {
-    const { prisma } = await import("@developer-productivity/database");
+    const { prisma } = await import("@mmtm/database");
     vi.mocked(prisma.mergeRequest.delete).mockResolvedValue({});
 
     const response = await request(app).delete("/merge-request/1");

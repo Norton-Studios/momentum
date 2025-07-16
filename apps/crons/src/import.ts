@@ -1,7 +1,7 @@
 import fg from "fast-glob";
 import path from "node:path";
 import pGraph from "p-graph";
-import { PrismaClient } from "@developer-productivity/database";
+import { PrismaClient } from "@mmtm/database";
 
 interface DataSource {
   name: string;

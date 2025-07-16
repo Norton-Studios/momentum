@@ -3,7 +3,7 @@ import request from "supertest";
 import express from "express";
 import router from "./index";
 
-vi.mock("@developer-productivity/database", () => {
+vi.mock("@mmtm/database", () => {
   const mockPrisma = {
     commit: {
       create: vi.fn(),
@@ -36,7 +36,7 @@ app.use((req, res, next) => {
 
 app.use(router);
 
-import { prisma } from "@developer-productivity/database";
+import { prisma } from "@mmtm/database";
 
 describe("Commit API", () => {
   beforeEach(() => {

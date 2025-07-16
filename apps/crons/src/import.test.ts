@@ -13,13 +13,13 @@ vi.mock("p-graph", () => ({
 }));
 
 // Mock database
-vi.mock("@developer-productivity/database", () => ({
+vi.mock("@mmtm/database", () => ({
   PrismaClient: vi.fn(),
 }));
 
 import fg from "fast-glob";
 import pGraph from "p-graph";
-import { PrismaClient } from "@developer-productivity/database";
+import { PrismaClient } from "@mmtm/database";
 
 describe("import", () => {
   let mockDb: any;

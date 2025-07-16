@@ -1,5 +1,5 @@
 {
-  "name": "@developer-productivity/resource-team",
+  "name": "@mmtm/resource-team",
   "version": "1.0.0",
   "main": "api/index.ts",
   "prisma": {

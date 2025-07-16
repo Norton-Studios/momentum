@@ -4,7 +4,7 @@ import express from "express";
 import router from "./index";
 
 // Mock the database
-vi.mock("@developer-productivity/database", () => {
+vi.mock("@mmtm/database", () => {
   const mockPrisma = {
     pipeline: {
       create: vi.fn(),
@@ -46,7 +46,7 @@ describe("Pipeline API", () => {
       status: "pending",
     };
 
-    const { prisma } = await import("@developer-productivity/database");
+    const { prisma } = await import("@mmtm/database");
     vi.mocked(prisma.pipeline.create).mockResolvedValue(mockPipeline);
 
     const response = await request(app).post("/pipeline").send({
@@ -76,7 +76,7 @@ describe("Pipeline API", () => {
       },
     ];
 
-    const { prisma } = await import("@developer-productivity/database");
+    const { prisma } = await import("@mmtm/database");
     vi.mocked(prisma.pipeline.findMany).mockResolvedValue(mockPipelines);
 
     const response = await request(app).get("/pipelines");
@@ -93,7 +93,7 @@ describe("Pipeline API", () => {
       status: "success",
     };
 
-    const { prisma } = await import("@developer-productivity/database");
+    const { prisma } = await import("@mmtm/database");
     vi.mocked(prisma.pipeline.findUnique).mockResolvedValue(mockPipeline);
 
     const response = await request(app).get("/pipeline/1");
@@ -103,7 +103,7 @@ describe("Pipeline API", () => {
   });
 
   it("should return 404 for non-existent pipeline", async () => {
-    const { prisma } = await import("@developer-productivity/database");
+    const { prisma } = await import("@mmtm/database");
     vi.mocked(prisma.pipeline.findUnique).mockResolvedValue(null);
 
     const response = await request(app).get("/pipeline/999");
@@ -120,7 +120,7 @@ describe("Pipeline API", () => {
       status: "success",
     };
 
-    const { prisma } = await import("@developer-productivity/database");
+    const { prisma } = await import("@mmtm/database");
     vi.mocked(prisma.pipeline.update).mockResolvedValue(mockUpdatedPipeline);
 
     const response = await request(app).put("/pipeline/1").send({
@@ -133,7 +133,7 @@ describe("Pipeline API", () => {
   });
 
   it("should delete a pipeline", async () => {
-    const { prisma } = await import("@developer-productivity/database");
+    const { prisma } = await import("@mmtm/database");
     vi.mocked(prisma.pipeline.delete).mockResolvedValue({});
 
     const response = await request(app).delete("/pipeline/1");

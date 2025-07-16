@@ -4,7 +4,7 @@ import express from "express";
 import router from "./index";
 
 // Mock the database
-vi.mock("@developer-productivity/database", () => {
+vi.mock("@mmtm/database", () => {
   const mockPrisma = {
     build: {
       create: vi.fn(),
@@ -46,7 +46,7 @@ describe("Build API", () => {
       status: "pending",
     };
 
-    const { prisma } = await import("@developer-productivity/database");
+    const { prisma } = await import("@mmtm/database");
     vi.mocked(prisma.build.create).mockResolvedValue(mockBuild);
 
     const response = await request(app).post("/build").send({
@@ -76,7 +76,7 @@ describe("Build API", () => {
       },
     ];
 
-    const { prisma } = await import("@developer-productivity/database");
+    const { prisma } = await import("@mmtm/database");
     vi.mocked(prisma.build.findMany).mockResolvedValue(mockBuilds);
 
     const response = await request(app).get("/builds");
@@ -93,7 +93,7 @@ describe("Build API", () => {
       status: "success",
     };
 
-    const { prisma } = await import("@developer-productivity/database");
+    const { prisma } = await import("@mmtm/database");
     vi.mocked(prisma.build.findUnique).mockResolvedValue(mockBuild);
 
     const response = await request(app).get("/build/1");
@@ -103,7 +103,7 @@ describe("Build API", () => {
   });
 
   it("should return 404 for non-existent build", async () => {
-    const { prisma } = await import("@developer-productivity/database");
+    const { prisma } = await import("@mmtm/database");
     vi.mocked(prisma.build.findUnique).mockResolvedValue(null);
 
     const response = await request(app).get("/build/999");
@@ -120,7 +120,7 @@ describe("Build API", () => {
       status: "success",
     };
 
-    const { prisma } = await import("@developer-productivity/database");
+    const { prisma } = await import("@mmtm/database");
     vi.mocked(prisma.build.update).mockResolvedValue(mockUpdatedBuild);
 
     const response = await request(app).put("/build/1").send({
@@ -133,7 +133,7 @@ describe("Build API", () => {
   });
 
   it("should delete a build", async () => {
-    const { prisma } = await import("@developer-productivity/database");
+    const { prisma } = await import("@mmtm/database");
     vi.mocked(prisma.build.delete).mockResolvedValue({});
 
     const response = await request(app).delete("/build/1");

@@ -4,7 +4,7 @@ import express from "express";
 import router from "../api/index";
 
 // Mock the database module
-vi.mock("@developer-productivity/database", () => ({
+vi.mock("@mmtm/database", () => ({
   PrismaClient: vi.fn().mockImplementation(() => ({
     tenant: {
       findMany: vi.fn(),

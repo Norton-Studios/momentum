@@ -1,6 +1,6 @@
 # Claude AI Development Guide
 
-This guide contains specific instructions and context for Claude AI to work effectively on the Developer Productivity Measurement Tool project.
+This guide contains specific instructions and context for Claude AI to work effectively on the Momentum project.
 
 ## Project Overview
 
@@ -32,16 +32,16 @@ yarn lint          # Run Biome linter
 yarn format        # Format code with Biome
 
 # Database operations
-yarn workspace @developer-productivity/database run synthesise  # Combine schema files
-yarn workspace @developer-productivity/database run generate    # Generate Prisma client
-yarn workspace @developer-productivity/database run migrate     # Run migrations
+yarn workspace @mmtm/database run synthesise  # Combine schema files
+yarn workspace @mmtm/database run generate    # Generate Prisma client
+yarn workspace @mmtm/database run migrate     # Run migrations
 ```
 
 ## Project Structure and Conventions
 
 ### Monorepo Layout
 ```
-developer-productivity/
+momentum/
 ├── apps/               # Core applications
 │   ├── api/           # Express API server
 │   ├── frontend/      # Remix application
@@ -156,7 +156,7 @@ routes.forEach(route => {
 - **TypeScript**: Strict mode enabled, no `any` types without justification
 - **Formatting**: Use Biome (`yarn format` before commits)
 - **Linting**: Fix all Biome warnings (`yarn lint`)
-- **Imports**: Use workspace aliases (e.g., `@developer-productivity/database`)
+- **Imports**: Use workspace aliases (e.g., `@mmtm/database`)
 - **Express Version**: All packages must use Express 5.x (`"express": "^5.1.0"` and `"@types/express": "^5.0.3"`)
 - **Plugin Dependencies**: Resource and data source plugins should use Express as a peerDependency, not a direct dependency
 
@@ -184,8 +184,8 @@ routes.forEach(route => {
 
 3. **Schema Changes**:
    - Modify the relevant `db/schema.prisma` file
-   - Run `yarn workspace @developer-productivity/database run synthesise`
-   - Run `yarn workspace @developer-productivity/database run generate`
+   - Run `yarn workspace @mmtm/database run synthesise`
+   - Run `yarn workspace @mmtm/database run generate`
    - Create and run migrations if needed
 
 4. **Adding Tests to New Plugins**:
@@ -193,13 +193,13 @@ routes.forEach(route => {
    - Add `vitest.config.ts` with `passWithNoTests: true` if no tests exist yet
    - **Co-locate tests with the files they test** using `.test.ts` suffix (e.g., `api/index.test.ts` for `api/index.ts`)
    - Do NOT create separate `tests/` directories - tests should be next to the source files
-   - Mock `@developer-productivity/database` import using `vi.mock()`
+   - Mock `@mmtm/database` import using `vi.mock()`
    - Test API endpoints using Supertest and Express
 
 5. **Plugin Package.json Requirements**:
    - Use Express as peerDependency: `"peerDependencies": { "express": "^5.1.0", "@types/express": "^5.0.3" }`
    - Include proper prisma schema path: `"prisma": { "schema": "db/schema.prisma" }`
-   - Follow naming convention: `@developer-productivity/resource-{name}` or `@developer-productivity/data-source-{name}`
+   - Follow naming convention: `@mmtm/resource-{name}` or `@mmtm/data-source-{name}`
 
 6. **Before Committing**:
    - Run `yarn format` to format code

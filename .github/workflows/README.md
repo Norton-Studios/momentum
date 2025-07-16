@@ -106,10 +106,10 @@ yarn test:changed
 yarn lint:changed
 
 # Run specific package tests
-npx turbo test --filter=@developer-productivity/resource-team
+npx turbo test --filter=@mmtm/resource-team
 
 # Run tests with dependencies
-npx turbo test --filter=...@developer-productivity/database
+npx turbo test --filter=...@mmtm/database
 
 # Run E2E tests
 yarn workspace e2e-tests run test

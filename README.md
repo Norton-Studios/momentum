@@ -1,4 +1,4 @@
-# Developer Productivity Measurement Tool
+# Momentum
 
 A modular, extensible web application for measuring developer productivity with support for multi-tenant SaaS and self-hosted deployments.
 
@@ -37,7 +37,7 @@ The application will be available at:
 ## Project Structure
 
 ```
-developer-productivity/
+momentum/
 ├── apps/               # Core applications
 │   ├── api/           # Express API server
 │   ├── frontend/      # Remix web application
@@ -69,9 +69,9 @@ yarn lint             # Run linter
 yarn format           # Format code
 
 # Database
-yarn workspace @developer-productivity/database run synthesise  # Combine schemas
-yarn workspace @developer-productivity/database run generate    # Generate client
-yarn workspace @developer-productivity/database run migrate     # Run migrations
+yarn workspace @mmtm/database run synthesise  # Combine schemas
+yarn workspace @mmtm/database run generate    # Generate client
+yarn workspace @mmtm/database run migrate     # Run migrations
 ```
 
 ## Architecture Overview

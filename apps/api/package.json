@@ -1,5 +1,5 @@
 {
-  "name": "@developer-productivity/api",
+  "name": "@mmtm/api",
   "version": "1.0.0",
   "private": true,
   "main": "dist/index.js",
@@ -10,7 +10,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@developer-productivity/database": "workspace:^",
+    "@mmtm/database": "workspace:^",
     "bcrypt": "^5.1.1",
     "express": "^5.1.0",
     "fast-glob": "^3.3.3",

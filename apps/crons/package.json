@@ -1,5 +1,5 @@
 {
-  "name": "@developer-productivity/crons",
+  "name": "@mmtm/crons",
   "version": "1.0.0",
   "private": true,
   "main": "dist/index.js",
@@ -10,7 +10,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@developer-productivity/database": "workspace:^",
+    "@mmtm/database": "workspace:^",
     "fast-glob": "^3.3.3",
     "node-cron": "^3.0.3",
     "p-graph": "^1.1.2"

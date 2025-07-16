@@ -1,4 +1,4 @@
-import { prisma } from "@developer-productivity/database";
+import { prisma } from "@mmtm/database";
 import { Router, type Response } from "express";
 import type { AuthenticatedRequest } from "../../../../apps/api/src/middleware/auth";
 

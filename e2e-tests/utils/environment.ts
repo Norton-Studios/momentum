@@ -129,13 +129,13 @@ export class E2EEnvironment {
 
     try {
       console.log("📋 Synthesizing schema...");
-      await execAsync("yarn workspace @developer-productivity/database run synthesise", {
+      await execAsync("yarn workspace @mmtm/database run synthesise", {
         cwd: projectRoot,
         env: process.env,
       });
 
       console.log("🔧 Generating Prisma client...");
-      await execAsync("yarn workspace @developer-productivity/database run generate", {
+      await execAsync("yarn workspace @mmtm/database run generate", {
         cwd: projectRoot,
         env: process.env,
       });
@@ -158,7 +158,7 @@ export class E2EEnvironment {
     return new Promise((resolve, reject) => {
       const projectRoot = process.cwd().replace("/e2e-tests", "");
 
-      this.apiProcess = spawn("yarn", ["workspace", "@developer-productivity/api", "run", "dev"], {
+      this.apiProcess = spawn("yarn", ["workspace", "@mmtm/api", "run", "dev"], {
         cwd: projectRoot,
         env: {
           ...process.env,
@@ -204,7 +204,7 @@ export class E2EEnvironment {
     return new Promise((resolve, reject) => {
       const projectRoot = process.cwd().replace("/e2e-tests", "");
 
-      this.frontendProcess = spawn("yarn", ["workspace", "@developer-productivity/frontend", "run", "dev"], {
+      this.frontendProcess = spawn("yarn", ["workspace", "@mmtm/frontend", "run", "dev"], {
         cwd: projectRoot,
         env: {
           ...process.env,
