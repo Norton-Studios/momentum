@@ -1440,7 +1440,7 @@ __metadata:
   resolution: "@mmtm/data-source-github@workspace:plugins/data-sources/github"
   dependencies:
     "@octokit/rest": "npm:^22.0.0"
-    dotenv: "npm:^16.4.5"
+    dotenv: "npm:^17.0.0"
     vitest: "npm:^3.2.4"
   languageName: unknown
   linkType: soft
@@ -4242,10 +4242,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dotenv@npm:^16.0.0, dotenv@npm:^16.4.5":
+"dotenv@npm:^16.0.0":
   version: 16.6.1
   resolution: "dotenv@npm:16.6.1"
   checksum: 10c0/15ce56608326ea0d1d9414a5c8ee6dcf0fffc79d2c16422b4ac2268e7e2d76ff5a572d37ffe747c377de12005f14b3cc22361e79fc7f1061cce81f77d2c973dc
+  languageName: node
+  linkType: hard
+
+"dotenv@npm:^17.0.0":
+  version: 17.2.0
+  resolution: "dotenv@npm:17.2.0"
+  checksum: 10c0/d4cb5c2a09c288c921ef47a78f51c765a763266e23e84465cde6a87b28b9f7fc5a9d1fe349ed3c880b4c7297f82dd736dba5b08fe95ce53833ce4a7258d0fc43
   languageName: node
   linkType: hard
 
