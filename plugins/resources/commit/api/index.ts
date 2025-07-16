@@ -17,7 +17,7 @@ router.post("/commit", async (req: AuthenticatedRequest, res: Response) => {
     });
 
     res.status(201).json(commit);
-  } catch (error) {
+  } catch (_error) {
     res.status(500).json({ error: "Failed to create commit" });
   }
 });
@@ -35,7 +35,7 @@ router.get("/commits", async (req: AuthenticatedRequest, res: Response) => {
     });
 
     res.json(commits);
-  } catch (error) {
+  } catch (_error) {
     res.status(500).json({ error: "Failed to fetch commits" });
   }
 });
@@ -57,7 +57,7 @@ router.get("/repositories/:repositoryId/commits", async (req: AuthenticatedReque
     });
 
     res.json(commits);
-  } catch (error) {
+  } catch (_error) {
     res.status(500).json({ error: "Failed to fetch commits" });
   }
 });
@@ -83,7 +83,7 @@ router.get("/commits/:id", async (req: AuthenticatedRequest, res: Response) => {
     }
 
     res.json(commit);
-  } catch (error) {
+  } catch (_error) {
     res.status(500).json({ error: "Failed to fetch commit" });
   }
 });
@@ -109,7 +109,7 @@ router.get("/commits/sha/:sha", async (req: AuthenticatedRequest, res: Response)
     }
 
     res.json(commit);
-  } catch (error) {
+  } catch (_error) {
     res.status(500).json({ error: "Failed to fetch commit" });
   }
 });
@@ -129,7 +129,7 @@ router.put("/commits/:id", async (req: AuthenticatedRequest, res: Response) => {
     });
 
     res.json(commit);
-  } catch (error) {
+  } catch (_error) {
     res.status(500).json({ error: "Failed to update commit" });
   }
 });
@@ -148,7 +148,7 @@ router.delete("/commits/:id", async (req: AuthenticatedRequest, res: Response) =
     });
 
     res.status(204).send();
-  } catch (error) {
+  } catch (_error) {
     res.status(500).json({ error: "Failed to delete commit" });
   }
 });
@@ -178,7 +178,7 @@ router.get("/repositories/:repositoryId/commits/stats", async (req: Authenticate
       totalDeletions: stats._sum.deletions || 0,
       totalChangedFiles: stats._sum.changedFiles || 0,
     });
-  } catch (error) {
+  } catch (_error) {
     res.status(500).json({ error: "Failed to fetch commit statistics" });
   }
 });

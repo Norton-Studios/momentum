@@ -17,7 +17,7 @@ router.post("/merge-request", async (req: AuthenticatedRequest, res: Response) =
     });
 
     res.status(201).json(mergeRequest);
-  } catch (error) {
+  } catch (_error) {
     res.status(500).json({ error: "Failed to create merge request" });
   }
 });
@@ -38,7 +38,7 @@ router.get("/merge-requests", async (req: AuthenticatedRequest, res: Response) =
     });
 
     res.json(mergeRequests);
-  } catch (error) {
+  } catch (_error) {
     res.status(500).json({ error: "Failed to fetch merge requests" });
   }
 });
@@ -66,7 +66,7 @@ router.get("/merge-request/:id", async (req: AuthenticatedRequest, res: Response
     }
 
     res.json(mergeRequest);
-  } catch (error) {
+  } catch (_error) {
     res.status(500).json({ error: "Failed to fetch merge request" });
   }
 });
@@ -85,7 +85,7 @@ router.put("/merge-request/:id", async (req: AuthenticatedRequest, res: Response
     });
 
     res.json(mergeRequest);
-  } catch (error) {
+  } catch (_error) {
     res.status(500).json({ error: "Failed to update merge request" });
   }
 });
@@ -103,7 +103,7 @@ router.delete("/merge-request/:id", async (req: AuthenticatedRequest, res: Respo
     });
 
     res.status(204).send();
-  } catch (error) {
+  } catch (_error) {
     res.status(500).json({ error: "Failed to delete merge request" });
   }
 });

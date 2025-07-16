@@ -36,7 +36,7 @@ describe("Tenant API", () => {
     const app = express();
     app.use(express.json());
     // Mock authentication middleware
-    app.use((req, res, next) => {
+    app.use((req, _res, next) => {
       (req as any).user = {
         id: "test-user-id",
         email: "test@example.com",
@@ -77,7 +77,7 @@ describe("Tenant API", () => {
     const app = express();
     app.use(express.json());
     // Mock authentication middleware
-    app.use((req, res, next) => {
+    app.use((req, _res, next) => {
       (req as any).user = {
         id: "test-user-id",
         email: "test@example.com",
@@ -110,7 +110,7 @@ describe("Tenant API", () => {
     const app = express();
     app.use(express.json());
     // Mock authentication middleware
-    app.use((req, res, next) => {
+    app.use((req, _res, next) => {
       (req as any).user = {
         id: "test-user-id",
         email: "test@example.com",
@@ -151,7 +151,7 @@ describe("Tenant API", () => {
     const app = express();
     app.use(express.json());
     // Mock authentication middleware
-    app.use((req, res, next) => {
+    app.use((req, _res, next) => {
       (req as any).user = {
         id: "test-user-id",
         email: "test@example.com",
@@ -189,7 +189,7 @@ describe("Tenant API", () => {
     const app = express();
     app.use(express.json());
     // Mock authentication middleware
-    app.use((req, res, next) => {
+    app.use((req, _res, next) => {
       (req as any).user = {
         id: "test-user-id",
         email: "test@example.com",

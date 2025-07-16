@@ -15,7 +15,7 @@ router.post("/repository", async (req: AuthenticatedRequest, res: Response) => {
     });
 
     res.status(201).json(repository);
-  } catch (error) {
+  } catch (_error) {
     res.status(500).json({ error: "Failed to create repository" });
   }
 });
@@ -30,7 +30,7 @@ router.get("/repositories", async (req: AuthenticatedRequest, res: Response) => 
     });
 
     res.json(repositories);
-  } catch (error) {
+  } catch (_error) {
     res.status(500).json({ error: "Failed to fetch repositories" });
   }
 });
@@ -53,7 +53,7 @@ router.get("/repository/:id", async (req: AuthenticatedRequest, res: Response) =
     }
 
     res.json(repository);
-  } catch (error) {
+  } catch (_error) {
     res.status(500).json({ error: "Failed to fetch repository" });
   }
 });
@@ -74,7 +74,7 @@ router.put("/repository/:id", async (req: AuthenticatedRequest, res: Response) =
     });
 
     res.json(repository);
-  } catch (error) {
+  } catch (_error) {
     res.status(500).json({ error: "Failed to update repository" });
   }
 });
@@ -93,7 +93,7 @@ router.delete("/repository/:id", async (req: AuthenticatedRequest, res: Response
     });
 
     res.status(204).send();
-  } catch (error) {
+  } catch (_error) {
     res.status(500).json({ error: "Failed to delete repository" });
   }
 });

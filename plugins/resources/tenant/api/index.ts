@@ -2,7 +2,7 @@ import { Router, type Response } from "express";
 import type { PrismaClient } from "@mmtm/database";
 import { z } from "zod";
 import bcrypt from "bcrypt";
-import crypto from "crypto";
+import crypto from "node:crypto";
 import type { AuthenticatedRequest } from "../../../../apps/api/src/middleware/auth";
 
 const router = Router();

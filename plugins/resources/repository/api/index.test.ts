@@ -25,7 +25,7 @@ const app = express();
 app.use(express.json());
 
 // Mock authentication middleware
-app.use((req, res, next) => {
+app.use((req, _res, next) => {
   (req as any).user = {
     id: "test-user-id",
     email: "test@example.com",
@@ -37,7 +37,6 @@ app.use((req, res, next) => {
 
 app.use(router);
 
-import { prisma } from "@mmtm/database";
 
 describe("Repository API", () => {
   it("GET /repositories should return all repositories", async () => {

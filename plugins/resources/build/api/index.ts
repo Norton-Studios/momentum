@@ -17,7 +17,7 @@ router.post("/build", async (req: AuthenticatedRequest, res: Response) => {
     });
 
     res.status(201).json(build);
-  } catch (error) {
+  } catch (_error) {
     res.status(500).json({ error: "Failed to create build" });
   }
 });
@@ -37,7 +37,7 @@ router.get("/builds", async (req: AuthenticatedRequest, res: Response) => {
     });
 
     res.json(builds);
-  } catch (error) {
+  } catch (_error) {
     res.status(500).json({ error: "Failed to fetch builds" });
   }
 });
@@ -64,7 +64,7 @@ router.get("/build/:id", async (req: AuthenticatedRequest, res: Response) => {
     }
 
     res.json(build);
-  } catch (error) {
+  } catch (_error) {
     res.status(500).json({ error: "Failed to fetch build" });
   }
 });
@@ -83,7 +83,7 @@ router.put("/build/:id", async (req: AuthenticatedRequest, res: Response) => {
     });
 
     res.json(build);
-  } catch (error) {
+  } catch (_error) {
     res.status(500).json({ error: "Failed to update build" });
   }
 });
@@ -101,7 +101,7 @@ router.delete("/build/:id", async (req: AuthenticatedRequest, res: Response) => 
     });
 
     res.status(204).send();
-  } catch (error) {
+  } catch (_error) {
     res.status(500).json({ error: "Failed to delete build" });
   }
 });

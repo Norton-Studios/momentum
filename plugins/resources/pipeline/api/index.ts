@@ -17,7 +17,7 @@ router.post("/pipeline", async (req: AuthenticatedRequest, res: Response) => {
     });
 
     res.status(201).json(pipeline);
-  } catch (error) {
+  } catch (_error) {
     res.status(500).json({ error: "Failed to create pipeline" });
   }
 });
@@ -37,7 +37,7 @@ router.get("/pipelines", async (req: AuthenticatedRequest, res: Response) => {
     });
 
     res.json(pipelines);
-  } catch (error) {
+  } catch (_error) {
     res.status(500).json({ error: "Failed to fetch pipelines" });
   }
 });
@@ -64,7 +64,7 @@ router.get("/pipeline/:id", async (req: AuthenticatedRequest, res: Response) => 
     }
 
     res.json(pipeline);
-  } catch (error) {
+  } catch (_error) {
     res.status(500).json({ error: "Failed to fetch pipeline" });
   }
 });
@@ -83,7 +83,7 @@ router.put("/pipeline/:id", async (req: AuthenticatedRequest, res: Response) => 
     });
 
     res.json(pipeline);
-  } catch (error) {
+  } catch (_error) {
     res.status(500).json({ error: "Failed to update pipeline" });
   }
 });
@@ -101,7 +101,7 @@ router.delete("/pipeline/:id", async (req: AuthenticatedRequest, res: Response) 
     });
 
     res.status(204).send();
-  } catch (error) {
+  } catch (_error) {
     res.status(500).json({ error: "Failed to delete pipeline" });
   }
 });

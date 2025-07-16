@@ -13,6 +13,8 @@
     "test:e2e": "yarn workspace e2e-tests run test:e2e",
     "format": "biome format --write .",
     "lint": "biome lint .",
+    "lint:fix": "biome lint --write --unsafe .",
+    "lint:fix-safe": "biome lint --write .",
     "lint:changed": "turbo lint --filter='...[HEAD^1]'",
     "build": "turbo build",
     "start:api": "yarn workspace @mmtm/api run dev",

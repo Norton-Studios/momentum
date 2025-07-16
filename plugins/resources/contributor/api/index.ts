@@ -17,7 +17,7 @@ router.post("/contributor", async (req: AuthenticatedRequest, res: Response) => 
     });
 
     res.status(201).json(contributor);
-  } catch (error) {
+  } catch (_error) {
     res.status(500).json({ error: "Failed to create contributor" });
   }
 });
@@ -55,7 +55,7 @@ router.get("/contributors", async (req: AuthenticatedRequest, res: Response) => 
     });
 
     res.json(contributors);
-  } catch (error) {
+  } catch (_error) {
     res.status(500).json({ error: "Failed to fetch contributors" });
   }
 });
@@ -82,7 +82,7 @@ router.get("/teams/:teamId/contributors", async (req: AuthenticatedRequest, res:
     });
 
     res.json(teamContributors);
-  } catch (error) {
+  } catch (_error) {
     res.status(500).json({ error: "Failed to fetch team contributors" });
   }
 });
@@ -125,7 +125,7 @@ router.get("/contributors/:id", async (req: AuthenticatedRequest, res: Response)
     }
 
     res.json(contributor);
-  } catch (error) {
+  } catch (_error) {
     res.status(500).json({ error: "Failed to fetch contributor" });
   }
 });
@@ -155,7 +155,7 @@ router.get("/contributors/email/:email", async (req: AuthenticatedRequest, res: 
     }
 
     res.json(contributor);
-  } catch (error) {
+  } catch (_error) {
     res.status(500).json({ error: "Failed to fetch contributor" });
   }
 });
@@ -185,7 +185,7 @@ router.get("/contributors/username/:username", async (req: AuthenticatedRequest,
     }
 
     res.json(contributor);
-  } catch (error) {
+  } catch (_error) {
     res.status(500).json({ error: "Failed to fetch contributor" });
   }
 });
@@ -205,7 +205,7 @@ router.put("/contributors/:id", async (req: AuthenticatedRequest, res: Response)
     });
 
     res.json(contributor);
-  } catch (error) {
+  } catch (_error) {
     res.status(500).json({ error: "Failed to update contributor" });
   }
 });
@@ -237,7 +237,7 @@ router.delete("/contributors/:id", async (req: AuthenticatedRequest, res: Respon
     }
 
     res.status(204).send();
-  } catch (error) {
+  } catch (_error) {
     res.status(500).json({ error: "Failed to delete contributor" });
   }
 });
@@ -286,7 +286,7 @@ router.post("/teams/:teamId/contributor", async (req: AuthenticatedRequest, res:
     });
 
     res.status(201).json(teamContributor);
-  } catch (error) {
+  } catch (_error) {
     res.status(500).json({ error: "Failed to add contributor to team" });
   }
 });
@@ -334,7 +334,7 @@ router.delete("/teams/:teamId/contributors/:contributorId", async (req: Authenti
     }
 
     res.status(204).send();
-  } catch (error) {
+  } catch (_error) {
     res.status(500).json({ error: "Failed to remove contributor from team" });
   }
 });
@@ -387,7 +387,7 @@ router.get("/contributors/:id/stats", async (req: AuthenticatedRequest, res: Res
       totalChangedFiles: stats._sum.changedFiles || 0,
       activeTeams: teamCount,
     });
-  } catch (error) {
+  } catch (_error) {
     res.status(500).json({ error: "Failed to fetch contributor statistics" });
   }
 });

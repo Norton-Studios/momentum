@@ -1,7 +1,7 @@
-import { PostgreSqlContainer, StartedPostgreSqlContainer } from "@testcontainers/postgresql";
-import { ChildProcess, spawn } from "child_process";
-import { exec } from "child_process";
-import { promisify } from "util";
+import { PostgreSqlContainer, type StartedPostgreSqlContainer } from "@testcontainers/postgresql";
+import { type ChildProcess, spawn } from "node:child_process";
+import { exec } from "node:child_process";
+import { promisify } from "node:util";
 
 const execAsync = promisify(exec);
 
@@ -201,7 +201,7 @@ export class E2EEnvironment {
   private async startFrontend(): Promise<void> {
     console.log("🎨 Starting frontend server...");
 
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve, _reject) => {
       const projectRoot = process.cwd().replace("/e2e-tests", "");
 
       this.frontendProcess = spawn("yarn", ["workspace", "@mmtm/frontend", "run", "dev"], {
