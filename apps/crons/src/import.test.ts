@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import { loadDataSources, buildDependencyGraph, executeDataSources, runImport } from "./import";
 
 // Mock fast-glob
