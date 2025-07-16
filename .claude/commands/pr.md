@@ -9,4 +9,4 @@
     - Ensure tests are passing by running `yarn test`
     - Ensure the e2e tests are passing by running `yarn test:e2e`
 - Commit the changes with a clear message
-- Create the PR with a clear title and description
+- Create the PR with a clear title and description. If a PR already exists, update it with the latest changes.

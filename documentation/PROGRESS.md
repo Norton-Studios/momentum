@@ -17,6 +17,7 @@ This document tracks the implementation progress of all plugins (resources, data
   - [x] Database schema (core.Team)
   - [x] CRUD API endpoints
   - [x] Repository associations
+  - [x] Multi-tenant isolation (tenantId field)
   - [x] Unit tests
 
 - [x] **Repository** ✅
@@ -37,6 +38,7 @@ This document tracks the implementation progress of all plugins (resources, data
   - [x] Database schema design
   - [x] CRUD API endpoints
   - [x] Relationships (Repository, Contributor, Commit)
+  - [x] Multi-tenant isolation (tenantId field)
   - [x] Unit tests
 
 - [x] **Contributor** ✅
@@ -50,19 +52,22 @@ This document tracks the implementation progress of all plugins (resources, data
   - [x] Database schema design
   - [x] CRUD API endpoints
   - [x] Relationships (Repository, MergeRequest)
+  - [x] Multi-tenant isolation (tenantId field)
   - [x] Unit tests
 
 - [x] **Build** (Pipeline Execution) ✅
   - [x] Database schema design
   - [x] CRUD API endpoints
   - [x] Relationships (Pipeline, Commit)
+  - [x] Multi-tenant isolation (tenantId field)
   - [x] Unit tests
 
-- [ ] **Build Step** ⏳
-  - [ ] Database schema design
-  - [ ] CRUD API endpoints
-  - [ ] Relationships (Build)
-  - [ ] Unit tests
+- [x] **Build Step** ✅
+  - [x] Database schema design
+  - [x] CRUD API endpoints (via Build resource)
+  - [x] Relationships (Build)
+  - [x] Multi-tenant isolation (tenantId field)
+  - [x] Unit tests
 
 ### Project Management Resources
 
@@ -323,8 +328,10 @@ This document tracks the implementation progress of all plugins (resources, data
   - [x] Add tenant context to all plugins
   - [x] Test tenant data boundaries
   - [x] Enhanced tenant isolation with comprehensive filtering across all resources
-  - [x] Added tenant_id fields to all core resource schemas
-  - [x] Implemented tenant-scoped CRUD operations for contributors, merge-requests, and repositories
+  - [x] Added tenant_id fields to all core resource schemas (Team, Repository, Commit, Contributor, MergeRequest, Pipeline, Build, BuildStep)
+  - [x] Implemented tenant-scoped CRUD operations for all core resources
+  - [x] Added proper tenant relationship constraints with cascading deletes
+  - [x] Comprehensive indexing for tenant-scoped queries
 
 ## Testing & Documentation
 
@@ -354,25 +361,28 @@ This document tracks the implementation progress of all plugins (resources, data
 
 ## Next Steps
 
-1. **Priority 1: Core SCM Resources**
-   - Implement Commit resource
-   - Implement Contributor resource
-   - Implement MergeRequest resource
-
-2. **Priority 2: GitHub Data Collection**
+1. **Priority 1: GitHub Data Collection**
    - Extend GitHub plugin for commits
    - Add pull request collection
    - Add contributor synchronization
 
-3. **Priority 3: CI/CD Resources**
-   - Implement Pipeline resource
-   - Implement Build resource
-   - Add Jenkins data source
-
-4. **Priority 4: Project Management**
+2. **Priority 2: Project Management Resources**
    - Implement Issue resource
+   - Implement Project resource
+   - Implement Sprint resource
+   - Add Board and Status resources
+
+3. **Priority 3: Data Source Integrations**
+   - Complete GitHub data sources (commits, pull requests, contributors)
+   - Add GitLab data sources
+   - Add Jenkins data source
    - Add JIRA data source
-   - Create first reports
+
+4. **Priority 4: Reports and Analytics**
+   - Implement Team Velocity Report
+   - Create Code Quality Report
+   - Add Pipeline Performance Report
+   - Build Contributor Activity Report
 
 ## Brand & Product Identity
 
