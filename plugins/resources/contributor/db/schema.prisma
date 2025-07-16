@@ -34,6 +34,11 @@ model Contributor {
   authoredMergeRequests MergeRequest[] @relation("MergeRequestAuthor")
   assignedMergeRequests MergeRequest[] @relation("MergeRequestAssignee")
 
+  @@index([tenantId])
+  @@index([isActive])
+  @@index([name])
+  @@index([tenantId, isActive])
+  @@index([tenantId, name])
   @@map("contributor")
   @@schema("core")
 }

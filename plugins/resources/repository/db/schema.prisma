@@ -31,6 +31,11 @@ model Repository {
   mergeRequests MergeRequest[]
   pipelines    Pipeline[]
 
+  @@index([tenantId])
+  @@index([name])
+  @@index([owner])
+  @@index([tenantId, name])
+  @@index([tenantId, owner])
   @@map("repository")
   @@schema("scm")
 }

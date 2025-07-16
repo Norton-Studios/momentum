@@ -52,11 +52,11 @@ This document tracks the implementation progress of all plugins (resources, data
   - [x] Relationships (Repository, MergeRequest)
   - [x] Unit tests
 
-- [ ] **Build** (Pipeline Execution) ⏳
-  - [ ] Database schema design
-  - [ ] CRUD API endpoints
-  - [ ] Relationships (Pipeline, Commit)
-  - [ ] Unit tests
+- [x] **Build** (Pipeline Execution) ✅
+  - [x] Database schema design
+  - [x] CRUD API endpoints
+  - [x] Relationships (Pipeline, Commit)
+  - [x] Unit tests
 
 - [ ] **Build Step** ⏳
   - [ ] Database schema design
