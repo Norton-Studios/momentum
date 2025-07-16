@@ -203,7 +203,7 @@ routes.forEach(route => {
 
 6. **Before Committing**:
    - Run `yarn format` to format code
-   - Run `yarn lint` to fix any linting issues
+   - Run `yarn lint` and `yarn lint:fix` if there are ny linting issues
    - Ensure all tests pass with `yarn test`
    - Check for schema changes and run migrations if needed
 
