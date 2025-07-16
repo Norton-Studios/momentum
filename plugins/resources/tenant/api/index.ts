@@ -1,5 +1,5 @@
 import { Router, type Response } from "express";
-import { PrismaClient } from "@mmtm/database";
+import type { PrismaClient } from "@mmtm/database";
 import { z } from "zod";
 import bcrypt from "bcrypt";
 import crypto from "crypto";

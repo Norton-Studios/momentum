@@ -14,12 +14,18 @@ vi.mock("p-graph", () => ({
 
 // Mock database
 vi.mock("@mmtm/database", () => ({
-  PrismaClient: vi.fn(),
+  prisma: {
+    dataSourceRun: {
+      create: vi.fn(),
+      update: vi.fn(),
+    },
+    $disconnect: vi.fn(),
+  },
 }));
 
 import fg from "fast-glob";
 import pGraph from "p-graph";
-import { PrismaClient } from "@mmtm/database";
+import { prisma } from "@mmtm/database";
 
 describe("import", () => {
   let mockDb: any;
@@ -27,15 +33,8 @@ describe("import", () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    // Setup mock database
-    mockDb = {
-      dataSourceRun: {
-        create: vi.fn(),
-        update: vi.fn(),
-      },
-      $disconnect: vi.fn(),
-    };
-    (PrismaClient as any).mockImplementation(() => mockDb);
+    // Setup mock database - prisma is already mocked in vi.mock above
+    mockDb = prisma;
   });
 
   describe("loadDataSources", () => {

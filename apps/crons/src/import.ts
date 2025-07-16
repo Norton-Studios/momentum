@@ -1,7 +1,7 @@
 import fg from "fast-glob";
 import path from "node:path";
 import pGraph from "p-graph";
-import { PrismaClient } from "@mmtm/database";
+import { prisma, type PrismaClient } from "@mmtm/database";
 
 interface DataSource {
   name: string;
@@ -71,7 +71,7 @@ export function buildDependencyGraph(dataSources: DataSource[]): Map<string, str
 }
 
 export async function executeDataSources(dataSources: DataSource[], startDate?: Date, endDate?: Date): Promise<void> {
-  const db = new PrismaClient();
+  const db = prisma;
 
   try {
     const dependencyGraph = buildDependencyGraph(dataSources);
