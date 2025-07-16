@@ -322,6 +322,9 @@ This document tracks the implementation progress of all plugins (resources, data
   - [x] Implement tenant filtering in queries
   - [x] Add tenant context to all plugins
   - [x] Test tenant data boundaries
+  - [x] Enhanced tenant isolation with comprehensive filtering across all resources
+  - [x] Added tenant_id fields to all core resource schemas
+  - [x] Implemented tenant-scoped CRUD operations for contributors, merge-requests, and repositories
 
 ## Testing & Documentation
 
