@@ -76,9 +76,11 @@ describe("import", () => {
     it("should handle modules without required exports", async () => {
       (fg as any).mockResolvedValue(["/plugins/data-sources/invalid/test.ts"]);
 
-      // Mock invalid module
+      // Mock invalid module - has undefined resources and run
       vi.doMock("/plugins/data-sources/invalid/test.ts", () => ({
-        // Missing resources and run
+        resources: undefined,
+        run: undefined,
+        someOtherExport: "value",
       }));
 
       const dataSources = await loadDataSources();
