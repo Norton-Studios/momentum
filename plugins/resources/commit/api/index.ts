@@ -1,113 +1,186 @@
-import { Router } from "express";
+import { Router, type Response } from "express";
 import { prisma } from "@mmtm/database";
+import type { AuthenticatedRequest } from "../../../../apps/api/src/middleware/auth";
 
 const router = Router();
 
 // Create a new commit
-router.post("/commits", async (req, res) => {
-  const commit = await prisma.commit.create({
-    data: req.body,
-  });
-  res.status(201).json(commit);
+router.post("/commit", async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const tenantId = req.user.tenantId;
+
+    const commit = await prisma.commit.create({
+      data: {
+        ...req.body,
+        tenantId,
+      },
+    });
+
+    res.status(201).json(commit);
+  } catch (_error) {
+    res.status(500).json({ error: "Failed to create commit" });
+  }
 });
 
 // Get all commits
-router.get("/commits", async (req, res) => {
-  const commits = await prisma.commit.findMany({
-    include: {
-      repository: true,
-    },
-  });
-  res.json(commits);
+router.get("/commits", async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const tenantId = req.user.tenantId;
+
+    const commits = await prisma.commit.findMany({
+      where: { tenantId },
+      include: {
+        repository: true,
+      },
+    });
+
+    res.json(commits);
+  } catch (_error) {
+    res.status(500).json({ error: "Failed to fetch commits" });
+  }
 });
 
 // Get commits by repository
-router.get("/repositories/:repositoryId/commits", async (req, res) => {
-  const { repositoryId } = req.params;
-  const commits = await prisma.commit.findMany({
-    where: {
-      repositoryId,
-    },
-    orderBy: {
-      authorDate: "desc",
-    },
-  });
-  res.json(commits);
+router.get("/repositories/:repositoryId/commits", async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const tenantId = req.user.tenantId;
+    const { repositoryId } = req.params;
+
+    const commits = await prisma.commit.findMany({
+      where: {
+        repositoryId,
+        tenantId,
+      },
+      orderBy: {
+        authorDate: "desc",
+      },
+    });
+
+    res.json(commits);
+  } catch (_error) {
+    res.status(500).json({ error: "Failed to fetch commits" });
+  }
 });
 
 // Get a specific commit
-router.get("/commits/:id", async (req, res) => {
-  const { id } = req.params;
-  const commit = await prisma.commit.findUnique({
-    where: { id },
-    include: {
-      repository: true,
-    },
-  });
+router.get("/commits/:id", async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const tenantId = req.user.tenantId;
+    const { id } = req.params;
 
-  if (!commit) {
-    return res.status(404).json({ error: "Commit not found" });
+    const commit = await prisma.commit.findUnique({
+      where: {
+        id,
+        tenantId,
+      },
+      include: {
+        repository: true,
+      },
+    });
+
+    if (!commit) {
+      return res.status(404).json({ error: "Commit not found" });
+    }
+
+    res.json(commit);
+  } catch (_error) {
+    res.status(500).json({ error: "Failed to fetch commit" });
   }
-
-  res.json(commit);
 });
 
 // Get a commit by SHA
-router.get("/commits/sha/:sha", async (req, res) => {
-  const { sha } = req.params;
-  const commit = await prisma.commit.findUnique({
-    where: { sha },
-    include: {
-      repository: true,
-    },
-  });
+router.get("/commits/sha/:sha", async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const tenantId = req.user.tenantId;
+    const { sha } = req.params;
 
-  if (!commit) {
-    return res.status(404).json({ error: "Commit not found" });
+    const commit = await prisma.commit.findUnique({
+      where: {
+        sha,
+        tenantId,
+      },
+      include: {
+        repository: true,
+      },
+    });
+
+    if (!commit) {
+      return res.status(404).json({ error: "Commit not found" });
+    }
+
+    res.json(commit);
+  } catch (_error) {
+    res.status(500).json({ error: "Failed to fetch commit" });
   }
-
-  res.json(commit);
 });
 
 // Update a commit
-router.put("/commits/:id", async (req, res) => {
-  const { id } = req.params;
-  const commit = await prisma.commit.update({
-    where: { id },
-    data: req.body,
-  });
-  res.json(commit);
+router.put("/commits/:id", async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const tenantId = req.user.tenantId;
+    const { id } = req.params;
+
+    const commit = await prisma.commit.update({
+      where: {
+        id,
+        tenantId,
+      },
+      data: req.body,
+    });
+
+    res.json(commit);
+  } catch (_error) {
+    res.status(500).json({ error: "Failed to update commit" });
+  }
 });
 
 // Delete a commit
-router.delete("/commits/:id", async (req, res) => {
-  const { id } = req.params;
-  await prisma.commit.delete({
-    where: { id },
-  });
-  res.status(204).send();
+router.delete("/commits/:id", async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const tenantId = req.user.tenantId;
+    const { id } = req.params;
+
+    await prisma.commit.delete({
+      where: {
+        id,
+        tenantId,
+      },
+    });
+
+    res.status(204).send();
+  } catch (_error) {
+    res.status(500).json({ error: "Failed to delete commit" });
+  }
 });
 
 // Get commit statistics for a repository
-router.get("/repositories/:repositoryId/commits/stats", async (req, res) => {
-  const { repositoryId } = req.params;
+router.get("/repositories/:repositoryId/commits/stats", async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const tenantId = req.user.tenantId;
+    const { repositoryId } = req.params;
 
-  const stats = await prisma.commit.aggregate({
-    where: { repositoryId },
-    _count: true,
-    _sum: {
-      additions: true,
-      deletions: true,
-      changedFiles: true,
-    },
-  });
+    const stats = await prisma.commit.aggregate({
+      where: {
+        repositoryId,
+        tenantId,
+      },
+      _count: true,
+      _sum: {
+        additions: true,
+        deletions: true,
+        changedFiles: true,
+      },
+    });
 
-  res.json({
-    totalCommits: stats._count,
-    totalAdditions: stats._sum.additions || 0,
-    totalDeletions: stats._sum.deletions || 0,
-    totalChangedFiles: stats._sum.changedFiles || 0,
-  });
+    res.json({
+      totalCommits: stats._count,
+      totalAdditions: stats._sum.additions || 0,
+      totalDeletions: stats._sum.deletions || 0,
+      totalChangedFiles: stats._sum.changedFiles || 0,
+    });
+  } catch (_error) {
+    res.status(500).json({ error: "Failed to fetch commit statistics" });
+  }
 });
 
 export default router;

@@ -23,6 +23,8 @@ model Contributor {
   githubUsername  String?   @map("github_username")
   gitlabUsername  String?   @map("gitlab_username")
   isActive        Boolean   @default(true) @map("is_active")
+  tenantId        String    @map("tenant_id")
+  tenant          Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   createdAt       DateTime  @default(now()) @map("created_at")
   updatedAt       DateTime  @updatedAt @map("updated_at")
 
@@ -32,7 +34,7 @@ model Contributor {
   authoredMergeRequests MergeRequest[] @relation("MergeRequestAuthor")
   assignedMergeRequests MergeRequest[] @relation("MergeRequestAssignee")
 
-  @@map("contributors")
+  @@map("contributor")
   @@schema("core")
 }
 
@@ -50,7 +52,7 @@ model TeamContributor {
   updatedAt     DateTime    @updatedAt @map("updated_at")
 
   @@unique([teamId, contributorId])
-  @@map("team_contributors")
+  @@map("team_contributor")
   @@schema("core")
 }
 
@@ -61,6 +63,6 @@ model Commit {
   authorEmail   String      @map("author_email")
   contributor   Contributor? @relation(fields: [authorEmail], references: [email])
 
-  @@map("commits")
+  @@map("commit")
   @@schema("scm")
 }

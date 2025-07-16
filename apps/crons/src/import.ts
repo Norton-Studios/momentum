@@ -1,7 +1,7 @@
 import fg from "fast-glob";
 import path from "node:path";
 import pGraph from "p-graph";
-import { PrismaClient } from "@mmtm/database";
+import { prisma, type PrismaClient } from "@mmtm/database";
 
 interface DataSource {
   name: string;
@@ -11,16 +11,10 @@ interface DataSource {
 }
 
 export async function loadDataSources(): Promise<DataSource[]> {
-  const dataSourcePaths = await fg(
-    [
-      "../../plugins/data-sources/*/index.ts",
-      "../../plugins/data-sources/*/*.ts",
-    ],
-    {
-      absolute: true,
-      cwd: __dirname,
-    },
-  );
+  const dataSourcePaths = await fg(["../../plugins/data-sources/*/index.ts", "../../plugins/data-sources/*/*.ts"], {
+    absolute: true,
+    cwd: __dirname,
+  });
 
   const dataSources: DataSource[] = [];
 
@@ -31,8 +25,7 @@ export async function loadDataSources(): Promise<DataSource[]> {
       if (module.resources && module.run) {
         const name = path.basename(dataSourcePath, ".ts");
         const parentDir = path.basename(path.dirname(dataSourcePath));
-        const dataSourceName =
-          name === "index" ? parentDir : `${parentDir}-${name}`;
+        const dataSourceName = name === "index" ? parentDir : `${parentDir}-${name}`;
 
         dataSources.push({
           name: dataSourceName,
@@ -51,9 +44,7 @@ export async function loadDataSources(): Promise<DataSource[]> {
   return dataSources;
 }
 
-export function buildDependencyGraph(
-  dataSources: DataSource[],
-): Map<string, string[]> {
+export function buildDependencyGraph(dataSources: DataSource[]): Map<string, string[]> {
   const graph = new Map<string, string[]>();
 
   // Initialize graph with all data sources
@@ -67,9 +58,7 @@ export function buildDependencyGraph(
 
     // Add explicit dependencies
     for (const dep of dataSource.dependencies) {
-      const dependentDataSource = dataSources.find(
-        (ds) => ds.resources.includes(dep) || ds.name === dep,
-      );
+      const dependentDataSource = dataSources.find((ds) => ds.resources.includes(dep) || ds.name === dep);
       if (dependentDataSource && dependentDataSource.name !== dataSource.name) {
         dependencies.push(dependentDataSource.name);
       }
@@ -81,12 +70,8 @@ export function buildDependencyGraph(
   return graph;
 }
 
-export async function executeDataSources(
-  dataSources: DataSource[],
-  startDate?: Date,
-  endDate?: Date,
-): Promise<void> {
-  const db = new PrismaClient();
+export async function executeDataSources(dataSources: DataSource[], startDate?: Date, endDate?: Date): Promise<void> {
+  const db = prisma;
 
   try {
     const dependencyGraph = buildDependencyGraph(dataSources);
@@ -167,16 +152,11 @@ export async function executeDataSources(
   }
 }
 
-export async function runImport(
-  startDate?: Date,
-  endDate?: Date,
-): Promise<void> {
+export async function runImport(startDate?: Date, endDate?: Date): Promise<void> {
   console.log("Starting data source import...");
 
   if (startDate) {
-    console.log(
-      `Import range: ${startDate.toISOString()} to ${endDate?.toISOString() || "now"}`,
-    );
+    console.log(`Import range: ${startDate.toISOString()} to ${endDate?.toISOString() || "now"}`);
   }
 
   const dataSources = await loadDataSources();

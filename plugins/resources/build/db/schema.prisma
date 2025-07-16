@@ -44,7 +44,7 @@ model Build {
   @@index([createdAt])
   @@index([finishedAt])
   @@index([environment])
-  @@map("builds")
+  @@map("build")
   @@schema("scm")
 }
 
@@ -77,7 +77,7 @@ model BuildStep {
   @@index([status])
   @@index([order])
   @@index([createdAt])
-  @@map("build_steps")
+  @@map("build_step")
   @@schema("scm")
 }
 

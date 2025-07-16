@@ -26,13 +26,15 @@ model Commit {
   deletions          Int         @default(0)
   changedFiles       Int         @default(0) @map("changed_files")
   parentShas         String[]    @map("parent_shas")
+  tenantId           String      @map("tenant_id")
+  tenant             Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   createdAt          DateTime    @default(now()) @map("created_at")
   updatedAt          DateTime    @updatedAt @map("updated_at")
 
   mergeRequests      MergeRequestCommit[]
   builds             Build[]
 
-  @@map("commits")
+  @@map("commit")
   @@schema("scm")
 }
 
@@ -40,6 +42,6 @@ model Repository {
   id          Int      @id @default(autoincrement())
   commits     Commit[]
   
-  @@map("repositories")
+  @@map("repository")
   @@schema("scm")
 }

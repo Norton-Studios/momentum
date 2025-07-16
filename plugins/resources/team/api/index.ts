@@ -1,22 +1,14 @@
 import { prisma } from "@mmtm/database";
-import { Router } from "express";
+import { Router, type Response } from "express";
+import type { AuthenticatedRequest } from "../../../../apps/api/src/middleware/auth";
 
 const router = Router();
 
-// Get tenant context from authenticated user
-function getTenantId(req: any): string {
-  return req.user?.tenantId;
-}
-
 // Create
-router.post("/team", async (req, res) => {
+router.post("/team", async (req: AuthenticatedRequest, res: Response) => {
   const { name } = req.body;
-  const tenantId = getTenantId(req);
-  
-  if (!tenantId) {
-    return res.status(401).json({ error: 'Tenant context required' });
-  }
-  
+  const tenantId = req.user.tenantId;
+
   const team = await prisma.team.create({
     data: { name, tenantId },
   });
@@ -24,13 +16,9 @@ router.post("/team", async (req, res) => {
 });
 
 // Read (all)
-router.get("/teams", async (req, res) => {
-  const tenantId = getTenantId(req);
-  
-  if (!tenantId) {
-    return res.status(401).json({ error: 'Tenant context required' });
-  }
-  
+router.get("/teams", async (req: AuthenticatedRequest, res: Response) => {
+  const tenantId = req.user.tenantId;
+
   const teams = await prisma.team.findMany({
     where: { tenantId },
     include: { repositories: true },
@@ -39,76 +27,64 @@ router.get("/teams", async (req, res) => {
 });
 
 // Read (one)
-router.get("/team/:id", async (req, res) => {
+router.get("/team/:id", async (req: AuthenticatedRequest, res: Response) => {
   const { id } = req.params;
-  const tenantId = getTenantId(req);
-  
-  if (!tenantId) {
-    return res.status(401).json({ error: 'Tenant context required' });
-  }
-  
+  const tenantId = req.user.tenantId;
+
   const team = await prisma.team.findFirst({
-    where: { 
+    where: {
       id: Number(id),
-      tenantId 
+      tenantId,
     },
     include: { repositories: true },
   });
-  
+
   if (!team) {
-    return res.status(404).json({ error: 'Team not found' });
+    return res.status(404).json({ error: "Team not found" });
   }
-  
+
   res.json(team);
 });
 
 // Update
-router.put("/team/:id", async (req, res) => {
+router.put("/team/:id", async (req: AuthenticatedRequest, res: Response) => {
   const { id } = req.params;
   const { name } = req.body;
-  const tenantId = getTenantId(req);
-  
-  if (!tenantId) {
-    return res.status(401).json({ error: 'Tenant context required' });
-  }
-  
+  const tenantId = req.user.tenantId;
+
   const team = await prisma.team.updateMany({
-    where: { 
+    where: {
       id: Number(id),
-      tenantId 
+      tenantId,
     },
     data: { name },
   });
-  
+
   if (team.count === 0) {
-    return res.status(404).json({ error: 'Team not found' });
+    return res.status(404).json({ error: "Team not found" });
   }
-  
+
   const updatedTeam = await prisma.team.findFirst({
-    where: { id: Number(id), tenantId }
+    where: { id: Number(id), tenantId },
   });
-  
+
   res.json(updatedTeam);
 });
 
 // Delete
-router.delete("/team/:id", async (req, res) => {
+router.delete("/team/:id", async (req: AuthenticatedRequest, res: Response) => {
   const { id } = req.params;
-  const tenantId = getTenantId(req);
-  
-  if (!tenantId) {
-    return res.status(401).json({ error: 'Tenant context required' });
-  }
-  
+  const tenantId = req.user.tenantId;
+
   // Verify team belongs to tenant before deleting
   const team = await prisma.team.findFirst({
-    where: { id: Number(id), tenantId }
+    where: { id: Number(id), tenantId },
   });
-  
+
   if (!team) {
-    return res.status(404).json({ error: 'Team not found' });
+    return res.status(404).json({ error: "Team not found" });
   }
-  
+
   await prisma.teamRepository.deleteMany({
     where: { teamId: Number(id) },
   });
@@ -119,7 +95,7 @@ router.delete("/team/:id", async (req, res) => {
 });
 
 // Add repository to team
-router.post("/team/:teamId/repository/:repositoryId", async (req, res) => {
+router.post("/team/:teamId/repository/:repositoryId", async (req: AuthenticatedRequest, res: Response) => {
   const { teamId, repositoryId } = req.params;
   const teamRepository = await prisma.teamRepository.create({
     data: {
@@ -131,7 +107,7 @@ router.post("/team/:teamId/repository/:repositoryId", async (req, res) => {
 });
 
 // Remove repository from team
-router.delete("/team/:teamId/repository/:repositoryId", async (req, res) => {
+router.delete("/team/:teamId/repository/:repositoryId", async (req: AuthenticatedRequest, res: Response) => {
   const { teamId, repositoryId } = req.params;
   await prisma.teamRepository.delete({
     where: {

@@ -19,8 +19,14 @@ vi.mock("@mmtm/database", () => {
 
 const app = express();
 app.use(express.json());
-app.use((req, res, next) => {
-  req.user = { tenantId: "test-tenant-id" };
+// Mock authentication middleware
+app.use((req, _res, next) => {
+  (req as any).user = {
+    id: "test-user-id",
+    email: "test@example.com",
+    tenantId: "test-tenant-id",
+    isAdmin: false,
+  };
   next();
 });
 app.use(router);
@@ -43,14 +49,12 @@ describe("Pipeline API", () => {
     const { prisma } = await import("@mmtm/database");
     vi.mocked(prisma.pipeline.create).mockResolvedValue(mockPipeline);
 
-    const response = await request(app)
-      .post("/pipeline")
-      .send({
-        repositoryId: 1,
-        externalId: "123",
-        name: "Test Pipeline",
-        status: "pending",
-      });
+    const response = await request(app).post("/pipeline").send({
+      repositoryId: 1,
+      externalId: "123",
+      name: "Test Pipeline",
+      status: "pending",
+    });
 
     expect(response.status).toBe(201);
     expect(response.body).toEqual(mockPipeline);
@@ -119,12 +123,10 @@ describe("Pipeline API", () => {
     const { prisma } = await import("@mmtm/database");
     vi.mocked(prisma.pipeline.update).mockResolvedValue(mockUpdatedPipeline);
 
-    const response = await request(app)
-      .put("/pipeline/1")
-      .send({
-        name: "Updated Pipeline",
-        status: "success",
-      });
+    const response = await request(app).put("/pipeline/1").send({
+      name: "Updated Pipeline",
+      status: "success",
+    });
 
     expect(response.status).toBe(200);
     expect(response.body).toEqual(mockUpdatedPipeline);
@@ -137,16 +139,5 @@ describe("Pipeline API", () => {
     const response = await request(app).delete("/pipeline/1");
 
     expect(response.status).toBe(204);
-  });
-
-  it("should return 401 for unauthorized requests", async () => {
-    const appWithoutAuth = express();
-    appWithoutAuth.use(express.json());
-    appWithoutAuth.use(router);
-
-    const response = await request(appWithoutAuth).get("/pipelines");
-
-    expect(response.status).toBe(401);
-    expect(response.body.error).toBe("Unauthorized");
   });
 });

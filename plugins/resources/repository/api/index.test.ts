@@ -14,9 +14,7 @@ vi.mock("@mmtm/database", () => {
       repository: {
         findMany: vi.fn().mockResolvedValue(mockRepositories),
         findUnique: vi.fn().mockImplementation(({ where: { id } }) => {
-          return Promise.resolve(
-            mockRepositories.find((r) => r.id === id) || null,
-          );
+          return Promise.resolve(mockRepositories.find((r) => r.id === id) || null);
         }),
       },
     },
@@ -25,13 +23,24 @@ vi.mock("@mmtm/database", () => {
 
 const app = express();
 app.use(express.json());
+
+// Mock authentication middleware
+app.use((req, _res, next) => {
+  (req as any).user = {
+    id: "test-user-id",
+    email: "test@example.com",
+    tenantId: "test-tenant-id",
+    isAdmin: false,
+  };
+  next();
+});
+
 app.use(router);
 
-import { prisma } from "@mmtm/database";
 
 describe("Repository API", () => {
-  it("GET /repository should return all repositories", async () => {
-    const res = await request(app).get("/repository");
+  it("GET /repositories should return all repositories", async () => {
+    const res = await request(app).get("/repositories");
     expect(res.status).toBe(200);
     expect(res.body).toHaveLength(2);
     expect(res.body[0]).toHaveProperty("name", "repo1");

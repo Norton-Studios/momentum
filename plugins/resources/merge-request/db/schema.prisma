@@ -48,7 +48,7 @@ model MergeRequest {
   @@index([state])
   @@index([createdAt])
   @@index([mergedAt])
-  @@map("merge_requests")
+  @@map("merge_request")
   @@schema("scm")
 }
 
@@ -67,7 +67,7 @@ model MergeRequestCommit {
   @@index([tenantId])
   @@index([mergeRequestId])
   @@index([commitId])
-  @@map("merge_request_commits")
+  @@map("merge_request_commit")
   @@schema("scm")
 }
 

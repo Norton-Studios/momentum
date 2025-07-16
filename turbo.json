@@ -11,7 +11,7 @@
       "inputs": [
         "src/**/*.ts",
         "src/**/*.tsx",
-        "api/**/*.ts", 
+        "api/**/*.ts",
         "db/**/*.prisma",
         "**/*.test.ts",
         "**/*.spec.ts",
@@ -33,22 +33,13 @@
     "synthesise": {
       "dependsOn": [],
       "outputs": ["build/**"],
-      "inputs": [
-        "**/db/schema.prisma",
-        "src/synthesise.ts"
-      ]
+      "inputs": ["**/db/schema.prisma", "src/synthesise.ts"]
     },
     "generate": {
       "dependsOn": ["synthesise"],
       "outputs": ["node_modules/.prisma/**"],
-      "inputs": [
-        "build/schema.prisma"
-      ]
+      "inputs": ["build/schema.prisma"]
     }
   },
-  "globalDependencies": [
-    "yarn.lock",
-    "package.json",
-    "tsconfig.json"
-  ]
+  "globalDependencies": ["yarn.lock", "package.json", "tsconfig.json"]
 }

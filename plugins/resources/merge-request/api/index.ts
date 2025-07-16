@@ -1,19 +1,13 @@
 import { prisma } from "@mmtm/database";
-import { Router } from "express";
+import { Router, type Response } from "express";
+import type { AuthenticatedRequest } from "../../../../apps/api/src/middleware/auth";
 
 const router = Router();
 
-function getTenantId(req: any): string {
-  return req.user?.tenantId;
-}
-
 // POST /merge-request - Create a new merge request
-router.post("/merge-request", async (req, res) => {
+router.post("/merge-request", async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const tenantId = getTenantId(req);
-    if (!tenantId) {
-      return res.status(401).json({ error: "Unauthorized" });
-    }
+    const tenantId = req.user.tenantId;
 
     const mergeRequest = await prisma.mergeRequest.create({
       data: {
@@ -23,18 +17,15 @@ router.post("/merge-request", async (req, res) => {
     });
 
     res.status(201).json(mergeRequest);
-  } catch (error) {
+  } catch (_error) {
     res.status(500).json({ error: "Failed to create merge request" });
   }
 });
 
 // GET /merge-requests - Get all merge requests
-router.get("/merge-requests", async (req, res) => {
+router.get("/merge-requests", async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const tenantId = getTenantId(req);
-    if (!tenantId) {
-      return res.status(401).json({ error: "Unauthorized" });
-    }
+    const tenantId = req.user.tenantId;
 
     const mergeRequests = await prisma.mergeRequest.findMany({
       where: { tenantId },
@@ -47,23 +38,20 @@ router.get("/merge-requests", async (req, res) => {
     });
 
     res.json(mergeRequests);
-  } catch (error) {
+  } catch (_error) {
     res.status(500).json({ error: "Failed to fetch merge requests" });
   }
 });
 
 // GET /merge-request/:id - Get a specific merge request
-router.get("/merge-request/:id", async (req, res) => {
+router.get("/merge-request/:id", async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const tenantId = getTenantId(req);
-    if (!tenantId) {
-      return res.status(401).json({ error: "Unauthorized" });
-    }
+    const tenantId = req.user.tenantId;
 
     const mergeRequest = await prisma.mergeRequest.findUnique({
-      where: { 
+      where: {
         id: Number(req.params.id),
-        tenantId 
+        tenantId,
       },
       include: {
         repository: true,
@@ -78,50 +66,44 @@ router.get("/merge-request/:id", async (req, res) => {
     }
 
     res.json(mergeRequest);
-  } catch (error) {
+  } catch (_error) {
     res.status(500).json({ error: "Failed to fetch merge request" });
   }
 });
 
 // PUT /merge-request/:id - Update a merge request
-router.put("/merge-request/:id", async (req, res) => {
+router.put("/merge-request/:id", async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const tenantId = getTenantId(req);
-    if (!tenantId) {
-      return res.status(401).json({ error: "Unauthorized" });
-    }
+    const tenantId = req.user.tenantId;
 
     const mergeRequest = await prisma.mergeRequest.update({
-      where: { 
+      where: {
         id: Number(req.params.id),
-        tenantId 
+        tenantId,
       },
       data: req.body,
     });
 
     res.json(mergeRequest);
-  } catch (error) {
+  } catch (_error) {
     res.status(500).json({ error: "Failed to update merge request" });
   }
 });
 
 // DELETE /merge-request/:id - Delete a merge request
-router.delete("/merge-request/:id", async (req, res) => {
+router.delete("/merge-request/:id", async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const tenantId = getTenantId(req);
-    if (!tenantId) {
-      return res.status(401).json({ error: "Unauthorized" });
-    }
+    const tenantId = req.user.tenantId;
 
     await prisma.mergeRequest.delete({
-      where: { 
+      where: {
         id: Number(req.params.id),
-        tenantId 
+        tenantId,
       },
     });
 
     res.status(204).send();
-  } catch (error) {
+  } catch (_error) {
     res.status(500).json({ error: "Failed to delete merge request" });
   }
 });

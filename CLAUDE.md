@@ -73,6 +73,44 @@ momentum/
    - Can expose API endpoints and scheduled jobs
    - Support multiple delivery methods (email, SFTP, etc.)
 
+### Naming Conventions
+
+Follow these strict naming conventions throughout the project:
+
+1. **Database Tables and Fields**:
+   - Must be singular and snake_case: `user`, `merge_request`, `created_at`
+   - Use Prisma `@@map` for table names and `@map` for field names to provide camelCase aliases
+   - Example:
+     ```prisma
+     model User {
+       id        String   @id @default(cuid())
+       createdAt DateTime @default(now()) @map("created_at")
+       firstName String   @map("first_name")
+       
+       @@map("user")
+     }
+     ```
+
+2. **TypeScript Variables**:
+   - Use camelCase: `userId`, `createdAt`, `mergeRequest`
+   - Boolean variables should be prefixed with `is`, `has`, or `can`: `isActive`, `hasPermission`
+
+3. **Classes and Interfaces**:
+   - Use PascalCase: `UserService`, `MergeRequest`, `ApiResponse`
+   - Interfaces should be descriptive without `I` prefix: `UserRepository`, `DatabaseConnection`
+
+4. **Constants**:
+   - Use SCREAMING_SNAKE_CASE: `MAX_RETRY_ATTEMPTS`, `DEFAULT_PAGE_SIZE`
+
+5. **File and Directory Names**:
+   - Use kebab-case for files: `user-service.ts`, `merge-request.model.ts`
+   - Use kebab-case for directories: `data-sources`, `merge-request`
+
+6. **API Endpoints**:
+   - Use kebab-case with plural nouns: `/users`, `/merge-requests`
+   - Use singular for specific resources: `/user/:id`, `/merge-request/:id`
+   - Use singular for resource creation, e.g., `POST /user` to create a new user
+
 ### Dynamic Loading Pattern
 
 The core applications use dynamic imports to discover plugins:
@@ -162,6 +200,19 @@ routes.forEach(route => {
    - Use Express as peerDependency: `"peerDependencies": { "express": "^5.1.0", "@types/express": "^5.0.3" }`
    - Include proper prisma schema path: `"prisma": { "schema": "db/schema.prisma" }`
    - Follow naming convention: `@mmtm/resource-{name}` or `@mmtm/data-source-{name}`
+
+6. **Before Committing**:
+   - Run `yarn format` to format code
+   - Run `yarn lint` and `yarn lint:fix` if there are ny linting issues
+   - Ensure all tests pass with `yarn test`
+   - Check for schema changes and run migrations if needed
+
+7. **Before Creating a Pull Request**:
+   - Ensure all tests are passing
+   - Verify that the plugin follows naming conventions
+   - Check that the progress is updated `documentation/PROGRESS.md`
+   - Update the main documentation if necessary
+   - Run the e2e tests with `yarn workspace e2e-tests run`
 
 ## Multi-Tenancy Considerations
 

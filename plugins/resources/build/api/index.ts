@@ -1,19 +1,13 @@
 import { prisma } from "@mmtm/database";
-import { Router } from "express";
+import { Router, type Response } from "express";
+import type { AuthenticatedRequest } from "../../../../apps/api/src/middleware/auth";
 
 const router = Router();
 
-function getTenantId(req: any): string {
-  return req.user?.tenantId;
-}
-
 // POST /build - Create a new build
-router.post("/build", async (req, res) => {
+router.post("/build", async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const tenantId = getTenantId(req);
-    if (!tenantId) {
-      return res.status(401).json({ error: "Unauthorized" });
-    }
+    const tenantId = req.user.tenantId;
 
     const build = await prisma.build.create({
       data: {
@@ -23,18 +17,15 @@ router.post("/build", async (req, res) => {
     });
 
     res.status(201).json(build);
-  } catch (error) {
+  } catch (_error) {
     res.status(500).json({ error: "Failed to create build" });
   }
 });
 
 // GET /builds - Get all builds
-router.get("/builds", async (req, res) => {
+router.get("/builds", async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const tenantId = getTenantId(req);
-    if (!tenantId) {
-      return res.status(401).json({ error: "Unauthorized" });
-    }
+    const tenantId = req.user.tenantId;
 
     const builds = await prisma.build.findMany({
       where: { tenantId },
@@ -46,23 +37,20 @@ router.get("/builds", async (req, res) => {
     });
 
     res.json(builds);
-  } catch (error) {
+  } catch (_error) {
     res.status(500).json({ error: "Failed to fetch builds" });
   }
 });
 
 // GET /build/:id - Get a specific build
-router.get("/build/:id", async (req, res) => {
+router.get("/build/:id", async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const tenantId = getTenantId(req);
-    if (!tenantId) {
-      return res.status(401).json({ error: "Unauthorized" });
-    }
+    const tenantId = req.user.tenantId;
 
     const build = await prisma.build.findUnique({
-      where: { 
+      where: {
         id: Number(req.params.id),
-        tenantId 
+        tenantId,
       },
       include: {
         pipeline: true,
@@ -76,50 +64,44 @@ router.get("/build/:id", async (req, res) => {
     }
 
     res.json(build);
-  } catch (error) {
+  } catch (_error) {
     res.status(500).json({ error: "Failed to fetch build" });
   }
 });
 
 // PUT /build/:id - Update a build
-router.put("/build/:id", async (req, res) => {
+router.put("/build/:id", async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const tenantId = getTenantId(req);
-    if (!tenantId) {
-      return res.status(401).json({ error: "Unauthorized" });
-    }
+    const tenantId = req.user.tenantId;
 
     const build = await prisma.build.update({
-      where: { 
+      where: {
         id: Number(req.params.id),
-        tenantId 
+        tenantId,
       },
       data: req.body,
     });
 
     res.json(build);
-  } catch (error) {
+  } catch (_error) {
     res.status(500).json({ error: "Failed to update build" });
   }
 });
 
 // DELETE /build/:id - Delete a build
-router.delete("/build/:id", async (req, res) => {
+router.delete("/build/:id", async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const tenantId = getTenantId(req);
-    if (!tenantId) {
-      return res.status(401).json({ error: "Unauthorized" });
-    }
+    const tenantId = req.user.tenantId;
 
     await prisma.build.delete({
-      where: { 
+      where: {
         id: Number(req.params.id),
-        tenantId 
+        tenantId,
       },
     });
 
     res.status(204).send();
-  } catch (error) {
+  } catch (_error) {
     res.status(500).json({ error: "Failed to delete build" });
   }
 });

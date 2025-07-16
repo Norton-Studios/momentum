@@ -43,7 +43,7 @@ model Pipeline {
   @@index([createdAt])
   @@index([finishedAt])
   @@index([branch])
-  @@map("pipelines")
+  @@map("pipeline")
   @@schema("scm")
 }
 

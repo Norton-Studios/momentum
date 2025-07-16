@@ -1,11 +1,5 @@
-import { describe, it, expect, vi, beforeEach, Mock } from "vitest";
-import path from "path";
-import {
-  loadDataSources,
-  buildDependencyGraph,
-  executeDataSources,
-  runImport,
-} from "./import";
+import { describe, it, expect, vi, beforeEach, } from "vitest";
+import { loadDataSources, buildDependencyGraph, executeDataSources, runImport } from "./import";
 
 // Mock fast-glob
 vi.mock("fast-glob", () => ({
@@ -19,12 +13,18 @@ vi.mock("p-graph", () => ({
 
 // Mock database
 vi.mock("@mmtm/database", () => ({
-  PrismaClient: vi.fn(),
+  prisma: {
+    dataSourceRun: {
+      create: vi.fn(),
+      update: vi.fn(),
+    },
+    $disconnect: vi.fn(),
+  },
 }));
 
 import fg from "fast-glob";
 import pGraph from "p-graph";
-import { PrismaClient } from "@mmtm/database";
+import { prisma } from "@mmtm/database";
 
 describe("import", () => {
   let mockDb: any;
@@ -32,24 +32,14 @@ describe("import", () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    // Setup mock database
-    mockDb = {
-      dataSourceRun: {
-        create: vi.fn(),
-        update: vi.fn(),
-      },
-      $disconnect: vi.fn(),
-    };
-    (PrismaClient as any).mockImplementation(() => mockDb);
+    // Setup mock database - prisma is already mocked in vi.mock above
+    mockDb = prisma;
   });
 
   describe("loadDataSources", () => {
     it("should discover and load data sources from plugins", async () => {
       // Mock file system
-      (fg as any).mockResolvedValue([
-        "/plugins/data-sources/github/repository.ts",
-        "/plugins/data-sources/gitlab/issues.ts",
-      ]);
+      (fg as any).mockResolvedValue(["/plugins/data-sources/github/repository.ts", "/plugins/data-sources/gitlab/issues.ts"]);
 
       // Mock dynamic imports
       vi.doMock("/plugins/data-sources/github/repository.ts", () => ({
@@ -67,10 +57,7 @@ describe("import", () => {
       const dataSources = await loadDataSources();
 
       expect(fg).toHaveBeenCalledWith(
-        [
-          "../../plugins/data-sources/*/index.ts",
-          "../../plugins/data-sources/*/*.ts",
-        ],
+        ["../../plugins/data-sources/*/index.ts", "../../plugins/data-sources/*/*.ts"],
         expect.objectContaining({ absolute: true }),
       );
 
@@ -87,9 +74,11 @@ describe("import", () => {
     it("should handle modules without required exports", async () => {
       (fg as any).mockResolvedValue(["/plugins/data-sources/invalid/test.ts"]);
 
-      // Mock invalid module
+      // Mock invalid module - has undefined resources and run
       vi.doMock("/plugins/data-sources/invalid/test.ts", () => ({
-        // Missing resources and run
+        resources: undefined,
+        run: undefined,
+        someOtherExport: "value",
       }));
 
       const dataSources = await loadDataSources();
@@ -99,9 +88,7 @@ describe("import", () => {
     it("should handle import errors gracefully", async () => {
       (fg as any).mockResolvedValue(["/plugins/data-sources/broken/test.ts"]);
 
-      const consoleSpy = vi
-        .spyOn(console, "error")
-        .mockImplementation(() => {});
+      const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
       // Mock import that throws
       vi.doMock("/plugins/data-sources/broken/test.ts", () => {
@@ -111,10 +98,7 @@ describe("import", () => {
       const dataSources = await loadDataSources();
 
       expect(dataSources).toHaveLength(0);
-      expect(consoleSpy).toHaveBeenCalledWith(
-        expect.stringContaining("Error loading data source"),
-        expect.any(Error),
-      );
+      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining("Error loading data source"), expect.any(Error));
 
       consoleSpy.mockRestore();
     });
@@ -220,9 +204,7 @@ describe("import", () => {
 
       await executeDataSources(dataSources, startDate, endDate);
 
-      expect(pGraph).toHaveBeenCalledWith(expect.any(Map), [
-        ["repository", "commits"],
-      ]);
+      expect(pGraph).toHaveBeenCalledWith(expect.any(Map), [["repository", "commits"]]);
       expect(mockGraphRun).toHaveBeenCalled();
       expect(mockDb.$disconnect).toHaveBeenCalled();
     });
@@ -271,9 +253,7 @@ describe("import", () => {
     });
 
     it("should record failed runs in database", async () => {
-      const mockRun = vi
-        .fn()
-        .mockRejectedValue(new Error("Data source failed"));
+      const mockRun = vi.fn().mockRejectedValue(new Error("Data source failed"));
       const dataSources = [
         {
           name: "failing-source",
@@ -292,13 +272,9 @@ describe("import", () => {
       });
       (pGraph as any).mockReturnValue({ run: mockGraphRun });
 
-      const consoleSpy = vi
-        .spyOn(console, "error")
-        .mockImplementation(() => {});
+      const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
-      await expect(executeDataSources(dataSources)).rejects.toThrow(
-        "Data source failed",
-      );
+      await expect(executeDataSources(dataSources)).rejects.toThrow("Data source failed");
 
       expect(mockDb.dataSourceRun.update).toHaveBeenCalledWith({
         where: { id: "run-456" },
@@ -394,11 +370,7 @@ describe("import", () => {
 
       await runImport(startDate, endDate);
 
-      expect(consoleSpy).toHaveBeenCalledWith(
-        expect.stringContaining(
-          "Import range: 2024-01-01T00:00:00.000Z to 2024-01-31T00:00:00.000Z",
-        ),
-      );
+      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining("Import range: 2024-01-01T00:00:00.000Z to 2024-01-31T00:00:00.000Z"));
 
       consoleSpy.mockRestore();
     });
