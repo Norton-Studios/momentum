@@ -312,11 +312,19 @@ This document tracks the implementation progress of all plugins (resources, data
   - [ ] Implement incremental collection
   - [ ] Add to all data sources
 
-- [ ] **Data Source Dependencies** ⏳
-  - [ ] Modify data sources to export `const dependencies: string[]` 
-  - [ ] Add data source import run tracking table in apps/crons
-  - [ ] Create dependency graph execution script using p-graph in apps/crons
-  - [ ] Modify data source interface: `run(db, startDate, endDate)`
+- [ ] **Tenant-Based Data Source Execution** ⏳
+  - [x] Update DataSourceRun schema with tenantId and script fields
+  - [x] Add unique constraint on (tenantId, dataSource, script) with proper indexing
+  - [ ] Update data source plugin interface: `run(env, db, tenantId, startDate, endDate)`
+  - [ ] Add optional `importWindowDuration` export to data source plugins (defaults to 24 hours)
+  - [ ] Implement tenant-specific environment configuration from TenantDataSourceConfig
+  - [ ] Replace global data source discovery with tenant-based configuration lookup
+  - [ ] Add SELECT FOR UPDATE ... SKIP LOCKED mechanism for concurrency control
+  - [ ] Implement incremental data collection with proper date range calculation
+  - [ ] Add dependency graph execution per tenant using p-graph
+  - [ ] Update cron import system to process tenants separately
+  - [ ] Add 90-day default lookback for first runs
+  - [ ] Implement proper error handling and retry logic
 
 - [ ] **Report Queue System** ⏳
   - [ ] Design queue schema
