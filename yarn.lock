@@ -1469,7 +1469,7 @@ __metadata:
     "@types/react-dom": "npm:^18.2.7"
     "@vitest/ui": "npm:^3.2.4"
     autoprefixer: "npm:^10.4.19"
-    isbot: "npm:^4.1.0"
+    isbot: "npm:^5.0.0"
     postcss: "npm:^8.4.38"
     react: "npm:^18.2.0"
     react-dom: "npm:^18.2.0"
@@ -5951,10 +5951,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"isbot@npm:^4.1.0":
-  version: 4.4.0
-  resolution: "isbot@npm:4.4.0"
-  checksum: 10c0/8cccbd8151a859c4a6c46578aa25984a5cad90ff91b375ab644c20f0a2bf02defa5429739b2de94f68b045d37766837e12991d858ad7cdf5f01e0071d4342e49
+"isbot@npm:^5.0.0":
+  version: 5.1.28
+  resolution: "isbot@npm:5.1.28"
+  checksum: 10c0/1e9417986613e4b493e57e20b813d7e0130c845657ff14a11d39e4bf326056065850bf52773767f2681c0b7b146ba833d4686db16017dfbadd85a206c8396d90
   languageName: node
   linkType: hard
 
