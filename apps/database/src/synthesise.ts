@@ -17,9 +17,7 @@ async function synthesise() {
 
   for (const schemaPath of schemaPaths) {
     const schemaContent = await fs.readFile(schemaPath, "utf-8");
-    const modelDefinitions = schemaContent.match(
-      /(^(model|enum|type)[\s\S]*?^})/gm,
-    );
+    const modelDefinitions = schemaContent.match(/(^(model|enum|type)[\s\S]*?^})/gm);
 
     if (modelDefinitions) {
       for (const model of modelDefinitions) {

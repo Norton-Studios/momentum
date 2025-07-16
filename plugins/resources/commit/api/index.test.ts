@@ -22,6 +22,18 @@ vi.mock("@developer-productivity/database", () => {
 
 const app = express();
 app.use(express.json());
+
+// Mock authentication middleware
+app.use((req, res, next) => {
+  (req as any).user = {
+    id: "test-user-id",
+    email: "test@example.com",
+    tenantId: "test-tenant-id",
+    isAdmin: false,
+  };
+  next();
+});
+
 app.use(router);
 
 import { prisma } from "@developer-productivity/database";
@@ -31,7 +43,7 @@ describe("Commit API", () => {
     vi.clearAllMocks();
   });
 
-  describe("POST /commits", () => {
+  describe("POST /commit", () => {
     it("should create a new commit", async () => {
       const mockCommit = {
         id: "1",
@@ -56,7 +68,7 @@ describe("Commit API", () => {
 
       vi.mocked(prisma.commit.create).mockResolvedValue(mockCommit);
 
-      const response = await request(app).post("/commits").send({
+      const response = await request(app).post("/commit").send({
         externalId: "ext-1",
         repositoryId: "repo-1",
         sha: "abc123",
@@ -98,6 +110,7 @@ describe("Commit API", () => {
       expect(response.body).toEqual(mockCommits);
       expect(prisma.commit.findMany).toHaveBeenCalledWith({
         include: { repository: true },
+        where: { tenantId: "test-tenant-id" },
       });
     });
   });
@@ -116,7 +129,7 @@ describe("Commit API", () => {
       expect(response.status).toBe(200);
       expect(response.body).toEqual(mockCommits);
       expect(prisma.commit.findMany).toHaveBeenCalledWith({
-        where: { repositoryId: "repo-1" },
+        where: { repositoryId: "repo-1", tenantId: "test-tenant-id" },
         orderBy: { authorDate: "desc" },
       });
     });
@@ -132,7 +145,7 @@ describe("Commit API", () => {
       expect(response.status).toBe(200);
       expect(response.body).toEqual(mockCommit);
       expect(prisma.commit.findUnique).toHaveBeenCalledWith({
-        where: { id: "1" },
+        where: { id: "1", tenantId: "test-tenant-id" },
         include: { repository: true },
       });
     });
@@ -157,7 +170,7 @@ describe("Commit API", () => {
       expect(response.status).toBe(200);
       expect(response.body).toEqual(mockCommit);
       expect(prisma.commit.findUnique).toHaveBeenCalledWith({
-        where: { sha: "abc123" },
+        where: { sha: "abc123", tenantId: "test-tenant-id" },
         include: { repository: true },
       });
     });
@@ -181,14 +194,12 @@ describe("Commit API", () => {
       };
       vi.mocked(prisma.commit.update).mockResolvedValue(updatedCommit as any);
 
-      const response = await request(app)
-        .put("/commits/1")
-        .send({ message: "Updated message" });
+      const response = await request(app).put("/commits/1").send({ message: "Updated message" });
 
       expect(response.status).toBe(200);
       expect(response.body).toEqual(updatedCommit);
       expect(prisma.commit.update).toHaveBeenCalledWith({
-        where: { id: "1" },
+        where: { id: "1", tenantId: "test-tenant-id" },
         data: { message: "Updated message" },
       });
     });
@@ -202,7 +213,7 @@ describe("Commit API", () => {
 
       expect(response.status).toBe(204);
       expect(prisma.commit.delete).toHaveBeenCalledWith({
-        where: { id: "1" },
+        where: { id: "1", tenantId: "test-tenant-id" },
       });
     });
   });
@@ -220,9 +231,7 @@ describe("Commit API", () => {
 
       vi.mocked(prisma.commit.aggregate).mockResolvedValue(mockStats as any);
 
-      const response = await request(app).get(
-        "/repositories/repo-1/commits/stats",
-      );
+      const response = await request(app).get("/repositories/repo-1/commits/stats");
 
       expect(response.status).toBe(200);
       expect(response.body).toEqual({
@@ -232,7 +241,7 @@ describe("Commit API", () => {
         totalChangedFiles: 150,
       });
       expect(prisma.commit.aggregate).toHaveBeenCalledWith({
-        where: { repositoryId: "repo-1" },
+        where: { repositoryId: "repo-1", tenantId: "test-tenant-id" },
         _count: true,
         _sum: {
           additions: true,
@@ -254,9 +263,7 @@ describe("Commit API", () => {
 
       vi.mocked(prisma.commit.aggregate).mockResolvedValue(mockStats as any);
 
-      const response = await request(app).get(
-        "/repositories/repo-1/commits/stats",
-      );
+      const response = await request(app).get("/repositories/repo-1/commits/stats");
 
       expect(response.status).toBe(200);
       expect(response.body).toEqual({

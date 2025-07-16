@@ -1,5 +1,5 @@
 import cron from "node-cron";
-import { loadJobs } from "./lib/dynamicJobs";
+import { loadJobs } from "./lib/dynamic-jobs";
 
 async function startScheduler() {
   console.log("Starting cron scheduler...");
@@ -10,9 +10,7 @@ async function startScheduler() {
       cron.schedule(job.schedule, job.handler);
       console.log(`Scheduled job: ${job.name} with schedule: ${job.schedule}`);
     } else {
-      console.error(
-        `Invalid cron schedule for job ${job.name}: ${job.schedule}`,
-      );
+      console.error(`Invalid cron schedule for job ${job.name}: ${job.schedule}`);
     }
   });
 }

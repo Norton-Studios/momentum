@@ -14,9 +14,7 @@ vi.mock("@developer-productivity/database", () => {
       repository: {
         findMany: vi.fn().mockResolvedValue(mockRepositories),
         findUnique: vi.fn().mockImplementation(({ where: { id } }) => {
-          return Promise.resolve(
-            mockRepositories.find((r) => r.id === id) || null,
-          );
+          return Promise.resolve(mockRepositories.find((r) => r.id === id) || null);
         }),
       },
     },
@@ -25,6 +23,18 @@ vi.mock("@developer-productivity/database", () => {
 
 const app = express();
 app.use(express.json());
+
+// Mock authentication middleware
+app.use((req, res, next) => {
+  (req as any).user = {
+    id: "test-user-id",
+    email: "test@example.com",
+    tenantId: "test-tenant-id",
+    isAdmin: false,
+  };
+  next();
+});
+
 app.use(router);
 
 import { prisma } from "@developer-productivity/database";

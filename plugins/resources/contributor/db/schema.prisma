@@ -23,6 +23,8 @@ model Contributor {
   githubUsername  String?   @map("github_username")
   gitlabUsername  String?   @map("gitlab_username")
   isActive        Boolean   @default(true) @map("is_active")
+  tenantId        String    @map("tenant_id")
+  tenant          Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   createdAt       DateTime  @default(now()) @map("created_at")
   updatedAt       DateTime  @updatedAt @map("updated_at")
 

@@ -201,6 +201,19 @@ routes.forEach(route => {
    - Include proper prisma schema path: `"prisma": { "schema": "db/schema.prisma" }`
    - Follow naming convention: `@developer-productivity/resource-{name}` or `@developer-productivity/data-source-{name}`
 
+6. **Before Committing**:
+   - Run `yarn format` to format code
+   - Run `yarn lint` to fix any linting issues
+   - Ensure all tests pass with `yarn test`
+   - Check for schema changes and run migrations if needed
+
+7. **Before Creating a Pull Request**:
+   - Ensure all tests are passing
+   - Verify that the plugin follows naming conventions
+   - Check that the progress is updated `documentation/PROGRESS.md`
+   - Update the main documentation if necessary
+   - Run the e2e tests with `yarn workspace e2e-tests run`
+
 ## Multi-Tenancy Considerations
 
 - All tenants share a single database with data isolation via tenant_id

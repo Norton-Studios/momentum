@@ -129,7 +129,6 @@ Key environment variables:
 
 - `DATABASE_URL`: PostgreSQL connection string
 - `GITHUB_TOKEN`: For GitHub integration (optional)
-- `NODE_ENV`: Development/production mode
 
 ## Contributing
 

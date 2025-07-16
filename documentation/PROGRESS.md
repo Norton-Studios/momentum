@@ -23,12 +23,14 @@ This document tracks the implementation progress of all plugins (resources, data
   - [x] Database schema (scm.Repository)
   - [x] CRUD API endpoints
   - [x] Comprehensive fields (stars, forks, issues, etc.)
+  - [x] Multi-tenant isolation (tenantId field)
   - [x] Unit tests
 
 - [x] **Commit** ✅
   - [x] Database schema design
   - [x] CRUD API endpoints
   - [x] Relationships (Repository, Contributor)
+  - [x] Multi-tenant isolation (tenantId field)
   - [x] Unit tests
 
 - [x] **Merge Request** ✅
@@ -41,6 +43,7 @@ This document tracks the implementation progress of all plugins (resources, data
   - [x] Database schema design
   - [x] CRUD API endpoints
   - [x] Relationships (Team, Repository, Commit, MergeRequest)
+  - [x] Multi-tenant isolation (tenantId field)
   - [x] Unit tests
 
 - [x] **Pipeline** ✅
@@ -315,10 +318,10 @@ This document tracks the implementation progress of all plugins (resources, data
   - [ ] Implement job processing
   - [ ] Add retry logic
 
-- [ ] **Multi-Tenant Data Isolation** ⏳
-  - [ ] Implement tenant filtering in queries
-  - [ ] Add tenant context to all plugins
-  - [ ] Test tenant data boundaries
+- [x] **Multi-Tenant Data Isolation** ✅
+  - [x] Implement tenant filtering in queries
+  - [x] Add tenant context to all plugins
+  - [x] Test tenant data boundaries
 
 ## Testing & Documentation
 

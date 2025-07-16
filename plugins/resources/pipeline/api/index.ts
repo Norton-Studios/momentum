@@ -1,19 +1,13 @@
 import { prisma } from "@developer-productivity/database";
-import { Router } from "express";
+import { Router, type Response } from "express";
+import type { AuthenticatedRequest } from "../../../../apps/api/src/middleware/auth";
 
 const router = Router();
 
-function getTenantId(req: any): string {
-  return req.user?.tenantId;
-}
-
 // POST /pipeline - Create a new pipeline
-router.post("/pipeline", async (req, res) => {
+router.post("/pipeline", async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const tenantId = getTenantId(req);
-    if (!tenantId) {
-      return res.status(401).json({ error: "Unauthorized" });
-    }
+    const tenantId = req.user.tenantId;
 
     const pipeline = await prisma.pipeline.create({
       data: {
@@ -29,12 +23,9 @@ router.post("/pipeline", async (req, res) => {
 });
 
 // GET /pipelines - Get all pipelines
-router.get("/pipelines", async (req, res) => {
+router.get("/pipelines", async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const tenantId = getTenantId(req);
-    if (!tenantId) {
-      return res.status(401).json({ error: "Unauthorized" });
-    }
+    const tenantId = req.user.tenantId;
 
     const pipelines = await prisma.pipeline.findMany({
       where: { tenantId },
@@ -52,17 +43,14 @@ router.get("/pipelines", async (req, res) => {
 });
 
 // GET /pipeline/:id - Get a specific pipeline
-router.get("/pipeline/:id", async (req, res) => {
+router.get("/pipeline/:id", async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const tenantId = getTenantId(req);
-    if (!tenantId) {
-      return res.status(401).json({ error: "Unauthorized" });
-    }
+    const tenantId = req.user.tenantId;
 
     const pipeline = await prisma.pipeline.findUnique({
-      where: { 
+      where: {
         id: Number(req.params.id),
-        tenantId 
+        tenantId,
       },
       include: {
         repository: true,
@@ -82,17 +70,14 @@ router.get("/pipeline/:id", async (req, res) => {
 });
 
 // PUT /pipeline/:id - Update a pipeline
-router.put("/pipeline/:id", async (req, res) => {
+router.put("/pipeline/:id", async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const tenantId = getTenantId(req);
-    if (!tenantId) {
-      return res.status(401).json({ error: "Unauthorized" });
-    }
+    const tenantId = req.user.tenantId;
 
     const pipeline = await prisma.pipeline.update({
-      where: { 
+      where: {
         id: Number(req.params.id),
-        tenantId 
+        tenantId,
       },
       data: req.body,
     });
@@ -104,17 +89,14 @@ router.put("/pipeline/:id", async (req, res) => {
 });
 
 // DELETE /pipeline/:id - Delete a pipeline
-router.delete("/pipeline/:id", async (req, res) => {
+router.delete("/pipeline/:id", async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const tenantId = getTenantId(req);
-    if (!tenantId) {
-      return res.status(401).json({ error: "Unauthorized" });
-    }
+    const tenantId = req.user.tenantId;
 
     await prisma.pipeline.delete({
-      where: { 
+      where: {
         id: Number(req.params.id),
-        tenantId 
+        tenantId,
       },
     });
 

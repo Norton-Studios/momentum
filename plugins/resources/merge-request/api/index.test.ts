@@ -19,8 +19,14 @@ vi.mock("@developer-productivity/database", () => {
 
 const app = express();
 app.use(express.json());
+// Mock authentication middleware
 app.use((req, res, next) => {
-  req.user = { tenantId: "test-tenant-id" };
+  (req as any).user = {
+    id: "test-user-id",
+    email: "test@example.com",
+    tenantId: "test-tenant-id",
+    isAdmin: false,
+  };
   next();
 });
 app.use(router);
@@ -44,15 +50,13 @@ describe("Merge Request API", () => {
     const { prisma } = await import("@developer-productivity/database");
     vi.mocked(prisma.mergeRequest.create).mockResolvedValue(mockMergeRequest);
 
-    const response = await request(app)
-      .post("/merge-request")
-      .send({
-        repositoryId: 1,
-        externalId: "123",
-        number: 1,
-        title: "Test MR",
-        state: "open",
-      });
+    const response = await request(app).post("/merge-request").send({
+      repositoryId: 1,
+      externalId: "123",
+      number: 1,
+      title: "Test MR",
+      state: "open",
+    });
 
     expect(response.status).toBe(201);
     expect(response.body).toEqual(mockMergeRequest);
@@ -121,12 +125,10 @@ describe("Merge Request API", () => {
     const { prisma } = await import("@developer-productivity/database");
     vi.mocked(prisma.mergeRequest.update).mockResolvedValue(mockUpdatedMergeRequest);
 
-    const response = await request(app)
-      .put("/merge-request/1")
-      .send({
-        title: "Updated MR",
-        state: "merged",
-      });
+    const response = await request(app).put("/merge-request/1").send({
+      title: "Updated MR",
+      state: "merged",
+    });
 
     expect(response.status).toBe(200);
     expect(response.body).toEqual(mockUpdatedMergeRequest);
@@ -139,16 +141,5 @@ describe("Merge Request API", () => {
     const response = await request(app).delete("/merge-request/1");
 
     expect(response.status).toBe(204);
-  });
-
-  it("should return 401 for unauthorized requests", async () => {
-    const appWithoutAuth = express();
-    appWithoutAuth.use(express.json());
-    appWithoutAuth.use(router);
-
-    const response = await request(appWithoutAuth).get("/merge-requests");
-
-    expect(response.status).toBe(401);
-    expect(response.body.error).toBe("Unauthorized");
   });
 });
