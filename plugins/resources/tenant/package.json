@@ -16,7 +16,7 @@
   "devDependencies": {
     "@types/bcrypt": "5.0.2",
     "@types/express": "5.0.3",
-    "@types/node": "22.10.5",
+    "@types/node": "22.16.4",
     "supertest": "7.0.0",
     "typescript": "5.8.3",
     "vitest": "3.2.4"
