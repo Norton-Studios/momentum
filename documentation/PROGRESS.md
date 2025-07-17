@@ -289,20 +289,20 @@ This document tracks the implementation progress of all plugins (resources, data
 
 ### SonarQube Integration
 
-- [ ] **SonarQube - Code Quality** ⏳
+- [ ] **SonarQube - Code Quality** ❌ (Removed)
   - [ ] Fetch code complexity metrics
   - [ ] Fetch code smells and technical debt
   - [ ] Map to Code Quality resource
   - [ ] Authentication setup
   - [ ] Unit tests
 
-- [ ] **SonarQube - Security** ⏳
+- [ ] **SonarQube - Security** ❌ (Removed)
   - [ ] Fetch security vulnerabilities
   - [ ] Map to CVE resource
   - [ ] Track vulnerability severity
   - [ ] Unit tests
 
-- [ ] **SonarQube - Test Coverage** ⏳
+- [ ] **SonarQube - Test Coverage** ❌ (Removed)
   - [ ] Fetch coverage metrics
   - [ ] Map to Test Coverage resource
   - [ ] Coverage by module/component
@@ -423,7 +423,7 @@ This document tracks the implementation progress of all plugins (resources, data
   - [ ] Unit tests
 
 - [ ] **Static Analysis** ⏳
-  - [ ] SonarQube issue tracking
+  - [ ] Static analysis issue tracking
   - [ ] Code smell trends
   - [ ] Security vulnerability count
   - [ ] Maintainability rating
@@ -535,7 +535,7 @@ This document tracks the implementation progress of all plugins (resources, data
   - [x] Added proper tenant relationship constraints with cascading deletes
   - [x] Comprehensive indexing for tenant-scoped queries
 
-- [x] **SonarQube Code Quality Setup** ✅
+- [x] **SonarQube Code Quality Setup** ❌ (Removed)
   - [x] Configure SonarQube properties file (sonar-project.properties)
   - [x] Set up code coverage collection with lcov format
   - [x] Configure test source directories and exclusions
@@ -572,7 +572,6 @@ This document tracks the implementation progress of all plugins (resources, data
    - Extend GitHub/GitLab data sources for enhanced metrics collection
 
 2. **Priority 2: Quality & Security Integrations**
-   - Implement SonarQube integration for code quality and security metrics
    - Add Security Scanner integration for CVE detection
    - Add Test Coverage Tools integration
 

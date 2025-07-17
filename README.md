@@ -66,7 +66,6 @@ yarn test:ui          # Run tests with UI
 # Code Quality
 yarn lint             # Run linter
 yarn format           # Format code
-yarn sonar            # Run SonarQube analysis (local)
 
 # Database
 yarn workspace @mmtm/database run synthesise  # Combine schemas
@@ -99,7 +98,6 @@ Plugins are automatically discovered and loaded at runtime.
 - **Database**: PostgreSQL
 - **Testing**: Vitest, Playwright
 - **Tooling**: Biome, Yarn Workspaces
-- **Code Quality**: SonarQube for static analysis and quality gates
 
 ## Development Guide
 
@@ -139,22 +137,7 @@ export async function run(
 Key environment variables:
 
 - `DATABASE_URL`: PostgreSQL connection string
-- `SONAR_TOKEN`: SonarQube authentication token (for CI/CD)
-- `SONAR_HOST_URL`: SonarQube server URL (for CI/CD)
 
-### SonarQube Setup
-
-For local SonarQube analysis, install the SonarQube scanner:
-
-```bash
-# Install SonarQube scanner (requires Java)
-npm install -g sonar-scanner
-
-# Run local analysis (requires SonarQube server)
-yarn sonar
-```
-
-The project is configured with `sonar-project.properties` for multi-module analysis. Quality gates run automatically on all pull requests.
 
 ## Contributing
 
@@ -162,8 +145,7 @@ The project is configured with `sonar-project.properties` for multi-module analy
 2. Create a feature branch
 3. Make your changes
 4. Run tests and linting
-5. Ensure SonarQube quality gates pass
-6. Submit a pull request
+5. Submit a pull request
 
 ## License
 

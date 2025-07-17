@@ -17,7 +17,6 @@
     "lint:fix-safe": "biome lint --write .",
     "lint:changed": "turbo lint --filter='...[HEAD^1]'",
     "build": "turbo build",
-    "sonar": "sonar-scanner",
     "start:api": "yarn workspace @mmtm/api run dev",
     "start:frontend": "yarn workspace @mmtm/frontend run dev",
     "start:db": "yarn workspace @mmtm/database run dev",
