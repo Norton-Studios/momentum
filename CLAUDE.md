@@ -137,7 +137,6 @@ routes.forEach(route => {
 1. Copy `.env.example` files to `.env` in relevant directories
 2. Required environment variables:
    - `DATABASE_URL` in `apps/database/.env`
-   - `GITHUB_TOKEN` in `plugins/data-sources/github/.env` (if using GitHub integration)
    - `SONAR_TOKEN` and `SONAR_HOST_URL` for SonarQube integration (CI/CD only)
 
 3. Default local database connection:
@@ -204,21 +203,6 @@ routes.forEach(route => {
    - Include proper prisma schema path: `"prisma": { "schema": "db/schema.prisma" }`
    - Follow naming convention: `@mmtm/resource-{name}` or `@mmtm/data-source-{name}`
 
-6. **Before Committing**:
-   - Run `yarn format` to format code
-   - Run `yarn lint` and `yarn lint:fix` if there are ny linting issues
-   - Ensure all tests pass with `yarn test`
-   - Check SonarQube quality gates pass (runs automatically in CI/CD)
-   - Check for schema changes and run migrations if needed
-
-7. **Before Creating a Pull Request**:
-   - Ensure all tests are passing
-   - Verify that the plugin follows naming conventions
-   - Check that SonarQube quality gates will pass (automated in CI/CD)
-   - Check that the progress is updated `documentation/PROGRESS.md`
-   - Update the main documentation if necessary
-   - Run the e2e tests with `yarn workspace e2e-tests run`
-
 ## Multi-Tenancy Considerations
 
 - All tenants share a single database with data isolation via tenant_id
@@ -233,6 +217,7 @@ routes.forEach(route => {
 3. **Don't create circular dependencies** between plugins
 4. **Don't forget to handle async operations** properly in data sources
 5. **Don't skip schema synthesis** after adding/modifying plugins
+6. **Don't add dependencies with ~ or ^** - Use exact versions
 
 ## Performance Considerations
 

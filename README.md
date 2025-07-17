@@ -139,7 +139,6 @@ export async function run(
 Key environment variables:
 
 - `DATABASE_URL`: PostgreSQL connection string
-- `GITHUB_TOKEN`: For GitHub integration (optional)
 - `SONAR_TOKEN`: SonarQube authentication token (for CI/CD)
 - `SONAR_HOST_URL`: SonarQube server URL (for CI/CD)
 
