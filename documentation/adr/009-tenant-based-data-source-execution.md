@@ -55,8 +55,8 @@ model DataSourceRun {
 
 ```typescript
 // Required exports
-export const resources: string[] = ["repository"];
-export const dependencies: string[] = ["commit"]; // optional
+export const provides: string[] = ["repository"];
+export const dependencies: string[] = ["team"]; 
 export const importWindowDuration = 86400 * 1000; // optional, defaults to 24h
 
 // Main execution function

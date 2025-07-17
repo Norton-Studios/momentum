@@ -4,7 +4,6 @@ A modular, extensible web application for measuring developer productivity with 
 
 ## Features
 
-- **Multi-tenant architecture** with isolated data per tenant
 - **Plugin-based system** for resources, data sources, and reports
 - **Extensible integrations** with GitHub, GitLab, Jira, and more
 - **Real-time metrics** and customizable reporting
@@ -38,7 +37,7 @@ The application will be available at:
 
 ```
 momentum/
-├── apps/               # Core applications
+├── apps/              # Core applications
 │   ├── api/           # Express API server
 │   ├── frontend/      # Remix web application
 │   ├── crons/         # Scheduled job processor
@@ -48,7 +47,7 @@ momentum/
 │   ├── data-sources/  # External integrations (GitHub, etc.)
 │   └── reports/       # Analytics and insights
 ├── documentation/     # Architecture docs and ADRs
-└── e2e-tests/        # End-to-end test suite
+└── e2e-tests/         # End-to-end test suite
 ```
 
 ## Core Commands
@@ -117,9 +116,19 @@ mkdir -p plugins/resources/my-resource/{api,db}
 
 ```typescript
 // plugins/data-sources/my-source/index.ts
-export const resources = ['repository', 'commit']
-export const run = async (db: PrismaClient) => {
-  // Collection logic
+export const provides: string[] = ["repository"];
+export const dependencies: string[] = ["team"]; // optional
+export const importWindowDuration = 86400 * 1000; // optional, defaults to 24h
+
+// Main execution function
+export async function run(
+  env: Record<string, string>,
+  db: PrismaClient,
+  tenantId: string,
+  startDate: Date,
+  endDate: Date
+): Promise<void> {
+  // Data collection logic
 }
 ```
 
