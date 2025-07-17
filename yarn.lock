@@ -1426,7 +1426,7 @@ __metadata:
     "@mmtm/database": "workspace:*"
     "@types/bcrypt": "npm:5.0.2"
     "@types/express": "npm:5.0.3"
-    "@types/node": "npm:22.10.5"
+    "@types/node": "npm:22.16.4"
     bcrypt: "npm:6.0.0"
     supertest: "npm:7.0.0"
     typescript: "npm:5.8.3"
@@ -2439,15 +2439,6 @@ __metadata:
   dependencies:
     undici-types: "npm:~7.8.0"
   checksum: 10c0/536b5a816554ad1522e9e0c1d517b317f8478798bd76a332d83690aa42b19b5b263eb295ee25f9d0badb430ee6e36412ee9070cb5e3359f6bdcf7e08f94302f1
-  languageName: node
-  linkType: hard
-
-"@types/node@npm:22.10.5":
-  version: 22.10.5
-  resolution: "@types/node@npm:22.10.5"
-  dependencies:
-    undici-types: "npm:~6.20.0"
-  checksum: 10c0/6a0e7d1fe6a86ef6ee19c3c6af4c15542e61aea2f4cee655b6252efb356795f1f228bc8299921e82924e80ff8eca29b74d9dd0dd5cc1a90983f892f740b480df
   languageName: node
   linkType: hard
 
@@ -9096,13 +9087,6 @@ __metadata:
   version: 5.26.5
   resolution: "undici-types@npm:5.26.5"
   checksum: 10c0/bb673d7876c2d411b6eb6c560e0c571eef4a01c1c19925175d16e3a30c4c428181fb8d7ae802a261f283e4166a0ac435e2f505743aa9e45d893f9a3df017b501
-  languageName: node
-  linkType: hard
-
-"undici-types@npm:~6.20.0":
-  version: 6.20.0
-  resolution: "undici-types@npm:6.20.0"
-  checksum: 10c0/68e659a98898d6a836a9a59e6adf14a5d799707f5ea629433e025ac90d239f75e408e2e5ff086afc3cace26f8b26ee52155293564593fbb4a2f666af57fc59bf
   languageName: node
   linkType: hard
 
