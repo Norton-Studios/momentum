@@ -28,10 +28,10 @@
   "license": "ISC",
   "description": "",
   "devDependencies": {
-    "@biomejs/biome": "^2.0.4",
-    "concurrently": "^9.1.2",
-    "turbo": "^2.5.4",
-    "typescript": "^5.8.3"
+    "@biomejs/biome": "2.1.1",
+    "concurrently": "9.2.0",
+    "turbo": "2.5.5",
+    "typescript": "5.8.3"
   },
   "packageManager": "yarn@4.9.2"
 }
