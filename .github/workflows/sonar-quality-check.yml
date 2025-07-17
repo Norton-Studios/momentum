@@ -1,0 +1,74 @@
+name: SonarQube Quality Check
+
+on:
+  push:
+    branches: [ master, main ]
+  pull_request:
+    branches: [ master, main ]
+
+jobs:
+  sonarqube:
+    name: SonarQube Analysis
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Shallow clones should be disabled for better relevancy of analysis
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'yarn'
+
+    - name: Install dependencies
+      run: yarn install --frozen-lockfile
+
+    - name: Start database for tests
+      run: yarn start:db &
+      
+    - name: Wait for database
+      run: |
+        timeout 30 bash -c 'until nc -z localhost 5432; do sleep 1; done'
+        
+    - name: Generate Prisma client
+      run: yarn workspace @mmtm/database run generate
+
+    - name: Run tests with coverage
+      run: yarn test --coverage
+      env:
+        CI: true
+
+    - name: SonarQube Scan
+      uses: sonarqube-quality-gate-action@master
+      with:
+        scanMetadataReportFile: .scannerwork/report-task.txt
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+
+    - name: Run SonarQube Scanner
+      uses: sonarsource/sonarqube-scan-action@master
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+
+    - name: SonarQube Quality Gate check
+      id: sonarqube-quality-gate-check
+      uses: sonarqube-quality-gate-action@master
+      timeout-minutes: 5
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+
+    - name: "Quality Gate Status"
+      run: echo "The Quality Gate status is ${{ steps.sonarqube-quality-gate-check.outputs.quality-gate-status }}"
+      
+    - name: Stop database
+      if: always()
+      run: |
+        docker-compose -f apps/database/docker-compose.yml down || true
