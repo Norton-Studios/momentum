@@ -9,7 +9,8 @@
   },
   "scripts": {
     "test": "vitest run",
-    "test:watch": "vitest watch"
+    "test:watch": "vitest watch",
+    "sonar": "sonar-scanner"
   },
   "peerDependencies": {
     "@types/express": "^5.0.3",

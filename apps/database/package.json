@@ -7,7 +7,8 @@
     "dev": "docker compose up -d",
     "synthesise": "tsx src/synthesise.ts && npx prisma format --schema=build/schema.prisma",
     "migrate": "run synthesise && prisma migrate dev --schema=build/schema.prisma",
-    "generate": "run synthesise && prisma generate --schema=build/schema.prisma"
+    "generate": "run synthesise && prisma generate --schema=build/schema.prisma",
+    "sonar": "sonar-scanner"
   },
   "keywords": [],
   "author": "",

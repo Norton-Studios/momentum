@@ -30,7 +30,9 @@ yarn test:ui       # Run tests with Vitest UI (in frontend)
 # Code quality
 yarn lint          # Run Biome linter
 yarn format        # Format code with Biome
-yarn sonar         # Run SonarQube analysis
+yarn sonar         # Run SonarQube analysis (local)
+turbo sonar        # Run SonarQube analysis on all packages
+turbo sonar --filter="...[HEAD^1]"  # Run SonarQube analysis on changed packages
 
 # Database operations
 yarn workspace @mmtm/database run synthesise  # Combine schema files
@@ -157,7 +159,7 @@ routes.forEach(route => {
 - **TypeScript**: Strict mode enabled, no `any` types without justification
 - **Formatting**: Use Biome (`yarn format` before commits)
 - **Linting**: Fix all Biome warnings (`yarn lint`)
-- **Code Quality**: SonarQube integration for quality gates and security analysis
+- **Code Quality**: SonarQube integration with Turbo for efficient change-based analysis
 - **Imports**: Use workspace aliases (e.g., `@mmtm/database`)
 - **Express Version**: All packages must use Express 5.x (`"express": "^5.1.0"` and `"@types/express": "^5.0.3"`)
 - **Plugin Dependencies**: Resource and data source plugins should use Express as a peerDependency, not a direct dependency
@@ -174,9 +176,13 @@ routes.forEach(route => {
    # Run yarn dev to regenerate schemas
    ```
    
-   **Important**: After creating a new resource plugin, you must update the SonarQube GitHub Action matrix in `.github/workflows/test.yml` to include the new plugin for code quality scanning:
-   ```yaml
-   - { name: "resource-my-resource", dir: "plugins/resources/my-resource/" }
+   **Important**: After creating a new resource plugin, you must add a `sonar` script to the plugin's `package.json` for SonarQube analysis:
+   ```json
+   {
+     "scripts": {
+       "sonar": "sonar-scanner -Dsonar.projectKey=norton-studios.resource-my-resource -Dsonar.projectName=\"Resource My Resource\" -Dsonar.sources=api -Dsonar.tests=api -Dsonar.test.inclusions=**/*.test.ts"
+     }
+   }
    ```
 
 2. **Adding a Data Source**:
@@ -189,9 +195,13 @@ routes.forEach(route => {
    export const run = async (db) => { /* collection logic */ }
    ```
    
-   **Important**: After creating a new data source plugin, you must update the SonarQube GitHub Action matrix in `.github/workflows/test.yml` to include the new plugin for code quality scanning:
-   ```yaml
-   - { name: "data-source-my-source", dir: "plugins/data-sources/my-source/" }
+   **Important**: After creating a new data source plugin, you must add a `sonar` script to the plugin's `package.json` for SonarQube analysis:
+   ```json
+   {
+     "scripts": {
+       "sonar": "sonar-scanner -Dsonar.projectKey=norton-studios.data-source-my-source -Dsonar.projectName=\"Data Source My Source\" -Dsonar.sources=. -Dsonar.tests=. -Dsonar.test.inclusions=**/*.test.ts"
+     }
+   }
    ```
 
 3. **Schema Changes**:

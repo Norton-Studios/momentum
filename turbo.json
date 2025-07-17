@@ -39,6 +39,25 @@
       "dependsOn": ["synthesise"],
       "outputs": ["node_modules/.prisma/**"],
       "inputs": ["build/schema.prisma"]
+    },
+    "sonar": {
+      "dependsOn": [],
+      "outputs": [".scannerwork/**"],
+      "inputs": [
+        "src/**/*.ts",
+        "src/**/*.tsx",
+        "api/**/*.ts",
+        "app/**/*.ts",
+        "app/**/*.tsx",
+        "db/**/*.prisma",
+        "**/*.test.ts",
+        "**/*.spec.ts",
+        "**/*.js",
+        "**/*.jsx",
+        "package.json",
+        "tsconfig.json",
+        "vitest.config.ts"
+      ]
     }
   },
   "globalDependencies": ["yarn.lock", "package.json", "tsconfig.json"]

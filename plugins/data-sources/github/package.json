@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "test": "vitest run"
+    "test": "vitest run",
+    "sonar": "sonar-scanner"
   },
   "dependencies": {
     "@octokit/rest": "22.0.0",

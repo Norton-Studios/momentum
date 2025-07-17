@@ -6,7 +6,8 @@
     "schema": "db/schema.prisma"
   },
   "scripts": {
-    "test": "vitest run"
+    "test": "vitest run",
+    "sonar": "sonar-scanner"
   },
   "peerDependencies": {
     "@types/express": "^5.0.3",
