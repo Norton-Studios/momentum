@@ -33,13 +33,15 @@ This document tracks the implementation progress of all plugins (resources, data
   - [x] Relationships (Repository, Contributor)
   - [x] Multi-tenant isolation (tenantId field)
   - [x] Unit tests
+  - [ ] Enhancement: Add lines added/removed metrics
 
-- [x] **Merge Request** ✅
+- [ ] **Merge Request**
   - [x] Database schema design
   - [x] CRUD API endpoints
   - [x] Relationships (Repository, Contributor, Commit)
   - [x] Multi-tenant isolation (tenantId field)
   - [x] Unit tests
+  - [ ] Enhancement: Add time to first review, review iterations, size metrics fields
 
 - [x] **Contributor** ✅
   - [x] Database schema design
@@ -101,6 +103,32 @@ This document tracks the implementation progress of all plugins (resources, data
   - [ ] Relationships (Board, Issue)
   - [ ] Unit tests
 
+### Quality & Security Resources
+
+- [ ] **CVE** ⏳
+  - [ ] Database schema design (severity levels, resolution status, aging)
+  - [ ] CRUD API endpoints
+  - [ ] Relationships (Repository, Team)
+  - [ ] Unit tests
+
+- [ ] **Code Quality** ⏳
+  - [ ] Database schema design (complexity metrics, code smells, maintainability)
+  - [ ] CRUD API endpoints
+  - [ ] Relationships (Repository, Commit, MergeRequest)
+  - [ ] Unit tests
+
+- [ ] **Test Coverage** ⏳
+  - [ ] Database schema design (coverage percentages, module breakdown)
+  - [ ] CRUD API endpoints
+  - [ ] Relationships (Repository, Build)
+  - [ ] Unit tests
+
+- [ ] **Review Comment** ⏳
+  - [ ] Database schema design (comment text, resolution status, timestamps)
+  - [ ] CRUD API endpoints
+  - [ ] Relationships (MergeRequest, Contributor)
+  - [ ] Unit tests
+
 ## Data Source Plugins
 
 ### GitHub Integration
@@ -116,6 +144,7 @@ This document tracks the implementation progress of all plugins (resources, data
   - [ ] Map to Commit resource
   - [ ] Handle pagination
   - [ ] Incremental collection
+  - [ ] **Enhanced**: Collect lines added/removed metrics
   - [ ] Unit tests
 
 - [ ] **GitHub - Pull Request** (Merge Request) ⏳
@@ -123,6 +152,9 @@ This document tracks the implementation progress of all plugins (resources, data
   - [ ] Map to MergeRequest resource
   - [ ] Fetch PR reviews
   - [ ] Fetch PR comments
+  - [ ] **Enhanced**: Collect review comments with timestamps and resolution status
+  - [ ] **Enhanced**: Track time to first review
+  - [ ] **Enhanced**: Track review iterations
   - [ ] Unit tests
 
 - [ ] **GitHub - Contributor** ⏳
@@ -162,6 +194,9 @@ This document tracks the implementation progress of all plugins (resources, data
   - [ ] Fetch merge requests
   - [ ] Map to MergeRequest resource
   - [ ] Fetch MR notes
+  - [ ] **Enhanced**: Collect review comments with timestamps and resolution status
+  - [ ] **Enhanced**: Track time to first review
+  - [ ] **Enhanced**: Track review iterations
   - [ ] Unit tests
 
 - [ ] **GitLab - Contributor** ⏳
@@ -252,30 +287,189 @@ This document tracks the implementation progress of all plugins (resources, data
   - [ ] Map to Contributor resource
   - [ ] Unit tests
 
+### SonarQube Integration
+
+- [ ] **SonarQube - Code Quality** ⏳
+  - [ ] Fetch code complexity metrics
+  - [ ] Fetch code smells and technical debt
+  - [ ] Map to Code Quality resource
+  - [ ] Authentication setup
+  - [ ] Unit tests
+
+- [ ] **SonarQube - Security** ⏳
+  - [ ] Fetch security vulnerabilities
+  - [ ] Map to CVE resource
+  - [ ] Track vulnerability severity
+  - [ ] Unit tests
+
+- [ ] **SonarQube - Test Coverage** ⏳
+  - [ ] Fetch coverage metrics
+  - [ ] Map to Test Coverage resource
+  - [ ] Coverage by module/component
+  - [ ] Unit tests
+
+### Security Scanner Integration
+
+- [ ] **Security Scanner - CVE Detection** ⏳
+  - [ ] Integrate with security scanning tools
+  - [ ] Map vulnerabilities to CVE resource
+  - [ ] Track resolution status and aging
+  - [ ] Unit tests
+
+### Test Coverage Tools Integration
+
+- [ ] **Coverage Tools - Test Coverage** ⏳
+  - [ ] Support multiple coverage formats (lcov, cobertura, etc.)
+  - [ ] Map to Test Coverage resource
+  - [ ] Track coverage trends
+  - [ ] Unit tests
+
 ## Report Plugins
 
-- [ ] **Team Velocity Report** ⏳
-  - [ ] Define report schema
-  - [ ] Implement data aggregation
-  - [ ] Create visualization components
+### Organization Reports
+
+- [ ] **CVE Dashboard** ⏳
+  - [ ] Total CVE count with trend
+  - [ ] Severity distribution charts
+  - [ ] Time to resolution metrics
+  - [ ] CVE aging report
   - [ ] Unit tests
 
-- [ ] **Code Quality Report** ⏳
-  - [ ] Define metrics
-  - [ ] Implement analysis logic
-  - [ ] Create visualization
+- [ ] **Pipeline Stability** ⏳
+  - [ ] Rolling 30-day average success rate
+  - [ ] Success/failure by time of day
+  - [ ] Anomaly detection
   - [ ] Unit tests
 
-- [ ] **Pipeline Performance Report** ⏳
-  - [ ] Define KPIs
-  - [ ] Implement calculations
-  - [ ] Create dashboards
+- [ ] **Delivery Velocity** ⏳
+  - [ ] Successful pipeline runs count
+  - [ ] Deployment frequency trend
+  - [ ] Release cycle time
   - [ ] Unit tests
 
-- [ ] **Contributor Activity Report** ⏳
-  - [ ] Define activity metrics
-  - [ ] Implement tracking
-  - [ ] Create visualizations
+- [ ] **Commit Activity Heatmap** ⏳
+  - [ ] Time of day distribution heatmap
+  - [ ] Day of week distribution heatmap
+  - [ ] Peak productivity identification
+  - [ ] Unit tests
+
+### Team Reports
+
+- [ ] **Merge Request Metrics** ⏳
+  - [ ] Open MR count with age distribution
+  - [ ] Average time to merge
+  - [ ] MR throughput (merged per week)
+  - [ ] MR size distribution
+  - [ ] Unit tests
+
+- [ ] **Cycle Time** ⏳
+  - [ ] MR cycle time analysis
+  - [ ] JIRA cycle time analysis
+  - [ ] Stage breakdown calculations
+  - [ ] Bottleneck identification
+  - [ ] Unit tests
+
+- [ ] **Work in Progress** ⏳
+  - [ ] Active MRs/tickets tracking
+  - [ ] WIP limits and violations
+  - [ ] Flow efficiency calculations
+  - [ ] Unit tests
+
+- [ ] **JIRA Flow** ⏳
+  - [ ] Time per column tracking
+  - [ ] Transition frequency analysis
+  - [ ] Blocked ticket identification
+  - [ ] Ticket aging report
+  - [ ] Unit tests
+
+- [ ] **Code Review Efficiency** ⏳
+  - [ ] Time to first review tracking
+  - [ ] Review turnaround time
+  - [ ] Review coverage percentage
+  - [ ] Reviewer workload distribution
+  - [ ] Unit tests
+
+- [ ] **Pipeline Performance** ⏳
+  - [ ] Master pipeline failure rate
+  - [ ] Average pipeline duration
+  - [ ] Duration breakdown by stages
+  - [ ] Unit tests
+
+- [ ] **Pipeline Failure Analysis** ⏳
+  - [ ] Failing step distribution
+  - [ ] Failure pattern analysis
+  - [ ] Top failure reasons
+  - [ ] Unit tests
+
+- [ ] **Code Health** ⏳
+  - [ ] Code churn rate calculation
+  - [ ] Refactoring ratio tracking
+  - [ ] Technical debt trends
+  - [ ] Complexity trend analysis
+  - [ ] Unit tests
+
+- [ ] **Test Coverage** ⏳
+  - [ ] Coverage percentage tracking
+  - [ ] Coverage by component
+  - [ ] New vs overall coverage
+  - [ ] Coverage gap identification
+  - [ ] Unit tests
+
+- [ ] **Code Review Quality** ⏳
+  - [ ] Comments per MR analysis
+  - [ ] Comment resolution time
+  - [ ] Review depth scoring
+  - [ ] Approval pattern analysis
+  - [ ] Unit tests
+
+- [ ] **Static Analysis** ⏳
+  - [ ] SonarQube issue tracking
+  - [ ] Code smell trends
+  - [ ] Security vulnerability count
+  - [ ] Maintainability rating
+  - [ ] Unit tests
+
+### Individual Reports
+
+- [ ] **Commit Activity** ⏳
+  - [ ] Total commits with trends
+  - [ ] Commit frequency tracking
+  - [ ] Commit streak analysis
+  - [ ] Commit size distribution
+  - [ ] Unit tests
+
+- [ ] **Code Contribution** ⏳
+  - [ ] Lines added/removed tracking
+  - [ ] Net contribution calculation
+  - [ ] Language distribution
+  - [ ] Repository contribution spread
+  - [ ] Unit tests
+
+- [ ] **Merge Request Activity** ⏳
+  - [ ] MRs created count and trend
+  - [ ] MR success rate
+  - [ ] Average MR size
+  - [ ] MR iteration count
+  - [ ] Unit tests
+
+- [ ] **Review Performance** ⏳
+  - [ ] Time to first review (as reviewer)
+  - [ ] Review comments made
+  - [ ] Review thoroughness score
+  - [ ] Review response time
+  - [ ] Unit tests
+
+- [ ] **Review Reception** ⏳
+  - [ ] Time to address comments
+  - [ ] Comment resolution rate
+  - [ ] MR iteration efficiency
+  - [ ] Unit tests
+
+- [ ] **Activity Patterns** ⏳
+  - [ ] Personal commit time heatmap
+  - [ ] Day of week activity distribution
+  - [ ] Focus time analysis
+  - [ ] Context switching tracking
   - [ ] Unit tests
 
 ## Infrastructure & Core Features
@@ -343,19 +537,14 @@ This document tracks the implementation progress of all plugins (resources, data
 
 ## Testing & Documentation
 
-- [ ] **End-to-End Testing Infrastructure** ⏳
-  - [ ] Implement testcontainers PostgreSQL setup
-  - [ ] Create programmatic migration runner
-  - [ ] Build test orchestration system
-  - [ ] Implement API server test bootstrapping
-  - [ ] Create tenant creation and auth test flows
-  - [ ] Add multi-tenant data isolation tests
-  - [ ] Set up CI/CD integration
-
-- [ ] **Integration Tests** ⏳
-  - [ ] Cross-plugin integration tests
-  - [ ] End-to-end data flow tests
-  - [ ] Multi-tenant scenarios
+- [x] **End-to-End Testing Infrastructure** ⏳
+  - [x] Implement testcontainers PostgreSQL setup
+  - [x] Create programmatic migration runner
+  - [x] Build test orchestration system
+  - [x] Implement API server test bootstrapping
+  - [x] Create tenant creation and auth test flows
+  - [x] Add multi-tenant data isolation tests
+  - [x] Set up CI/CD integration
 
 - [ ] **Plugin Development Guide** ⏳
   - [ ] Resource plugin template
@@ -369,28 +558,43 @@ This document tracks the implementation progress of all plugins (resources, data
 
 ## Next Steps
 
-1. **Priority 1: GitHub Data Collection**
-   - Extend GitHub plugin for commits
-   - Add pull request collection
-   - Add contributor synchronization
+1. **Priority 1: Core Metrics Data Collection**
+   - Implement new resources: CVE, Code Quality, Test Coverage, Review Comment
+   - Enhance existing resources: Merge Request (review metrics), Commit (lines added/removed)
+   - Extend GitHub/GitLab data sources for enhanced metrics collection
 
-2. **Priority 2: Project Management Resources**
+2. **Priority 2: Quality & Security Integrations**
+   - Implement SonarQube integration for code quality and security metrics
+   - Add Security Scanner integration for CVE detection
+   - Add Test Coverage Tools integration
+
+3. **Priority 3: Organization-Level Reports**
+   - Implement CVE Dashboard report
+   - Create Pipeline Stability report
+   - Add Delivery Velocity report
+   - Build Commit Activity Heatmap report
+
+4. **Priority 4: Team-Level Reports**
+   - Implement Merge Request Metrics report
+   - Create Cycle Time analysis report
+   - Add Work in Progress tracking report
+   - Build Code Review Efficiency report
+   - Implement Pipeline Performance and Failure Analysis reports
+   - Create Code Health and Quality reports
+
+5. **Priority 5: Individual-Level Reports**
+   - Implement Commit Activity report
+   - Create Code Contribution report
+   - Add Merge Request Activity report
+   - Build Review Performance and Reception reports
+   - Implement Activity Patterns report
+
+6. **Priority 6: Project Management Integration**
    - Implement Issue resource
    - Implement Project resource
    - Implement Sprint resource
    - Add Board and Status resources
-
-3. **Priority 3: Data Source Integrations**
-   - Complete GitHub data sources (commits, pull requests, contributors)
-   - Add GitLab data sources
-   - Add Jenkins data source
-   - Add JIRA data source
-
-4. **Priority 4: Reports and Analytics**
-   - Implement Team Velocity Report
-   - Create Code Quality Report
-   - Add Pipeline Performance Report
-   - Build Contributor Activity Report
+   - Complete JIRA integration for cycle time metrics
 
 ## Brand & Product Identity
 
@@ -404,22 +608,6 @@ This document tracks the implementation progress of all plugins (resources, data
     - [x] Update all README.md files across packages
     - [x] Update CLAUDE.md project instructions
     - [x] Update documentation in `documentation/` directory
-    - [ ] Update API documentation and comments
-    - [ ] Update GitHub workflows and CI/CD docs
-    - [ ] Update Prisma schema comments and descriptions
-    - [ ] Update environment variable names and prefixes
-  - [ ] **Phase 3: Application Content**
-    - [ ] Update frontend page titles and meta tags
-    - [ ] Update application name in components
-    - [ ] Update brand references in user-facing text
-    - [ ] Update API response metadata and error messages
-    - [ ] Update health check endpoint responses
-  - [ ] **Phase 4: Infrastructure & Deployment**
-    - [ ] Update yarn scripts and commands
-    - [ ] Update environment file examples (`.env.example`)
-    - [ ] Update Docker image names and configuration
-    - [ ] Update turbo.json comments and descriptions
-    - [ ] Update GitHub Actions workflow names
 
 ## Notes
 
