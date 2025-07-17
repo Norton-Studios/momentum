@@ -158,53 +158,33 @@ jobs:
           retention-days: 30
 
   sonarqube:
-    name: SonarQube Analysis
+    name: SonarQube Scan
     runs-on: ubuntu-latest
-    
+    strategy:
+      matrix:
+        project:
+          - { name: "api", dir: "apps/api/" }
+          - { name: "frontend", dir: "apps/frontend/" }
+          - { name: "database", dir: "apps/database/" }
+          - { name: "crons", dir: "apps/crons/" }
+          - { name: "e2e-tests", dir: "e2e-tests/" }
+          - { name: "data-source-github", dir: "plugins/data-sources/github/" }
+          - { name: "resource-build", dir: "plugins/resources/build/" }
+          - { name: "resource-commit", dir: "plugins/resources/commit/" }
+          - { name: "resource-contributor", dir: "plugins/resources/contributor/" }
+          - { name: "resource-merge-request", dir: "plugins/resources/merge-request/" }
+          - { name: "resource-pipeline", dir: "plugins/resources/pipeline/" }
+          - { name: "resource-repository", dir: "plugins/resources/repository/" }
+          - { name: "resource-team", dir: "plugins/resources/team/" }
+          - { name: "resource-tenant", dir: "plugins/resources/tenant/" }
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '22'
-        cache: 'yarn'
-
-    - name: Install dependencies
-      run: yarn install --frozen-lockfile
-
-    - name: Run tests with coverage
-      run: yarn test --coverage
-      env:
-        CI: true
-
-    - name: SonarQube Scan
-      uses: sonarqube-quality-gate-action@master
-      with:
-        scanMetadataReportFile: .scannerwork/report-task.txt
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-
-    - name: Run SonarQube Scanner
-      uses: sonarsource/sonarqube-scan-action@master
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-
-    - name: SonarQube Quality Gate check
-      id: sonarqube-quality-gate-check
-      uses: sonarqube-quality-gate-action@master
-      timeout-minutes: 5
-      env:
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-
-    - name: "Quality Gate Status"
-      run: echo "The Quality Gate status is ${{ steps.sonarqube-quality-gate-check.outputs.quality-gate-status }}"
-      
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: SonarQube Scan - ${{ matrix.project.name }}
+        uses: SonarSource/sonarqube-scan-action@v4
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_PROJECT_KEY: norton-studios.${{ matrix.project.name }}
+        with:
+          projectBaseDir: ${{ matrix.project.dir }}

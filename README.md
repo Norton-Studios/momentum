@@ -66,6 +66,7 @@ yarn test:ui          # Run tests with UI
 # Code Quality
 yarn lint             # Run linter
 yarn format           # Format code
+yarn sonar            # Run SonarQube analysis
 
 # Database
 yarn workspace @mmtm/database run synthesise  # Combine schemas
@@ -97,6 +98,7 @@ Plugins are automatically discovered and loaded at runtime.
 - **Backend**: Express 5, TypeScript, Prisma
 - **Database**: PostgreSQL
 - **Testing**: Vitest, Playwright
+- **Code Quality**: SonarQube
 - **Tooling**: Biome, Yarn Workspaces
 
 ## Development Guide
@@ -137,7 +139,25 @@ export async function run(
 Key environment variables:
 
 - `DATABASE_URL`: PostgreSQL connection string
+- `SONAR_TOKEN`: SonarQube authentication token (for CI/CD)
+- `SONAR_HOST_URL`: SonarQube server URL (for CI/CD)
 
+
+### SonarQube Setup
+
+For local SonarQube analysis, install the SonarQube scanner:
+
+```bash
+# Install SonarQube scanner
+npm install -g sonar-scanner
+
+# Run analysis
+yarn sonar
+```
+
+For CI/CD integration, configure these secrets in your GitHub repository:
+- `SONAR_TOKEN`: Your SonarQube authentication token
+- `SONAR_HOST_URL`: Your SonarQube server URL (e.g., https://sonarcloud.io)
 
 ## Contributing
 
@@ -145,7 +165,8 @@ Key environment variables:
 2. Create a feature branch
 3. Make your changes
 4. Run tests and linting
-5. Submit a pull request
+5. Ensure SonarQube quality gates pass
+6. Submit a pull request
 
 ## License
 

@@ -272,8 +272,11 @@ erDiagram
 
 ### Code Quality Integration
 
-The platform supports integration with various code quality analysis tools. The `quality_scan` and `quality_metric` entities are designed to store data from static analysis tools:
+The platform integrates with SonarQube for comprehensive code quality analysis. The `quality_scan` and `quality_metric` entities store data from static analysis tools:
 
-- **Extensible Integration**: Support for multiple quality analysis tools can be added through the plugin architecture
-- **Metrics Collection**: Code complexity, coverage, security vulnerabilities, and technical debt metrics can be stored in the `quality_metric` table
-- **CI/CD Integration**: Quality checks are enforced via GitHub Actions workflow
+- **SonarQube Integration**: Configured via `sonar-project.properties` with monorepo support
+- **Automated Analysis**: GitHub Actions workflow runs SonarQube analysis on every PR and push
+- **Quality Gates**: Configurable quality thresholds that must be met before merging
+- **Metrics Collection**: Code complexity, coverage, security vulnerabilities, and technical debt metrics
+- **Multi-Module Support**: Separate analysis for each application and plugin in the monorepo
+- **CI/CD Integration**: Quality checks are enforced via GitHub Actions workflow with SonarQube quality gate checks

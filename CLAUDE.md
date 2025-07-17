@@ -30,6 +30,7 @@ yarn test:ui       # Run tests with Vitest UI (in frontend)
 # Code quality
 yarn lint          # Run Biome linter
 yarn format        # Format code with Biome
+yarn sonar         # Run SonarQube analysis
 
 # Database operations
 yarn workspace @mmtm/database run synthesise  # Combine schema files
@@ -136,6 +137,7 @@ routes.forEach(route => {
 1. Copy `.env.example` files to `.env` in relevant directories
 2. Required environment variables:
    - `DATABASE_URL` in `apps/database/.env`
+   - `SONAR_TOKEN` and `SONAR_HOST_URL` for SonarQube integration (CI/CD only)
 
 3. Default local database connection:
    ```
@@ -155,6 +157,7 @@ routes.forEach(route => {
 - **TypeScript**: Strict mode enabled, no `any` types without justification
 - **Formatting**: Use Biome (`yarn format` before commits)
 - **Linting**: Fix all Biome warnings (`yarn lint`)
+- **Code Quality**: SonarQube integration for quality gates and security analysis
 - **Imports**: Use workspace aliases (e.g., `@mmtm/database`)
 - **Express Version**: All packages must use Express 5.x (`"express": "^5.1.0"` and `"@types/express": "^5.0.3"`)
 - **Plugin Dependencies**: Resource and data source plugins should use Express as a peerDependency, not a direct dependency
@@ -170,6 +173,11 @@ routes.forEach(route => {
    # Create api/index.ts with Express routes
    # Run yarn dev to regenerate schemas
    ```
+   
+   **Important**: After creating a new resource plugin, you must update the SonarQube GitHub Action matrix in `.github/workflows/test.yml` to include the new plugin for code quality scanning:
+   ```yaml
+   - { name: "resource-my-resource", dir: "plugins/resources/my-resource/" }
+   ```
 
 2. **Adding a Data Source**:
    ```bash
@@ -179,6 +187,11 @@ routes.forEach(route => {
    # Export required constants
    export const resources = ['repository', 'commit']
    export const run = async (db) => { /* collection logic */ }
+   ```
+   
+   **Important**: After creating a new data source plugin, you must update the SonarQube GitHub Action matrix in `.github/workflows/test.yml` to include the new plugin for code quality scanning:
+   ```yaml
+   - { name: "data-source-my-source", dir: "plugins/data-sources/my-source/" }
    ```
 
 3. **Schema Changes**:
