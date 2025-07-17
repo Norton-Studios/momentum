@@ -43,7 +43,7 @@
     "sonar": {
       "dependsOn": [],
       "outputs": [".scannerwork/**"],
-      "passThroughEnv": ["SONAR_HOST_URL", "SONAR_TOKEN"],
+      "passThroughEnv": ["SONAR_HOST_URL", "SONAR_TOKEN", "SONAR_SCANNER_SKIP_JRE_PROVISIONING"],
       "inputs": [
         "src/**/*.ts",
         "src/**/*.tsx",
