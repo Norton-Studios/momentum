@@ -501,6 +501,17 @@ This document tracks the implementation progress of all plugins (resources, data
     - [ ] Add audit logging for tenant creation
     - [ ] Consider implementing password reset flow
 
+- [x] **Switch to Pinned Dependencies** ✅
+  - [x] Pin all dependencies to exact versions across monorepo
+  - [x] Update root package.json with pinned devDependencies
+  - [x] Update all application packages (api, frontend, crons, database)
+  - [x] Update all plugin packages with pinned dependencies
+  - [x] Preserve workspace dependencies as ranges (workspace:^, workspace:*)
+  - [x] Preserve peerDependencies as ranges for flexibility
+  - [x] Standardize TypeScript and Vitest versions across packages
+  - [x] Ensure consistent builds and eliminate version drift
+  - [x] Validate all tests pass with pinned dependencies
+
 - [ ] **Collection Window Tracking** ⏳
   - [ ] Design tracking schema
   - [ ] Implement incremental collection
