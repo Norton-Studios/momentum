@@ -7,7 +7,7 @@
   },
   "scripts": {
     "test": "vitest run",
-    "sonar": "sonar-scanner"
+    "sonar": "sonar-scan"
   },
   "peerDependencies": {
     "@types/express": "^5.0.3",

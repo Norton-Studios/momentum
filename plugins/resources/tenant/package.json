@@ -7,7 +7,7 @@
   "scripts": {
     "test": "vitest run",
     "test:watch": "vitest",
-    "sonar": "sonar-scanner"
+    "sonar": "sonar-scan"
   },
   "dependencies": {
     "@mmtm/database": "workspace:*",

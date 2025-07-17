@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "test": "vitest run",
-    "sonar": "sonar-scanner"
+    "sonar": "sonar-scan"
   },
   "dependencies": {
     "@octokit/rest": "22.0.0",
