@@ -8,7 +8,7 @@
     "build": "vite build",
     "start": "node dist/index.js",
     "test": "vitest run",
-    "sonar": "sonar-scan"
+    "sonar": "sonar"
   },
   "dependencies": {
     "@mmtm/database": "workspace:^",

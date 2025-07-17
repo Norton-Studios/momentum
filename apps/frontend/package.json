@@ -10,7 +10,7 @@
     "typecheck": "tsc",
     "test": "vitest run",
     "test:ui": "vitest --ui",
-    "sonar": "sonar-scan"
+    "sonar": "sonar"
   },
   "dependencies": {
     "@remix-run/node": "2.16.8",
