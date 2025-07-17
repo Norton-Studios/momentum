@@ -13,7 +13,7 @@
     "express": "^5.1.0"
   },
   "devDependencies": {
-    "@types/supertest": "6.0.2",
+    "@types/supertest": "6.0.3",
     "supertest": "7.0.0",
     "vitest": "3.2.4"
   }
