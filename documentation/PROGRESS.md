@@ -302,7 +302,7 @@ This document tracks the implementation progress of all plugins (resources, data
   - [ ] Track vulnerability severity
   - [ ] Unit tests
 
-- [ ] **SonarQube - Test Coverage** ❌ (Removed)
+- [ ] **SonarQube - Test Coverage** ⏳
   - [ ] Fetch coverage metrics
   - [ ] Map to Test Coverage resource
   - [ ] Coverage by module/component
@@ -423,7 +423,7 @@ This document tracks the implementation progress of all plugins (resources, data
   - [ ] Unit tests
 
 - [ ] **Static Analysis** ⏳
-  - [ ] Static analysis issue tracking
+  - [ ] SonarQube issue tracking
   - [ ] Code smell trends
   - [ ] Security vulnerability count
   - [ ] Maintainability rating
@@ -546,21 +546,6 @@ This document tracks the implementation progress of all plugins (resources, data
   - [x] Added proper tenant relationship constraints with cascading deletes
   - [x] Comprehensive indexing for tenant-scoped queries
 
-- [x] **SonarQube Code Quality Setup** ✅
-  - [x] Configure SonarQube properties file (sonar-project.properties)
-  - [x] Set up code coverage collection with lcov format
-  - [x] Configure test source directories and exclusions
-  - [x] Add GitHub Actions workflow for SonarQube analysis
-  - [x] Integrate SonarQube analysis with CI/CD pipeline
-  - [x] Configure quality gate checks on pull requests
-  - [x] **Matrix Strategy Implementation** ✅
-    - [x] Implement GitHub Actions matrix strategy for monorepo scanning
-    - [x] Configure individual project scanning for apps (api, frontend, database, crons, e2e-tests)
-    - [x] Configure plugin-specific scanning for data sources (github) and resources (build, commit, contributor, merge-request, pipeline, repository, team, tenant)
-    - [x] Set up proper project naming and directory mapping for each matrix entry
-    - [x] Enable parallel SonarQube scanning across all workspace packages
-    - [x] Configure unique project keys for each scanned component (norton-studios.{component-name})
-
 ## Testing & Documentation
 
 - [x] **End-to-End Testing Infrastructure** ✅
@@ -572,19 +557,25 @@ This document tracks the implementation progress of all plugins (resources, data
   - [x] Add multi-tenant data isolation tests
   - [x] Set up CI/CD integration
 
-- [x] **CI/CD Pipeline Optimization** ✅
-  - [x] **GitHub Actions Matrix Strategy** ✅
-    - [x] Implement parallel linting for changed packages using Turbo
-    - [x] Implement parallel testing for changed packages using Turbo
-    - [x] Set up comprehensive E2E test pipeline with Playwright
-    - [x] Configure SonarQube matrix scanning for all monorepo components
-    - [x] Optimize caching strategies for Node.js dependencies and Turbo builds
-    - [x] Enable concurrency control with automatic cancellation of outdated workflows
-  - [x] **Quality Gates Integration** ✅
-    - [x] Integrate SonarQube quality gate checks into PR workflow
-    - [x] Configure proper project keys and naming for monorepo components
-    - [x] Set up parallel scanning across 14 different workspace packages
-    - [x] Enable automatic quality feedback on pull requests
+- [x] **Vitest Configuration & CI/CD Optimization** ✅
+  - [x] **Vitest Configuration Migration** ✅
+    - [x] Remove vitest projects configuration (incompatible with Turbo)
+    - [x] Create individual vitest.config.ts files in all 13 packages
+    - [x] Implement configuration inheritance using mergeConfig
+    - [x] Add @vitest/coverage-v8 dependency for coverage generation
+    - [x] Update turbo.json to include vitest.config.ts in test inputs
+  - [x] **GitHub Actions Workflow Optimization** ✅
+    - [x] Fix duplicate test runs (test job + sonarqube job)
+    - [x] Implement coverage artifact caching between jobs
+    - [x] Add --coverage flag to generate coverage reports
+    - [x] Add unique artifact naming with github.run_id
+    - [x] Add graceful failure handling for missing coverage files
+    - [x] Implement proper job dependencies (sonarqube needs test)
+  - [x] **Coverage Generation Setup** ✅
+    - [x] Configure LCOV format for SonarQube compatibility
+    - [x] Set up coverage directory structure per package
+    - [x] Add coverage upload/download artifact flow
+    - [x] Ensure coverage files are generated and cached properly
 
 - [ ] **Plugin Development Guide** ⏳
   - [ ] Resource plugin template
@@ -604,6 +595,7 @@ This document tracks the implementation progress of all plugins (resources, data
    - Extend GitHub/GitLab data sources for enhanced metrics collection
 
 2. **Priority 2: Quality & Security Integrations**
+   - Implement SonarQube integration for code quality and security metrics
    - Add Security Scanner integration for CVE detection
    - Add Test Coverage Tools integration
 
