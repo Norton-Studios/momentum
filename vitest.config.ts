@@ -7,9 +7,5 @@ export default defineConfig({
       reporter: ['lcov', 'text'],
       reportsDirectory: 'coverage',
     },
-    projects: [
-      'apps/*',
-      'plugins/*/*',
-    ],
   },
 })

@@ -15,6 +15,7 @@
         "db/**/*.prisma",
         "**/*.test.ts",
         "**/*.spec.ts",
+        "vitest.config.ts",
         "tsconfig.json",
         "package.json"
       ]
