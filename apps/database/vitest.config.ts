@@ -1,7 +1,9 @@
-import { defineConfig } from "vitest/config";
+import { defineConfig, mergeConfig } from "vitest/config";
+import rootConfig from "../../vitest.config";
 
-export default defineConfig({
-  test: {
-    passWithNoTests: true,
-  },
-});
+export default mergeConfig(
+  rootConfig,
+  defineConfig({
+    // custom config can go here if needed
+  }),
+);

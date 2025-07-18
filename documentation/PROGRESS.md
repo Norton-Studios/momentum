@@ -548,7 +548,7 @@ This document tracks the implementation progress of all plugins (resources, data
 
 ## Testing & Documentation
 
-- [x] **End-to-End Testing Infrastructure** ⏳
+- [x] **End-to-End Testing Infrastructure** ✅
   - [x] Implement testcontainers PostgreSQL setup
   - [x] Create programmatic migration runner
   - [x] Build test orchestration system
@@ -556,6 +556,26 @@ This document tracks the implementation progress of all plugins (resources, data
   - [x] Create tenant creation and auth test flows
   - [x] Add multi-tenant data isolation tests
   - [x] Set up CI/CD integration
+
+- [x] **Vitest Configuration & CI/CD Optimization** ✅
+  - [x] **Vitest Configuration Migration** ✅
+    - [x] Remove vitest projects configuration (incompatible with Turbo)
+    - [x] Create individual vitest.config.ts files in all 13 packages
+    - [x] Implement configuration inheritance using mergeConfig
+    - [x] Add @vitest/coverage-v8 dependency for coverage generation
+    - [x] Update turbo.json to include vitest.config.ts in test inputs
+  - [x] **GitHub Actions Workflow Optimization** ✅
+    - [x] Fix duplicate test runs (test job + sonarqube job)
+    - [x] Implement coverage artifact caching between jobs
+    - [x] Add --coverage flag to generate coverage reports
+    - [x] Add unique artifact naming with github.run_id
+    - [x] Add graceful failure handling for missing coverage files
+    - [x] Implement proper job dependencies (sonarqube needs test)
+  - [x] **Coverage Generation Setup** ✅
+    - [x] Configure LCOV format for SonarQube compatibility
+    - [x] Set up coverage directory structure per package
+    - [x] Add coverage upload/download artifact flow
+    - [x] Ensure coverage files are generated and cached properly
 
 - [ ] **Plugin Development Guide** ⏳
   - [ ] Resource plugin template

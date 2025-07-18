@@ -30,6 +30,7 @@ yarn test:ui       # Run tests with Vitest UI (in frontend)
 # Code quality
 yarn lint          # Run Biome linter
 yarn format        # Format code with Biome
+yarn test:coverage # Run tests with coverage report
 
 # Database operations
 yarn workspace @mmtm/database run synthesise  # Combine schema files
@@ -136,7 +137,7 @@ routes.forEach(route => {
 1. Copy `.env.example` files to `.env` in relevant directories
 2. Required environment variables:
    - `DATABASE_URL` in `apps/database/.env`
-   - `GITHUB_TOKEN` in `plugins/data-sources/github/.env` (if using GitHub integration)
+   - `SONAR_TOKEN` and `SONAR_HOST_URL` for SonarQube integration (CI/CD only)
 
 3. Default local database connection:
    ```
@@ -156,6 +157,7 @@ routes.forEach(route => {
 - **TypeScript**: Strict mode enabled, no `any` types without justification
 - **Formatting**: Use Biome (`yarn format` before commits)
 - **Linting**: Fix all Biome warnings (`yarn lint`)
+- **Code Quality**: SonarQube integration with Turbo for efficient change-based analysis
 - **Imports**: Use workspace aliases (e.g., `@mmtm/database`)
 - **Express Version**: All packages must use Express 5.x (`"express": "^5.1.0"` and `"@types/express": "^5.0.3"`)
 - **Plugin Dependencies**: Resource and data source plugins should use Express as a peerDependency, not a direct dependency
@@ -170,7 +172,7 @@ routes.forEach(route => {
    # Create schema.prisma with your models
    # Create api/index.ts with Express routes
    # Run yarn dev to regenerate schemas
-   ```
+   ``` 
 
 2. **Adding a Data Source**:
    ```bash
@@ -190,7 +192,7 @@ routes.forEach(route => {
 
 4. **Adding Tests to New Plugins**:
    - Always use `"test": "vitest run"` in package.json for non-interactive testing
-   - Add `vitest.config.ts` with `passWithNoTests: true` if no tests exist yet
+   - Add `vitest.config.ts` that extends the root config
    - **Co-locate tests with the files they test** using `.test.ts` suffix (e.g., `api/index.test.ts` for `api/index.ts`)
    - Do NOT create separate `tests/` directories - tests should be next to the source files
    - Mock `@mmtm/database` import using `vi.mock()`
@@ -200,19 +202,6 @@ routes.forEach(route => {
    - Use Express as peerDependency: `"peerDependencies": { "express": "^5.1.0", "@types/express": "^5.0.3" }`
    - Include proper prisma schema path: `"prisma": { "schema": "db/schema.prisma" }`
    - Follow naming convention: `@mmtm/resource-{name}` or `@mmtm/data-source-{name}`
-
-6. **Before Committing**:
-   - Run `yarn format` to format code
-   - Run `yarn lint` and `yarn lint:fix` if there are ny linting issues
-   - Ensure all tests pass with `yarn test`
-   - Check for schema changes and run migrations if needed
-
-7. **Before Creating a Pull Request**:
-   - Ensure all tests are passing
-   - Verify that the plugin follows naming conventions
-   - Check that the progress is updated `documentation/PROGRESS.md`
-   - Update the main documentation if necessary
-   - Run the e2e tests with `yarn workspace e2e-tests run`
 
 ## Multi-Tenancy Considerations
 
@@ -228,6 +217,7 @@ routes.forEach(route => {
 3. **Don't create circular dependencies** between plugins
 4. **Don't forget to handle async operations** properly in data sources
 5. **Don't skip schema synthesis** after adding/modifying plugins
+6. **Don't add dependencies with ~ or ^** - Use exact versions
 
 ## Performance Considerations
 
