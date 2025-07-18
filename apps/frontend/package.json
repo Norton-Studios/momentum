@@ -9,8 +9,7 @@
     "lint": "biome lint .",
     "typecheck": "tsc",
     "test": "vitest run",
-    "test:ui": "vitest --ui",
-    "sonar": "sonar"
+    "test:ui": "vitest --ui"
   },
   "dependencies": {
     "@remix-run/node": "2.16.8",

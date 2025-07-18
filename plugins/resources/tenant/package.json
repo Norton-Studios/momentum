@@ -6,8 +6,7 @@
   "type": "module",
   "scripts": {
     "test": "vitest run",
-    "test:watch": "vitest",
-    "sonar": "sonar"
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@mmtm/database": "workspace:*",

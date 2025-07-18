@@ -7,8 +7,7 @@
     "dev": "tsc -w & nodemon dist/index.js",
     "build": "tsc",
     "start": "node dist/index.js",
-    "test": "vitest run",
-    "sonar": "sonar"
+    "test": "vitest run"
   },
   "dependencies": {
     "@mmtm/database": "workspace:^",
