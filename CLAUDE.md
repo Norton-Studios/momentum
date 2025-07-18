@@ -30,9 +30,7 @@ yarn test:ui       # Run tests with Vitest UI (in frontend)
 # Code quality
 yarn lint          # Run Biome linter
 yarn format        # Format code with Biome
-yarn sonar         # Run SonarQube analysis (local)
-turbo sonar        # Run SonarQube analysis on all packages
-turbo sonar --filter="...[HEAD^1]"  # Run SonarQube analysis on changed packages
+yarn test:coverage # Run tests with coverage report
 
 # Database operations
 yarn workspace @mmtm/database run synthesise  # Combine schema files
@@ -174,16 +172,7 @@ routes.forEach(route => {
    # Create schema.prisma with your models
    # Create api/index.ts with Express routes
    # Run yarn dev to regenerate schemas
-   ```
-   
-   **Important**: After creating a new resource plugin, you must add a `sonar` script to the plugin's `package.json` for SonarQube analysis:
-   ```json
-   {
-     "scripts": {
-       "sonar": "sonar-scanner -Dsonar.projectKey=norton-studios.resource-my-resource -Dsonar.projectName=\"Resource My Resource\" -Dsonar.sources=api -Dsonar.tests=api -Dsonar.test.inclusions=**/*.test.ts"
-     }
-   }
-   ```
+   ``` 
 
 2. **Adding a Data Source**:
    ```bash
@@ -194,15 +183,6 @@ routes.forEach(route => {
    export const resources = ['repository', 'commit']
    export const run = async (db) => { /* collection logic */ }
    ```
-   
-   **Important**: After creating a new data source plugin, you must add a `sonar` script to the plugin's `package.json` for SonarQube analysis:
-   ```json
-   {
-     "scripts": {
-       "sonar": "sonar-scanner -Dsonar.projectKey=norton-studios.data-source-my-source -Dsonar.projectName=\"Data Source My Source\" -Dsonar.sources=. -Dsonar.tests=. -Dsonar.test.inclusions=**/*.test.ts"
-     }
-   }
-   ```
 
 3. **Schema Changes**:
    - Modify the relevant `db/schema.prisma` file
@@ -212,7 +192,7 @@ routes.forEach(route => {
 
 4. **Adding Tests to New Plugins**:
    - Always use `"test": "vitest run"` in package.json for non-interactive testing
-   - Add `vitest.config.ts` with `passWithNoTests: true` if no tests exist yet
+   - Add `vitest.config.ts` that extends the root config
    - **Co-locate tests with the files they test** using `.test.ts` suffix (e.g., `api/index.test.ts` for `api/index.ts`)
    - Do NOT create separate `tests/` directories - tests should be next to the source files
    - Mock `@mmtm/database` import using `vi.mock()`
