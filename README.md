@@ -97,7 +97,7 @@ Plugins are automatically discovered and loaded at runtime.
 - **Backend**: Express 5, TypeScript, Prisma
 - **Database**: PostgreSQL
 - **Testing**: Vitest, Playwright
-- **Tooling**: Biome, Yarn Workspaces
+- **Tooling**: Biome, Yarn Workspaces, Turbo
 
 ## Development Guide
 
