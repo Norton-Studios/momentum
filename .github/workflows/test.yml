@@ -105,17 +105,19 @@ jobs:
       - name: Run unit tests for changed packages
         run: |
           if [ "${{ github.event_name }}" = "pull_request" ]; then
-            npx turbo test --filter="...[origin/${{ github.base_ref }}]"
+            npx turbo test --filter="...[origin/${{ github.base_ref }}]" -- --coverage
           else
-            npx turbo test --filter="...[HEAD^1]"
+            npx turbo test --filter="...[HEAD^1]" -- --coverage
           fi
 
       - name: Upload coverage artifacts
         uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: coverage-reports
           path: '**/coverage/'
           retention-days: 1
+          if-no-files-found: ignore
 
   e2e:
     name: E2E Tests
@@ -177,6 +179,7 @@ jobs:
 
       - name: Download coverage artifacts
         uses: actions/download-artifact@v4
+        continue-on-error: true
         with:
           name: coverage-reports
 
