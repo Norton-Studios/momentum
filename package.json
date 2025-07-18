@@ -28,8 +28,7 @@
   "license": "ISC",
   "description": "",
   "devDependencies": {
-    "@biomejs/biome": "2.1.1",
-    "@sonar/scan": "4.3.0",
+    "@biomejs/biome": "2.1.2",
     "@types/node": "22.16.4",
     "@types/supertest": "6.0.3",
     "@vitest/ui": "3.2.4",

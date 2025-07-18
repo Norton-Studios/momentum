@@ -13,7 +13,7 @@
   "dependencies": {
     "@mmtm/database": "workspace:^",
     "fast-glob": "3.3.3",
-    "node-cron": "4.0.0",
+    "node-cron": "4.2.1",
     "p-graph": "1.1.2"
   },
   "devDependencies": {
