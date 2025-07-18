@@ -269,14 +269,3 @@ erDiagram
     repository ||--o{ quality_scan : "undergoes"
     quality_scan ||--o{ quality_metric : "produces"
 ```
-
-### Code Quality Integration
-
-The platform integrates with SonarQube for comprehensive code quality analysis. The `quality_scan` and `quality_metric` entities store data from static analysis tools:
-
-- **SonarQube Integration**: Configured via `sonar-project.properties` with monorepo support
-- **Automated Analysis**: GitHub Actions workflow runs SonarQube analysis on every PR and push
-- **Quality Gates**: Configurable quality thresholds that must be met before merging
-- **Metrics Collection**: Code complexity, coverage, security vulnerabilities, and technical debt metrics
-- **Multi-Module Support**: Separate analysis for each application and plugin in the monorepo
-- **CI/CD Integration**: Quality checks are enforced via GitHub Actions workflow with SonarQube quality gate checks
