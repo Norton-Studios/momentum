@@ -114,7 +114,7 @@ jobs:
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: coverage-reports
+          name: coverage-reports-${{ github.run_id }}
           path: '**/coverage/'
           retention-days: 1
           if-no-files-found: ignore
@@ -181,10 +181,9 @@ jobs:
         uses: actions/download-artifact@v4
         continue-on-error: true
         with:
-          name: coverage-reports
+          name: coverage-reports-${{ github.run_id }}
 
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@master
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
