@@ -1256,7 +1256,7 @@ __metadata:
   resolution: "@mmtm/api@workspace:apps/api"
   dependencies:
     "@mmtm/database": "workspace:^"
-    "@types/bcrypt": "npm:5.0.2"
+    "@types/bcrypt": "npm:6.0.0"
     "@types/express": "npm:5.0.3"
     bcrypt: "npm:6.0.0"
     express: "npm:5.1.0"
@@ -1396,7 +1396,7 @@ __metadata:
   resolution: "@mmtm/resource-tenant@workspace:plugins/resources/tenant"
   dependencies:
     "@mmtm/database": "workspace:*"
-    "@types/bcrypt": "npm:5.0.2"
+    "@types/bcrypt": "npm:6.0.0"
     bcrypt: "npm:6.0.0"
     zod: "npm:4.0.5"
   peerDependencies:
@@ -2213,12 +2213,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/bcrypt@npm:5.0.2, @types/bcrypt@npm:^5.0.2":
-  version: 5.0.2
-  resolution: "@types/bcrypt@npm:5.0.2"
+"@types/bcrypt@npm:6.0.0, @types/bcrypt@npm:^6.0.0":
+  version: 6.0.0
+  resolution: "@types/bcrypt@npm:6.0.0"
   dependencies:
     "@types/node": "npm:*"
-  checksum: 10c0/dd7f05e183b9b1fc08ec499069febf197ab8e9c720766b5bbb5628395082e248f9a444c60882fe7788361fcadc302e21e055ab9c26a300f100e08791c353e6aa
+  checksum: 10c0/48b66408838f5eb59791da5a77260cef59a5291ce0945f2caa3b5a6158c44b321b684b4aa7dce771852c63271c766cadd587374273451b300377a17015c1d51d
   languageName: node
   linkType: hard
 
@@ -3987,7 +3987,7 @@ __metadata:
     "@mmtm/database": "workspace:*"
     "@playwright/test": "npm:^1.45.3"
     "@testcontainers/postgresql": "npm:^10.7.2"
-    "@types/bcrypt": "npm:^5.0.2"
+    "@types/bcrypt": "npm:^6.0.0"
     "@types/node": "npm:^22.10.5"
     axios: "npm:^1.6.7"
     bcrypt: "npm:^6.0.0"
