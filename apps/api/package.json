@@ -14,7 +14,7 @@
     "bcrypt": "6.0.0",
     "express": "5.1.0",
     "fast-glob": "3.3.3",
-    "zod": "4.0.5"
+    "zod": "4.0.8"
   },
   "devDependencies": {
     "@types/bcrypt": "6.0.0",
