@@ -5,7 +5,7 @@ This guide contains specific instructions and context for Claude AI to work effe
 ## Project Overview
 
 This is a modular, extensible web application for measuring developer productivity. It supports:
-- Multi-tenant SaaS deployment with isolated databases per tenant
+- Multi-tenant SaaS deployment
 - Self-hosted deployment for individual organizations
 - Plugin-based architecture for resources, data sources, and reports
 
@@ -48,11 +48,12 @@ momentum/
 │   ├── frontend/      # Remix application
 │   ├── crons/         # Job scheduler
 │   └── database/      # Prisma schema synthesis
-├── plugins/           # Extensible modules
-│   ├── resources/     # Data models (e.g., team, repository)
-│   ├── data-sources/  # External integrations (e.g., GitHub)
-│   └── reports/       # Analytics and insights
-├── documentation/     # Project docs and ADRs
+├── libs/
+│   ├── plugins/           # Extensible modules
+│   │   ├── resources/     # Data models (e.g., team, repository)
+│   │   ├── data-sources/  # External integrations (e.g., GitHub)
+│   │   └── reports/       # Analytics and insights
+├── docs/     # Project docs and ADRs
 └── e2e-tests/        # Playwright E2E tests
 ```
 
