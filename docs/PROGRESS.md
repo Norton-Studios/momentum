@@ -640,6 +640,20 @@ This document tracks the implementation progress of all plugins (resources, data
     - [x] Update CLAUDE.md project instructions
     - [x] Update documentation in `documentation/` directory
 
+## Recent Changes
+
+### Plugin Architecture Reorganization ✅
+- **Moved plugins folder from root to libs/plugins**
+  - Updated all import paths across the codebase
+  - Fixed vitest.config.ts and tsconfig.json paths in all plugin packages
+  - Simplified turbo.json test inputs configuration
+  - Ensured all tests pass with new structure
+
+### Documentation Structure Update ✅
+- **Renamed documentation folder to docs**
+  - Updated all references to documentation paths
+  - Maintained all existing documentation content
+
 ## Notes
 
 - Each resource should follow the established pattern from Team and Repository

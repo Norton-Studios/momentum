@@ -8,17 +8,7 @@
     "test": {
       "dependsOn": ["^build"],
       "outputs": ["coverage/**"],
-      "inputs": [
-        "src/**/*.ts",
-        "src/**/*.tsx",
-        "api/**/*.ts",
-        "db/**/*.prisma",
-        "**/*.test.ts",
-        "**/*.spec.ts",
-        "vitest.config.ts",
-        "tsconfig.json",
-        "package.json"
-      ]
+      "inputs": ["package.json", "**/*.ts", "**/*.tsx", "**/*.prisma"]
     },
     "lint": {
       "outputs": []

@@ -39,16 +39,16 @@ describe("import", () => {
   describe("loadDataSources", () => {
     it("should discover and load data sources from plugins", async () => {
       // Mock file system
-      (fg as any).mockResolvedValue(["/plugins/data-sources/github/repository.ts", "/plugins/data-sources/gitlab/issues.ts"]);
+      (fg as any).mockResolvedValue(["/libs/plugins/data-sources/github/repository.ts", "/libs/plugins/data-sources/gitlab/issues.ts"]);
 
       // Mock dynamic imports
-      vi.doMock("/plugins/data-sources/github/repository.ts", () => ({
+      vi.doMock("/libs/plugins/data-sources/github/repository.ts", () => ({
         resources: ["repository"],
         dependencies: [],
         run: vi.fn(),
       }));
 
-      vi.doMock("/plugins/data-sources/gitlab/issues.ts", () => ({
+      vi.doMock("/libs/plugins/data-sources/gitlab/issues.ts", () => ({
         resources: ["issue"],
         dependencies: ["repository"],
         run: vi.fn(),
@@ -57,7 +57,7 @@ describe("import", () => {
       const dataSources = await loadDataSources();
 
       expect(fg).toHaveBeenCalledWith(
-        ["../../plugins/data-sources/*/index.ts", "../../plugins/data-sources/*/*.ts"],
+        ["../../libs/plugins/data-sources/*/index.ts", "../../libs/plugins/data-sources/*/*.ts"],
         expect.objectContaining({ absolute: true }),
       );
 
@@ -72,10 +72,10 @@ describe("import", () => {
     });
 
     it("should handle modules without required exports", async () => {
-      (fg as any).mockResolvedValue(["/plugins/data-sources/invalid/test.ts"]);
+      (fg as any).mockResolvedValue(["/libs/plugins/data-sources/invalid/test.ts"]);
 
       // Mock invalid module - has undefined resources and run
-      vi.doMock("/plugins/data-sources/invalid/test.ts", () => ({
+      vi.doMock("/libs/plugins/data-sources/invalid/test.ts", () => ({
         resources: undefined,
         run: undefined,
         someOtherExport: "value",
@@ -86,12 +86,12 @@ describe("import", () => {
     });
 
     it("should handle import errors gracefully", async () => {
-      (fg as any).mockResolvedValue(["/plugins/data-sources/broken/test.ts"]);
+      (fg as any).mockResolvedValue(["/libs/plugins/data-sources/broken/test.ts"]);
 
       const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
       // Mock import that throws
-      vi.doMock("/plugins/data-sources/broken/test.ts", () => {
+      vi.doMock("/libs/plugins/data-sources/broken/test.ts", () => {
         throw new Error("Import failed");
       });
 
@@ -320,10 +320,10 @@ describe("import", () => {
   describe("runImport", () => {
     it("should load and execute data sources", async () => {
       // Mock file system to return test sources
-      (fg as any).mockResolvedValue(["/plugins/data-sources/test/source.ts"]);
+      (fg as any).mockResolvedValue(["/libs/plugins/data-sources/test/source.ts"]);
 
       // Mock the test data source
-      vi.doMock("/plugins/data-sources/test/source.ts", () => ({
+      vi.doMock("/libs/plugins/data-sources/test/source.ts", () => ({
         resources: ["test"],
         dependencies: [],
         run: vi.fn(),
