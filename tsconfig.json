@@ -4,9 +4,7 @@
     "paths": {
       "@mmtm/api": ["apps/api/src"],
       "@mmtm/database": ["apps/database/src"],
-      "@mmtm/frontend": ["apps/frontend/src"],
-      "@mmtm/resource-repository": ["plugins/resources/repository/src"],
-      "@mmtm/resource-team": ["plugins/resources/team/src"]
+      "@mmtm/frontend": ["apps/frontend/src"]
     },
     "esModuleInterop": true /* Emit additional JavaScript to ease support for importing CommonJS modules. This enables 'allowSyntheticDefaultImports' for type compatibility. */,
     "forceConsistentCasingInFileNames": true /* Ensure that casing is correct in imports. */,

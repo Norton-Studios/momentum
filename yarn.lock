@@ -1281,9 +1281,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@mmtm/data-source-github@workspace:plugins/data-sources/github":
+"@mmtm/data-source-github@workspace:libs/plugins/data-sources/github":
   version: 0.0.0-use.local
-  resolution: "@mmtm/data-source-github@workspace:plugins/data-sources/github"
+  resolution: "@mmtm/data-source-github@workspace:libs/plugins/data-sources/github"
   dependencies:
     "@octokit/rest": "npm:22.0.0"
     dotenv: "npm:17.2.1"
@@ -1322,18 +1322,18 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@mmtm/resource-build@workspace:plugins/resources/build":
+"@mmtm/resource-build@workspace:libs/plugins/resources/build":
   version: 0.0.0-use.local
-  resolution: "@mmtm/resource-build@workspace:plugins/resources/build"
+  resolution: "@mmtm/resource-build@workspace:libs/plugins/resources/build"
   peerDependencies:
     "@types/express": ^5.0.3
     express: ^5.1.0
   languageName: unknown
   linkType: soft
 
-"@mmtm/resource-commit@workspace:plugins/resources/commit":
+"@mmtm/resource-commit@workspace:libs/plugins/resources/commit":
   version: 0.0.0-use.local
-  resolution: "@mmtm/resource-commit@workspace:plugins/resources/commit"
+  resolution: "@mmtm/resource-commit@workspace:libs/plugins/resources/commit"
   dependencies:
     "@mmtm/database": "workspace:*"
     vite: "npm:7.0.6"
@@ -1343,9 +1343,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@mmtm/resource-contributor@workspace:plugins/resources/contributor":
+"@mmtm/resource-contributor@workspace:libs/plugins/resources/contributor":
   version: 0.0.0-use.local
-  resolution: "@mmtm/resource-contributor@workspace:plugins/resources/contributor"
+  resolution: "@mmtm/resource-contributor@workspace:libs/plugins/resources/contributor"
   dependencies:
     "@mmtm/database": "workspace:*"
     vite: "npm:7.0.6"
@@ -1355,45 +1355,45 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@mmtm/resource-merge-request@workspace:plugins/resources/merge-request":
+"@mmtm/resource-merge-request@workspace:libs/plugins/resources/merge-request":
   version: 0.0.0-use.local
-  resolution: "@mmtm/resource-merge-request@workspace:plugins/resources/merge-request"
+  resolution: "@mmtm/resource-merge-request@workspace:libs/plugins/resources/merge-request"
   peerDependencies:
     "@types/express": ^5.0.3
     express: ^5.1.0
   languageName: unknown
   linkType: soft
 
-"@mmtm/resource-pipeline@workspace:plugins/resources/pipeline":
+"@mmtm/resource-pipeline@workspace:libs/plugins/resources/pipeline":
   version: 0.0.0-use.local
-  resolution: "@mmtm/resource-pipeline@workspace:plugins/resources/pipeline"
+  resolution: "@mmtm/resource-pipeline@workspace:libs/plugins/resources/pipeline"
   peerDependencies:
     "@types/express": ^5.0.3
     express: ^5.1.0
   languageName: unknown
   linkType: soft
 
-"@mmtm/resource-repository@workspace:plugins/resources/repository":
+"@mmtm/resource-repository@workspace:libs/plugins/resources/repository":
   version: 0.0.0-use.local
-  resolution: "@mmtm/resource-repository@workspace:plugins/resources/repository"
+  resolution: "@mmtm/resource-repository@workspace:libs/plugins/resources/repository"
   peerDependencies:
     "@types/express": ^5.0.3
     express: ^5.1.0
   languageName: unknown
   linkType: soft
 
-"@mmtm/resource-team@workspace:plugins/resources/team":
+"@mmtm/resource-team@workspace:libs/plugins/resources/team":
   version: 0.0.0-use.local
-  resolution: "@mmtm/resource-team@workspace:plugins/resources/team"
+  resolution: "@mmtm/resource-team@workspace:libs/plugins/resources/team"
   peerDependencies:
     "@types/express": ^5.0.3
     express: ^5.1.0
   languageName: unknown
   linkType: soft
 
-"@mmtm/resource-tenant@workspace:plugins/resources/tenant":
+"@mmtm/resource-tenant@workspace:libs/plugins/resources/tenant":
   version: 0.0.0-use.local
-  resolution: "@mmtm/resource-tenant@workspace:plugins/resources/tenant"
+  resolution: "@mmtm/resource-tenant@workspace:libs/plugins/resources/tenant"
   dependencies:
     "@mmtm/database": "workspace:*"
     "@types/bcrypt": "npm:6.0.0"

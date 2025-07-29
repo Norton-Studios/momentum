@@ -11,7 +11,7 @@ interface DataSource {
 }
 
 export async function loadDataSources(): Promise<DataSource[]> {
-  const dataSourcePaths = await fg(["../../plugins/data-sources/*/index.ts", "../../plugins/data-sources/*/*.ts"], {
+  const dataSourcePaths = await fg(["../../libs/plugins/data-sources/*/index.ts", "../../libs/plugins/data-sources/*/*.ts"], {
     absolute: true,
     cwd: __dirname,
   });
