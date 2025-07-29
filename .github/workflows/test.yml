@@ -110,12 +110,15 @@ jobs:
             npx turbo test --filter="...[HEAD^1]" -- --coverage
           fi
 
+      - name: Merge coverage reports
+        run: npx lcov-result-merger **/coverage/lcov.info lcov.info --prepend-source-files
+
       - name: Upload coverage artifacts
         uses: actions/upload-artifact@v4
         if: always()
         with:
           name: coverage-reports-${{ github.run_id }}
-          path: '**/coverage/'
+          path: 'lcov.info'
           retention-days: 1
           if-no-files-found: ignore
 
