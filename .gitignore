@@ -4,7 +4,7 @@ node_modules/
 # Build output
 dist/
 build/
-!plugins/resources/build/
+!libs/plugins/resources/build/
 public/build/
 database/build
 

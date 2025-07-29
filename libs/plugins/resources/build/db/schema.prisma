@@ -1,0 +1,101 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  schemas  = ["core", "scm"]
+}
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["multiSchema"]
+}
+
+model Build {
+  id          Int       @id @default(autoincrement())
+  tenantId    String    @map("tenant_id")
+  pipelineId  Int       @map("pipeline_id")
+  commitId    Int?      @map("commit_id")
+  externalId  String    @map("external_id")
+  name        String
+  description String?
+  status      String    // pending, running, success, failed, cancelled
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  startedAt   DateTime? @map("started_at")
+  finishedAt  DateTime? @map("finished_at")
+  duration    Int?      // Duration in seconds
+  environment String?   // production, staging, development
+  version     String?
+  artifacts   String?   // JSON array of artifact URLs
+  logs        String?   // Log content or URL
+  source      String    // github_actions, gitlab_ci, jenkins, etc.
+  url         String
+
+  // Relationships
+  tenant   Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  pipeline Pipeline   @relation(fields: [pipelineId], references: [id], onDelete: Cascade)
+  commit   Commit?    @relation(fields: [commitId], references: [id], onDelete: SetNull)
+  steps    BuildStep[]
+
+  @@unique([tenantId, pipelineId, externalId])
+  @@index([tenantId])
+  @@index([pipelineId])
+  @@index([commitId])
+  @@index([status])
+  @@index([createdAt])
+  @@index([finishedAt])
+  @@index([environment])
+  @@map("build")
+  @@schema("scm")
+}
+
+model BuildStep {
+  id         Int       @id @default(autoincrement())
+  tenantId   String    @map("tenant_id")
+  buildId    Int       @map("build_id")
+  externalId String    @map("external_id")
+  name       String
+  description String?
+  status     String    // pending, running, success, failed, cancelled, skipped
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
+  startedAt  DateTime? @map("started_at")
+  finishedAt DateTime? @map("finished_at")
+  duration   Int?      // Duration in seconds
+  order      Int       @default(0)
+  command    String?
+  logs       String?   // Log content or URL
+  artifacts  String?   // JSON array of artifact URLs
+  url        String?
+
+  // Relationships
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  build  Build  @relation(fields: [buildId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, buildId, externalId])
+  @@index([tenantId])
+  @@index([buildId])
+  @@index([status])
+  @@index([order])
+  @@index([createdAt])
+  @@map("build_step")
+  @@schema("scm")
+}
+
+// Reference models from other plugins - these are comments for reference
+// model Tenant {
+//   id String @id @default(cuid())
+//   @@schema("core")
+// }
+
+// model Pipeline {
+//   id Int @id @default(autoincrement())
+//   tenantId String
+//   @@schema("scm")
+// }
+
+// model Commit {
+//   id Int @id @default(autoincrement())
+//   tenantId String
+//   repositoryId Int
+//   @@schema("scm")
+// }
