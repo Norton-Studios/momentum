@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, type MockedFunction } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import { loadJobs, type CronJob } from "./dynamic-jobs";
 
 // Mock fast-glob
@@ -34,18 +34,18 @@ describe("dynamic-jobs", () => {
 
       const mockJobPaths = ["/path/to/data-sources/github/cron/index.ts", "/path/to/reports/productivity/cron/index.ts"];
 
-      (mockFg.default as MockedFunction<typeof mockFg.default>).mockResolvedValue(mockJobPaths);
+      vi.mocked(mockFg.default).mockResolvedValue(mockJobPaths);
 
       // Mock path methods
-      (mockPath.basename as MockedFunction<typeof mockPath.basename>).mockReturnValueOnce("github").mockReturnValueOnce("productivity");
+      vi.mocked(mockPath.basename).mockReturnValueOnce("github").mockReturnValueOnce("productivity");
 
-      (mockPath.dirname as MockedFunction<typeof mockPath.dirname>)
+      vi.mocked(mockPath.dirname)
         .mockReturnValueOnce("/path/to/data-sources/github")
         .mockReturnValueOnce("/path/to/data-sources")
         .mockReturnValueOnce("/path/to/reports/productivity")
         .mockReturnValueOnce("/path/to/reports");
 
-      (mockPath.relative as MockedFunction<typeof mockPath.relative>)
+      vi.mocked(mockPath.relative)
         .mockReturnValueOnce("plugins/data-sources/github/cron/index.ts")
         .mockReturnValueOnce("plugins/reports/productivity/cron/index.ts");
 
@@ -87,7 +87,7 @@ describe("dynamic-jobs", () => {
 
     it("should use fast-glob with correct patterns and options", async () => {
       const mockFg = await import("fast-glob");
-      (mockFg.default as MockedFunction<typeof mockFg.default>).mockResolvedValue([]);
+      vi.mocked(mockFg.default).mockResolvedValue([]);
 
       await loadJobs();
 
@@ -101,7 +101,7 @@ describe("dynamic-jobs", () => {
       const mockFg = await import("fast-glob");
       const mockJobPaths = ["/path/to/invalid/cron/index.ts"];
 
-      (mockFg.default as MockedFunction<typeof mockFg.default>).mockResolvedValue(mockJobPaths);
+      vi.mocked(mockFg.default).mockResolvedValue(mockJobPaths);
 
       const mockInvalidJob = {
         // No default export
@@ -121,7 +121,7 @@ describe("dynamic-jobs", () => {
       const mockFg = await import("fast-glob");
       const mockJobPaths = ["/path/to/invalid/cron/index.ts"];
 
-      (mockFg.default as MockedFunction<typeof mockFg.default>).mockResolvedValue(mockJobPaths);
+      vi.mocked(mockFg.default).mockResolvedValue(mockJobPaths);
 
       const mockInvalidJob = {
         default: "not an object",
@@ -139,7 +139,7 @@ describe("dynamic-jobs", () => {
       const mockFg = await import("fast-glob");
       const mockJobPaths = ["/path/to/invalid/cron/index.ts"];
 
-      (mockFg.default as MockedFunction<typeof mockFg.default>).mockResolvedValue(mockJobPaths);
+      vi.mocked(mockFg.default).mockResolvedValue(mockJobPaths);
 
       const mockInvalidJob = {
         default: {
@@ -160,7 +160,7 @@ describe("dynamic-jobs", () => {
       const mockFg = await import("fast-glob");
       const mockJobPaths = ["/path/to/invalid/cron/index.ts"];
 
-      (mockFg.default as MockedFunction<typeof mockFg.default>).mockResolvedValue(mockJobPaths);
+      vi.mocked(mockFg.default).mockResolvedValue(mockJobPaths);
 
       const mockInvalidJob = {
         default: {
@@ -182,8 +182,8 @@ describe("dynamic-jobs", () => {
       const mockPath = await import("node:path");
       const mockJobPaths = ["/path/to/broken/cron/index.ts"];
 
-      (mockFg.default as MockedFunction<typeof mockFg.default>).mockResolvedValue(mockJobPaths);
-      (mockPath.relative as MockedFunction<typeof mockPath.relative>).mockReturnValue("plugins/broken/cron/index.ts");
+      vi.mocked(mockFg.default).mockResolvedValue(mockJobPaths);
+      vi.mocked(mockPath.relative).mockReturnValue("plugins/broken/cron/index.ts");
 
       // Mock a failing import
       vi.doMock("/path/to/broken/cron/index.ts", () => {
@@ -200,7 +200,7 @@ describe("dynamic-jobs", () => {
       const mockFg = await import("fast-glob");
       const mockJobPaths = ["/path/to/syntax-error/cron/index.ts"];
 
-      (mockFg.default as MockedFunction<typeof mockFg.default>).mockResolvedValue(mockJobPaths);
+      vi.mocked(mockFg.default).mockResolvedValue(mockJobPaths);
 
       // Mock a module with syntax error
       vi.doMock("/path/to/syntax-error/cron/index.ts", () => {
@@ -218,16 +218,14 @@ describe("dynamic-jobs", () => {
       const mockPath = await import("node:path");
       const mockJobPaths = ["/complex/path/to/data-sources/my-source/cron/index.ts"];
 
-      (mockFg.default as MockedFunction<typeof mockFg.default>).mockResolvedValue(mockJobPaths);
+      vi.mocked(mockFg.default).mockResolvedValue(mockJobPaths);
 
       // Mock the path extraction sequence
-      (mockPath.basename as MockedFunction<typeof mockPath.basename>).mockReturnValueOnce("my-source");
+      vi.mocked(mockPath.basename).mockReturnValueOnce("my-source");
 
-      (mockPath.dirname as MockedFunction<typeof mockPath.dirname>)
-        .mockReturnValueOnce("/complex/path/to/data-sources/my-source")
-        .mockReturnValueOnce("/complex/path/to/data-sources");
+      vi.mocked(mockPath.dirname).mockReturnValueOnce("/complex/path/to/data-sources/my-source").mockReturnValueOnce("/complex/path/to/data-sources");
 
-      (mockPath.relative as MockedFunction<typeof mockPath.relative>).mockReturnValue("plugins/data-sources/my-source/cron/index.ts");
+      vi.mocked(mockPath.relative).mockReturnValue("plugins/data-sources/my-source/cron/index.ts");
 
       const mockJob = {
         default: {
@@ -246,7 +244,7 @@ describe("dynamic-jobs", () => {
 
     it("should handle empty job paths array", async () => {
       const mockFg = await import("fast-glob");
-      (mockFg.default as MockedFunction<typeof mockFg.default>).mockResolvedValue([]);
+      vi.mocked(mockFg.default).mockResolvedValue([]);
 
       const jobs = await loadJobs();
 
@@ -257,7 +255,7 @@ describe("dynamic-jobs", () => {
 
     it("should handle fast-glob errors", async () => {
       const mockFg = await import("fast-glob");
-      (mockFg.default as MockedFunction<typeof mockFg.default>).mockRejectedValue(new Error("Glob pattern error"));
+      vi.mocked(mockFg.default).mockRejectedValue(new Error("Glob pattern error"));
 
       await expect(loadJobs()).rejects.toThrow("Glob pattern error");
     });
@@ -273,18 +271,14 @@ describe("dynamic-jobs", () => {
         "/path/to/reports/quality/cron/index.ts",
       ];
 
-      (mockFg.default as MockedFunction<typeof mockFg.default>).mockResolvedValue(mockJobPaths);
+      vi.mocked(mockFg.default).mockResolvedValue(mockJobPaths);
 
       // Mock path methods for all jobs
-      (mockPath.basename as MockedFunction<typeof mockPath.basename>)
-        .mockReturnValueOnce("github")
-        .mockReturnValueOnce("jira")
-        .mockReturnValueOnce("velocity")
-        .mockReturnValueOnce("quality");
+      vi.mocked(mockPath.basename).mockReturnValueOnce("github").mockReturnValueOnce("jira").mockReturnValueOnce("velocity").mockReturnValueOnce("quality");
 
-      (mockPath.dirname as MockedFunction<typeof mockPath.dirname>).mockReturnValue("/mocked/path").mockReturnValue("/mocked");
+      vi.mocked(mockPath.dirname).mockReturnValue("/mocked/path").mockReturnValue("/mocked");
 
-      (mockPath.relative as MockedFunction<typeof mockPath.relative>).mockReturnValue("plugins/mock/cron/index.ts");
+      vi.mocked(mockPath.relative).mockReturnValue("plugins/mock/cron/index.ts");
 
       // Mock all job modules
       const mockJobs = [
@@ -310,11 +304,11 @@ describe("dynamic-jobs", () => {
       const mockPath = await import("node:path");
       const mockJobPaths = ["/path/to/data-sources/test/cron/index.ts"];
 
-      (mockFg.default as MockedFunction<typeof mockFg.default>).mockResolvedValue(mockJobPaths);
+      vi.mocked(mockFg.default).mockResolvedValue(mockJobPaths);
 
-      (mockPath.basename as MockedFunction<typeof mockPath.basename>).mockReturnValue("test");
-      (mockPath.dirname as MockedFunction<typeof mockPath.dirname>).mockReturnValue("/mocked");
-      (mockPath.relative as MockedFunction<typeof mockPath.relative>).mockReturnValue("plugins/test/cron/index.ts");
+      vi.mocked(mockPath.basename).mockReturnValue("test");
+      vi.mocked(mockPath.dirname).mockReturnValue("/mocked");
+      vi.mocked(mockPath.relative).mockReturnValue("plugins/test/cron/index.ts");
 
       const mockHandler = vi.fn();
       const mockJob = {
