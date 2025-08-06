@@ -160,6 +160,7 @@ routes.forEach(route => {
 - **Linting**: Fix all Biome warnings (`yarn lint`)
 - **Code Quality**: SonarQube integration with Turbo for efficient change-based analysis
 - **Imports**: Use workspace aliases (e.g., `@mmtm/database`)
+- **Module System**: Use ES modules exclusively - add `"type": "module"` to all package.json files
 - **Express Version**: All packages must use Express 5.x (`"express": "^5.1.0"` and `"@types/express": "^5.0.3"`)
 - **Plugin Dependencies**: Resource and data source plugins should use Express as a peerDependency, not a direct dependency
 
@@ -200,6 +201,7 @@ routes.forEach(route => {
    - Test API endpoints using Supertest and Express
 
 5. **Plugin Package.json Requirements**:
+   - **MUST include** `"type": "module"` to use ES modules
    - Use Express as peerDependency: `"peerDependencies": { "express": "^5.1.0", "@types/express": "^5.0.3" }`
    - Include proper prisma schema path: `"prisma": { "schema": "db/schema.prisma" }`
    - Follow naming convention: `@mmtm/resource-{name}` or `@mmtm/data-source-{name}`
@@ -219,6 +221,8 @@ routes.forEach(route => {
 4. **Don't forget to handle async operations** properly in data sources
 5. **Don't skip schema synthesis** after adding/modifying plugins
 6. **Don't add dependencies with ~ or ^** - Use exact versions
+7. **Don't use CommonJS** - Always use ES modules with `import`/`export`, never `require()`/`module.exports`
+8. **Don't forget `"type": "module"`** in package.json files - This is required for ES modules
 
 ## Performance Considerations
 
