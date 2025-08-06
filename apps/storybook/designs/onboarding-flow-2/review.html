@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Review & Complete - Momentum Onboarding</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="onboarding-container">
+    <!-- Header -->
+    <header class="header">
+      <div class="logo">
+        <div class="logo-icon">M</div>
+        <div class="logo-text">Momentum</div>
+      </div>
+      
+      <!-- Progress Indicator -->
+      <div class="progress-container">
+        <div class="progress-line">
+          <div class="progress-fill" style="width: 100%"></div>
+        </div>
+        
+        <div class="progress-step">
+          <div class="step-indicator completed">✓</div>
+          <div class="step-label completed">Account</div>
+        </div>
+        
+        <div class="progress-step">
+          <div class="step-indicator completed">✓</div>
+          <div class="step-label completed">Data Sources</div>
+        </div>
+        
+        <div class="progress-step">
+          <div class="step-indicator completed">✓</div>
+          <div class="step-label completed">Team Setup</div>
+        </div>
+        
+        <div class="progress-step">
+          <div class="step-indicator active">4</div>
+          <div class="step-label active">Review</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content" data-step="4">
+      <div class="step-header">
+        <h1 class="step-title">Review Your Setup</h1>
+        <p class="step-subtitle">Please review your configuration before completing the setup. You can modify these settings anytime from your dashboard.</p>
+      </div>
+
+      <!-- Account Information -->
+      <div class="review-section">
+        <h3>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+          Account Information
+        </h3>
+        
+        <div class="review-item">
+          <div class="review-label">Name</div>
+          <div class="review-value" id="reviewName">John Doe</div>
+        </div>
+        
+        <div class="review-item">
+          <div class="review-label">Email</div>
+          <div class="review-value" id="reviewEmail">john.doe@company.com</div>
+        </div>
+        
+        <div class="review-item">
+          <div class="review-label">Organization</div>
+          <div class="review-value" id="reviewOrganization">Acme Corporation</div>
+        </div>
+      </div>
+
+      <!-- Data Source Configuration -->
+      <div class="review-section">
+        <h3>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M12 1v6m0 6v6m11-7h-6m-6 0H1"></path>
+          </svg>
+          Data Source Configuration
+        </h3>
+        
+        <div class="review-item">
+          <div class="review-label">Version Control Platform</div>
+          <div class="review-value" id="reviewDataSource">GitHub</div>
+        </div>
+        
+        <div class="review-item">
+          <div class="review-label">Integration Status</div>
+          <div class="review-value" style="color: var(--success-color); font-weight: 700;">
+            ✓ Connected & Configured
+          </div>
+        </div>
+        
+        <div class="review-item">
+          <div class="review-label">Sync Frequency</div>
+          <div class="review-value">Real-time</div>
+        </div>
+      </div>
+
+      <!-- Repository Selection -->
+      <div class="review-section">
+        <h3>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+          </svg>
+          Repository Selection
+        </h3>
+        
+        <div class="review-item">
+          <div class="review-label">Selected Repositories</div>
+          <div class="review-value" id="reviewRepoCount">5</div>
+        </div>
+        
+        <div class="review-item">
+          <div class="review-label">Repositories</div>
+          <div id="reviewRepositories" class="review-list">
+            <div class="review-list-item">momentum-api</div>
+            <div class="review-list-item">momentum-frontend</div>
+            <div class="review-list-item">momentum-docs</div>
+            <div class="review-list-item">momentum-mobile</div>
+            <div class="review-list-item">momentum-cli</div>
+          </div>
+        </div>
+        
+        <div class="review-item">
+          <div class="review-label">Historical Data Import</div>
+          <div class="review-value" style="color: var(--success-color);">✓ Enabled (6 months)</div>
+        </div>
+      </div>
+
+      <!-- Team Configuration -->
+      <div class="review-section">
+        <h3>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
+          Team Configuration
+        </h3>
+        
+        <div class="review-item">
+          <div class="review-label">Team Members Identified</div>
+          <div class="review-value">6 developers</div>
+        </div>
+        
+        <div class="review-item">
+          <div class="review-label">Invitation Method</div>
+          <div class="review-value">Automatic email invites</div>
+        </div>
+        
+        <div class="review-item">
+          <div class="review-label">Weekly Reports</div>
+          <div class="review-value" style="color: var(--success-color);">✓ Enabled</div>
+        </div>
+      </div>
+
+      <!-- What Happens Next -->
+      <div class="review-section">
+        <h3>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12,6 12,12 16,14"></polyline>
+          </svg>
+          What Happens Next
+        </h3>
+        
+        <div style="color: var(--text-secondary); font-size: 15px; line-height: 1.6;">
+          <div style="margin-bottom: 16px;">
+            <strong style="color: var(--text-primary);">1. Account Activation</strong><br>
+            Your Momentum workspace will be created and configured with your selected settings.
+          </div>
+          
+          <div style="margin-bottom: 16px;">
+            <strong style="color: var(--text-primary);">2. Data Synchronization</strong><br>
+            We'll begin importing your repository data and historical metrics (this may take a few minutes).
+          </div>
+          
+          <div style="margin-bottom: 16px;">
+            <strong style="color: var(--text-primary);">3. Team Invitations</strong><br>
+            Your team members will receive email invitations to join your workspace.
+          </div>
+          
+          <div>
+            <strong style="color: var(--text-primary);">4. Dashboard Access</strong><br>
+            You'll be redirected to your personalized dashboard where you can start exploring insights.
+          </div>
+        </div>
+      </div>
+
+      <!-- Privacy & Security -->
+      <div class="alert alert-success">
+        <strong>Privacy & Security:</strong> Your data is encrypted at rest and in transit. We follow SOC 2 Type II compliance standards and never access your source code content.
+      </div>
+
+      <!-- Navigation -->
+      <div class="navigation">
+        <div class="nav-left">
+          <button class="btn btn-secondary btn-prev">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="15,18 9,12 15,6"></polyline>
+            </svg>
+            Back to Team Setup
+          </button>
+        </div>
+        
+        <div class="nav-right">
+          <button class="btn btn-primary btn-large" id="completeSetup">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="20,6 9,17 4,12"></polyline>
+            </svg>
+            Complete Setup & Launch Dashboard
+          </button>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

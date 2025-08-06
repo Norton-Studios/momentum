@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Momentum Dashboard - Gradient Theme</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/date-fns@2.29.3/index.min.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <div class="logo-icon"></div>
+                    <span class="logo-text">Momentum</span>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <ul class="nav-list">
+                    <li class="nav-item active">
+                        <a href="#" class="nav-link" data-page="dashboard">
+                            <span class="nav-icon dashboard-icon"></span>
+                            <span class="nav-text">Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-page="organization">
+                            <span class="nav-icon organization-icon"></span>
+                            <span class="nav-text">Organization</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-page="teams">
+                            <span class="nav-icon teams-icon"></span>
+                            <span class="nav-text">Teams</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-page="contributors">
+                            <span class="nav-icon contributors-icon"></span>
+                            <span class="nav-text">Contributors</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <div class="user-avatar"></div>
+                    <div class="user-info">
+                        <span class="user-name">Alex Chen</span>
+                        <span class="user-role">Admin</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <div class="header-left">
+                    <h1 class="page-title">Dashboard Overview</h1>
+                    <p class="page-subtitle">Monitor your development metrics and team performance</p>
+                </div>
+                
+                <div class="header-right">
+                    <div class="date-range-selector">
+                        <button class="date-range-btn" id="dateRangeBtn">
+                            <span class="date-icon"></span>
+                            <span class="date-text">Last 30 Days</span>
+                            <span class="dropdown-arrow"></span>
+                        </button>
+                        <div class="date-range-dropdown" id="dateRangeDropdown">
+                            <div class="dropdown-item active" data-range="30">Last 30 Days</div>
+                            <div class="dropdown-item" data-range="7">Last 7 Days</div>
+                            <div class="dropdown-item" data-range="90">Last 90 Days</div>
+                            <div class="dropdown-item" data-range="365">Last Year</div>
+                            <div class="dropdown-divider"></div>
+                            <div class="dropdown-item" data-range="custom">Custom Range</div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            
+            <!-- Metric Cards -->
+            <section class="metrics-section">
+                <div class="metrics-grid">
+                    <div class="metric-card cve-card">
+                        <div class="metric-header">
+                            <div class="metric-icon cve-icon"></div>
+                            <div class="metric-trend positive">
+                                <span class="trend-icon up-arrow"></span>
+                                <span class="trend-value">-12%</span>
+                            </div>
+                        </div>
+                        <div class="metric-content">
+                            <div class="metric-value">23</div>
+                            <div class="metric-label">CVE Count</div>
+                            <div class="metric-description">Security vulnerabilities detected</div>
+                        </div>
+                        <div class="metric-chart">
+                            <canvas id="cveChart" width="100" height="40"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card stability-card">
+                        <div class="metric-header">
+                            <div class="metric-icon stability-icon"></div>
+                            <div class="metric-trend positive">
+                                <span class="trend-icon up-arrow"></span>
+                                <span class="trend-value">+8%</span>
+                            </div>
+                        </div>
+                        <div class="metric-content">
+                            <div class="metric-value">94.2%</div>
+                            <div class="metric-label">Pipeline Stability</div>
+                            <div class="metric-description">Successful deployment rate</div>
+                        </div>
+                        <div class="metric-chart">
+                            <canvas id="stabilityChart" width="100" height="40"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card velocity-card">
+                        <div class="metric-header">
+                            <div class="metric-icon velocity-icon"></div>
+                            <div class="metric-trend positive">
+                                <span class="trend-icon up-arrow"></span>
+                                <span class="trend-value">+15%</span>
+                            </div>
+                        </div>
+                        <div class="metric-content">
+                            <div class="metric-value">2.4x</div>
+                            <div class="metric-label">Delivery Velocity</div>
+                            <div class="metric-description">Deployments per week</div>
+                        </div>
+                        <div class="metric-chart">
+                            <canvas id="velocityChart" width="100" height="40"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card performance-card">
+                        <div class="metric-header">
+                            <div class="metric-icon performance-icon"></div>
+                            <div class="metric-trend neutral">
+                                <span class="trend-icon stable-arrow"></span>
+                                <span class="trend-value">+2%</span>
+                            </div>
+                        </div>
+                        <div class="metric-content">
+                            <div class="metric-value">1.2s</div>
+                            <div class="metric-label">Avg Response Time</div>
+                            <div class="metric-description">API performance metric</div>
+                        </div>
+                        <div class="metric-chart">
+                            <canvas id="performanceChart" width="100" height="40"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Charts Section -->
+            <section class="charts-section">
+                <div class="charts-grid">
+                    <!-- Main Metrics Chart -->
+                    <div class="chart-container main-chart">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Development Metrics Overview</h3>
+                            <div class="chart-controls">
+                                <button class="chart-control-btn active" data-chart="commits">Commits</button>
+                                <button class="chart-control-btn" data-chart="deployments">Deployments</button>
+                                <button class="chart-control-btn" data-chart="issues">Issues</button>
+                            </div>
+                        </div>
+                        <div class="chart-content">
+                            <canvas id="mainChart" width="800" height="300"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- Team Performance Chart -->
+                    <div class="chart-container team-chart">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Team Performance</h3>
+                            <div class="chart-legend">
+                                <div class="legend-item">
+                                    <span class="legend-color frontend"></span>
+                                    <span class="legend-label">Frontend</span>
+                                </div>
+                                <div class="legend-item">
+                                    <span class="legend-color backend"></span>
+                                    <span class="legend-label">Backend</span>
+                                </div>
+                                <div class="legend-item">
+                                    <span class="legend-color devops"></span>
+                                    <span class="legend-label">DevOps</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="chart-content">
+                            <canvas id="teamChart" width="400" height="250"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- Security Status Chart -->
+                    <div class="chart-container security-chart">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Security Status</h3>
+                            <div class="security-summary">
+                                <div class="security-item critical">
+                                    <span class="security-count">3</span>
+                                    <span class="security-label">Critical</span>
+                                </div>
+                                <div class="security-item high">
+                                    <span class="security-count">8</span>
+                                    <span class="security-label">High</span>
+                                </div>
+                                <div class="security-item medium">
+                                    <span class="security-count">12</span>
+                                    <span class="security-label">Medium</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="chart-content">
+                            <canvas id="securityChart" width="400" height="250"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Activity Feed Section -->
+            <section class="activity-section">
+                <div class="activity-container">
+                    <div class="activity-header">
+                        <h3 class="activity-title">Recent Activity</h3>
+                        <button class="view-all-btn">View All</button>
+                    </div>
+                    <div class="activity-feed">
+                        <div class="activity-item">
+                            <div class="activity-icon deployment"></div>
+                            <div class="activity-content">
+                                <div class="activity-text">
+                                    <strong>Frontend v2.1.3</strong> deployed to production
+                                </div>
+                                <div class="activity-time">2 minutes ago</div>
+                            </div>
+                            <div class="activity-status success"></div>
+                        </div>
+                        
+                        <div class="activity-item">
+                            <div class="activity-icon commit"></div>
+                            <div class="activity-content">
+                                <div class="activity-text">
+                                    <strong>Sarah Johnson</strong> committed 3 changes to <strong>user-auth</strong>
+                                </div>
+                                <div class="activity-time">15 minutes ago</div>
+                            </div>
+                            <div class="activity-status info"></div>
+                        </div>
+                        
+                        <div class="activity-item">
+                            <div class="activity-icon security"></div>
+                            <div class="activity-content">
+                                <div class="activity-text">
+                                    <strong>Critical security vulnerability</strong> detected in payment-service
+                                </div>
+                                <div class="activity-time">1 hour ago</div>
+                            </div>
+                            <div class="activity-status warning"></div>
+                        </div>
+                        
+                        <div class="activity-item">
+                            <div class="activity-icon test"></div>
+                            <div class="activity-content">
+                                <div class="activity-text">
+                                    <strong>Test suite</strong> completed with 98% coverage
+                                </div>
+                                <div class="activity-time">2 hours ago</div>
+                            </div>
+                            <div class="activity-status success"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>

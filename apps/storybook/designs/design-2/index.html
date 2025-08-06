@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Momentum Dashboard - Clean Minimalist</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.29.0/feather.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <h1>Momentum</h1>
+                </div>
+            </div>
+            
+            <div class="sidebar-menu">
+                <ul class="nav-links">
+                    <li class="nav-item active">
+                        <a href="#" class="nav-link">
+                            <i data-feather="home"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i data-feather="building"></i>
+                            <span>Organization</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i data-feather="users"></i>
+                            <span>Teams</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i data-feather="user"></i>
+                            <span>Contributors</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="content-header">
+                <div class="header-left">
+                    <h1 class="page-title">Dashboard</h1>
+                    <p class="page-subtitle">Monitor your development metrics</p>
+                </div>
+                
+                <div class="header-right">
+                    <div class="date-range-selector">
+                        <select id="dateRange" class="date-select">
+                            <option value="7">Last 7 days</option>
+                            <option value="30" selected>Last 30 days</option>
+                            <option value="90">Last 90 days</option>
+                            <option value="365">Last year</option>
+                        </select>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Metrics Cards -->
+            <section class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <h3 class="metric-title">CVE Count</h3>
+                        <div class="metric-icon">
+                            <i data-feather="shield"></i>
+                        </div>
+                    </div>
+                    <div class="metric-value">
+                        <span class="value">24</span>
+                        <span class="change positive">-12%</span>
+                    </div>
+                    <p class="metric-description">Security vulnerabilities detected</p>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <h3 class="metric-title">Pipeline Stability</h3>
+                        <div class="metric-icon">
+                            <i data-feather="trending-up"></i>
+                        </div>
+                    </div>
+                    <div class="metric-value">
+                        <span class="value">94.2%</span>
+                        <span class="change positive">+2.1%</span>
+                    </div>
+                    <p class="metric-description">Successful pipeline runs</p>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <h3 class="metric-title">Delivery Velocity</h3>
+                        <div class="metric-icon">
+                            <i data-feather="zap"></i>
+                        </div>
+                    </div>
+                    <div class="metric-value">
+                        <span class="value">47</span>
+                        <span class="change negative">-8%</span>
+                    </div>
+                    <p class="metric-description">Deployments per week</p>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <h3 class="metric-title">Code Quality</h3>
+                        <div class="metric-icon">
+                            <i data-feather="code"></i>
+                        </div>
+                    </div>
+                    <div class="metric-value">
+                        <span class="value">8.7</span>
+                        <span class="change positive">+0.3</span>
+                    </div>
+                    <p class="metric-description">Average quality score</p>
+                </div>
+            </section>
+
+            <!-- Charts Section -->
+            <section class="charts-section">
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3 class="chart-title">Pipeline Stability Trend</h3>
+                        <div class="chart-controls">
+                            <button class="chart-filter active" data-period="week">Week</button>
+                            <button class="chart-filter" data-period="month">Month</button>
+                            <button class="chart-filter" data-period="quarter">Quarter</button>
+                        </div>
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="stabilityChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3 class="chart-title">Delivery Velocity</h3>
+                        <div class="chart-controls">
+                            <button class="chart-filter active" data-period="week">Week</button>
+                            <button class="chart-filter" data-period="month">Month</button>
+                            <button class="chart-filter" data-period="quarter">Quarter</button>
+                        </div>
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="velocityChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Additional Metrics -->
+            <section class="additional-metrics">
+                <div class="metrics-row">
+                    <div class="metric-small">
+                        <div class="metric-small-header">
+                            <i data-feather="git-branch"></i>
+                            <span>Active Branches</span>
+                        </div>
+                        <div class="metric-small-value">127</div>
+                    </div>
+
+                    <div class="metric-small">
+                        <div class="metric-small-header">
+                            <i data-feather="git-pull-request"></i>
+                            <span>Open PRs</span>
+                        </div>
+                        <div class="metric-small-value">23</div>
+                    </div>
+
+                    <div class="metric-small">
+                        <div class="metric-small-header">
+                            <i data-feather="clock"></i>
+                            <span>Avg Review Time</span>
+                        </div>
+                        <div class="metric-small-value">2.4h</div>
+                    </div>
+
+                    <div class="metric-small">
+                        <div class="metric-small-header">
+                            <i data-feather="activity"></i>
+                            <span>Test Coverage</span>
+                        </div>
+                        <div class="metric-small-value">87%</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- CVE Details Chart -->
+            <section class="cve-section">
+                <div class="chart-container full-width">
+                    <div class="chart-header">
+                        <h3 class="chart-title">Security Vulnerabilities Overview</h3>
+                        <div class="severity-legend">
+                            <span class="severity-item critical">Critical</span>
+                            <span class="severity-item high">High</span>
+                            <span class="severity-item medium">Medium</span>
+                            <span class="severity-item low">Low</span>
+                        </div>
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="cveChart"></canvas>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

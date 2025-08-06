@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Momentum Dashboard - Enterprise Blue Theme</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.js">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="logo-section">
+                <div class="logo">
+                    <div class="logo-icon">M</div>
+                    <span class="logo-text">Momentum</span>
+                </div>
+            </div>
+            
+            <nav class="nav-menu">
+                <ul>
+                    <li class="nav-item active">
+                        <a href="#" class="nav-link">
+                            <i data-lucide="home"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i data-lucide="building"></i>
+                            <span>Organization</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i data-lucide="users"></i>
+                            <span>Teams</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i data-lucide="user-check"></i>
+                            <span>Contributors</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <div class="user-avatar">JD</div>
+                    <div class="user-info">
+                        <div class="user-name">John Doe</div>
+                        <div class="user-role">Admin</div>
+                    </div>
+                </div>
+                <button class="logout-btn">
+                    <i data-lucide="log-out"></i>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <div class="header-left">
+                    <h1 class="page-title">Dashboard Overview</h1>
+                    <p class="page-subtitle">Monitor your organization's development metrics and performance</p>
+                </div>
+                
+                <div class="header-right">
+                    <div class="date-range-selector">
+                        <label for="dateRange">Time Period:</label>
+                        <select id="dateRange" class="date-select">
+                            <option value="7d">Last 7 days</option>
+                            <option value="30d" selected>Last 30 days</option>
+                            <option value="90d">Last 90 days</option>
+                            <option value="6m">Last 6 months</option>
+                            <option value="1y">Last year</option>
+                        </select>
+                    </div>
+                    
+                    <button class="refresh-btn">
+                        <i data-lucide="refresh-cw"></i>
+                        Refresh
+                    </button>
+                </div>
+            </header>
+
+            <!-- Metrics Cards -->
+            <section class="metrics-section">
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <div class="metric-icon cve-icon">
+                                <i data-lucide="shield-alert"></i>
+                            </div>
+                            <div class="metric-trend positive">
+                                <i data-lucide="trending-down"></i>
+                                <span>-12%</span>
+                            </div>
+                        </div>
+                        <div class="metric-content">
+                            <h3 class="metric-title">CVE Count</h3>
+                            <div class="metric-value">23</div>
+                            <p class="metric-description">Active vulnerabilities detected</p>
+                        </div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <div class="metric-icon stability-icon">
+                                <i data-lucide="activity"></i>
+                            </div>
+                            <div class="metric-trend positive">
+                                <i data-lucide="trending-up"></i>
+                                <span>+8%</span>
+                            </div>
+                        </div>
+                        <div class="metric-content">
+                            <h3 class="metric-title">Pipeline Stability</h3>
+                            <div class="metric-value">94.2%</div>
+                            <p class="metric-description">Success rate over time period</p>
+                        </div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <div class="metric-icon velocity-icon">
+                                <i data-lucide="zap"></i>
+                            </div>
+                            <div class="metric-trend positive">
+                                <i data-lucide="trending-up"></i>
+                                <span>+15%</span>
+                            </div>
+                        </div>
+                        <div class="metric-content">
+                            <h3 class="metric-title">Delivery Velocity</h3>
+                            <div class="metric-value">127</div>
+                            <p class="metric-description">Features delivered this period</p>
+                        </div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <div class="metric-icon quality-icon">
+                                <i data-lucide="check-circle"></i>
+                            </div>
+                            <div class="metric-trend neutral">
+                                <i data-lucide="minus"></i>
+                                <span>0%</span>
+                            </div>
+                        </div>
+                        <div class="metric-content">
+                            <h3 class="metric-title">Code Quality</h3>
+                            <div class="metric-value">A+</div>
+                            <p class="metric-description">Overall quality grade</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Charts Section -->
+            <section class="charts-section">
+                <div class="charts-grid">
+                    <!-- Velocity Trend Chart -->
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Delivery Velocity Trend</h3>
+                            <div class="chart-controls">
+                                <button class="chart-btn active" data-chart="velocity" data-type="weekly">Weekly</button>
+                                <button class="chart-btn" data-chart="velocity" data-type="monthly">Monthly</button>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="velocityChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Pipeline Stability Chart -->
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Pipeline Stability</h3>
+                            <div class="chart-legend">
+                                <div class="legend-item">
+                                    <span class="legend-color success"></span>
+                                    <span>Success</span>
+                                </div>
+                                <div class="legend-item">
+                                    <span class="legend-color failure"></span>
+                                    <span>Failure</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="stabilityChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- CVE Tracking Chart -->
+                    <div class="chart-card full-width">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Security Vulnerabilities Over Time</h3>
+                            <div class="chart-info">
+                                <div class="info-item">
+                                    <span class="info-label">Critical:</span>
+                                    <span class="info-value critical">3</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">High:</span>
+                                    <span class="info-value high">8</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Medium:</span>
+                                    <span class="info-value medium">12</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="cveChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Team Performance Chart -->
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Team Performance</h3>
+                            <select class="team-selector">
+                                <option value="all">All Teams</option>
+                                <option value="frontend">Frontend Team</option>
+                                <option value="backend">Backend Team</option>
+                                <option value="devops">DevOps Team</option>
+                            </select>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="teamChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Data Table Section -->
+            <section class="table-section">
+                <div class="table-card">
+                    <div class="table-header">
+                        <h3 class="table-title">Recent Activities</h3>
+                        <div class="table-controls">
+                            <input type="search" placeholder="Search activities..." class="search-input">
+                            <button class="export-btn">
+                                <i data-lucide="download"></i>
+                                Export
+                            </button>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Activity</th>
+                                    <th>Team</th>
+                                    <th>Status</th>
+                                    <th>Impact</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <div class="activity-info">
+                                            <i data-lucide="git-merge"></i>
+                                            <span>Merge Request #1247</span>
+                                        </div>
+                                    </td>
+                                    <td>Frontend</td>
+                                    <td><span class="status-badge success">Completed</span></td>
+                                    <td><span class="impact-badge high">High</span></td>
+                                    <td>2 hours ago</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="activity-info">
+                                            <i data-lucide="shield-alert"></i>
+                                            <span>CVE-2024-1234 Detected</span>
+                                        </div>
+                                    </td>
+                                    <td>Security</td>
+                                    <td><span class="status-badge warning">In Progress</span></td>
+                                    <td><span class="impact-badge critical">Critical</span></td>
+                                    <td>4 hours ago</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="activity-info">
+                                            <i data-lucide="play-circle"></i>
+                                            <span>Pipeline #856 Started</span>
+                                        </div>
+                                    </td>
+                                    <td>Backend</td>
+                                    <td><span class="status-badge info">Running</span></td>
+                                    <td><span class="impact-badge medium">Medium</span></td>
+                                    <td>6 hours ago</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="activity-info">
+                                            <i data-lucide="users"></i>
+                                            <span>Team Member Added</span>
+                                        </div>
+                                    </td>
+                                    <td>DevOps</td>
+                                    <td><span class="status-badge success">Completed</span></td>
+                                    <td><span class="impact-badge low">Low</span></td>
+                                    <td>1 day ago</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
