@@ -48,7 +48,7 @@ export const DateRangeSelector: React.FC<DateRangeSelectorProps> = ({ ranges = d
 
   return (
     <div className={clsx(styles.container, className)} ref={dropdownRef}>
-      <button className={styles.trigger} onClick={() => setIsOpen(!isOpen)} aria-haspopup="listbox" aria-expanded={isOpen}>
+      <button type="button" className={styles.trigger} onClick={() => setIsOpen(!isOpen)} aria-haspopup="listbox" aria-expanded={isOpen}>
         <span className={styles.label}>
           <svg className={styles.icon} viewBox="0 0 20 20" fill="currentColor">
             <path
@@ -74,12 +74,12 @@ export const DateRangeSelector: React.FC<DateRangeSelectorProps> = ({ ranges = d
             {ranges.map((range) => (
               <li key={range.value}>
                 <button
+                  type="button"
                   className={clsx(styles.option, {
                     [styles.selected]: selected.value === range.value,
                   })}
                   onClick={() => handleSelect(range)}
-                  role="option"
-                  aria-selected={selected.value === range.value}
+                  aria-current={selected.value === range.value ? "true" : undefined}
                 >
                   {range.label}
                 </button>

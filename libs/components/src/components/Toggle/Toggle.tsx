@@ -43,20 +43,33 @@ export const Toggle: React.FC<ToggleProps> = ({
     }
   };
 
+  const toggleId = React.useId();
+
   const toggle = (
-    <div
-      className={clsx(styles.toggle, styles[size], {
-        [styles.checked]: isChecked,
-        [styles.disabled]: disabled,
-      })}
-      onClick={handleChange}
-      onKeyDown={handleKeyDown}
-      role="switch"
-      aria-checked={isChecked}
-      aria-disabled={disabled}
-      tabIndex={disabled ? -1 : 0}
-    >
-      <span className={styles.slider} />
+    <div className={styles.toggleWrapper}>
+      <input
+        type="checkbox"
+        id={toggleId}
+        checked={isChecked}
+        onChange={handleChange}
+        disabled={disabled}
+        className={styles.hiddenInput}
+        aria-label={!label ? "Toggle" : undefined}
+      />
+      <div
+        className={clsx(styles.toggle, styles[size], {
+          [styles.checked]: isChecked,
+          [styles.disabled]: disabled,
+        })}
+        onClick={handleChange}
+        onKeyDown={handleKeyDown}
+        role="switch"
+        aria-checked={isChecked}
+        aria-disabled={disabled}
+        tabIndex={disabled ? -1 : 0}
+      >
+        <span className={styles.slider} />
+      </div>
     </div>
   );
 
@@ -66,6 +79,7 @@ export const Toggle: React.FC<ToggleProps> = ({
 
   return (
     <label
+      htmlFor={toggleId}
       className={clsx(
         styles.container,
         styles[`label${labelPosition.charAt(0).toUpperCase()}${labelPosition.slice(1)}`],

@@ -70,8 +70,8 @@ export const Controlled: Story = {
           {results.length > 0 && (
             <div style={{ marginTop: "16px", padding: "12px", background: "#f7fafc", borderRadius: "8px" }}>
               <div style={{ fontSize: "14px", fontWeight: 500, marginBottom: "8px" }}>Search Results:</div>
-              {results.map((result, i) => (
-                <div key={i} style={{ fontSize: "14px", color: "#64748b", marginBottom: "4px" }}>
+              {results.map((result) => (
+                <div key={result} style={{ fontSize: "14px", color: "#64748b", marginBottom: "4px" }}>
                   • {result}
                 </div>
               ))}

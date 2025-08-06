@@ -39,15 +39,17 @@ export const Card: React.FC<CardProps> = ({
         },
         className,
       )}
-      onClick={isClickable ? onClick : undefined}
-      role={isClickable ? "button" : undefined}
-      tabIndex={isClickable ? 0 : undefined}
-      onKeyDown={(e) => {
-        if (isClickable && (e.key === "Enter" || e.key === " ")) {
-          e.preventDefault();
-          onClick();
-        }
-      }}
+      {...(isClickable && {
+        onClick,
+        role: "button",
+        tabIndex: 0,
+        onKeyDown: (e: React.KeyboardEvent) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            onClick();
+          }
+        },
+      })}
     >
       {icon && <div className={styles.icon}>{icon}</div>}
 

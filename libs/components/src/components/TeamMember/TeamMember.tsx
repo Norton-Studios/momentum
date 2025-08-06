@@ -27,15 +27,17 @@ export const TeamMember: React.FC<TeamMemberProps> = ({ name, initials, role, av
   return (
     <div
       className={clsx(styles.member, styles[size], { [styles.clickable]: isClickable }, className)}
-      onClick={onClick}
-      role={isClickable ? "button" : undefined}
-      tabIndex={isClickable ? 0 : undefined}
-      onKeyDown={(e) => {
-        if (isClickable && (e.key === "Enter" || e.key === " ")) {
-          e.preventDefault();
-          onClick();
-        }
-      }}
+      {...(isClickable && {
+        onClick,
+        role: "button",
+        tabIndex: 0,
+        onKeyDown: (e: React.KeyboardEvent) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            onClick();
+          }
+        },
+      })}
     >
       <div className={styles.avatarWrapper}>
         {avatarUrl ? <img src={avatarUrl} alt={name} className={styles.avatar} /> : <div className={styles.avatarInitials}>{displayInitials}</div>}

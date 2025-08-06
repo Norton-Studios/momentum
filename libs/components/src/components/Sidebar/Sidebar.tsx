@@ -41,6 +41,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ items, activeItem, onItemClick
     return (
       <li key={item.id} className={styles.navItem}>
         <button
+          type="button"
           className={clsx(styles.navButton, {
             [styles.active]: isActive,
             [styles.hasChildren]: hasChildren,

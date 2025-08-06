@@ -27,7 +27,7 @@ export const Alert: React.FC<AlertProps> = ({ variant = "info", title, children,
         <div className={styles.message}>{children}</div>
       </div>
       {dismissible && (
-        <button className={styles.dismiss} onClick={onDismiss} aria-label="Dismiss alert">
+        <button type="button" className={styles.dismiss} onClick={onDismiss} aria-label="Dismiss alert">
           <svg viewBox="0 0 20 20" fill="currentColor">
             <path
               fillRule="evenodd"

@@ -44,7 +44,7 @@ export const Warning: Story = {
   },
 };
 
-export const Error: Story = {
+export const ErrorAlert: Story = {
   args: {
     variant: "error",
     title: "Connection Failed",

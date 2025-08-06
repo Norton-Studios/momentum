@@ -12,6 +12,32 @@
   box-shadow: var(--shadow-md);
 }
 
+/* Content - Base styles first */
+.icon {
+  font-size: 2rem;
+  margin-bottom: var(--spacing-md);
+  display: flex;
+  align-items: center;
+}
+
+.content {
+  margin-bottom: var(--spacing-md);
+}
+
+.title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1a202c;
+  margin-bottom: var(--spacing-xs);
+}
+
+.description {
+  font-size: 0.875rem;
+  color: #718096;
+  line-height: 1.5;
+}
+
+/* Variants */
 .gradient {
   background: var(--gradient-primary);
   color: white;
@@ -58,31 +84,6 @@
 
 .disabled * {
   pointer-events: none;
-}
-
-/* Content */
-.icon {
-  font-size: 2rem;
-  margin-bottom: var(--spacing-md);
-  display: flex;
-  align-items: center;
-}
-
-.content {
-  margin-bottom: var(--spacing-md);
-}
-
-.title {
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: #1a202c;
-  margin-bottom: var(--spacing-xs);
-}
-
-.description {
-  font-size: 0.875rem;
-  color: #718096;
-  line-height: 1.5;
 }
 
 .body {

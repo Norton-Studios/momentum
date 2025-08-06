@@ -62,15 +62,18 @@ export const DataSourceCard: React.FC<DataSourceCardProps> = ({
         },
         className,
       )}
-      onClick={handleClick}
-      role={onClick ? "button" : undefined}
-      tabIndex={onClick && !disabled ? 0 : undefined}
-      onKeyDown={(e) => {
-        if (onClick && !disabled && (e.key === "Enter" || e.key === " ")) {
-          e.preventDefault();
-          handleClick();
-        }
-      }}
+      {...(onClick &&
+        !disabled && {
+          onClick: handleClick,
+          role: "button",
+          tabIndex: 0,
+          onKeyDown: (e: React.KeyboardEvent) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              handleClick();
+            }
+          },
+        })}
     >
       {displayIcon && <div className={styles.icon}>{displayIcon}</div>}
 
@@ -79,8 +82,8 @@ export const DataSourceCard: React.FC<DataSourceCardProps> = ({
 
       {features.length > 0 && (
         <ul className={styles.features}>
-          {features.map((feature, index) => (
-            <li key={index}>{feature}</li>
+          {features.map((feature) => (
+            <li key={feature}>{feature}</li>
           ))}
         </ul>
       )}
