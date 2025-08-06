@@ -2,7 +2,7 @@
 
 - Run the following tasks in parallel agents:
     - Ensure you're on an appropriate branch, if not create a new branch
-    - Check that the progress is updated in `docs/PROGRESS.md`
+    - Check that the progress is updated in `docs/PROGRESS.md` if there is no relevant items in the file, don't add them
     - Update the `docs/ARCHITECTURE.md` if necessary
     - Add an ADR in `docs/adr/` if necessary
     - Create a summary of the context and conversation in `docs/prompts/[branch-name].md` - filter out any sensitive information or profanity
