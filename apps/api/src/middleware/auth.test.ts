@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import type { Request, Response, NextFunction } from "express";
+import type { Response, NextFunction } from "express";
 import type { PrismaClient } from "@mmtm/database";
 import { createAuthMiddleware, requireAdmin, type AuthenticatedRequest } from "./auth";
 

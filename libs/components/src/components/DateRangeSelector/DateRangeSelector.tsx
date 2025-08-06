@@ -70,7 +70,7 @@ export const DateRangeSelector: React.FC<DateRangeSelectorProps> = ({ ranges = d
 
       {isOpen && (
         <div className={styles.dropdown}>
-          <ul className={styles.list} role="listbox">
+          <ul className={styles.list} >
             {ranges.map((range) => (
               <li key={range.value}>
                 <button

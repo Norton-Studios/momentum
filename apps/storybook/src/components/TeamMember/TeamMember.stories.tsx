@@ -97,12 +97,12 @@ export const Clickable: Story = {
 export const TeamList: Story = {
   render: () => (
     <div style={{ display: "flex", flexDirection: "column", gap: "8px", width: "300px" }}>
-      <TeamMember name="John Smith" initials="JS" role="Team Lead" status="online" />
-      <TeamMember name="Mary Johnson" initials="MJ" role="Senior Developer" status="online" />
-      <TeamMember name="Robert Williams" initials="RW" role="Backend Developer" status="away" />
-      <TeamMember name="Sarah Kim" initials="SK" role="Frontend Developer" status="online" />
-      <TeamMember name="Alex Lee" initials="AL" role="DevOps Engineer" status="offline" />
-      <TeamMember name="Diana Chen" initials="DC" role="QA Engineer" status="online" />
+      <TeamMember name="John Smith" initials="JS" status="online" />
+      <TeamMember name="Mary Johnson" initials="MJ" status="online" />
+      <TeamMember name="Robert Williams" initials="RW" status="away" />
+      <TeamMember name="Sarah Kim" initials="SK" status="online" />
+      <TeamMember name="Alex Lee" initials="AL" status="offline" />
+      <TeamMember name="Diana Chen" initials="DC" status="online" />
     </div>
   ),
 };
