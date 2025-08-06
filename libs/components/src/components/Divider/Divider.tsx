@@ -1,18 +1,14 @@
-import React from 'react';
-import { clsx } from 'clsx';
-import styles from './Divider.module.css';
+import React from "react";
+import { clsx } from "clsx";
+import styles from "./Divider.module.css";
 
 export interface DividerProps {
   text?: string;
-  orientation?: 'horizontal' | 'vertical';
+  orientation?: "horizontal" | "vertical";
   className?: string;
 }
 
-export const Divider: React.FC<DividerProps> = ({
-  text,
-  orientation = 'horizontal',
-  className,
-}) => {
+export const Divider: React.FC<DividerProps> = ({ text, orientation = "horizontal", className }) => {
   if (text) {
     return (
       <div className={clsx(styles.dividerWithText, className)}>
@@ -23,13 +19,5 @@ export const Divider: React.FC<DividerProps> = ({
     );
   }
 
-  return (
-    <div
-      className={clsx(
-        styles.divider,
-        styles[orientation],
-        className
-      )}
-    />
-  );
+  return <div className={clsx(styles.divider, styles[orientation], className)} />;
 };

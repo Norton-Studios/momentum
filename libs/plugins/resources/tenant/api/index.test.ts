@@ -266,13 +266,10 @@ describe("Tenant API", () => {
       app.use(express.json());
       app.use(router);
 
-      const response = await request(app)
-        .post("/tenant")
-        .set("x-system-admin-token", "wrong-token")
-        .send({
-          name: "TestTenant",
-          adminEmail: "admin@test.com",
-        });
+      const response = await request(app).post("/tenant").set("x-system-admin-token", "wrong-token").send({
+        name: "TestTenant",
+        adminEmail: "admin@test.com",
+      });
 
       expect(response.status).toBe(401);
       expect(response.body).toHaveProperty("error", "Invalid system admin token");
@@ -284,13 +281,10 @@ describe("Tenant API", () => {
       app.use(express.json());
       app.use(router);
 
-      const response = await request(app)
-        .post("/tenant")
-        .set("x-system-admin-token", "test-admin-token")
-        .send({
-          name: "", // Invalid name
-          adminEmail: "invalid-email", // Invalid email
-        });
+      const response = await request(app).post("/tenant").set("x-system-admin-token", "test-admin-token").send({
+        name: "", // Invalid name
+        adminEmail: "invalid-email", // Invalid email
+      });
 
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty("error", "Invalid request data");
@@ -569,9 +563,7 @@ describe("Tenant API", () => {
       });
       app.use(router);
 
-      const response = await request(app)
-        .put("/tenants/tenant-id/configs/github/token")
-        .send({ value: "new-token" });
+      const response = await request(app).put("/tenants/tenant-id/configs/github/token").send({ value: "new-token" });
 
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty("value", "new-token");

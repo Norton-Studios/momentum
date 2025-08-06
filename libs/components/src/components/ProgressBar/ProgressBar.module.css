@@ -58,7 +58,7 @@
 
 /* Striped pattern */
 .striped::before {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
   background-image: linear-gradient(

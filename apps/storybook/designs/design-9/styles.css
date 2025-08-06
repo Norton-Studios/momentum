@@ -9,27 +9,27 @@
   --color-text-primary: #ffffff;
   --color-text-secondary: #e0e0e0;
   --color-text-muted: #b0b0b0;
-  
+
   /* Accent Colors for Data Visualization */
   --color-accent-primary: #00ff00;
   --color-accent-secondary: #ffff00;
   --color-accent-tertiary: #ff00ff;
-  
+
   /* Status Colors */
   --color-success: #00ff00;
   --color-warning: #ffff00;
   --color-error: #ff0000;
   --color-info: #00ffff;
-  
+
   /* Border and Focus Colors */
   --color-border: #333333;
   --color-border-light: #444444;
   --color-focus: #00ffff;
-  
+
   /* Typography */
-  --font-family-primary: 'Segoe UI', system-ui, -apple-system, sans-serif;
-  --font-family-mono: 'Consolas', 'Monaco', 'Courier New', monospace;
-  
+  --font-family-primary: "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-family-mono: "Consolas", "Monaco", "Courier New", monospace;
+
   /* Spacing Scale */
   --space-xs: 0.25rem;
   --space-sm: 0.5rem;
@@ -37,12 +37,12 @@
   --space-lg: 1.5rem;
   --space-xl: 2rem;
   --space-2xl: 3rem;
-  
+
   /* Layout */
   --sidebar-width: 280px;
   --header-height: 80px;
   --border-radius: 0; /* Sharp edges for high contrast */
-  
+
   /* Transitions */
   --transition-fast: 0.15s ease;
   --transition-normal: 0.3s ease;
@@ -552,8 +552,12 @@ body {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* Responsive Design */
@@ -562,34 +566,34 @@ body {
     transform: translateX(-100%);
     transition: transform var(--transition-normal);
   }
-  
+
   .sidebar.open {
     transform: translateX(0);
   }
-  
+
   .main-content {
     margin-left: 0;
   }
-  
+
   .header-content {
     flex-direction: column;
     gap: var(--space-md);
     align-items: flex-start;
   }
-  
+
   .metrics-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .charts-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .chart-header {
     flex-direction: column;
     align-items: flex-start;
   }
-  
+
   .table-container {
     font-size: 0.875rem;
   }
@@ -604,21 +608,21 @@ body {
     --space-xl: 1.5rem;
     --space-2xl: 2rem;
   }
-  
+
   .content-header {
     padding: var(--space-md);
   }
-  
+
   .metrics-section,
   .charts-section,
   .data-table-section {
     padding: var(--space-md);
   }
-  
+
   .metric-number {
     font-size: 2rem;
   }
-  
+
   .chart-wrapper {
     height: 250px;
   }
@@ -629,20 +633,20 @@ body {
   .sidebar {
     display: none;
   }
-  
+
   .main-content {
     margin-left: 0;
   }
-  
+
   .chart-controls {
     display: none;
   }
-  
+
   body {
     background: white;
     color: black;
   }
-  
+
   .metric-card,
   .chart-container,
   .table-container {
@@ -659,7 +663,7 @@ body {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
-  
+
   .loading-spinner {
     animation: none;
     border-top-color: var(--color-accent-primary);

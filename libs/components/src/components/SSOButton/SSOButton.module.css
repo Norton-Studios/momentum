@@ -52,12 +52,12 @@
 
 /* Provider-specific hover colors */
 .google:hover {
-  border-color: #4285F4;
+  border-color: #4285f4;
   background: #f0f7ff;
 }
 
 .microsoft:hover {
-  border-color: #00A4EF;
+  border-color: #00a4ef;
   background: #f0f9ff;
 }
 
@@ -67,11 +67,11 @@
 }
 
 .gitlab:hover {
-  border-color: #FC6D26;
+  border-color: #fc6d26;
   background: #fff5f0;
 }
 
 .bitbucket:hover {
-  border-color: #0052CC;
+  border-color: #0052cc;
   background: #f0f7ff;
 }

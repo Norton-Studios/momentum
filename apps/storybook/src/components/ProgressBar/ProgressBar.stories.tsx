@@ -1,16 +1,16 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { ProgressBar } from '@mmtm/components';
+import type { Meta, StoryObj } from "@storybook/react";
+import { ProgressBar } from "@mmtm/components";
 
 const meta: Meta<typeof ProgressBar> = {
-  title: 'Components/ProgressBar',
+  title: "Components/ProgressBar",
   component: ProgressBar,
   parameters: {
-    layout: 'centered',
+    layout: "centered",
   },
-  tags: ['autodocs'],
+  tags: ["autodocs"],
   decorators: [
     (Story) => (
-      <div style={{ width: '400px' }}>
+      <div style={{ width: "400px" }}>
         <Story />
       </div>
     ),
@@ -36,7 +36,7 @@ export const WithLabel: Story = {
 export const Success: Story = {
   args: {
     value: 100,
-    variant: 'success',
+    variant: "success",
     showLabel: true,
   },
 };
@@ -44,7 +44,7 @@ export const Success: Story = {
 export const Warning: Story = {
   args: {
     value: 45,
-    variant: 'warning',
+    variant: "warning",
     showLabel: true,
   },
 };
@@ -52,7 +52,7 @@ export const Warning: Story = {
 export const Danger: Story = {
   args: {
     value: 25,
-    variant: 'danger',
+    variant: "danger",
     showLabel: true,
   },
 };
@@ -75,31 +75,31 @@ export const Animated: Story = {
 export const Small: Story = {
   args: {
     value: 50,
-    size: 'sm',
+    size: "sm",
   },
 };
 
 export const Large: Story = {
   args: {
     value: 80,
-    size: 'lg',
+    size: "lg",
     showLabel: true,
   },
 };
 
 export const Multiple: Story = {
   render: () => (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', width: '400px' }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: "16px", width: "400px" }}>
       <div>
-        <div style={{ marginBottom: '4px', fontSize: '14px' }}>Setup Progress</div>
+        <div style={{ marginBottom: "4px", fontSize: "14px" }}>Setup Progress</div>
         <ProgressBar value={25} variant="danger" />
       </div>
       <div>
-        <div style={{ marginBottom: '4px', fontSize: '14px' }}>Data Import</div>
+        <div style={{ marginBottom: "4px", fontSize: "14px" }}>Data Import</div>
         <ProgressBar value={60} variant="warning" striped animated />
       </div>
       <div>
-        <div style={{ marginBottom: '4px', fontSize: '14px' }}>Configuration</div>
+        <div style={{ marginBottom: "4px", fontSize: "14px" }}>Configuration</div>
         <ProgressBar value={100} variant="success" showLabel />
       </div>
     </div>

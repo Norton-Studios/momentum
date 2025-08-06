@@ -35,7 +35,7 @@
 }
 
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   min-height: 100vh;
   display: flex;
@@ -44,7 +44,9 @@ body {
   padding: 20px;
   line-height: 1.6;
   color: var(--text-primary);
-  font-feature-settings: 'rlig' 1, 'calt' 1;
+  font-feature-settings:
+    "rlig" 1,
+    "calt" 1;
 }
 
 /* Main Container */
@@ -145,7 +147,7 @@ body {
 }
 
 .step-indicator.completed::after {
-  content: '✓';
+  content: "✓";
   position: absolute;
   font-size: 18px;
   font-weight: bold;
@@ -415,7 +417,7 @@ body {
 }
 
 .data-source-card.selected::after {
-  content: '✓';
+  content: "✓";
   position: absolute;
   top: 20px;
   right: 20px;
@@ -473,7 +475,7 @@ body {
 }
 
 .data-source-features li::before {
-  content: '✓';
+  content: "✓";
   position: absolute;
   left: 0;
   color: var(--success-color);
@@ -696,7 +698,7 @@ body {
 }
 
 .review-list-item::before {
-  content: '•';
+  content: "•";
   position: absolute;
   left: 0;
   color: var(--primary-color);
@@ -736,7 +738,7 @@ body {
 
 .divider::before,
 .divider::after {
-  content: '';
+  content: "";
   flex: 1;
   height: 2px;
   background: var(--border-color);
@@ -770,8 +772,12 @@ body {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* Success Animation */
@@ -849,7 +855,7 @@ body {
   .onboarding-container {
     max-width: 768px;
   }
-  
+
   .data-source-grid {
     grid-template-columns: 1fr;
   }
@@ -859,45 +865,45 @@ body {
   body {
     padding: 16px;
   }
-  
+
   .onboarding-container {
     margin: 0;
     max-width: none;
     border-radius: var(--radius-lg);
   }
-  
+
   .header {
     padding: 24px 32px;
   }
-  
+
   .main-content {
     padding: 32px;
   }
-  
+
   .progress-container {
     display: none; /* Hide on mobile for cleaner look */
   }
-  
+
   .form-row {
     grid-template-columns: 1fr;
     gap: 16px;
   }
-  
+
   .navigation {
     flex-direction: column;
     gap: 16px;
   }
-  
+
   .nav-left,
   .nav-right {
     width: 100%;
     justify-content: center;
   }
-  
+
   .step-title {
     font-size: 28px;
   }
-  
+
   .btn {
     width: 100%;
   }
@@ -907,31 +913,31 @@ body {
   .header {
     padding: 20px 24px;
   }
-  
+
   .main-content {
     padding: 24px;
   }
-  
+
   .logo-text {
     font-size: 24px;
   }
-  
+
   .step-title {
     font-size: 24px;
   }
-  
+
   .step-subtitle {
     font-size: 16px;
   }
-  
+
   .data-source-card {
     padding: 24px;
   }
-  
+
   .repository-item {
     padding: 16px 20px;
   }
-  
+
   .team-assignment,
   .review-section,
   .config-form {

@@ -27,7 +27,7 @@
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   min-height: 100vh;
   display: flex;
@@ -126,7 +126,7 @@ body {
 }
 
 .step-indicator.completed::after {
-  content: '✓';
+  content: "✓";
   position: absolute;
 }
 
@@ -342,7 +342,7 @@ body {
 }
 
 .data-source-card.selected::after {
-  content: '✓';
+  content: "✓";
   position: absolute;
   top: 16px;
   right: 16px;
@@ -555,7 +555,7 @@ body {
 
 .divider::before,
 .divider::after {
-  content: '';
+  content: "";
   flex: 1;
   height: 1px;
   background: var(--border-color);
@@ -588,8 +588,12 @@ body {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* Success Animation */
@@ -632,44 +636,44 @@ body {
     margin: 10px;
     max-width: none;
   }
-  
+
   .header {
     padding: 20px 24px;
   }
-  
+
   .main-content {
     padding: 32px 24px;
   }
-  
+
   .progress-container {
     flex-direction: column;
     gap: 12px;
   }
-  
+
   .progress-step {
     flex-direction: column;
     text-align: center;
   }
-  
+
   .progress-line {
     display: none;
   }
-  
+
   .data-source-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .navigation {
     flex-direction: column;
     gap: 16px;
   }
-  
+
   .nav-left,
   .nav-right {
     width: 100%;
     justify-content: center;
   }
-  
+
   .step-title {
     font-size: 24px;
   }
@@ -679,23 +683,23 @@ body {
   body {
     padding: 10px;
   }
-  
+
   .header {
     padding: 16px 20px;
   }
-  
+
   .main-content {
     padding: 24px 20px;
   }
-  
+
   .logo-text {
     font-size: 20px;
   }
-  
+
   .step-title {
     font-size: 22px;
   }
-  
+
   .btn {
     width: 100%;
   }

@@ -57,7 +57,7 @@
 }
 
 .navButton.active::before {
-  content: '';
+  content: "";
   position: absolute;
   left: 0;
   top: 0;
@@ -108,7 +108,7 @@
     z-index: var(--z-modal);
     transition: left var(--transition-base);
   }
-  
+
   .sidebar.open {
     left: 0;
   }

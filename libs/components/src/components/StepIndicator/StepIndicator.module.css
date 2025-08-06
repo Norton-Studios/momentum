@@ -92,11 +92,11 @@
   .steps {
     flex-direction: column;
   }
-  
+
   .step {
     gap: var(--spacing-sm);
   }
-  
+
   .stepContent {
     padding-top: 0;
   }

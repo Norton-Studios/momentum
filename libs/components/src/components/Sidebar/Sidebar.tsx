@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { clsx } from 'clsx';
-import styles from './Sidebar.module.css';
+import React, { useState } from "react";
+import { clsx } from "clsx";
+import styles from "./Sidebar.module.css";
 
 export interface NavItem {
   id: string;
@@ -19,14 +19,7 @@ export interface SidebarProps {
   footer?: React.ReactNode;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({
-  items,
-  activeItem,
-  onItemClick,
-  className,
-  logo,
-  footer,
-}) => {
+export const Sidebar: React.FC<SidebarProps> = ({ items, activeItem, onItemClick, className, logo, footer }) => {
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
 
   const toggleExpanded = (itemId: string) => {
@@ -63,11 +56,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           {item.icon && <span className={styles.icon}>{item.icon}</span>}
           <span className={styles.label}>{item.label}</span>
           {hasChildren && (
-            <svg
-              className={styles.chevron}
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
+            <svg className={styles.chevron} viewBox="0 0 20 20" fill="currentColor">
               <path
                 fillRule="evenodd"
                 d="M7.293 4.707a1 1 0 010-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L8.586 10 5.293 6.707z"
@@ -76,11 +65,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             </svg>
           )}
         </button>
-        {hasChildren && isExpanded && (
-          <ul className={styles.subNav}>
-            {item.children!.map((child) => renderNavItem(child, level + 1))}
-          </ul>
-        )}
+        {hasChildren && isExpanded && <ul className={styles.subNav}>{item.children!.map((child) => renderNavItem(child, level + 1))}</ul>}
       </li>
     );
   };
@@ -88,13 +73,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
   return (
     <aside className={clsx(styles.sidebar, className)}>
       {logo && <div className={styles.logo}>{logo}</div>}
-      
+
       <nav className={styles.nav}>
-        <ul className={styles.navList}>
-          {items.map((item) => renderNavItem(item))}
-        </ul>
+        <ul className={styles.navList}>{items.map((item) => renderNavItem(item))}</ul>
       </nav>
-      
+
       {footer && <div className={styles.footer}>{footer}</div>}
     </aside>
   );

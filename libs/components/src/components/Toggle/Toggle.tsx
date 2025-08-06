@@ -1,15 +1,15 @@
-import React from 'react';
-import { clsx } from 'clsx';
-import styles from './Toggle.module.css';
+import React from "react";
+import { clsx } from "clsx";
+import styles from "./Toggle.module.css";
 
 export interface ToggleProps {
   checked?: boolean;
   defaultChecked?: boolean;
   onChange?: (checked: boolean) => void;
   disabled?: boolean;
-  size?: 'sm' | 'md' | 'lg';
+  size?: "sm" | "md" | "lg";
   label?: string;
-  labelPosition?: 'left' | 'right';
+  labelPosition?: "left" | "right";
   className?: string;
 }
 
@@ -18,9 +18,9 @@ export const Toggle: React.FC<ToggleProps> = ({
   defaultChecked = false,
   onChange,
   disabled = false,
-  size = 'md',
+  size = "md",
   label,
-  labelPosition = 'right',
+  labelPosition = "right",
   className,
 }) => {
   const [internalChecked, setInternalChecked] = React.useState(defaultChecked);
@@ -28,7 +28,7 @@ export const Toggle: React.FC<ToggleProps> = ({
 
   const handleChange = () => {
     if (disabled) return;
-    
+
     const newChecked = !isChecked;
     if (controlledChecked === undefined) {
       setInternalChecked(newChecked);
@@ -37,7 +37,7 @@ export const Toggle: React.FC<ToggleProps> = ({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === ' ' || e.key === 'Enter') {
+    if (e.key === " " || e.key === "Enter") {
       e.preventDefault();
       handleChange();
     }
@@ -45,14 +45,10 @@ export const Toggle: React.FC<ToggleProps> = ({
 
   const toggle = (
     <div
-      className={clsx(
-        styles.toggle,
-        styles[size],
-        {
-          [styles.checked]: isChecked,
-          [styles.disabled]: disabled,
-        }
-      )}
+      className={clsx(styles.toggle, styles[size], {
+        [styles.checked]: isChecked,
+        [styles.disabled]: disabled,
+      })}
       onClick={handleChange}
       onKeyDown={handleKeyDown}
       role="switch"
@@ -69,17 +65,17 @@ export const Toggle: React.FC<ToggleProps> = ({
   }
 
   return (
-    <label 
+    <label
       className={clsx(
         styles.container,
         styles[`label${labelPosition.charAt(0).toUpperCase()}${labelPosition.slice(1)}`],
         { [styles.disabled]: disabled },
-        className
+        className,
       )}
     >
-      {labelPosition === 'left' && <span className={styles.label}>{label}</span>}
+      {labelPosition === "left" && <span className={styles.label}>{label}</span>}
       {toggle}
-      {labelPosition === 'right' && <span className={styles.label}>{label}</span>}
+      {labelPosition === "right" && <span className={styles.label}>{label}</span>}
     </label>
   );
 };

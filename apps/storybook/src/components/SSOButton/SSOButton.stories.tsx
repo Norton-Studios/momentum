@@ -1,16 +1,16 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { SSOButton } from '@mmtm/components';
+import type { Meta, StoryObj } from "@storybook/react";
+import { SSOButton } from "@mmtm/components";
 
 const meta: Meta<typeof SSOButton> = {
-  title: 'Onboarding/SSOButton',
+  title: "Onboarding/SSOButton",
   component: SSOButton,
   parameters: {
-    layout: 'centered',
+    layout: "centered",
   },
-  tags: ['autodocs'],
+  tags: ["autodocs"],
   decorators: [
     (Story) => (
-      <div style={{ width: '400px' }}>
+      <div style={{ width: "400px" }}>
         <Story />
       </div>
     ),
@@ -22,51 +22,51 @@ type Story = StoryObj<typeof meta>;
 
 export const Google: Story = {
   args: {
-    provider: 'google',
+    provider: "google",
   },
 };
 
 export const Microsoft: Story = {
   args: {
-    provider: 'microsoft',
+    provider: "microsoft",
   },
 };
 
 export const GitHub: Story = {
   args: {
-    provider: 'github',
+    provider: "github",
   },
 };
 
 export const GitLab: Story = {
   args: {
-    provider: 'gitlab',
+    provider: "gitlab",
   },
 };
 
 export const Bitbucket: Story = {
   args: {
-    provider: 'bitbucket',
+    provider: "bitbucket",
   },
 };
 
 export const CustomLabel: Story = {
   args: {
-    provider: 'google',
-    children: 'Sign in with Google',
+    provider: "google",
+    children: "Sign in with Google",
   },
 };
 
 export const FullWidth: Story = {
   args: {
-    provider: 'github',
+    provider: "github",
     fullWidth: true,
   },
 };
 
 export const AllProviders: Story = {
   render: () => (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
       <SSOButton provider="google" fullWidth />
       <SSOButton provider="microsoft" fullWidth />
       <SSOButton provider="github" fullWidth />
