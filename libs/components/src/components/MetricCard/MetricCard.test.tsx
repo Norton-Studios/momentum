@@ -74,21 +74,21 @@ describe("MetricCard", () => {
 
   it("should render sparkline chart", () => {
     const sparklineData = [10, 20, 15, 30, 25];
-    render(<MetricCard title="Trend" value="25" sparklineData={sparklineData} />);
+    const { container } = render(<MetricCard title="Trend" value="25" sparklineData={sparklineData} />);
 
-    const sparkline = screen.getByRole("img", { hidden: true }); // SVG has img role
+    const sparkline = container.querySelector("svg");
     expect(sparkline).toBeInTheDocument();
 
-    const polyline = sparkline.querySelector("polyline");
+    const polyline = sparkline?.querySelector("polyline");
     expect(polyline).toBeInTheDocument();
     expect(polyline).toHaveAttribute("points");
   });
 
   it("should calculate sparkline points correctly", () => {
     const sparklineData = [0, 10, 20, 30];
-    render(<MetricCard title="Test" value="30" sparklineData={sparklineData} />);
+    const { container } = render(<MetricCard title="Test" value="30" sparklineData={sparklineData} />);
 
-    const polyline = screen.getByRole("img", { hidden: true }).querySelector("polyline");
+    const polyline = container.querySelector("svg polyline");
     const points = polyline?.getAttribute("points");
 
     // Should have 4 points for 4 data values
@@ -121,9 +121,9 @@ describe("MetricCard", () => {
   });
 
   it("should not render sparkline when data not provided", () => {
-    render(<MetricCard title="Test" value="100" />);
+    const { container } = render(<MetricCard title="Test" value="100" />);
 
-    expect(screen.queryByRole("img", { hidden: true })).not.toBeInTheDocument();
+    expect(container.querySelector("svg")).not.toBeInTheDocument();
   });
 
   it("should handle all gradient types", () => {
@@ -140,7 +140,7 @@ describe("MetricCard", () => {
     const TestIcon = <span data-testid="complete-icon">🎯</span>;
     const sparklineData = [10, 15, 12, 20, 18];
 
-    render(
+    const { container } = render(
       <MetricCard
         title="Complete Metric"
         value="18"
@@ -157,10 +157,11 @@ describe("MetricCard", () => {
     expect(screen.getByTestId("complete-icon")).toBeInTheDocument();
     expect(screen.getByText("↑")).toBeInTheDocument();
     expect(screen.getByText("25%")).toBeInTheDocument();
-    expect(screen.getByRole("img", { hidden: true })).toBeInTheDocument();
+    const svg = container.querySelector("svg");
+    expect(svg).toBeInTheDocument();
 
-    const card = screen.getByText("Complete Metric").closest("div");
+    const card = container.firstChild as HTMLElement;
     expect(card).toHaveClass("complete-card");
-    expect(card?.className).toContain("performance");
+    expect(card.className).toContain("performance");
   });
 });

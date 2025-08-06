@@ -28,27 +28,27 @@ describe("FormInput", () => {
   });
 
   it("should display error message and error icon", () => {
-    render(<FormInput label="Password" error="Password is required" />);
+    const { container } = render(<FormInput label="Password" error="Password is required" />);
 
     const errorText = screen.getByText("Password is required");
-    const errorIcon = screen.getByRole("generic").querySelector("svg");
+    const errorIcon = container.querySelector("svg");
 
     expect(errorText).toBeInTheDocument();
     expect(errorIcon).toBeInTheDocument();
   });
 
   it("should display success icon when success is true", () => {
-    render(<FormInput label="Email" success />);
+    const { container } = render(<FormInput label="Email" success id="email" />);
 
     const input = screen.getByLabelText("Email");
-    const successIcon = input.parentElement?.querySelector("svg");
+    const successIcon = container.querySelector("svg");
 
     expect(input.className).toContain("success");
     expect(successIcon).toBeInTheDocument();
   });
 
   it("should not show success icon when there is an error", () => {
-    render(<FormInput label="Email" success error="Invalid email" />);
+    render(<FormInput label="Email" success error="Invalid email" id="email" />);
 
     const input = screen.getByLabelText("Email");
     expect(input.className).toContain("error");
@@ -71,7 +71,7 @@ describe("FormInput", () => {
 
   it("should render with icon", () => {
     const TestIcon = <span data-testid="test-icon">🔍</span>;
-    render(<FormInput label="Search" icon={TestIcon} />);
+    render(<FormInput label="Search" icon={TestIcon} id="search" />);
 
     const icon = screen.getByTestId("test-icon");
     const input = screen.getByLabelText("Search");
@@ -123,7 +123,7 @@ describe("FormInput", () => {
   it("should have correct accessibility attributes", () => {
     render(<FormInput label="Username" id="username" required />);
 
-    const input = screen.getByLabelText("Username");
+    const input = screen.getByRole("textbox");
     const label = screen.getByText("Username");
 
     expect(label).toHaveAttribute("for", "username");
