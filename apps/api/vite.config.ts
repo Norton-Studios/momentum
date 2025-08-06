@@ -25,6 +25,11 @@ export default defineConfig({
     preserveSymlinks: false,
   },
   build: {
+    ssr: true,
+    lib: {
+      entry: "./src/index.ts",
+      formats: ["es"],
+    },
     rollupOptions: {
       output: {
         format: "esm",

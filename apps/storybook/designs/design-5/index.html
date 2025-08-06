@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Momentum Dashboard - Material Design</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Left Sidebar Navigation -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <span class="material-icons">speed</span>
+                    <h2>Momentum</h2>
+                </div>
+            </div>
+            <div class="nav-menu">
+                <a href="#" class="nav-item active" data-section="dashboard">
+                    <span class="material-icons">dashboard</span>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="nav-item" data-section="organization">
+                    <span class="material-icons">business</span>
+                    <span>Organization</span>
+                </a>
+                <a href="#" class="nav-item" data-section="teams">
+                    <span class="material-icons">groups</span>
+                    <span>Teams</span>
+                </a>
+                <a href="#" class="nav-item" data-section="contributors">
+                    <span class="material-icons">people</span>
+                    <span>Contributors</span>
+                </a>
+            </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Top Bar -->
+            <header class="top-bar">
+                <div class="page-title">
+                    <h1 id="page-title">Dashboard</h1>
+                    <p id="page-subtitle">Monitor your development metrics and team performance</p>
+                </div>
+                <div class="top-bar-actions">
+                    <div class="date-range-selector">
+                        <span class="material-icons">date_range</span>
+                        <select id="dateRange">
+                            <option value="7">Last 7 days</option>
+                            <option value="30" selected>Last 30 days</option>
+                            <option value="90">Last 90 days</option>
+                            <option value="365">Last year</option>
+                        </select>
+                    </div>
+                    <button class="btn-icon">
+                        <span class="material-icons">refresh</span>
+                    </button>
+                    <button class="btn-icon">
+                        <span class="material-icons">settings</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Dashboard Content -->
+            <div class="content-area" id="dashboard-content">
+                <!-- Metric Cards -->
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-icon cve-icon">
+                            <span class="material-icons">security</span>
+                        </div>
+                        <div class="metric-content">
+                            <h3>CVE Count</h3>
+                            <div class="metric-value">
+                                <span class="value" id="cve-count">23</span>
+                                <span class="trend negative">
+                                    <span class="material-icons">trending_up</span>
+                                    +12%
+                                </span>
+                            </div>
+                            <p class="metric-description">Critical vulnerabilities detected</p>
+                        </div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-icon pipeline-icon">
+                            <span class="material-icons">build_circle</span>
+                        </div>
+                        <div class="metric-content">
+                            <h3>Pipeline Stability</h3>
+                            <div class="metric-value">
+                                <span class="value" id="pipeline-stability">94.2%</span>
+                                <span class="trend positive">
+                                    <span class="material-icons">trending_up</span>
+                                    +2.1%
+                                </span>
+                            </div>
+                            <p class="metric-description">Build success rate</p>
+                        </div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-icon velocity-icon">
+                            <span class="material-icons">rocket_launch</span>
+                        </div>
+                        <div class="metric-content">
+                            <h3>Delivery Velocity</h3>
+                            <div class="metric-value">
+                                <span class="value" id="delivery-velocity">8.4</span>
+                                <span class="trend positive">
+                                    <span class="material-icons">trending_up</span>
+                                    +15%
+                                </span>
+                            </div>
+                            <p class="metric-description">Deployments per day</p>
+                        </div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-icon team-icon">
+                            <span class="material-icons">group</span>
+                        </div>
+                        <div class="metric-content">
+                            <h3>Active Contributors</h3>
+                            <div class="metric-value">
+                                <span class="value" id="active-contributors">42</span>
+                                <span class="trend positive">
+                                    <span class="material-icons">trending_up</span>
+                                    +3
+                                </span>
+                            </div>
+                            <p class="metric-description">Contributors this month</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Section -->
+                <div class="charts-grid">
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3>Development Velocity Trend</h3>
+                            <button class="btn-icon">
+                                <span class="material-icons">more_vert</span>
+                            </button>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="velocityChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3>Pipeline Health</h3>
+                            <button class="btn-icon">
+                                <span class="material-icons">more_vert</span>
+                            </button>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="pipelineChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-card wide">
+                        <div class="chart-header">
+                            <h3>Security Vulnerabilities Over Time</h3>
+                            <div class="chart-filters">
+                                <button class="filter-btn active">All</button>
+                                <button class="filter-btn">Critical</button>
+                                <button class="filter-btn">High</button>
+                                <button class="filter-btn">Medium</button>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="securityChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="activity-section">
+                    <div class="activity-card">
+                        <div class="activity-header">
+                            <h3>Recent Activity</h3>
+                            <a href="#" class="view-all">View All</a>
+                        </div>
+                        <div class="activity-list">
+                            <div class="activity-item">
+                                <div class="activity-icon deploy">
+                                    <span class="material-icons">rocket_launch</span>
+                                </div>
+                                <div class="activity-content">
+                                    <p><strong>Production deployment</strong> completed successfully</p>
+                                    <span class="activity-time">2 minutes ago</span>
+                                </div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-icon merge">
+                                    <span class="material-icons">merge</span>
+                                </div>
+                                <div class="activity-content">
+                                    <p><strong>Pull request #234</strong> merged to main branch</p>
+                                    <span class="activity-time">15 minutes ago</span>
+                                </div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-icon security">
+                                    <span class="material-icons">security</span>
+                                </div>
+                                <div class="activity-content">
+                                    <p><strong>Security scan</strong> detected 2 new vulnerabilities</p>
+                                    <span class="activity-time">1 hour ago</span>
+                                </div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-icon test">
+                                    <span class="material-icons">check_circle</span>
+                                </div>
+                                <div class="activity-content">
+                                    <p><strong>Test suite</strong> passed with 98% coverage</p>
+                                    <span class="activity-time">2 hours ago</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Organization Content (Hidden by default) -->
+            <div class="content-area hidden" id="organization-content">
+                <div class="section-placeholder">
+                    <span class="material-icons large">business</span>
+                    <h2>Organization Overview</h2>
+                    <p>Organization metrics and insights will be displayed here.</p>
+                </div>
+            </div>
+
+            <!-- Teams Content (Hidden by default) -->
+            <div class="content-area hidden" id="teams-content">
+                <div class="section-placeholder">
+                    <span class="material-icons large">groups</span>
+                    <h2>Teams Performance</h2>
+                    <p>Team-specific metrics and performance data will be displayed here.</p>
+                </div>
+            </div>
+
+            <!-- Contributors Content (Hidden by default) -->
+            <div class="content-area hidden" id="contributors-content">
+                <div class="section-placeholder">
+                    <span class="material-icons large">people</span>
+                    <h2>Contributors Analytics</h2>
+                    <p>Individual contributor metrics and insights will be displayed here.</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

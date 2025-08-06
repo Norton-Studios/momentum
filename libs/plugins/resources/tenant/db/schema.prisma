@@ -6,6 +6,7 @@ model Tenant {
 
   users                   User[]
   tenantDataSourceConfigs TenantDataSourceConfig[]
+  dataSourceRuns          DataSourceRun[]
   mergeRequests           MergeRequest[]
   pipelines               Pipeline[]
   builds                  Build[]
@@ -49,5 +50,33 @@ model TenantDataSourceConfig {
   @@unique([tenantId, dataSource, key])
   @@index([tenantId])
   @@map("tenant_data_source_config")
+  @@schema("core")
+}
+
+// Data source import run tracking
+model DataSourceRun {
+  id                   String                @id @default(cuid())
+  tenantId             String                @map("tenant_id")
+  dataSource           String                @map("data_source") // name of the data source (e.g., "github-repository")
+  startedAt            DateTime              @default(now()) @map("started_at")
+  completedAt          DateTime?             @map("completed_at")
+  status               DataSourceRunStatus   @default(RUNNING)
+  error                String?
+  lastFetchedDataDate  DateTime?             @map("last_fetched_data_date") // tracks the latest data point collected
+  
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  
+  @@map("data_source_run")
+  @@index([tenantId])
+  @@index([dataSource])
+  @@index([startedAt])
+  @@schema("core")
+}
+
+enum DataSourceRunStatus {
+  RUNNING
+  COMPLETED
+  FAILED
+  
   @@schema("core")
 }

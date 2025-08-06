@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Team Setup - Momentum Onboarding</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="onboarding-container">
+    <!-- Header -->
+    <header class="header">
+      <div class="logo">
+        <div class="logo-icon">M</div>
+        <div class="logo-text">Momentum</div>
+      </div>
+      
+      <!-- Progress Indicator -->
+      <div class="progress-container">
+        <div class="progress-step">
+          <div class="step-indicator completed">1</div>
+          <div class="step-label completed">Account</div>
+        </div>
+        <div class="progress-line completed"></div>
+        
+        <div class="progress-step">
+          <div class="step-indicator completed">2</div>
+          <div class="step-label completed">Data Sources</div>
+        </div>
+        <div class="progress-line completed"></div>
+        
+        <div class="progress-step">
+          <div class="step-indicator active">3</div>
+          <div class="step-label active">Team Setup</div>
+        </div>
+        <div class="progress-line"></div>
+        
+        <div class="progress-step">
+          <div class="step-indicator">4</div>
+          <div class="step-label">Review</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="step-header">
+        <h1 class="step-title">Discover Your Repositories</h1>
+        <p class="step-subtitle">
+          We've found repositories from your connected data sources. Select which ones you'd like to track and assign team members.
+        </p>
+      </div>
+
+      <form id="teamSetupForm">
+        <!-- Repository Discovery -->
+        <div style="margin-bottom: 32px;">
+          <div style="display: flex; justify-content: between; align-items: center; margin-bottom: 16px;">
+            <h3 style="font-size: 18px; font-weight: 600; color: var(--text-primary);">
+              Available Repositories
+            </h3>
+            <div style="display: flex; gap: 12px; align-items: center;">
+              <button type="button" id="selectAll" class="btn btn-outline" style="padding: 8px 16px; font-size: 14px;">
+                Select All
+              </button>
+              <button type="button" id="selectNone" class="btn btn-secondary" style="padding: 8px 16px; font-size: 14px;">
+                Select None
+              </button>
+            </div>
+          </div>
+          
+          <!-- Search and Filter -->
+          <div style="display: flex; gap: 12px; margin-bottom: 20px;">
+            <div style="flex: 1;">
+              <input 
+                type="text" 
+                id="repoSearch" 
+                class="form-input" 
+                placeholder="Search repositories..."
+                style="padding: 10px 16px;"
+              >
+            </div>
+            <select id="languageFilter" class="form-input" style="width: auto; padding: 10px 16px;">
+              <option value="">All Languages</option>
+              <option value="TypeScript">TypeScript</option>
+              <option value="JavaScript">JavaScript</option>
+              <option value="Python">Python</option>
+              <option value="Node.js">Node.js</option>
+              <option value="React Native">React Native</option>
+              <option value="Markdown">Markdown</option>
+            </select>
+          </div>
+          
+          <div class="repository-list" id="repositoryList">
+            <!-- Repository items will be populated by JavaScript -->
+          </div>
+        </div>
+
+        <!-- Team Assignment Section -->
+        <div class="team-assignment">
+          <h3>Team Member Discovery</h3>
+          <p style="color: var(--text-secondary); margin-bottom: 20px; font-size: 14px;">
+            Based on commit history and repository access, we've identified these team members. 
+            They'll be invited to join your Momentum workspace.
+          </p>
+          
+          <div class="team-members">
+            <div class="team-member">
+              <div class="member-avatar">JD</div>
+              <span>John Doe</span>
+              <span style="color: var(--text-muted); font-size: 12px;">john.doe@company.com</span>
+            </div>
+            <div class="team-member">
+              <div class="member-avatar">SM</div>
+              <span>Sarah Miller</span>
+              <span style="color: var(--text-muted); font-size: 12px;">sarah.miller@company.com</span>
+            </div>
+            <div class="team-member">
+              <div class="member-avatar">AC</div>
+              <span>Alex Chen</span>
+              <span style="color: var(--text-muted); font-size: 12px;">alex.chen@company.com</span>
+            </div>
+            <div class="team-member">
+              <div class="member-avatar">MJ</div>
+              <span>Maria Johnson</span>
+              <span style="color: var(--text-muted); font-size: 12px;">maria.johnson@company.com</span>
+            </div>
+            <div class="team-member">
+              <div class="member-avatar">RB</div>
+              <span>Robert Brown</span>
+              <span style="color: var(--text-muted); font-size: 12px;">robert.brown@company.com</span>
+            </div>
+          </div>
+          
+          <!-- Invite Additional Members -->
+          <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border-color);">
+            <h4 style="font-size: 16px; font-weight: 600; color: var(--text-primary); margin-bottom: 12px;">
+              Invite Additional Team Members
+            </h4>
+            <div style="display: flex; gap: 12px; align-items: center;">
+              <input 
+                type="email" 
+                id="inviteEmail" 
+                class="form-input" 
+                placeholder="Enter email address..."
+                style="flex: 1; padding: 10px 16px;"
+              >
+              <button type="button" id="inviteBtn" class="btn btn-outline" style="padding: 10px 20px;">
+                Send Invite
+              </button>
+            </div>
+            <div id="invitedMembers" style="margin-top: 12px;"></div>
+          </div>
+        </div>
+
+        <!-- Repository Access Permissions -->
+        <div style="background: var(--surface-color); border-radius: var(--radius); padding: 24px; margin: 24px 0;">
+          <h3 style="font-size: 18px; font-weight: 600; color: var(--text-primary); margin-bottom: 16px;">
+            Default Access Permissions
+          </h3>
+          
+          <div style="display: grid; gap: 16px;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <div style="font-weight: 500; color: var(--text-primary);">Repository Access</div>
+                <div style="font-size: 14px; color: var(--text-secondary);">Who can view repository metrics and analytics</div>
+              </div>
+              <select class="form-input" style="width: auto; padding: 8px 12px;">
+                <option value="team">Team Members Only</option>
+                <option value="organization">All Organization Members</option>
+                <option value="public">Public (within workspace)</option>
+              </select>
+            </div>
+            
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <div style="font-weight: 500; color: var(--text-primary);">Data Visibility</div>
+                <div style="font-size: 14px; color: var(--text-secondary);">Individual contributor metrics visibility</div>
+              </div>
+              <select class="form-input" style="width: auto; padding: 8px 12px;">
+                <option value="managers">Managers & Leads Only</option>
+                <option value="team">All Team Members</option>
+                <option value="anonymous">Anonymous/Aggregated Only</option>
+              </select>
+            </div>
+            
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <div style="font-weight: 500; color: var(--text-primary);">Report Sharing</div>
+                <div style="font-size: 14px; color: var(--text-secondary);">Default sharing permissions for generated reports</div>
+              </div>
+              <select class="form-input" style="width: auto; padding: 8px 12px;">
+                <option value="internal">Internal Only</option>
+                <option value="stakeholders">Include Stakeholders</option>
+                <option value="external">Allow External Sharing</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Integration Settings -->
+        <div style="margin-top: 24px; padding: 20px; background: #ecfdf5; border: 1px solid #10b981; border-radius: var(--radius);">
+          <div style="display: flex; align-items: start; gap: 12px;">
+            <span style="font-size: 18px;">🔄</span>
+            <div>
+              <h4 style="color: #065f46; margin-bottom: 8px; font-weight: 600;">Automatic Team Sync</h4>
+              <p style="color: #047857; font-size: 14px; line-height: 1.5;">
+                When enabled, team membership will automatically sync with your connected data sources. 
+                New contributors will be added and inactive members will be marked accordingly.
+              </p>
+              <label style="display: flex; align-items: center; gap: 8px; margin-top: 12px; cursor: pointer;">
+                <input type="checkbox" name="autoTeamSync" checked style="width: 16px; height: 16px; accent-color: var(--primary-color);">
+                <span style="color: #065f46; font-weight: 500; font-size: 14px;">Enable automatic team synchronization</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Selected Summary -->
+        <div id="selectionSummary" style="margin-top: 24px; padding: 20px; background: var(--primary-light); border-radius: var(--radius); display: none;">
+          <h4 style="color: var(--primary-color); margin-bottom: 12px; font-size: 16px;">Selection Summary</h4>
+          <div id="summaryContent" style="color: var(--text-primary); font-size: 14px;"></div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="navigation">
+          <div class="nav-left">
+            <button type="button" class="btn btn-secondary btn-prev">
+              ← Back
+            </button>
+          </div>
+          <div class="nav-right">
+            <button type="submit" class="btn btn-primary btn-next" disabled>
+              Continue →
+            </button>
+          </div>
+        </div>
+      </form>
+    </main>
+  </div>
+
+  <script src="script.js"></script>
+  <script>
+    // Repository search and filter functionality
+    document.getElementById('repoSearch').addEventListener('input', filterRepositories);
+    document.getElementById('languageFilter').addEventListener('change', filterRepositories);
+
+    function filterRepositories() {
+      const search = document.getElementById('repoSearch').value.toLowerCase();
+      const language = document.getElementById('languageFilter').value;
+      const items = document.querySelectorAll('.repository-item');
+      
+      items.forEach(item => {
+        const name = item.querySelector('.repository-name').textContent.toLowerCase();
+        const repoLanguage = item.querySelector('.repository-meta span').textContent;
+        
+        const matchesSearch = name.includes(search);
+        const matchesLanguage = !language || repoLanguage === language;
+        
+        item.style.display = matchesSearch && matchesLanguage ? 'flex' : 'none';
+      });
+    }
+
+    // Select all/none functionality
+    document.getElementById('selectAll').addEventListener('click', () => {
+      const checkboxes = document.querySelectorAll('.repository-checkbox:not([disabled])');
+      checkboxes.forEach(cb => {
+        cb.checked = true;
+        cb.dispatchEvent(new Event('change'));
+      });
+    });
+
+    document.getElementById('selectNone').addEventListener('click', () => {
+      const checkboxes = document.querySelectorAll('.repository-checkbox');
+      checkboxes.forEach(cb => {
+        cb.checked = false;
+        cb.dispatchEvent(new Event('change'));
+      });
+    });
+
+    // Invite functionality
+    document.getElementById('inviteBtn').addEventListener('click', () => {
+      const email = document.getElementById('inviteEmail').value.trim();
+      if (email && validateEmail(email)) {
+        addInvitedMember(email);
+        document.getElementById('inviteEmail').value = '';
+      } else {
+        alert('Please enter a valid email address.');
+      }
+    });
+
+    function addInvitedMember(email) {
+      const container = document.getElementById('invitedMembers');
+      const memberDiv = document.createElement('div');
+      memberDiv.style.cssText = 'display: flex; align-items: center; justify-content: space-between; background: var(--background-color); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 8px 12px; margin-bottom: 8px;';
+      
+      memberDiv.innerHTML = `
+        <span style="font-size: 14px; color: var(--text-primary);">${email}</span>
+        <button type="button" onclick="removeInvite(this)" style="background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 4px;">×</button>
+      `;
+      
+      container.appendChild(memberDiv);
+    }
+
+    function removeInvite(button) {
+      button.parentElement.remove();
+    }
+
+    // Update selection summary
+    function updateSelectionSummary() {
+      const selectedRepos = document.querySelectorAll('.repository-checkbox:checked').length;
+      const totalRepos = document.querySelectorAll('.repository-checkbox').length;
+      const summary = document.getElementById('selectionSummary');
+      const content = document.getElementById('summaryContent');
+      
+      if (selectedRepos > 0) {
+        summary.style.display = 'block';
+        content.innerHTML = `
+          <div style="margin-bottom: 8px;"><strong>Repositories:</strong> ${selectedRepos} of ${totalRepos} selected</div>
+          <div style="margin-bottom: 8px;"><strong>Team Members:</strong> 5 discovered + invited members</div>
+          <div><strong>Ready to:</strong> Start tracking productivity metrics and generate insights</div>
+        `;
+      } else {
+        summary.style.display = 'none';
+      }
+    }
+
+    // Listen for repository selection changes
+    document.addEventListener('change', (e) => {
+      if (e.target.classList.contains('repository-checkbox')) {
+        updateSelectionSummary();
+      }
+    });
+
+    // Initialize summary after repositories load
+    setTimeout(() => {
+      updateSelectionSummary();
+    }, 2000);
+  </script>
+</body>
+</html>

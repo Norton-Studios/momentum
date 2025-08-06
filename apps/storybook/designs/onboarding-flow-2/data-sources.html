@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Configure Data Sources - Momentum Onboarding</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="onboarding-container">
+    <!-- Header -->
+    <header class="header">
+      <div class="logo">
+        <div class="logo-icon">M</div>
+        <div class="logo-text">Momentum</div>
+      </div>
+      
+      <!-- Progress Indicator -->
+      <div class="progress-container">
+        <div class="progress-line">
+          <div class="progress-fill" style="width: 33%"></div>
+        </div>
+        
+        <div class="progress-step">
+          <div class="step-indicator completed">✓</div>
+          <div class="step-label completed">Account</div>
+        </div>
+        
+        <div class="progress-step">
+          <div class="step-indicator active">2</div>
+          <div class="step-label active">Data Sources</div>
+        </div>
+        
+        <div class="progress-step">
+          <div class="step-indicator">3</div>
+          <div class="step-label">Team Setup</div>
+        </div>
+        
+        <div class="progress-step">
+          <div class="step-indicator">4</div>
+          <div class="step-label">Review</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content" data-step="2">
+      <div class="step-header">
+        <h1 class="step-title">Connect Your Version Control</h1>
+        <p class="step-subtitle">Choose your primary version control system to start tracking developer productivity metrics and insights.</p>
+      </div>
+
+      <div class="alert alert-info">
+        <strong>Secure Integration:</strong> All connections use secure OAuth or token-based authentication. Your credentials are encrypted and never stored in plain text.
+      </div>
+
+      <form class="onboarding-form" id="dataSourceForm">
+        <!-- Data Source Selection -->
+        <div class="data-source-grid">
+          <div class="data-source-card" data-provider="github">
+            <div class="data-source-icon">
+              <svg viewBox="0 0 24 24" fill="#333" width="32" height="32">
+                <path d="M12 0C5.374 0 0 5.373 0 12 0 17.302 3.438 21.8 8.207 23.387c.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.30.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/>
+              </svg>
+            </div>
+            <div class="data-source-title">GitHub</div>
+            <div class="data-source-description">Connect to GitHub.com or GitHub Enterprise to track commits, pull requests, and code reviews.</div>
+            <ul class="data-source-features">
+              <li>Commit activity tracking</li>
+              <li>Pull request metrics</li>
+              <li>Code review insights</li>
+              <li>Repository statistics</li>
+            </ul>
+          </div>
+
+          <div class="data-source-card" data-provider="gitlab">
+            <div class="data-source-icon">
+              <svg viewBox="0 0 24 24" fill="#FC6D26" width="32" height="32">
+                <path d="M23.955 13.587l-1.342-4.135-2.664-8.189c-.135-.423-.73-.423-.867 0L16.418 9.45H7.582L4.919 1.263c-.135-.423-.73-.423-.867 0L1.388 9.452-.955 13.587a.863.863 0 00.31 1.05L12 24l11.645-9.365a.863.863 0 00.31-1.05"/>
+              </svg>
+            </div>
+            <div class="data-source-title">GitLab</div>
+            <div class="data-source-description">Connect to GitLab.com or self-hosted GitLab instances for comprehensive DevOps metrics.</div>
+            <ul class="data-source-features">
+              <li>Merge request tracking</li>
+              <li>CI/CD pipeline metrics</li>
+              <li>Issue management data</li>
+              <li>Deployment frequency</li>
+            </ul>
+          </div>
+
+          <div class="data-source-card" data-provider="bitbucket">
+            <div class="data-source-icon">
+              <svg viewBox="0 0 24 24" fill="#0052CC" width="32" height="32">
+                <path d="M.778 1.213a.768.768 0 00-.768.892l3.263 19.81c.084.5.515.868 1.022.873H19.95a.772.772 0 00.77-.646l3.27-20.03a.768.768 0 00-.768-.891zM14.52 15.53H9.22L8.175 9.909h7.959z"/>
+              </svg>
+            </div>
+            <div class="data-source-title">Bitbucket</div>
+            <div class="data-source-description">Integrate with Bitbucket Cloud or Server to analyze code contributions and collaboration patterns.</div>
+            <ul class="data-source-features">
+              <li>Repository insights</li>
+              <li>Branch management</li>
+              <li>Pull request analytics</li>
+              <li>Team collaboration metrics</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Configuration Form (Hidden by default) -->
+        <div id="configForm" style="display: none;" class="config-form">
+          <!-- Dynamic content will be inserted here -->
+        </div>
+      </form>
+
+      <!-- Integration Help -->
+      <div class="alert alert-info" style="margin-top: 32px;">
+        <strong>Need Help?</strong> Our integration guides provide step-by-step instructions for setting up each data source. 
+        <a href="#" style="color: var(--primary-color); text-decoration: none; font-weight: 600;">View Documentation</a>
+      </div>
+
+      <!-- Navigation -->
+      <div class="navigation">
+        <div class="nav-left">
+          <button class="btn btn-secondary btn-prev">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="15,18 9,12 15,6"></polyline>
+            </svg>
+            Back
+          </button>
+        </div>
+        
+        <div class="nav-right">
+          <button class="btn btn-outline" style="margin-right: 16px;">
+            Skip for Now
+          </button>
+          <button class="btn btn-primary btn-large btn-next" disabled>
+            Continue to Team Setup
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="9,18 15,12 9,6"></polyline>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

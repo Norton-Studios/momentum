@@ -55,7 +55,7 @@ describe("Schema Synthesis", () => {
   let mockWriteFile: ReturnType<typeof vi.fn>;
   let mockMkdir: ReturnType<typeof vi.fn>;
   let mockConsoleLog: ReturnType<typeof vi.fn>;
-  let mockConsoleError: ReturnType<typeof vi.fn>;
+  let _mockConsoleError: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -74,7 +74,7 @@ describe("Schema Synthesis", () => {
 
     // Mock console methods
     mockConsoleLog = vi.spyOn(console, "log").mockImplementation(() => {});
-    mockConsoleError = vi.spyOn(console, "error").mockImplementation(() => {});
+    _mockConsoleError = vi.spyOn(console, "error").mockImplementation(() => {});
 
     // Default path.join behavior
     mockJoin.mockImplementation((...args) => args.join("/"));
@@ -112,7 +112,7 @@ datasource db {
   };
 
   it("should successfully combine base schema with plugin schemas", async () => {
-    const pluginSchemas = ["User", "Team", "Repository"];
+    const _pluginSchemas = ["User", "Team", "Repository"];
 
     // Setup mocks
     mockReadFile

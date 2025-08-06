@@ -59,6 +59,7 @@ graph TD
 ## Core Concepts
 
 -   **Monorepo:** All code is contained in a single repository, managed as distinct packages using npm workspaces. This simplifies dependency management and cross-package development.
+-   **Module System:** The entire codebase uses ES modules exclusively. All packages must include `"type": "module"` in their package.json files. Use `import`/`export` syntax, never CommonJS `require()`/`module.exports`.
 -   **Plugin Architecture:** The `plugins` directory contains collections of self-contained packages for `resources`, `data-sources`, and `reports`.
     -   **Resources:** Define the core data models of the platform (e.g., `Team`, `Repository`). They are responsible for the database schema (via a local `db/schema.prisma`) and exposing CRUD API endpoints.
     -   **Data Sources:** Responsible for collecting data from external systems (e.g., GitHub, Jira) and ingesting it into the appropriate resource schemas. They are managed by the `crons` application.
@@ -116,6 +117,9 @@ graph TD
 
 3. **Data Source Plugin Interface**:
    ```typescript
+   // ES modules only - use import/export syntax
+   import type { PrismaClient } from '@mmtm/database';
+   
    // Required exports
    export const resources: string[] = ["repository"];
    export const dependencies: string[] = ["commit"]; // optional

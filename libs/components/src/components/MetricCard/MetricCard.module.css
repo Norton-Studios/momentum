@@ -1,0 +1,119 @@
+.card {
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-xl);
+  color: white;
+  position: relative;
+  overflow: hidden;
+  transition: all var(--transition-base);
+  min-height: 160px;
+}
+
+.card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0.1;
+  background: linear-gradient(135deg, transparent 0%, rgba(255, 255, 255, 0.2) 100%);
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.3);
+}
+
+/* Gradient variants */
+.primary {
+  background: var(--gradient-primary);
+  box-shadow: 0 10px 30px -10px rgba(102, 126, 234, 0.5);
+}
+
+.cve {
+  background: var(--gradient-cve);
+  box-shadow: 0 10px 30px -10px rgba(255, 107, 107, 0.5);
+}
+
+.stability {
+  background: var(--gradient-stability);
+  box-shadow: 0 10px 30px -10px rgba(78, 205, 196, 0.5);
+}
+
+.velocity {
+  background: var(--gradient-velocity);
+  box-shadow: 0 10px 30px -10px rgba(168, 224, 99, 0.5);
+}
+
+.performance {
+  background: var(--gradient-performance);
+  box-shadow: 0 10px 30px -10px rgba(255, 217, 61, 0.5);
+}
+
+/* Content */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--spacing-md);
+  position: relative;
+  z-index: 1;
+}
+
+.title {
+  font-size: 0.875rem;
+  font-weight: 500;
+  opacity: 0.9;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.icon {
+  font-size: 1.5rem;
+  opacity: 0.8;
+}
+
+.value {
+  font-size: 2.25rem;
+  font-weight: 700;
+  margin-bottom: var(--spacing-sm);
+  position: relative;
+  z-index: 1;
+}
+
+.trend {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--radius-md);
+  position: relative;
+  z-index: 1;
+}
+
+.positive {
+  background: rgba(16, 185, 129, 0.2);
+  color: #10f981;
+}
+
+.negative {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ff6b6b;
+}
+
+.trendIcon {
+  font-size: 1rem;
+}
+
+.sparkline {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 40px;
+  opacity: 0.3;
+}
+
+.sparklineSvg {
+  width: 100%;
+  height: 100%;
+}

@@ -1,0 +1,113 @@
+.card {
+  background: white;
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-xl);
+  position: relative;
+  transition: all var(--transition-base);
+  border: 2px solid transparent;
+}
+
+/* Variants */
+.default {
+  box-shadow: var(--shadow-md);
+}
+
+/* Content - Base styles first */
+.icon {
+  font-size: 2rem;
+  margin-bottom: var(--spacing-md);
+  display: flex;
+  align-items: center;
+}
+
+.content {
+  margin-bottom: var(--spacing-md);
+}
+
+.title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1a202c;
+  margin-bottom: var(--spacing-xs);
+}
+
+.description {
+  font-size: 0.875rem;
+  color: #718096;
+  line-height: 1.5;
+}
+
+/* Variants */
+.gradient {
+  background: var(--gradient-primary);
+  color: white;
+  box-shadow: var(--shadow-gradient);
+}
+
+.gradient .title,
+.gradient .description {
+  color: white;
+}
+
+.outlined {
+  border-color: #e2e8f0;
+  box-shadow: none;
+}
+
+/* States */
+.clickable {
+  cursor: pointer;
+}
+
+.clickable:hover:not(.disabled) {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.clickable.outlined:hover:not(.disabled) {
+  border-color: var(--color-primary);
+}
+
+.selected {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.selected.gradient {
+  background: var(--gradient-secondary);
+}
+
+.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.disabled * {
+  pointer-events: none;
+}
+
+.body {
+  margin-top: var(--spacing-md);
+}
+
+.checkmark {
+  position: absolute;
+  top: var(--spacing-md);
+  right: var(--spacing-md);
+  width: 24px;
+  height: 24px;
+  color: var(--color-success);
+}
+
+/* Focus styles */
+.clickable:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.5);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .card {
+    padding: var(--spacing-lg);
+  }
+}

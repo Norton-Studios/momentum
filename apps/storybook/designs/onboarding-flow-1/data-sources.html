@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Data Sources - Momentum Onboarding</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="onboarding-container">
+    <!-- Header -->
+    <header class="header">
+      <div class="logo">
+        <div class="logo-icon">M</div>
+        <div class="logo-text">Momentum</div>
+      </div>
+      
+      <!-- Progress Indicator -->
+      <div class="progress-container">
+        <div class="progress-step">
+          <div class="step-indicator completed">1</div>
+          <div class="step-label completed">Account</div>
+        </div>
+        <div class="progress-line completed"></div>
+        
+        <div class="progress-step">
+          <div class="step-indicator active">2</div>
+          <div class="step-label active">Data Sources</div>
+        </div>
+        <div class="progress-line"></div>
+        
+        <div class="progress-step">
+          <div class="step-indicator">3</div>
+          <div class="step-label">Team Setup</div>
+        </div>
+        <div class="progress-line"></div>
+        
+        <div class="progress-step">
+          <div class="step-indicator">4</div>
+          <div class="step-label">Review</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="step-header">
+        <h1 class="step-title">Connect Your Data Sources</h1>
+        <p class="step-subtitle">
+          Choose your version control systems and development tools to start tracking your team's productivity metrics.
+        </p>
+      </div>
+
+      <form id="dataSourcesForm">
+        <!-- Data Source Selection -->
+        <div class="data-source-grid">
+          <!-- GitHub -->
+          <div class="data-source-card" data-source="github">
+            <div class="data-source-icon">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+              </svg>
+            </div>
+            <h3 class="data-source-title">GitHub</h3>
+            <p class="data-source-description">
+              Connect your GitHub repositories to track commits, pull requests, code reviews, and deployment metrics.
+            </p>
+          </div>
+
+          <!-- GitLab -->
+          <div class="data-source-card" data-source="gitlab">
+            <div class="data-source-icon">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M23.955 13.587l-1.342-4.135-2.664-8.189a.455.455 0 0 0-.867 0L16.418 9.45H7.582L4.918 1.263a.455.455 0 0 0-.867 0L1.387 9.45.045 13.587a.924.924 0 0 0 .331 1.023L12 23.054l11.624-8.443a.924.924 0 0 0 .331-1.024zM12 8.85h4.418l1.342 4.135L12 16.4l-5.76-3.415L7.582 8.85H12z" fill="#FC6D26"/>
+              </svg>
+            </div>
+            <h3 class="data-source-title">GitLab</h3>
+            <p class="data-source-description">
+              Integrate with GitLab to monitor merge requests, CI/CD pipelines, issues, and team collaboration metrics.
+            </p>
+          </div>
+
+          <!-- Bitbucket -->
+          <div class="data-source-card" data-source="bitbucket">
+            <div class="data-source-icon">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M.778 1.213a.768.768 0 0 0-.768.892l3.263 19.81c.084.5.515.868 1.022.873H19.95a.772.772 0 0 0 .77-.646l3.27-20.03a.768.768 0 0 0-.768-.891H.778zM14.52 15.53H9.522L8.17 8.466h7.561l-1.211 7.064z" fill="#2684FF"/>
+              </svg>
+            </div>
+            <h3 class="data-source-title">Bitbucket</h3>
+            <p class="data-source-description">
+              Connect Bitbucket repositories to analyze code quality, pull request workflows, and deployment frequency.
+            </p>
+          </div>
+
+          <!-- Jira -->
+          <div class="data-source-card" data-source="jira">
+            <div class="data-source-icon">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M11.571 11.513H0a5.218 5.218 0 0 0 5.232 5.215h2.13v2.057A5.215 5.215 0 0 0 12.575 24V12.518c0-.556-.45-1.005-1.004-1.005zm5.723-5.756H5.736a5.215 5.215 0 0 0 5.215 5.214h2.129V8.915a5.218 5.218 0 0 0 5.214-5.215V0c0-.557-.448-1.004-1.004-1.004z" fill="#2684FF"/>
+              </svg>
+            </div>
+            <h3 class="data-source-title">Jira</h3>
+            <p class="data-source-description">
+              Track project progress, sprint metrics, and issue resolution times with Jira integration.
+            </p>
+          </div>
+
+          <!-- Azure DevOps -->
+          <div class="data-source-card" data-source="azure">
+            <div class="data-source-icon">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M0 10.047l6.15-2.544L18.054 0l5.946 3.663v13.674L18.054 24L6.15 14.709zm2.122-1.266v6.438l4.028 2.133V8.781zm6.15 3.319l9.782-5.081v10.962l-9.782-5.881z" fill="#0078D4"/>
+              </svg>
+            </div>
+            <h3 class="data-source-title">Azure DevOps</h3>
+            <p class="data-source-description">
+              Integrate with Azure DevOps for comprehensive tracking of repositories, work items, and build pipelines.
+            </p>
+          </div>
+
+          <!-- Slack -->
+          <div class="data-source-card" data-source="slack">
+            <div class="data-source-icon">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M5.042 15.165a2.528 2.528 0 0 1-2.52 2.523A2.528 2.528 0 0 1 0 15.165a2.527 2.527 0 0 1 2.522-2.52h2.52v2.52zM6.313 15.165a2.527 2.527 0 0 1 2.521-2.52 2.527 2.527 0 0 1 2.521 2.52v6.313A2.528 2.528 0 0 1 8.834 24a2.528 2.528 0 0 1-2.521-2.522v-6.313zM8.834 5.042a2.528 2.528 0 0 1-2.521-2.52A2.528 2.528 0 0 1 8.834 0a2.528 2.528 0 0 1 2.521 2.522v2.52H8.834zM8.834 6.313a2.528 2.528 0 0 1 2.521 2.521 2.528 2.528 0 0 1-2.521 2.521H2.522A2.528 2.528 0 0 1 0 8.834a2.528 2.528 0 0 1 2.522-2.521h6.312zM18.956 8.834a2.528 2.528 0 0 1 2.522-2.521A2.528 2.528 0 0 1 24 8.834a2.528 2.528 0 0 1-2.522 2.521h-2.522V8.834zM17.688 8.834a2.528 2.528 0 0 1-2.523 2.521 2.527 2.527 0 0 1-2.52-2.521V2.522A2.527 2.527 0 0 1 15.165 0a2.528 2.528 0 0 1 2.523 2.522v6.312zM15.165 18.956a2.528 2.528 0 0 1 2.523 2.522A2.528 2.528 0 0 1 15.165 24a2.527 2.527 0 0 1-2.52-2.522v-2.522h2.52zM15.165 17.688a2.527 2.527 0 0 1-2.52-2.523 2.526 2.526 0 0 1 2.52-2.52h6.313A2.527 2.527 0 0 1 24 15.165a2.528 2.528 0 0 1-2.522 2.523h-6.313z" fill="#4A154B"/>
+              </svg>
+            </div>
+            <h3 class="data-source-title">Slack</h3>
+            <p class="data-source-description">
+              Monitor team communication patterns, collaboration metrics, and integration notifications.
+            </p>
+          </div>
+        </div>
+
+        <!-- Selected Sources Summary -->
+        <div id="selectedSummary" style="display: none; background: var(--primary-light); border-radius: var(--radius); padding: 20px; margin: 24px 0;">
+          <h3 style="color: var(--primary-color); margin-bottom: 12px; font-size: 16px;">Selected Data Sources</h3>
+          <div id="selectedList" style="color: var(--text-primary); font-size: 14px;"></div>
+        </div>
+
+        <!-- Advanced Configuration -->
+        <div style="margin-top: 32px; padding: 24px; background: var(--surface-color); border-radius: var(--radius);">
+          <h3 style="font-size: 18px; font-weight: 600; color: var(--text-primary); margin-bottom: 16px;">
+            Configuration Options
+          </h3>
+          
+          <div style="display: grid; gap: 16px;">
+            <label style="display: flex; align-items: center; gap: 12px; cursor: pointer;">
+              <input type="checkbox" name="autoSync" checked style="width: 18px; height: 18px; accent-color: var(--primary-color);">
+              <div>
+                <div style="font-weight: 500; color: var(--text-primary);">Enable automatic data synchronization</div>
+                <div style="font-size: 14px; color: var(--text-secondary);">Sync data every 4 hours to keep metrics up-to-date</div>
+              </div>
+            </label>
+            
+            <label style="display: flex; align-items: center; gap: 12px; cursor: pointer;">
+              <input type="checkbox" name="historicalData" checked style="width: 18px; height: 18px; accent-color: var(--primary-color);">
+              <div>
+                <div style="font-weight: 500; color: var(--text-primary);">Import historical data</div>
+                <div style="font-size: 14px; color: var(--text-secondary);">Import the last 90 days of data for comprehensive analytics</div>
+              </div>
+            </label>
+            
+            <label style="display: flex; align-items: center; gap: 12px; cursor: pointer;">
+              <input type="checkbox" name="notifications" style="width: 18px; height: 18px; accent-color: var(--primary-color);">
+              <div>
+                <div style="font-weight: 500; color: var(--text-primary);">Enable integration notifications</div>
+                <div style="font-size: 14px; color: var(--text-secondary);">Get notified when data sync fails or connections are lost</div>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- Help Text -->
+        <div style="margin-top: 24px; padding: 16px; background: #fef3c7; border: 1px solid #fbbf24; border-radius: var(--radius); color: #92400e;">
+          <div style="display: flex; align-items: start; gap: 12px;">
+            <span style="font-size: 18px;">💡</span>
+            <div>
+              <strong>Tip:</strong> You can always add more data sources later from your dashboard settings. 
+              Start with your primary version control system to begin tracking immediately.
+            </div>
+          </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="navigation">
+          <div class="nav-left">
+            <button type="button" class="btn btn-secondary btn-prev">
+              ← Back
+            </button>
+          </div>
+          <div class="nav-right">
+            <button type="button" class="btn btn-outline" onclick="skipStep()">
+              Skip for Now
+            </button>
+            <button type="submit" class="btn btn-primary btn-next" disabled>
+              Continue →
+            </button>
+          </div>
+        </div>
+      </form>
+    </main>
+  </div>
+
+  <script src="script.js"></script>
+  <script>
+    // Update selected sources summary
+    function updateSelectedSummary() {
+      const selectedCards = document.querySelectorAll('.data-source-card.selected');
+      const summaryDiv = document.getElementById('selectedSummary');
+      const listDiv = document.getElementById('selectedList');
+      
+      if (selectedCards.length > 0) {
+        summaryDiv.style.display = 'block';
+        const sources = Array.from(selectedCards).map(card => 
+          card.querySelector('.data-source-title').textContent
+        );
+        listDiv.textContent = sources.join(', ');
+      } else {
+        summaryDiv.style.display = 'none';
+      }
+    }
+
+    // Listen for data source selection changes
+    document.addEventListener('click', (e) => {
+      if (e.target.closest('.data-source-card')) {
+        setTimeout(updateSelectedSummary, 100);
+      }
+    });
+
+    // Skip step functionality
+    function skipStep() {
+      if (confirm('Are you sure you want to skip data source configuration? You can set this up later from your dashboard.')) {
+        window.location.href = 'team-setup.html';
+      }
+    }
+
+    // Show connection modal for selected data sources
+    function showConnectionModal(sourceType) {
+      // This would typically show a modal for OAuth or API key configuration
+      alert(`Connection setup for ${sourceType} would open here. This is a demo interface.`);
+    }
+
+    // Add click handlers for selected data sources
+    document.addEventListener('click', (e) => {
+      const card = e.target.closest('.data-source-card');
+      if (card && card.classList.contains('selected')) {
+        const sourceType = card.querySelector('.data-source-title').textContent;
+        // In a real app, this might show connection details or configuration
+        console.log(`Configure ${sourceType}`);
+      }
+    });
+  </script>
+</body>
+</html>
