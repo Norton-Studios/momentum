@@ -1,4 +1,4 @@
-import React from "react";
+import type React from "react";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -12,8 +12,8 @@ import {
   Tooltip,
   Legend,
   Filler,
-  ChartData,
-  ChartOptions,
+  type ChartData,
+  type ChartOptions,
 } from "chart.js";
 import { Line, Bar, Doughnut, Radar } from "react-chartjs-2";
 import { clsx } from "clsx";

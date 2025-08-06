@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, MetricCard, DateRangeSelector, Sidebar, Chart, NavItem } from "@mmtm/components";
+import { Button, MetricCard, DateRangeSelector, Sidebar, Chart, type NavItem } from "@mmtm/components";
 import type { ChartData } from "chart.js";
 
 const navigationItems: NavItem[] = [

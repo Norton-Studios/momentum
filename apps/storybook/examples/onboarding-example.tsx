@@ -1,5 +1,6 @@
-import React, { useState } from "react";
-import { Button, StepIndicator, FormInput, Card, Step } from "@mmtm/components";
+import type React from "react";
+import { useState } from "react";
+import { Button, StepIndicator, FormInput, Card, type Step } from "@mmtm/components";
 
 const onboardingSteps: Step[] = [
   { id: "signup", label: "Sign Up", description: "Create your account" },

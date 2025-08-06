@@ -1,4 +1,5 @@
-import React, { useState, useRef, useEffect } from "react";
+import type React from "react";
+import { useState, useRef, useEffect } from "react";
 import { clsx } from "clsx";
 import styles from "./DateRangeSelector.module.css";
 

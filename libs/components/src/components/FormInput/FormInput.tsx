@@ -1,4 +1,5 @@
-import React, { forwardRef } from "react";
+import type React from "react";
+import { forwardRef } from "react";
 import { clsx } from "clsx";
 import styles from "./FormInput.module.css";
 
