@@ -1,5 +1,5 @@
 {
-  "name": "@mmtm/frontend",
+  "name": "@mmtm/dashboard",
   "private": true,
   "sideEffects": false,
   "type": "module",

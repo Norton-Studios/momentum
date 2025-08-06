@@ -20,7 +20,7 @@
     "lint:changed": "turbo lint --filter='...[HEAD^1]'",
     "build": "turbo build",
     "start:api": "yarn workspace @mmtm/api run dev",
-    "start:frontend": "yarn workspace @mmtm/frontend run dev",
+    "start:dashboard": "yarn workspace @mmtm/dashboard run dev",
     "start:db": "yarn workspace @mmtm/database run dev",
     "dev": "yarn workspace @mmtm/database run generate && concurrently \"yarn:start:*\""
   },

@@ -2698,6 +2698,28 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@mmtm/dashboard@workspace:apps/dashboard":
+  version: 0.0.0-use.local
+  resolution: "@mmtm/dashboard@workspace:apps/dashboard"
+  dependencies:
+    "@remix-run/dev": "npm:2.17.0"
+    "@remix-run/node": "npm:2.17.0"
+    "@remix-run/react": "npm:2.17.0"
+    "@remix-run/serve": "npm:2.17.0"
+    "@tailwindcss/postcss": "npm:^4.1.11"
+    "@types/react": "npm:19.1.9"
+    "@types/react-dom": "npm:19.1.7"
+    autoprefixer: "npm:10.4.21"
+    isbot: "npm:5.1.29"
+    postcss: "npm:8.5.6"
+    react: "npm:19.1.1"
+    react-dom: "npm:19.1.1"
+    tailwindcss: "npm:4.1.11"
+    vite: "npm:7.0.6"
+    vite-tsconfig-paths: "npm:5.1.4"
+  languageName: unknown
+  linkType: soft
+
 "@mmtm/data-source-github@workspace:libs/plugins/data-sources/github":
   version: 0.0.0-use.local
   resolution: "@mmtm/data-source-github@workspace:libs/plugins/data-sources/github"
@@ -2715,28 +2737,6 @@ __metadata:
     fast-glob: "npm:3.3.3"
     prisma: "npm:6.13.0"
     tsx: "npm:4.20.3"
-  languageName: unknown
-  linkType: soft
-
-"@mmtm/frontend@workspace:apps/frontend":
-  version: 0.0.0-use.local
-  resolution: "@mmtm/frontend@workspace:apps/frontend"
-  dependencies:
-    "@remix-run/dev": "npm:2.17.0"
-    "@remix-run/node": "npm:2.17.0"
-    "@remix-run/react": "npm:2.17.0"
-    "@remix-run/serve": "npm:2.17.0"
-    "@tailwindcss/postcss": "npm:^4.1.11"
-    "@types/react": "npm:19.1.9"
-    "@types/react-dom": "npm:19.1.7"
-    autoprefixer: "npm:10.4.21"
-    isbot: "npm:5.1.29"
-    postcss: "npm:8.5.6"
-    react: "npm:19.1.1"
-    react-dom: "npm:19.1.1"
-    tailwindcss: "npm:4.1.11"
-    vite: "npm:7.0.6"
-    vite-tsconfig-paths: "npm:5.1.4"
   languageName: unknown
   linkType: soft
 
