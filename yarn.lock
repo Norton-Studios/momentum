@@ -2776,17 +2776,6 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@mmtm/resource-data-source-run@workspace:libs/plugins/resources/data-source-run":
-  version: 0.0.0-use.local
-  resolution: "@mmtm/resource-data-source-run@workspace:libs/plugins/resources/data-source-run"
-  dependencies:
-    "@mmtm/database": "workspace:^"
-  peerDependencies:
-    "@types/express": ^5.0.3
-    express: ^5.1.0
-  languageName: unknown
-  linkType: soft
-
 "@mmtm/resource-merge-request@workspace:libs/plugins/resources/merge-request":
   version: 0.0.0-use.local
   resolution: "@mmtm/resource-merge-request@workspace:libs/plugins/resources/merge-request"
