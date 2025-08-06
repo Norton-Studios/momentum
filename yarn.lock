@@ -1264,7 +1264,7 @@ __metadata:
     vite: "npm:7.0.6"
     vite-plugin-node: "npm:7.0.0"
     vite-tsconfig-paths: "npm:5.1.4"
-    zod: "npm:4.0.14"
+    zod: "npm:4.0.15"
   languageName: unknown
   linkType: soft
 
@@ -1398,7 +1398,7 @@ __metadata:
     "@mmtm/database": "workspace:*"
     "@types/bcrypt": "npm:6.0.0"
     bcrypt: "npm:6.0.0"
-    zod: "npm:4.0.14"
+    zod: "npm:4.0.15"
   peerDependencies:
     "@types/express": ^5.0.3
     express: ^5.1.0
@@ -10176,10 +10176,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"zod@npm:4.0.14":
-  version: 4.0.14
-  resolution: "zod@npm:4.0.14"
-  checksum: 10c0/ec8681050d393f3be1c2c8f30d7dd4f56bec3746855fb17288be856185a0fe65e68d1b24aec657bbf956f64c05e69332d3751eafd6c103d19385bcc46075612b
+"zod@npm:4.0.15":
+  version: 4.0.15
+  resolution: "zod@npm:4.0.15"
+  checksum: 10c0/c4d5b0c6668fe32fb6040d713d75dbf65e2e46cb68c77755b7b66426e8583d5dacf49a44f90beb6b12aa1aa2545cc0d3c186e368711021e11dd3c1f0addb9100
   languageName: node
   linkType: hard
 
