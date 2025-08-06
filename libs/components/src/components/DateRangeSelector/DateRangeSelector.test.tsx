@@ -64,9 +64,9 @@ describe("DateRangeSelector", () => {
     const trigger = screen.getByRole("button");
     fireEvent.click(trigger);
 
-    // Dropdown should be open - 30d in trigger and 7 days option should both be visible
+    // Dropdown should be open - should see both trigger and dropdown options
+    expect(screen.getAllByText("30 days")).toHaveLength(2); // trigger + dropdown option
     expect(screen.getByText("7 days")).toBeInTheDocument();
-    expect(screen.getByText("30 days")).toBeInTheDocument();
 
     // Click the 7 days option
     const sevenDayOption = screen.getAllByText("7 days").find((el) => el.tagName === "BUTTON");

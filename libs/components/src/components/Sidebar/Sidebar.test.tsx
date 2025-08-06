@@ -48,8 +48,8 @@ describe("Sidebar", () => {
   it("should indicate active item", () => {
     render(<Sidebar items={mockItems} activeItem="dashboard" />);
 
-    const dashboardButton = screen.getByText("Dashboard");
-    expect(dashboardButton.className).toContain("active");
+    const dashboardButton = screen.getByText("Dashboard").closest("button");
+    expect(dashboardButton?.className).toContain("active");
   });
 
   it("should expand parent items with children", () => {
@@ -99,8 +99,8 @@ describe("Sidebar", () => {
   it("should render chevron for items with children", () => {
     const { container } = render(<Sidebar items={mockItems} />);
 
-    const settingsButton = screen.getByText("Settings");
-    const chevron = settingsButton.querySelector("svg");
+    const settingsButton = screen.getByText("Settings").closest("button");
+    const chevron = settingsButton?.querySelector("svg");
     expect(chevron).toBeInTheDocument();
   });
 
@@ -118,7 +118,7 @@ describe("Sidebar", () => {
     const settingsButton = screen.getByText("Settings");
     fireEvent.click(settingsButton);
 
-    const profileButton = screen.getByText("Profile");
+    const profileButton = screen.getByText("Profile").closest("button");
     // Child items should have increased padding for nesting
     expect(profileButton).toHaveStyle("padding-left: 32px"); // 16 + 16 for level 1
   });
@@ -228,8 +228,8 @@ describe("Sidebar", () => {
     expect(screen.getByTestId("app-footer")).toBeInTheDocument();
 
     // Check active state
-    const dashboardButton = screen.getByText("Dashboard");
-    expect(dashboardButton.className).toContain("active");
+    const dashboardButton = screen.getByText("Dashboard").closest("button");
+    expect(dashboardButton?.className).toContain("active");
 
     // Check icons
     expect(screen.getByTestId("dashboard-icon")).toBeInTheDocument();
