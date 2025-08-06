@@ -38,8 +38,7 @@
     "@vitejs/plugin-react": "4.2.1",
     "storybook": "7.6.10",
     "typescript": "5.9.2",
-    "vite": "5.0.12",
-    "vitest": "3.2.4"
+    "vite": "5.0.12"
   },
   "peerDependencies": {
     "react": "^18.0.0",

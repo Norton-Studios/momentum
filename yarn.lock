@@ -2680,7 +2680,6 @@ __metadata:
     react-dom: "npm:18.2.0"
     tsup: "npm:8.0.1"
     typescript: "npm:5.9.2"
-    vitest: "npm:3.2.4"
   peerDependencies:
     react: ^18.0.0
     react-dom: ^18.0.0
@@ -2852,7 +2851,6 @@ __metadata:
     storybook: "npm:7.6.10"
     typescript: "npm:5.9.2"
     vite: "npm:5.0.12"
-    vitest: "npm:3.2.4"
   peerDependencies:
     react: ^18.0.0
     react-dom: ^18.0.0
