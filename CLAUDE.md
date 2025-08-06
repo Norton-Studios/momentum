@@ -223,6 +223,8 @@ routes.forEach(route => {
 6. **Don't add dependencies with ~ or ^** - Use exact versions
 7. **Don't use CommonJS** - Always use ES modules with `import`/`export`, never `require()`/`module.exports`
 8. **Don't forget `"type": "module"`** in package.json files - This is required for ES modules
+9. **Don't ignore linting errors** - Always fix or acknowledge linting errors before merging
+10. **Don't add dependencies if they are already in the root project** - workspaces inherit dependencies from the root package.json so don't duplicate them in other package.json files
 
 ## Performance Considerations
 
