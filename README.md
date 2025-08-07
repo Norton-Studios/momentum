@@ -37,17 +37,19 @@ The application will be available at:
 
 ```
 momentum/
-├── apps/              # Core applications
-│   ├── api/           # Express API server
-│   ├── frontend/      # Remix web application
-│   ├── crons/         # Scheduled job processor
-│   └── database/      # Prisma schema management
-├── plugins/           # Extensible modules
-│   ├── resources/     # Data models (team, repository, etc.)
-│   ├── data-sources/  # External integrations (GitHub, etc.)
-│   └── reports/       # Analytics and insights
-├── documentation/     # Architecture docs and ADRs
-└── e2e-tests/         # End-to-end test suite
+├── apps/                  # Core applications
+│   ├── api/               # Express API server
+│   ├── frontend/          # Remix web application
+│   ├── crons/             # Scheduled job processor
+│   └── database/          # Prisma schema management
+├── libs
+│   ├── components/        # Extensible modules
+│   ├── plugins/           # Extensible modules
+│   │   ├── resources/     # Data models (team, repository, etc.)
+│   │   ├── data-sources/  # External integrations (GitHub, etc.)
+│   │   └── reports/       # Analytics and insights
+├── docs/                  # Architecture docs and ADRs
+└── e2e-tests/             # End-to-end test suite
 ```
 
 ## Core Commands
