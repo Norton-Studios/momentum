@@ -152,6 +152,7 @@ routes.forEach(route => {
 - **Test Database**: Use transactions or test containers for isolation
 - **Coverage**: Aim for high coverage on business logic and API endpoints
 - **Test Scripts**: All packages must use `"test": "vitest run"` for non-interactive testing (required for CI/CD)
+- **Single Package Testing**: To run tests for a specific package, use Turbo from root: `yarn test --filter=@mmtm/package-name` instead of `yarn workspace @mmtm/package-name test` (the latter may fail with "command not found: vitest" since vitest is a root dependency)
 
 ## Code Quality Standards
 

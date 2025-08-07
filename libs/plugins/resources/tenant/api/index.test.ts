@@ -542,7 +542,6 @@ describe("Tenant API", () => {
       expect(response.body).toHaveLength(1);
       expect(response.body[0]).toHaveProperty("dataSource", "github");
     });
-
   });
 
   describe("Error Handling", () => {
