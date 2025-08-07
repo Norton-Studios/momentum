@@ -2,7 +2,7 @@
   "hooks": {
     "PreToolUse": [
       {
-        "matcher": "Git(commit:*)|Bash(^git\\s+commit\\b.*)",
+        "matcher": "Git(commit*)|Bash(^git commit*)",
         "hooks": [
           { "type": "command", "command": "cd $CLAUDE_PROJECT_DIR && yarn test" },
           { "type": "command", "command": "cd $CLAUDE_PROJECT_DIR && yarn build" },
