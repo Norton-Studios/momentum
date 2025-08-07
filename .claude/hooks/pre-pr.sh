@@ -40,6 +40,15 @@ if ! yarn build; then
     exit 2
 fi
 
+# Run build to ensure everything compiles
+echo "Running e2e tests..."
+log_hook "Starting e2e tests"
+if ! yarn test:e2e; then
+    echo "❌ e2e tests failed"
+    log_hook "e2e tests failed"
+    exit 2
+fi
+
 # Check for any uncommitted changes
 log_hook "Checking for uncommitted changes"
 if ! git diff --quiet; then
