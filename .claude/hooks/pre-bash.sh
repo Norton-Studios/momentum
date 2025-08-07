@@ -7,12 +7,10 @@
 set -e
 
 # Get the command that Claude is about to run
-# Try to get command from arguments first, then stdin
-if [ $# -gt 0 ]; then
-    COMMAND="$*"
-else
-    COMMAND=$(cat)
-fi
+# The hook receives JSON data via stdin with the command in tool_input.command
+JSON_INPUT=$(cat)
+# Extract the command from JSON using bash string manipulation to avoid jq dependency
+COMMAND=$(echo "$JSON_INPUT" | sed -n 's/.*"command":"\([^"]*\)".*/\1/p')
 
 # Log the command for debugging
 echo "PRE-TOOL: $COMMAND" >> "$CLAUDE_PROJECT_DIR/.claude/pretool.log"

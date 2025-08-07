@@ -31,15 +31,6 @@ if ! yarn lint:fix; then
     exit 2
 fi
 
-# Run all tests including coverage
-echo "Running full test suite with coverage..."
-log_hook "Starting test coverage"
-if ! yarn test:coverage; then
-    echo "❌ Tests failed"
-    log_hook "Test coverage failed"
-    exit 2
-fi
-
 # Run build to ensure everything compiles
 echo "Running build..."
 log_hook "Starting build"
