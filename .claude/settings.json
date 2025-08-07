@@ -2,7 +2,7 @@
   "hooks": {
     "PreToolUse": [
       {
-        "matcher": "Bash(^git\s+commit\b.*)",
+        "matcher": "Bash\(git\s+commit\b.*\)",
         "hooks": [
           {
             "type": "command",
