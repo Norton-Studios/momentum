@@ -1,19 +1,7 @@
 {
+  "enableAllProjectMcpServers": true,
   "hooks": {
-    "PostToolUse": [
-      {
-        "matcher": "Edit|Write|MultiEdit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "cd $CLAUDE_PROJECT_DIR && yarn format"
-          },
-          {
-            "type": "command",
-            "command": "cd $CLAUDE_PROJECT_DIR && yarn lint:fix"
-          }
-        ]
-      },
+    "PreToolUse": [
       {
         "matcher": "Bash(git commit:*)",
         "hooks": [
@@ -33,6 +21,21 @@
           {
             "type": "command",
             "command": "cd $CLAUDE_PROJECT_DIR && yarn test:e2e"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd $CLAUDE_PROJECT_DIR && yarn format"
+          },
+          {
+            "type": "command",
+            "command": "cd $CLAUDE_PROJECT_DIR && if yarn lint:fix; then echo '✅ LINTING COMPLETE - All issues resolved. Claude may proceed.'; else echo '❌ LINTING FAILED - Claude must investigate and fix remaining issues before proceeding!'; exit 1; fi"
           }
         ]
       }

@@ -1,80 +1,75 @@
 import { Router, type Response } from "express";
 import type { PrismaClient } from "@mmtm/database";
 import { z } from "zod";
-import bcrypt from "bcrypt";
-import crypto from "node:crypto";
-import type { AuthenticatedRequest } from "../../../../apps/api/src/middleware/auth";
+// TODO: Fix auth middleware import path
+type AuthenticatedRequest = any;
+import { generateSecurePassword, generateApiToken, hashPassword } from "../lib/auth-utils.js";
 
 const router = Router();
-
-const SALT_ROUNDS = 10;
 
 const CreateTenantSchema = z.object({
   name: z
     .string()
     .min(1)
-    .regex(/^[a-zA-Z0-9-_]+$/, "Name must be alphanumeric with hyphens and underscores only"),
-  adminEmail: z.string().email(),
+    .regex(/^[a-zA-Z0-9-_]+$/, {
+      message: "Name must be alphanumeric with hyphens and underscores only",
+    }),
+  adminEmail: z.string().email({}),
 });
 
 const UpdateTenantSchema = z.object({
   name: z
     .string()
     .min(1)
-    .regex(/^[a-zA-Z0-9-_]+$/, "Name must be alphanumeric with hyphens and underscores only")
+    .regex(/^[a-zA-Z0-9-_]+$/, {
+      message: "Name must be alphanumeric with hyphens and underscores only",
+    })
     .optional(),
 });
 
 const CreateUserSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(8),
+  email: z.string().email({}),
+  fullName: z.string().optional(),
+  password: z.string().min(8).optional(),
   isAdmin: z.boolean().optional().default(false),
+  ssoProvider: z.string().optional(),
+  ssoProviderId: z.string().optional(),
 });
 
 const UpdateUserSchema = z.object({
-  email: z.string().email().optional(),
+  email: z.string().email({}).optional(),
+  fullName: z.string().optional(),
   password: z.string().min(8).optional(),
   isAdmin: z.boolean().optional(),
+  ssoProvider: z.string().optional(),
+  ssoProviderId: z.string().optional(),
 });
 
 const TenantDataSourceConfigSchema = z.object({
   dataSource: z.string().min(1),
+  instanceId: z.string().optional(),
   key: z.string().min(1),
   value: z.string(),
 });
 
-function generateSecurePassword(): string {
-  const PASSWORD_LENGTH = 16;
-  const LOWERCASE_CHARS = "abcdefghijklmnopqrstuvwxyz";
-  const UPPERCASE_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-  const NUMERIC_CHARS = "0123456789";
-  const SPECIAL_CHARS = "!@#$%^&*()_+-=";
-  const PASSWORD_CHARSET = LOWERCASE_CHARS + UPPERCASE_CHARS + NUMERIC_CHARS + SPECIAL_CHARS;
-  let password = "";
-  const randomBytes = crypto.randomBytes(PASSWORD_LENGTH);
+const _OnboardingProgressSchema = z.object({
+  currentStep: z.string(),
+  completedSteps: z.array(z.string()),
+  wizardData: z.record(z.string(), z.any()),
+  completed: z.boolean().optional().default(false),
+});
 
-  // Ensure at least one of each type
-  const requirements = [LOWERCASE_CHARS, UPPERCASE_CHARS, NUMERIC_CHARS, SPECIAL_CHARS];
-
-  requirements.forEach((req, index) => {
-    password += req[randomBytes[index] % req.length];
-  });
-
-  // Fill the rest randomly
-  for (let i = requirements.length; i < PASSWORD_LENGTH; i++) {
-    password += PASSWORD_CHARSET[randomBytes[i] % PASSWORD_CHARSET.length];
-  }
-
-  // Shuffle the password
-  return password
-    .split("")
-    .sort(() => Math.random() - 0.5)
-    .join("");
-}
-
-function generateApiToken(): string {
-  return crypto.randomBytes(32).toString("hex");
-}
+const _SignupSchema = z.object({
+  organizationName: z.string().min(1),
+  fullName: z.string().min(1),
+  email: z.string().email({}),
+  password: z
+    .string()
+    .min(12)
+    .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?])/, {
+      message: "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character",
+    }),
+});
 
 // POST /tenant - Create a new tenant (requires system admin token)
 // This endpoint is special - it bypasses normal auth and uses system admin token
@@ -98,7 +93,7 @@ router.post("/tenant", async (req: any, res: Response) => {
 
     // Generate admin credentials
     const adminPassword = generateSecurePassword();
-    const hashedPassword = await bcrypt.hash(adminPassword, SALT_ROUNDS);
+    const hashedPassword = await hashPassword(adminPassword);
     const apiToken = generateApiToken();
 
     // Create tenant record with admin user
@@ -111,6 +106,13 @@ router.post("/tenant", async (req: any, res: Response) => {
             password: hashedPassword,
             apiToken,
             isAdmin: true,
+          },
+        },
+        onboardingProgress: {
+          create: {
+            currentStep: "data-sources",
+            completedSteps: [],
+            wizardData: {},
           },
         },
       },
@@ -141,7 +143,7 @@ router.post("/tenant", async (req: any, res: Response) => {
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ error: "Invalid request data", details: error.errors });
+      return res.status(400).json({ error: "Invalid request data", details: error.issues });
     }
     console.error("Error creating tenant:", error);
     res.status(500).json({ error: "Failed to create tenant" });
@@ -161,6 +163,7 @@ router.get("/tenants", async (req: AuthenticatedRequest, res: Response) => {
             tenantDataSourceConfigs: true,
           },
         },
+        onboardingProgress: true,
       },
     });
     res.json(tenants);
@@ -188,6 +191,7 @@ router.get("/tenants/:id", async (req: AuthenticatedRequest, res: Response) => {
           },
         },
         tenantDataSourceConfigs: true,
+        onboardingProgress: true,
       },
     });
 
@@ -219,7 +223,7 @@ router.patch("/tenants/:id", async (req: AuthenticatedRequest, res: Response) =>
     res.json(tenant);
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ error: "Invalid request data", details: error.errors });
+      return res.status(400).json({ error: "Invalid request data", details: error.issues });
     }
     console.error("Error updating tenant:", error);
     res.status(500).json({ error: "Failed to update tenant" });
@@ -272,17 +276,25 @@ router.post("/tenants/:tenantId/users", async (req: AuthenticatedRequest, res: R
 
   try {
     const data = CreateUserSchema.parse(req.body);
-    const hashedPassword = await bcrypt.hash(data.password, SALT_ROUNDS);
+    const hashedPassword = data.password ? await hashPassword(data.password) : undefined;
     const apiToken = generateApiToken();
 
+    const userData: any = {
+      tenantId,
+      email: data.email,
+      apiToken,
+      isAdmin: data.isAdmin,
+      fullName: data.fullName,
+      ssoProvider: data.ssoProvider,
+      ssoProviderId: data.ssoProviderId,
+    };
+
+    if (data.password) {
+      userData.password = hashedPassword;
+    }
+
     const user = await db.user.create({
-      data: {
-        tenantId,
-        email: data.email,
-        password: hashedPassword,
-        apiToken,
-        isAdmin: data.isAdmin,
-      },
+      data: userData,
       select: {
         id: true,
         email: true,
@@ -295,7 +307,7 @@ router.post("/tenants/:tenantId/users", async (req: AuthenticatedRequest, res: R
     res.status(201).json(user);
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ error: "Invalid request data", details: error.errors });
+      return res.status(400).json({ error: "Invalid request data", details: error.issues });
     }
     console.error("Error creating user:", error);
     res.status(500).json({ error: "Failed to create user" });
@@ -308,10 +320,16 @@ router.patch("/users/:id", async (req: AuthenticatedRequest, res: Response) => {
 
   try {
     const data = UpdateUserSchema.parse(req.body);
-    const updateData: any = { ...data };
+    const updateData: any = {
+      email: data.email,
+      fullName: data.fullName,
+      isAdmin: data.isAdmin,
+      ssoProvider: data.ssoProvider,
+      ssoProviderId: data.ssoProviderId,
+    };
 
     if (data.password) {
-      updateData.password = await bcrypt.hash(data.password, SALT_ROUNDS);
+      updateData.password = await hashPassword(data.password);
     }
 
     const user = await db.user.update({
@@ -329,7 +347,7 @@ router.patch("/users/:id", async (req: AuthenticatedRequest, res: Response) => {
     res.json(user);
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ error: "Invalid request data", details: error.errors });
+      return res.status(400).json({ error: "Invalid request data", details: error.issues });
     }
     console.error("Error updating user:", error);
     res.status(500).json({ error: "Failed to update user" });
@@ -379,14 +397,17 @@ router.post("/tenants/:tenantId/configs", async (req: AuthenticatedRequest, res:
     const config = await db.tenantDataSourceConfig.create({
       data: {
         tenantId,
-        ...data,
+        dataSource: data.dataSource,
+        instanceId: data.instanceId,
+        key: data.key,
+        value: data.value,
       },
     });
 
     res.status(201).json(config);
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ error: "Invalid request data", details: error.errors });
+      return res.status(400).json({ error: "Invalid request data", details: error.issues });
     }
     console.error("Error creating config:", error);
     res.status(500).json({ error: "Failed to create config" });
@@ -401,9 +422,10 @@ router.put("/tenants/:tenantId/configs/:dataSource/:key", async (req: Authentica
   try {
     const config = await db.tenantDataSourceConfig.upsert({
       where: {
-        tenantId_dataSource_key: {
+        tenantId_dataSource_instanceId_key: {
           tenantId,
           dataSource,
+          instanceId: null as any,
           key,
         },
       },
@@ -430,9 +452,10 @@ router.delete("/tenants/:tenantId/configs/:dataSource/:key", async (req: Authent
   try {
     await db.tenantDataSourceConfig.delete({
       where: {
-        tenantId_dataSource_key: {
+        tenantId_dataSource_instanceId_key: {
           tenantId,
           dataSource,
+          instanceId: null as any,
           key,
         },
       },
@@ -442,6 +465,115 @@ router.delete("/tenants/:tenantId/configs/:dataSource/:key", async (req: Authent
   } catch (error) {
     console.error("Error deleting config:", error);
     res.status(500).json({ error: "Failed to delete config" });
+  }
+});
+
+// Onboarding endpoints
+router.get("/tenants/:tenantId/onboarding", async (req: AuthenticatedRequest, res: Response) => {
+  const db = req.app.get("db") as PrismaClient;
+  const { tenantId } = req.params;
+
+  try {
+    const { getOnboardingProgress } = await import("../hooks/onboarding-progress.js");
+    const progress = await getOnboardingProgress(tenantId, db);
+
+    if (!progress) {
+      return res.status(404).json({ error: "Onboarding progress not found" });
+    }
+
+    res.json(progress);
+  } catch (error) {
+    console.error("Error fetching onboarding progress:", error);
+    res.status(500).json({ error: "Failed to fetch onboarding progress" });
+  }
+});
+
+router.put("/tenants/:tenantId/onboarding", async (req: AuthenticatedRequest, res: Response) => {
+  const db = req.app.get("db") as PrismaClient;
+  const { tenantId } = req.params;
+
+  try {
+    const data = _OnboardingProgressSchema.parse(req.body);
+
+    const { updateOnboardingProgress } = await import("../hooks/onboarding-progress.js");
+    const progress = await updateOnboardingProgress(tenantId, data.currentStep, data.completedSteps, data.wizardData, db);
+
+    res.json(progress);
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ error: "Invalid request data", details: error.issues });
+    }
+    console.error("Error updating onboarding progress:", error);
+    res.status(500).json({ error: "Failed to update onboarding progress" });
+  }
+});
+
+// Signup endpoint for onboarding
+router.post("/signup", async (req: any, res: Response) => {
+  const db = req.app.get("db") as PrismaClient;
+
+  try {
+    const data = _SignupSchema.parse(req.body);
+
+    // Use hooks for validation and account creation
+    const { validateOrganizationName } = await import("../hooks/organization.js");
+    const { createUserAccount } = await import("../hooks/user-account.js");
+
+    // Check if organization name is unique
+    const isAvailable = await validateOrganizationName(data.organizationName, db);
+    if (!isAvailable) {
+      return res.status(409).json({ error: "Organization name already exists" });
+    }
+
+    // Create tenant with admin user and onboarding progress
+    const tenant = await createUserAccount(
+      {
+        organizationName: data.organizationName,
+        fullName: data.fullName,
+        email: data.email,
+        password: data.password,
+      },
+      db,
+    );
+
+    res.status(201).json({
+      tenant: {
+        id: tenant.id,
+        name: tenant.name,
+      },
+      user: tenant.users[0],
+      onboardingProgress: tenant.onboardingProgress,
+      message: "Account created successfully. Welcome to Momentum!",
+    });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ error: "Invalid request data", details: error.issues });
+    }
+    console.error("Error creating account:", error);
+    res.status(500).json({ error: "Failed to create account" });
+  }
+});
+
+// Validate organization name endpoint
+router.post("/validate-organization", async (req: any, res: Response) => {
+  const db = req.app.get("db") as PrismaClient;
+  const { name } = req.body;
+
+  if (!name) {
+    return res.status(400).json({ error: "Organization name is required" });
+  }
+
+  try {
+    const { validateOrganizationName } = await import("../hooks/organization.js");
+    const isAvailable = await validateOrganizationName(name, db);
+
+    res.json({
+      available: isAvailable,
+      message: isAvailable ? "Organization name is available" : "Organization name already exists",
+    });
+  } catch (error) {
+    console.error("Error validating organization name:", error);
+    res.status(500).json({ error: "Failed to validate organization name" });
   }
 });
 

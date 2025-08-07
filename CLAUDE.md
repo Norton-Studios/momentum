@@ -163,6 +163,7 @@ routes.forEach(route => {
 - **Module System**: Use ES modules exclusively - add `"type": "module"` to all package.json files
 - **Express Version**: All packages must use Express 5.x (`"express": "^5.1.0"` and `"@types/express": "^5.0.3"`)
 - **Plugin Dependencies**: Resource and data source plugins should use Express as a peerDependency, not a direct dependency
+- **MANDATORY**: If hooks report failures, Claude must investigate and resolve them immediately
 
 ## Development Workflow
 

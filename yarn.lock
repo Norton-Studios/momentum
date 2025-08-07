@@ -2702,14 +2702,19 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@mmtm/dashboard@workspace:apps/dashboard"
   dependencies:
+    "@mmtm/components": "workspace:*"
+    "@mmtm/database": "workspace:*"
+    "@mmtm/resource-tenant": "workspace:*"
     "@remix-run/dev": "npm:2.17.0"
     "@remix-run/node": "npm:2.17.0"
     "@remix-run/react": "npm:2.17.0"
     "@remix-run/serve": "npm:2.17.0"
     "@tailwindcss/postcss": "npm:^4.1.11"
+    "@types/bcrypt": "npm:6.0.0"
     "@types/react": "npm:19.1.9"
     "@types/react-dom": "npm:19.1.7"
     autoprefixer: "npm:10.4.21"
+    bcrypt: "npm:6.0.0"
     isbot: "npm:5.1.29"
     postcss: "npm:8.5.6"
     react: "npm:19.1.1"
@@ -2809,7 +2814,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@mmtm/resource-tenant@workspace:libs/plugins/resources/tenant":
+"@mmtm/resource-tenant@workspace:*, @mmtm/resource-tenant@workspace:libs/plugins/resources/tenant":
   version: 0.0.0-use.local
   resolution: "@mmtm/resource-tenant@workspace:libs/plugins/resources/tenant"
   dependencies:

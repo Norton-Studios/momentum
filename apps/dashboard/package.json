@@ -12,9 +12,13 @@
     "test:ui": "vitest --ui"
   },
   "dependencies": {
+    "@mmtm/components": "workspace:*",
+    "@mmtm/database": "workspace:*",
+    "@mmtm/resource-tenant": "workspace:*",
     "@remix-run/node": "2.17.0",
     "@remix-run/react": "2.17.0",
     "@remix-run/serve": "2.17.0",
+    "bcrypt": "6.0.0",
     "isbot": "5.1.29",
     "react": "19.1.1",
     "react-dom": "19.1.1"
@@ -22,6 +26,7 @@
   "devDependencies": {
     "@remix-run/dev": "2.17.0",
     "@tailwindcss/postcss": "^4.1.11",
+    "@types/bcrypt": "6.0.0",
     "@types/react": "19.1.9",
     "@types/react-dom": "19.1.7",
     "autoprefixer": "10.4.21",

@@ -54,6 +54,10 @@ export class E2EEnvironment {
         systemAdminToken: this.SYSTEM_ADMIN_TOKEN,
       };
 
+      // Set environment variables for tests
+      process.env.E2E_FRONTEND_URL = this.state.dashboardUrl;
+      process.env.E2E_API_URL = this.state.apiUrl;
+
       console.log("✅ E2E environment ready!");
       console.log(`📍 API: ${this.state.apiUrl}`);
       console.log(`📍 Dashboard: ${this.state.dashboardUrl}`);

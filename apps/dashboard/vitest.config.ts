@@ -4,6 +4,10 @@ import rootConfig from "../../vitest.config";
 export default mergeConfig(
   rootConfig,
   defineConfig({
-    // custom config can go here if needed
+    test: {
+      env: {
+        SESSION_SECRET: "test-session-secret-for-vitest",
+      },
+    },
   }),
 );
