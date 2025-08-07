@@ -19,7 +19,7 @@
     "format": "biome format ./src --write"
   },
   "dependencies": {
-    "chart.js": "4.4.1",
+    "chart.js": "4.5.0",
     "clsx": "2.1.0",
     "react-chartjs-2": "5.2.0"
   },
