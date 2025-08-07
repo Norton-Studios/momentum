@@ -2,20 +2,15 @@
   "hooks": {
     "PreToolUse": [
       {
-        "matcher": "Bash\(git\s+commit\b.*\)",
+        "matcher": "Bash.git\\s+commit\\b.*",
         "hooks": [
-          {
-            "type": "command",
-            "command": "echo \"COMMAND RAN $CLAUDE_FLOW_COMMAND\" >> $CLAUDE_PROJECT_DIR/.claude/pretool.log"
-          },
-          { "type": "command", "command": "cd $CLAUDE_PROJECT_DIR && yarn test" },
-          { "type": "command", "command": "cd $CLAUDE_PROJECT_DIR && yarn build" }
+          { "type": "command", "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/pre-commit.sh" }
         ]
       },
       {
         "matcher": "Bash(^gh\\s+pr\\s+create\\b.*)|Git(pr:create:*)",
         "hooks": [
-          { "type": "command", "command": "cd $CLAUDE_PROJECT_DIR && yarn test:e2e" }
+          { "type": "command", "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/pre-pr.sh" }
         ]
       }
     ],
@@ -23,8 +18,7 @@
       {
         "matcher": "Edit|Write|MultiEdit",
         "hooks": [
-          { "type": "command", "command": "cd $CLAUDE_PROJECT_DIR && yarn format" },
-          { "type": "command", "command": "cd $CLAUDE_PROJECT_DIR && if yarn lint:fix; then echo '✅ LINT OK'; else echo '❌ LINT FAIL'; exit 1; fi" }
+          { "type": "command", "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/post-write.sh" }
         ]
       }
     ]
