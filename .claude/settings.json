@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "echo \"PRE $CLAUDE_FLOW_COMMAND\" >> $CLAUDE_PROJECT_DIR/.claude/pretool.log"
+            "command": "echo \"COMMAND RAN $CLAUDE_FLOW_COMMAND\" >> $CLAUDE_PROJECT_DIR/.claude/pretool.log"
           }
         ]
       },
