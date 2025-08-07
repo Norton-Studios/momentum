@@ -37,13 +37,13 @@ const { createUserSession, validateOrganizationName, createUserAccount } = await
 const bcrypt = await import("bcrypt");
 const { createUserSessionAndRedirect } = await import("~/utils/session.server");
 
-const mockUserFindUnique = vi.mocked(mockDb.user.findUnique);
-const mockUserCreate = vi.mocked(mockDb.user.create);
-const mockTenantCreate = vi.mocked(mockDb.tenant.create);
+const _mockUserFindUnique = vi.mocked(mockDb.user.findUnique);
+const _mockUserCreate = vi.mocked(mockDb.user.create);
+const _mockTenantCreate = vi.mocked(mockDb.tenant.create);
 const mockCreateUserSession = vi.mocked(createUserSession);
 const mockValidateOrganizationName = vi.mocked(validateOrganizationName);
 const mockCreateUserAccount = vi.mocked(createUserAccount);
-const mockBcryptHash = vi.mocked(bcrypt.hash);
+const _mockBcryptHash = vi.mocked(bcrypt.hash);
 const mockCreateUserSessionAndRedirect = vi.mocked(createUserSessionAndRedirect);
 
 describe("auth.signup", () => {
@@ -134,12 +134,14 @@ describe("auth.signup", () => {
       const mockTenant = {
         id: "tenant-1",
         name: "Test Organization",
-        users: [{
-          id: "user-1",
-          email: "test@example.com",
-          fullName: "Test User",
-          tenantId: "tenant-1",
-        }]
+        users: [
+          {
+            id: "user-1",
+            email: "test@example.com",
+            fullName: "Test User",
+            tenantId: "tenant-1",
+          },
+        ],
       };
       const mockUserSession = {
         id: "session-1",
@@ -162,18 +164,16 @@ describe("auth.signup", () => {
       const response = await action({ request, context: {}, params: {} });
 
       expect(mockValidateOrganizationName).toHaveBeenCalledWith("Test Org", mockDb);
-      expect(mockCreateUserAccount).toHaveBeenCalledWith({
-        organizationName: "Test Org",
-        fullName: "Test User",
-        email: "test@example.com",
-        password: "password123",
-      }, mockDb);
-      expect(mockCreateUserSession).toHaveBeenCalledWith(
-        "user-1",
-        { onboarding: true },
-        30,
-        mockDb
+      expect(mockCreateUserAccount).toHaveBeenCalledWith(
+        {
+          organizationName: "Test Org",
+          fullName: "Test User",
+          email: "test@example.com",
+          password: "password123",
+        },
+        mockDb,
       );
+      expect(mockCreateUserSession).toHaveBeenCalledWith("user-1", { onboarding: true }, 30, mockDb);
       expect(response).toBe(mockRedirectResponse);
     });
 
@@ -184,22 +184,19 @@ describe("auth.signup", () => {
       const request = createRequest(formData);
 
       const response = await action({ request, context: {}, params: {} });
-      
+
       expect(response.status).toBe(500);
-      
+
       // Try to parse JSON, but handle cases where it might not be JSON
       try {
         const data = await response.json();
         expect(data.error).toBe("Failed to create account");
-      } catch (e) {
+      } catch (_e) {
         // Response might not be JSON in error cases, that's ok
         expect(response.status).toBe(500);
       }
-      
-      expect(console.error).toHaveBeenCalledWith(
-        "Signup error:",
-        expect.any(Error)
-      );
+
+      expect(console.error).toHaveBeenCalledWith("Signup error:", expect.any(Error));
     });
   });
 
@@ -210,9 +207,9 @@ describe("auth.signup", () => {
         email: "test@example.com",
         fullName: "Test User",
         organizationName: "Test Organization",
-        password: "password123"
+        password: "password123",
       };
-      
+
       expect(userData.email).toBe("test@example.com");
       expect(userData.fullName).toBe("Test User");
       expect(userData.organizationName).toBe("Test Organization");
@@ -221,10 +218,10 @@ describe("auth.signup", () => {
 
     it("should handle form validation correctly", () => {
       // Test form validation logic
-      const isValidEmail = (email: string) => email && email.includes("@");
+      const isValidEmail = (email: string) => email?.includes("@");
       const isValidPassword = (password: string) => password && password.length >= 8;
       const isValidName = (name: string) => !!(name && name.trim().length > 0);
-      
+
       expect(isValidEmail("test@example.com")).toBe(true);
       expect(isValidEmail("invalid-email")).toBe(false);
       expect(isValidPassword("password123")).toBe(true);
@@ -237,9 +234,9 @@ describe("auth.signup", () => {
       // Test navigation configuration
       const navigationConfig = {
         signInUrl: "/auth/signin",
-        dashboardUrl: "/dashboard"
+        dashboardUrl: "/dashboard",
       };
-      
+
       expect(navigationConfig.signInUrl).toBe("/auth/signin");
       expect(navigationConfig.dashboardUrl).toBe("/dashboard");
     });
@@ -248,11 +245,8 @@ describe("auth.signup", () => {
   describe("meta function", () => {
     it("should return correct meta information", () => {
       const metaResult = meta();
-      
-      expect(metaResult).toEqual([
-        { title: "Sign Up - Momentum" },
-        { name: "description", content: "Create your Momentum account" }
-      ]);
+
+      expect(metaResult).toEqual([{ title: "Sign Up - Momentum" }, { name: "description", content: "Create your Momentum account" }]);
     });
   });
 });

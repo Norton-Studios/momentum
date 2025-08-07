@@ -35,7 +35,7 @@ describe("Logout Route", () => {
         status: 302,
         headers: { Location: "/auth/signin" },
       });
-      
+
       mockLogout.mockResolvedValue(mockRedirectResponse);
 
       const result = await loader({ request: mockRequest });
@@ -47,7 +47,7 @@ describe("Logout Route", () => {
     it("should handle logout errors gracefully", async () => {
       const mockRequest = new Request("http://localhost:3000/logout");
       const error = new Error("Session destruction failed");
-      
+
       mockLogout.mockRejectedValue(error);
 
       await expect(loader({ request: mockRequest })).rejects.toThrow("Session destruction failed");
@@ -60,7 +60,7 @@ describe("Logout Route", () => {
         status: 302,
         headers: { Location: "/auth/signin" },
       });
-      
+
       mockLogout.mockResolvedValue(mockRedirectResponse);
 
       const result = await loader({ request: mockRequest });
@@ -79,7 +79,7 @@ describe("Logout Route", () => {
         status: 302,
         headers: { Location: "/auth/signin" },
       });
-      
+
       mockLogout.mockResolvedValue(mockRedirectResponse);
 
       const result = await action({ request: mockRequest });
@@ -93,7 +93,7 @@ describe("Logout Route", () => {
         method: "POST",
       });
       const error = new Error("Database connection failed during logout");
-      
+
       mockLogout.mockRejectedValue(error);
 
       await expect(action({ request: mockRequest })).rejects.toThrow("Database connection failed during logout");
@@ -103,7 +103,7 @@ describe("Logout Route", () => {
     it("should work with form data in request", async () => {
       const formData = new FormData();
       formData.append("intent", "logout");
-      
+
       const mockRequest = new Request("http://localhost:3000/logout", {
         method: "POST",
         body: formData,
@@ -112,7 +112,7 @@ describe("Logout Route", () => {
         status: 302,
         headers: { Location: "/auth/signin" },
       });
-      
+
       mockLogout.mockResolvedValue(mockRedirectResponse);
 
       const result = await action({ request: mockRequest });
@@ -142,7 +142,7 @@ describe("Logout Route", () => {
 
       const mockRedirectResponse = new Response(null, {
         status: 302,
-        headers: { 
+        headers: {
           Location: "/auth/signin",
           "Set-Cookie": "momentum_session=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT",
         },
@@ -151,16 +151,16 @@ describe("Logout Route", () => {
       // Mock the session storage methods
       const mockGetSession = vi.fn().mockResolvedValue(mockSession);
       const mockDestroySession = vi.fn().mockResolvedValue("destroyed-session-cookie");
-      
+
       // Mock the actual logout implementation behavior
       mockLogout.mockImplementation(async (request) => {
         const session = await mockGetSession(request);
         const sessionToken = session.get("sessionToken");
-        
+
         if (sessionToken) {
           await mockDeleteUserSession(sessionToken, {} as any);
         }
-        
+
         return mockRedirect("/auth/signin", {
           headers: {
             "Set-Cookie": await mockDestroySession(session),
@@ -186,7 +186,7 @@ describe("Logout Route", () => {
 
       const mockRedirectResponse = new Response(null, {
         status: 302,
-        headers: { 
+        headers: {
           Location: "/auth/signin",
           "Set-Cookie": "momentum_session=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT",
         },
@@ -194,17 +194,17 @@ describe("Logout Route", () => {
 
       const mockGetSession = vi.fn().mockResolvedValue(mockSession);
       const mockDestroySession = vi.fn().mockResolvedValue("destroyed-session-cookie");
-      
+
       // Mock logout to simulate no session token scenario
       mockLogout.mockImplementation(async (request) => {
         const session = await mockGetSession(request);
         const sessionToken = session.get("sessionToken");
-        
+
         // Should not call deleteUserSession if no token
         if (sessionToken) {
           await mockDeleteUserSession(sessionToken, {} as any);
         }
-        
+
         return mockRedirect("/auth/signin", {
           headers: {
             "Set-Cookie": await mockDestroySession(session),
@@ -234,7 +234,7 @@ describe("Logout Route", () => {
 
       const mockRedirectResponse = new Response(null, {
         status: 302,
-        headers: { 
+        headers: {
           Location: "/auth/signin",
           "Set-Cookie": "momentum_session=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT",
         },
@@ -242,13 +242,13 @@ describe("Logout Route", () => {
 
       const mockGetSession = vi.fn().mockResolvedValue(mockSession);
       const mockDestroySession = vi.fn().mockResolvedValue("destroyed-session-cookie");
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-      
+      const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+
       // Mock logout to simulate database error during session deletion
       mockLogout.mockImplementation(async (request) => {
         const session = await mockGetSession(request);
         const sessionToken = session.get("sessionToken");
-        
+
         if (sessionToken) {
           try {
             await mockDeleteUserSession(sessionToken, {} as any);
@@ -256,7 +256,7 @@ describe("Logout Route", () => {
             console.error("Error deleting user session:", error);
           }
         }
-        
+
         return mockRedirect("/auth/signin", {
           headers: {
             "Set-Cookie": await mockDestroySession(session),
@@ -273,7 +273,7 @@ describe("Logout Route", () => {
       expect(mockLogout).toHaveBeenCalledWith(mockRequest);
       expect(mockDeleteUserSession).toHaveBeenCalledWith("valid-session-token", {});
       expect(result).toBe(mockRedirectResponse);
-      
+
       consoleSpy.mockRestore();
     });
   });
@@ -282,7 +282,7 @@ describe("Logout Route", () => {
     it("should propagate network errors", async () => {
       const mockRequest = new Request("http://localhost:3000/logout");
       const networkError = new Error("Network error during logout");
-      
+
       mockLogout.mockRejectedValue(networkError);
 
       await expect(loader({ request: mockRequest })).rejects.toThrow("Network error during logout");
@@ -293,7 +293,7 @@ describe("Logout Route", () => {
         method: "POST",
       });
       const timeoutError = new Error("Request timeout");
-      
+
       mockLogout.mockRejectedValue(timeoutError);
 
       await expect(action({ request: mockRequest })).rejects.toThrow("Request timeout");
@@ -305,7 +305,7 @@ describe("Logout Route", () => {
           Cookie: "momentum_session=malformed-data",
         },
       });
-      
+
       const sessionError = new Error("Invalid session data");
       mockLogout.mockRejectedValue(sessionError);
 
@@ -322,7 +322,7 @@ describe("Logout Route", () => {
         status: 302,
         headers: { Location: "/auth/signin" },
       });
-      
+
       mockLogout.mockResolvedValue(mockRedirectResponse);
 
       const result = await loader({ request: mockRequest });
@@ -339,7 +339,7 @@ describe("Logout Route", () => {
         status: 302,
         headers: { Location: "/auth/signin" },
       });
-      
+
       mockLogout.mockResolvedValue(mockRedirectResponse);
 
       const result = await action({ request: mockRequest });
@@ -356,7 +356,7 @@ describe("Logout Route", () => {
         status: 302,
         headers: { Location: "/auth/signin" },
       });
-      
+
       mockLogout.mockResolvedValue(mockRedirectResponse);
 
       const result = await action({ request: mockRequest });
@@ -377,7 +377,7 @@ describe("Logout Route", () => {
         status: 302,
         headers: { Location: "/auth/signin" },
       });
-      
+
       mockLogout.mockResolvedValue(mockRedirectResponse);
 
       const result = await loader({ request: mockRequest });
@@ -392,7 +392,7 @@ describe("Logout Route", () => {
         status: 302,
         headers: { Location: "/auth/signin" },
       });
-      
+
       mockLogout.mockResolvedValue(mockRedirectResponse);
 
       const result = await action({ request: mockRequest });
@@ -411,7 +411,7 @@ describe("Logout Route", () => {
         status: 302,
         headers: { Location: "/auth/signin" },
       });
-      
+
       mockLogout.mockResolvedValue(mockRedirectResponse);
 
       const result = await loader({ request: mockRequest });
@@ -428,7 +428,7 @@ describe("Logout Route", () => {
         status: 302,
         headers: { Location: "/auth/signin" },
       });
-      
+
       mockLogout.mockResolvedValue(mockRedirectResponse);
 
       const result = await loader({ request: mockRequest });
@@ -441,12 +441,12 @@ describe("Logout Route", () => {
       const mockRequest = new Request("http://localhost:3000/logout");
       const mockRedirectResponse = new Response(null, {
         status: 302,
-        headers: { 
+        headers: {
           Location: "/auth/signin",
           "Set-Cookie": "momentum_session=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; SameSite=Lax",
         },
       });
-      
+
       mockLogout.mockResolvedValue(mockRedirectResponse);
 
       const result = await action({ request: mockRequest });

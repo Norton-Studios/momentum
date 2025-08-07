@@ -1,15 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { getUserSession, deleteUserSession } from "@mmtm/resource-tenant";
 import { createCookieSessionStorage, redirect } from "@remix-run/node";
-import { 
-  getCurrentUser,
-  getSession,
-  commitSession,
-  destroySession,
-  requireUser,
-  createUserSessionAndRedirect,
-  logout
-} from "./session.server";
+import { getCurrentUser, getSession, commitSession, destroySession, requireUser, createUserSessionAndRedirect, logout } from "./session.server";
 
 // Mock the database and session functions
 vi.mock("@mmtm/resource-tenant", () => ({

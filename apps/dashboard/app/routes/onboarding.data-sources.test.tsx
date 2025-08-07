@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import { createRemixStub } from "@remix-run/testing";
 import userEvent from "@testing-library/user-event";
 import { json } from "@remix-run/node";
@@ -22,17 +22,8 @@ vi.mock("~/utils/session.server", () => ({
 }));
 
 vi.mock("@mmtm/components", () => ({
-  OnboardingWizard: ({ children }: { children: React.ReactNode }) => (
-    <div data-testid="onboarding-wizard">{children}</div>
-  ),
-  DataSourceConfigForm: ({
-    providers,
-    configurations,
-    onConfigurationChange,
-    onTestConnection,
-    isSubmitting,
-    error,
-  }: any) => (
+  OnboardingWizard: ({ children }: { children: React.ReactNode }) => <div data-testid="onboarding-wizard">{children}</div>,
+  DataSourceConfigForm: ({ providers, configurations, onConfigurationChange, onTestConnection, isSubmitting, error }: any) => (
     <div data-testid="data-source-config-form">
       <div data-testid="providers-count">{providers.length}</div>
       <div data-testid="configurations-count">{configurations.length}</div>
@@ -47,9 +38,7 @@ vi.mock("@mmtm/components", () => ({
       </button>
       <button
         type="button"
-        onClick={() =>
-          onConfigurationChange([{ dataSource: "github", fields: { token: "test" }, connected: true }])
-        }
+        onClick={() => onConfigurationChange([{ dataSource: "github", fields: { token: "test" }, connected: true }])}
         data-testid="add-config"
       >
         Add Config
@@ -332,13 +321,7 @@ describe("DataSourcesPage action", () => {
       const data = await response.json();
 
       expect(data.success).toBe(true);
-      expect(mockUpdateOnboardingProgress).toHaveBeenCalledWith(
-        "tenant-1",
-        "teams",
-        ["signup", "data-sources"],
-        { dataSourceConfigurations: [] },
-        db,
-      );
+      expect(mockUpdateOnboardingProgress).toHaveBeenCalledWith("tenant-1", "teams", ["signup", "data-sources"], { dataSourceConfigurations: [] }, db);
     });
 
     it("should require user authentication for save progress", async () => {
@@ -546,24 +529,24 @@ describe("DataSourcesPage Component", () => {
 
   it("should display action error when present", async () => {
     const actionData = { error: "Connection failed" };
-    
+
     // Test the data structure instead of rendering
     expect(actionData.error).toBe("Connection failed");
-    
+
     // Verify error handling logic structure
-    const hasError = actionData && actionData.error;
+    const hasError = actionData?.error;
     expect(hasError).toBe("Connection failed");
   });
 
   it("should not display error when action succeeds", async () => {
     const actionData = { success: true };
-    
+
     // Test the data structure instead of rendering
     expect(actionData.success).toBe(true);
     expect(actionData.error).toBeUndefined();
-    
+
     // Verify success handling logic structure
-    const hasError = actionData && actionData.error;
+    const hasError = actionData?.error;
     expect(hasError).toBeFalsy();
   });
 
@@ -613,9 +596,7 @@ describe("DataSourcesPage Component", () => {
     // Initially not submitting
     await waitFor(() => {
       expect(screen.getByTestId("is-submitting")).toHaveTextContent("false");
-      expect(screen.getByRole("button", { name: /continue to team setup/i })).toHaveTextContent(
-        "Continue to Team Setup",
-      );
+      expect(screen.getByRole("button", { name: /continue to team setup/i })).toHaveTextContent("Continue to Team Setup");
     });
 
     // Test with submitting state - this would typically be handled by Remix navigation state
@@ -665,7 +646,7 @@ describe("DataSourcesPage Component", () => {
     // Test input creation structure
     expect(mockInput.name).toBe("_action");
     expect(mockInput.value).toBe("save-progress");
-    
+
     // Test configurations data structure
     const configurations = defaultLoaderData.existingConfigurations;
     expect(configurations).toHaveLength(1);
@@ -679,7 +660,7 @@ describe("DataSourcesPage Component", () => {
         { id: "signup", title: "Sign Up", completed: true },
         { id: "data-sources", title: "Data Sources", current: true },
         { id: "teams", title: "Team Setup", completed: false },
-        { id: "review", title: "Review", completed: false }
+        { id: "review", title: "Review", completed: false },
       ];
 
       // Verify wizard steps structure
@@ -729,7 +710,7 @@ describe("DataSourcesPage Component", () => {
       };
 
       // Test that no providers are required
-      const requiredProviders = dataWithAllOptionalProviders.providers.filter(p => p.required);
+      const requiredProviders = dataWithAllOptionalProviders.providers.filter((p) => p.required);
       expect(requiredProviders).toHaveLength(0);
       expect(dataWithAllOptionalProviders.providers[0].required).toBe(false);
     });
@@ -763,13 +744,11 @@ describe("DataSourcesPage Component", () => {
       };
 
       // Test that github is configured but bitbucket is not
-      const requiredProviders = dataWithMultipleRequired.providers.filter(p => p.required);
+      const requiredProviders = dataWithMultipleRequired.providers.filter((p) => p.required);
       expect(requiredProviders).toHaveLength(2); // github (default) + bitbucket
-      
-      const connectedRequired = requiredProviders.filter(provider => 
-        dataWithMultipleRequired.existingConfigurations.some(config => 
-          config.dataSource === provider.id && config.connected
-        )
+
+      const connectedRequired = requiredProviders.filter((provider) =>
+        dataWithMultipleRequired.existingConfigurations.some((config) => config.dataSource === provider.id && config.connected),
       );
       expect(connectedRequired).toHaveLength(1); // Only github is connected
     });

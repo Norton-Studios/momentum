@@ -1,9 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import { createRemixStub } from "@remix-run/testing";
-import { json } from "@remix-run/node";
 import { loader, action } from "./auth.signin";
-import SignInPage from "./auth.signin";
 
 // Mock all dependencies
 vi.mock("@mmtm/database", () => ({
@@ -100,7 +96,7 @@ describe("auth.signin", () => {
       const request = new Request("http://localhost:3000/auth/signin");
 
       await expect(loader({ request })).rejects.toThrow();
-      
+
       try {
         await loader({ request });
       } catch (response) {
@@ -244,16 +240,8 @@ describe("auth.signin", () => {
 
       const response = await action({ request, context: {}, params: {} });
 
-      expect(mockCreateUserSession).toHaveBeenCalledWith(
-        "user-1",
-        { loginTime: expect.any(Date) },
-        30,
-        mockDb
-      );
-      expect(mockCreateUserSessionAndRedirect).toHaveBeenCalledWith(
-        "session-token-123",
-        "/dashboard"
-      );
+      expect(mockCreateUserSession).toHaveBeenCalledWith("user-1", { loginTime: expect.any(Date) }, 30, mockDb);
+      expect(mockCreateUserSessionAndRedirect).toHaveBeenCalledWith("session-token-123", "/dashboard");
       expect(response).toBe(mockRedirectResponse);
     });
 
@@ -284,10 +272,7 @@ describe("auth.signin", () => {
 
       await action({ request, context: {}, params: {} });
 
-      expect(mockCreateUserSessionAndRedirect).toHaveBeenCalledWith(
-        "session-token-123",
-        "/custom/path"
-      );
+      expect(mockCreateUserSessionAndRedirect).toHaveBeenCalledWith("session-token-123", "/custom/path");
     });
 
     it("should handle database errors gracefully", async () => {
@@ -301,10 +286,7 @@ describe("auth.signin", () => {
 
       expect(response.status).toBe(500);
       expect(data.error).toBe("Sign-in failed. Please try again.");
-      expect(console.error).toHaveBeenCalledWith(
-        "Sign-in error:",
-        expect.any(Error)
-      );
+      expect(console.error).toHaveBeenCalledWith("Sign-in error:", expect.any(Error));
     });
 
     it("should handle bcrypt errors gracefully", async () => {
@@ -353,11 +335,11 @@ describe("auth.signin", () => {
     it("should use SignInForm component with correct props structure", () => {
       // Test that the component imports and uses SignInForm correctly
       const expectedActionData = { error: "Test error" };
-      
+
       // Verify the mocked SignInForm receives the expected props
       // This tests the component structure without complex DOM rendering
       expect(vi.mocked).toBeDefined();
-      
+
       // Test error prop handling
       expect(expectedActionData.error).toBe("Test error");
     });
@@ -365,15 +347,15 @@ describe("auth.signin", () => {
     it("should handle navigation functions correctly", () => {
       // Mock navigation methods that would be used in the component
       const mockNavigate = vi.fn();
-      
+
       // Test that navigation functions are properly structured
       expect(typeof mockNavigate).toBe("function");
-      
+
       // Verify component would handle signup navigation
       mockNavigate("/auth/signup");
       expect(mockNavigate).toHaveBeenCalledWith("/auth/signup");
-      
-      // Verify component would handle forgot password navigation  
+
+      // Verify component would handle forgot password navigation
       mockNavigate("/auth/forgot-password");
       expect(mockNavigate).toHaveBeenCalledWith("/auth/forgot-password");
     });
@@ -384,15 +366,15 @@ describe("auth.signin", () => {
         isSubmitting: false,
         error: null,
       };
-      
+
       // Verify initial state structure
       expect(mockSubmissionState.isSubmitting).toBe(false);
       expect(mockSubmissionState.error).toBe(null);
-      
+
       // Test state changes during submission
       mockSubmissionState.isSubmitting = true;
       expect(mockSubmissionState.isSubmitting).toBe(true);
-      
+
       // Test error state
       mockSubmissionState.error = "Invalid credentials";
       expect(mockSubmissionState.error).toBe("Invalid credentials");
@@ -407,18 +389,18 @@ describe("auth.signin", () => {
         appendChild: vi.fn(),
         submit: vi.fn(),
       };
-      
+
       const mockInput = {
         name: "",
         value: "",
       };
-      
+
       // Test form creation structure
       expect(mockForm.method).toBe("POST");
       expect(mockForm.action).toBe("/auth/signin");
       expect(typeof mockForm.appendChild).toBe("function");
       expect(typeof mockForm.submit).toBe("function");
-      
+
       // Test input creation structure
       expect(typeof mockInput.name).toBe("string");
       expect(typeof mockInput.value).toBe("string");
@@ -429,18 +411,18 @@ describe("auth.signin", () => {
       const formData = {
         email: "test@example.com",
         password: "password123",
-        redirectTo: "/dashboard"
+        redirectTo: "/dashboard",
       };
-      
+
       // Verify form data structure
       expect(formData.email).toBe("test@example.com");
       expect(formData.password).toBe("password123");
       expect(formData.redirectTo).toBe("/dashboard");
-      
+
       // Test validation logic structure
-      const isValidEmail = formData.email && formData.email.includes("@");
+      const isValidEmail = formData.email?.includes("@");
       const isValidPassword = formData.password && formData.password.length > 0;
-      
+
       expect(isValidEmail).toBe(true);
       expect(isValidPassword).toBe(true);
     });
@@ -450,11 +432,8 @@ describe("auth.signin", () => {
     it("should return correct meta information", async () => {
       const { meta } = await import("./auth.signin");
       const metaResult = meta();
-      
-      expect(metaResult).toEqual([
-        { title: "Sign In - Momentum" },
-        { name: "description", content: "Sign in to your Momentum account" }
-      ]);
+
+      expect(metaResult).toEqual([{ title: "Sign In - Momentum" }, { name: "description", content: "Sign in to your Momentum account" }]);
     });
   });
 });

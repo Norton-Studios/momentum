@@ -33,7 +33,7 @@ describe("Dashboard Route", () => {
       const result = await loader({ request: mockRequest, params: {}, context: {} });
 
       expect(mockRequireUser).toHaveBeenCalledWith(mockRequest);
-      
+
       // Test the response structure instead of comparing Response objects
       const responseData = await result.json();
       expect(responseData).toEqual({ user: mockUser });
@@ -77,7 +77,7 @@ describe("Dashboard Route", () => {
       // Test organization data structure
       const organizationName = mockUser.tenant.name;
       expect(organizationName).toBe("Test Organization");
-      
+
       const tenantId = mockUser.tenantId;
       expect(tenantId).toBe("tenant-123");
     });
@@ -106,9 +106,9 @@ describe("Dashboard Route", () => {
       const logoutConfig = {
         action: "/logout",
         method: "post",
-        buttonText: "Sign out"
+        buttonText: "Sign out",
       };
-      
+
       expect(logoutConfig.action).toBe("/logout");
       expect(logoutConfig.method).toBe("post");
       expect(logoutConfig.buttonText).toBe("Sign out");
@@ -130,9 +130,9 @@ describe("Dashboard Route", () => {
       // Test logo configuration
       const logoConfig = {
         src: "/logo-light.png",
-        alt: "Momentum"
+        alt: "Momentum",
       };
-      
+
       expect(logoConfig.src).toBe("/logo-light.png");
       expect(logoConfig.alt).toBe("Momentum");
     });
@@ -141,9 +141,9 @@ describe("Dashboard Route", () => {
       // Test styling configuration structure
       const styleConfig = {
         mainContainer: ["min-h-screen", "bg-gray-50"],
-        navigation: ["bg-white", "shadow-sm", "border-b", "border-gray-200"]
+        navigation: ["bg-white", "shadow-sm", "border-b", "border-gray-200"],
       };
-      
+
       expect(styleConfig.mainContainer).toContain("bg-gray-50");
       expect(styleConfig.navigation).toContain("bg-white");
       expect(styleConfig.navigation).toContain("shadow-sm");
