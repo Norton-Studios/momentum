@@ -591,7 +591,7 @@ describe("DataSourcesPage Component", () => {
 
   it("should display submitting state correctly", async () => {
     const RemixApp = createRemixApp(defaultLoaderData);
-    const { rerender } = render(<RemixApp initialEntries={["/onboarding/data-sources"]} />);
+    render(<RemixApp initialEntries={["/onboarding/data-sources"]} />);
 
     // Initially not submitting
     await waitFor(() => {
