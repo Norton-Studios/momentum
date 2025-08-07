@@ -47,7 +47,6 @@ const UpdateUserSchema = z.object({
 
 const TenantDataSourceConfigSchema = z.object({
   dataSource: z.string().min(1),
-  instanceId: z.string().optional(),
   key: z.string().min(1),
   value: z.string(),
 });
@@ -398,7 +397,6 @@ router.post("/tenants/:tenantId/configs", async (req: AuthenticatedRequest, res:
       data: {
         tenantId,
         dataSource: data.dataSource,
-        instanceId: data.instanceId,
         key: data.key,
         value: data.value,
       },
@@ -411,60 +409,6 @@ router.post("/tenants/:tenantId/configs", async (req: AuthenticatedRequest, res:
     }
     console.error("Error creating config:", error);
     res.status(500).json({ error: "Failed to create config" });
-  }
-});
-
-router.put("/tenants/:tenantId/configs/:dataSource/:key", async (req: AuthenticatedRequest, res: Response) => {
-  const db = req.app.get("db") as PrismaClient;
-  const { tenantId, dataSource, key } = req.params;
-  const { value } = req.body;
-
-  try {
-    const config = await db.tenantDataSourceConfig.upsert({
-      where: {
-        tenantId_dataSource_instanceId_key: {
-          tenantId,
-          dataSource,
-          instanceId: null as any,
-          key,
-        },
-      },
-      update: { value },
-      create: {
-        tenantId,
-        dataSource,
-        key,
-        value,
-      },
-    });
-
-    res.json(config);
-  } catch (error) {
-    console.error("Error upserting config:", error);
-    res.status(500).json({ error: "Failed to upsert config" });
-  }
-});
-
-router.delete("/tenants/:tenantId/configs/:dataSource/:key", async (req: AuthenticatedRequest, res: Response) => {
-  const db = req.app.get("db") as PrismaClient;
-  const { tenantId, dataSource, key } = req.params;
-
-  try {
-    await db.tenantDataSourceConfig.delete({
-      where: {
-        tenantId_dataSource_instanceId_key: {
-          tenantId,
-          dataSource,
-          instanceId: null as any,
-          key,
-        },
-      },
-    });
-
-    res.status(204).send();
-  } catch (error) {
-    console.error("Error deleting config:", error);
-    res.status(500).json({ error: "Failed to delete config" });
   }
 });
 

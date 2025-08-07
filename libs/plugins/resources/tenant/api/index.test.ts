@@ -543,50 +543,6 @@ describe("Tenant API", () => {
       expect(response.body[0]).toHaveProperty("dataSource", "github");
     });
 
-    it("should upsert config", async () => {
-      const app = express();
-      app.use(express.json());
-      app.use((req, _res, next) => {
-        (req as any).user = { id: "user-id", tenantId: "tenant-id" };
-        next();
-      });
-      app.set("db", {
-        tenantDataSourceConfig: {
-          upsert: vi.fn().mockResolvedValue({
-            id: "config1",
-            tenantId: "tenant-id",
-            dataSource: "github",
-            key: "token",
-            value: "new-token",
-          }),
-        },
-      });
-      app.use(router);
-
-      const response = await request(app).put("/tenants/tenant-id/configs/github/token").send({ value: "new-token" });
-
-      expect(response.status).toBe(200);
-      expect(response.body).toHaveProperty("value", "new-token");
-    });
-
-    it("should delete config", async () => {
-      const app = express();
-      app.use(express.json());
-      app.use((req, _res, next) => {
-        (req as any).user = { id: "user-id", tenantId: "tenant-id" };
-        next();
-      });
-      app.set("db", {
-        tenantDataSourceConfig: {
-          delete: vi.fn().mockResolvedValue({}),
-        },
-      });
-      app.use(router);
-
-      const response = await request(app).delete("/tenants/tenant-id/configs/github/token");
-
-      expect(response.status).toBe(204);
-    });
   });
 
   describe("Error Handling", () => {

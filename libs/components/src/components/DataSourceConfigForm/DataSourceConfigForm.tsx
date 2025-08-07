@@ -7,7 +7,6 @@ import styles from "./DataSourceConfigForm.module.css";
 
 export interface DataSourceConfig {
   dataSource: string;
-  instanceId?: string;
   name: string;
   fields: Record<string, string>;
   connected?: boolean;
@@ -54,11 +53,13 @@ export function DataSourceConfigForm({
     const provider = providers.find((p) => p.id === providerId);
     if (!provider) return;
 
-    const existingCount = configurations.filter((c) => c.dataSource === providerId).length;
+    // Check if configuration already exists for this provider
+    const existingConfig = configurations.find((c) => c.dataSource === providerId);
+    if (existingConfig) return; // Don't allow multiple configurations for the same provider
+
     const newConfig: DataSourceConfig = {
       dataSource: providerId,
-      instanceId: existingCount > 0 ? `instance-${existingCount + 1}` : undefined,
-      name: existingCount > 0 ? `${provider.name} ${existingCount + 1}` : provider.name,
+      name: provider.name,
       fields: {},
     };
 
@@ -142,7 +143,7 @@ export function DataSourceConfigForm({
   };
 
   const getConfigId = (config: DataSourceConfig): string => {
-    return config.instanceId ? `${config.dataSource}-${config.instanceId}` : config.dataSource;
+    return config.dataSource;
   };
 
   const getProvider = (dataSource: string) => {
@@ -194,9 +195,11 @@ export function DataSourceConfigForm({
                   </div>
                 </div>
 
-                <Button variant="secondary" size="sm" onClick={() => handleAddConfiguration(provider.id)} disabled={isSubmitting}>
-                  {hasConfig ? "Add Another" : "Configure"}
-                </Button>
+                {!hasConfig && (
+                  <Button variant="secondary" size="sm" onClick={() => handleAddConfiguration(provider.id)} disabled={isSubmitting}>
+                    Configure
+                  </Button>
+                )}
               </div>
 
               {existingConfigs.map((config) => {

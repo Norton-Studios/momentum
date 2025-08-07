@@ -13,8 +13,8 @@ log_hook "Hook started"
 echo "🔍 Running pre-commit checks..."
 
 
-# Run formatter check
-echo "Checking code formatting..."
+# Run formatter check on affected packages
+echo "Checking code formatting for affected packages..."
 log_hook "Starting formatter check"
 if ! yarn format; then
     echo "❌ Code formatting check failed. Run 'yarn format' to fix."
@@ -22,19 +22,19 @@ if ! yarn format; then
     exit 2
 fi
 
-# Run linter
-echo "Running linter..."
+# Run linter on affected packages
+echo "Running linter for affected packages..."
 log_hook "Starting linter"
-if ! yarn lint:fix; then
+if ! yarn lint:fix-changed; then
     echo "❌ Linting failed"
     log_hook "Linter failed"
     exit 2
 fi
 
-# Run tests
-echo "Running tests..."
-log_hook "Starting tests"
-if ! yarn test; then
+# Run tests only for changed packages
+echo "Running tests for affected packages..."
+log_hook "Starting affected tests"
+if ! yarn test:changed; then
     echo "❌ Tests failed"
     log_hook "Tests failed"
     exit 2

@@ -47,7 +47,6 @@ model TenantDataSourceConfig {
   id         String   @id @default(cuid())
   tenantId   String   @map("tenant_id")
   dataSource String   @map("data_source")
-  instanceId String?  @map("instance_id")
   key        String
   value      String
   createdAt  DateTime @default(now()) @map("created_at")
@@ -55,7 +54,7 @@ model TenantDataSourceConfig {
 
   tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
-  @@unique([tenantId, dataSource, instanceId, key])
+  @@unique([tenantId, dataSource, key])
   @@index([tenantId])
   @@map("tenant_data_source_config")
   @@schema("core")

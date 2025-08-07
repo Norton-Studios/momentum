@@ -70,7 +70,7 @@ export function buildDependencyGraph(dataSources: DataSource[]): Map<string, str
   return graph;
 }
 
-export async function executeDataSources(dataSources: DataSource[], startDate?: Date, endDate?: Date): Promise<void> {
+export async function executeDataSources(dataSources: DataSource[], tenantId: string, startDate?: Date, endDate?: Date): Promise<void> {
   const db = prisma;
 
   try {
@@ -100,6 +100,7 @@ export async function executeDataSources(dataSources: DataSource[], startDate?: 
               dataSource: name,
               status: "RUNNING",
               startedAt: new Date(),
+              tenantId,
             },
           });
 
@@ -167,7 +168,10 @@ export async function runImport(startDate?: Date, endDate?: Date): Promise<void>
   }
 
   console.log(`Found ${dataSources.length} data sources`);
-  await executeDataSources(dataSources, startDate, endDate);
+  // TODO: This should be updated to run for all tenants or accept tenantId parameter
+  // For now, using a placeholder tenant ID to fix build error
+  const tenantId = process.env.DEFAULT_TENANT_ID || "default-tenant";
+  await executeDataSources(dataSources, tenantId, startDate, endDate);
 }
 
 // CLI execution
