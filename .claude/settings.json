@@ -2,6 +2,15 @@
   "hooks": {
     "PreToolUse": [
       {
+        "matcher": "Bash|Git",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo \"PRE $CLAUDE_FLOW_COMMAND\" >> $CLAUDE_PROJECT_DIR/.claude/hooks/pretool.log"
+          }
+        ]
+      },
+      {
         "matcher": "Git(commit:*)|Bash(^git\\s+commit\\b.*)",
         "hooks": [
           { "type": "command", "command": "cd $CLAUDE_PROJECT_DIR && yarn test" },
