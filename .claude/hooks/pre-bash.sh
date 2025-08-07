@@ -1,13 +1,18 @@
 #!/bin/bash
 
-# Unified pre-tool hook that routes to specific handlers based on the command
+# Unified pre-bash hook that routes to specific handlers based on the command
 # This script receives the command that Claude is about to run and decides
 # which specialized hook to call
 
 set -e
 
 # Get the command that Claude is about to run
-COMMAND="$CLAUDE_FLOW_COMMAND"
+# Try to get command from arguments first, then stdin
+if [ $# -gt 0 ]; then
+    COMMAND="$*"
+else
+    COMMAND=$(cat)
+fi
 
 # Log the command for debugging
 echo "PRE-TOOL: $COMMAND" >> "$CLAUDE_PROJECT_DIR/.claude/pretool.log"
