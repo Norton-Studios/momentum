@@ -126,6 +126,9 @@ jobs:
     name: E2E Tests
     runs-on: ubuntu-latest
     
+    env:
+      SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
+    
     steps:
       - name: Checkout
         uses: actions/checkout@v4
