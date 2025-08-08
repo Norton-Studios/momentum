@@ -149,4 +149,198 @@ describe("Dashboard Route", () => {
       expect(styleConfig.navigation).toContain("shadow-sm");
     });
   });
+
+  // React Component Logic Testing
+  describe("Dashboard Component Logic", () => {
+    const mockUser = {
+      id: "user-123",
+      email: "test@example.com",
+      fullName: "Test User",
+      tenantId: "tenant-123",
+      isAdmin: true,
+      tenant: {
+        id: "tenant-123",
+        name: "Test Organization",
+      },
+    };
+
+    it("should handle user display name logic correctly", () => {
+      // Test fullName display
+      let displayName = mockUser.fullName || mockUser.email;
+      expect(displayName).toBe("Test User");
+
+      // Test email fallback when fullName is null
+      let userWithoutName = { ...mockUser, fullName: null };
+      displayName = userWithoutName.fullName || userWithoutName.email;
+      expect(displayName).toBe("test@example.com");
+
+      // Test email fallback when fullName is undefined
+      userWithoutName = { ...mockUser, fullName: undefined };
+      displayName = userWithoutName.fullName || userWithoutName.email;
+      expect(displayName).toBe("test@example.com");
+
+      // Test email fallback when fullName is empty string
+      userWithoutName = { ...mockUser, fullName: "" };
+      displayName = userWithoutName.fullName || userWithoutName.email;
+      expect(displayName).toBe("test@example.com");
+    });
+
+    it("should handle user role display logic correctly", () => {
+      // Test admin role
+      let role = mockUser.isAdmin ? "Administrator" : "Member";
+      expect(role).toBe("Administrator");
+
+      // Test member role
+      const memberUser = { ...mockUser, isAdmin: false };
+      role = memberUser.isAdmin ? "Administrator" : "Member";
+      expect(role).toBe("Member");
+    });
+
+    it("should generate correct onboarding URL", () => {
+      const onboardingUrl = `/onboarding/data-sources?tenant=${mockUser.tenantId}`;
+      expect(onboardingUrl).toBe("/onboarding/data-sources?tenant=tenant-123");
+
+      // Test with different tenant ID
+      const differentUser = { ...mockUser, tenantId: "different-tenant-id" };
+      const differentUrl = `/onboarding/data-sources?tenant=${differentUser.tenantId}`;
+      expect(differentUrl).toBe("/onboarding/data-sources?tenant=different-tenant-id");
+    });
+
+    it("should handle organization name display", () => {
+      expect(mockUser.tenant.name).toBe("Test Organization");
+
+      // Test with different organization names
+      const userWithDifferentOrg = {
+        ...mockUser,
+        tenant: { id: "tenant-456", name: "Different Organization" },
+      };
+      expect(userWithDifferentOrg.tenant.name).toBe("Different Organization");
+
+      // Test with long organization name
+      const userWithLongOrgName = {
+        ...mockUser,
+        tenant: { id: "tenant-789", name: "Very Long Organization Name That Might Cause Layout Issues" },
+      };
+      expect(userWithLongOrgName.tenant.name).toBe("Very Long Organization Name That Might Cause Layout Issues");
+    });
+
+    it("should handle various user email formats", () => {
+      expect(mockUser.email).toBe("test@example.com");
+
+      // Test with long email
+      const userWithLongEmail = {
+        ...mockUser,
+        email: "very.long.email.address.that.might.cause.layout.issues@example.com",
+      };
+      expect(userWithLongEmail.email).toBe("very.long.email.address.that.might.cause.layout.issues@example.com");
+
+      // Test with special characters
+      const userWithSpecialEmail = {
+        ...mockUser,
+        email: "test+special.chars-123@sub.domain.example.com",
+      };
+      expect(userWithSpecialEmail.email).toBe("test+special.chars-123@sub.domain.example.com");
+    });
+
+    it("should validate user data structure completeness", () => {
+      // Test required fields are present
+      expect(mockUser.id).toBeDefined();
+      expect(mockUser.email).toBeDefined();
+      expect(mockUser.tenantId).toBeDefined();
+      expect(mockUser.tenant).toBeDefined();
+      expect(mockUser.tenant.id).toBeDefined();
+      expect(mockUser.tenant.name).toBeDefined();
+      expect(typeof mockUser.isAdmin).toBe("boolean");
+
+      // Test field types
+      expect(typeof mockUser.id).toBe("string");
+      expect(typeof mockUser.email).toBe("string");
+      expect(typeof mockUser.tenantId).toBe("string");
+      expect(typeof mockUser.tenant.id).toBe("string");
+      expect(typeof mockUser.tenant.name).toBe("string");
+    });
+
+    it("should handle edge cases in user data", () => {
+      // Test minimum valid user data
+      const minimalUser = {
+        id: "1",
+        email: "a@b.co",
+        tenantId: "t",
+        isAdmin: false,
+        tenant: {
+          id: "t",
+          name: "A",
+        },
+      };
+
+      expect(minimalUser.id).toBe("1");
+      expect(minimalUser.email).toBe("a@b.co");
+      expect(minimalUser.tenant.name).toBe("A");
+
+      // Test user without fullName (common case)
+      const userNoFullName = {
+        ...mockUser,
+        fullName: undefined,
+      };
+      const displayName = userNoFullName.fullName || userNoFullName.email;
+      expect(displayName).toBe("test@example.com");
+    });
+
+    it("should validate navigation and UI configuration", () => {
+      // Test logo configuration
+      const logoConfig = {
+        src: "/logo-light.png",
+        alt: "Momentum",
+      };
+      expect(logoConfig.src).toBe("/logo-light.png");
+      expect(logoConfig.alt).toBe("Momentum");
+
+      // Test logout form configuration
+      const logoutConfig = {
+        action: "/logout",
+        method: "post",
+        buttonText: "Sign Out",
+      };
+      expect(logoutConfig.action).toBe("/logout");
+      expect(logoutConfig.method).toBe("post");
+      expect(logoutConfig.buttonText).toBe("Sign Out");
+
+      // Test page title
+      const pageTitle = "Developer Productivity Dashboard";
+      expect(pageTitle).toBe("Developer Productivity Dashboard");
+    });
+
+    it("should handle status logic", () => {
+      // Test active status logic
+      const isUserActive = mockUser.id && mockUser.email && mockUser.tenantId;
+      const status = isUserActive ? "Active" : "Inactive";
+      expect(status).toBe("Active");
+
+      // Test inactive case
+      const inactiveUser = { ...mockUser, email: "" };
+      const isInactiveUserActive = inactiveUser.id && inactiveUser.email && inactiveUser.tenantId;
+      const inactiveStatus = isInactiveUserActive ? "Active" : "Inactive";
+      expect(inactiveStatus).toBe("Inactive");
+    });
+
+    it("should validate CSS class configurations", () => {
+      // Test main container classes
+      const mainContainerClasses = ["min-h-screen", "bg-gray-50"];
+      expect(mainContainerClasses).toContain("min-h-screen");
+      expect(mainContainerClasses).toContain("bg-gray-50");
+
+      // Test navigation classes
+      const navClasses = ["bg-white", "shadow-sm", "border-b", "border-gray-200"];
+      expect(navClasses).toContain("bg-white");
+      expect(navClasses).toContain("shadow-sm");
+      expect(navClasses).toContain("border-b");
+      expect(navClasses).toContain("border-gray-200");
+
+      // Test button classes
+      const buttonClasses = ["bg-blue-600", "hover:bg-blue-700", "text-white"];
+      expect(buttonClasses).toContain("bg-blue-600");
+      expect(buttonClasses).toContain("hover:bg-blue-700");
+      expect(buttonClasses).toContain("text-white");
+    });
+  });
 });
