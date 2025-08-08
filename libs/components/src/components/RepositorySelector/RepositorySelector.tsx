@@ -72,7 +72,7 @@ export const RepositorySelector: React.FC<RepositorySelectorProps> = ({
     return (
       <div className="repository-selector">
         <div className="loading-message">
-          <div className="spinner" />
+          <div className="spinner" data-testid="loading-spinner" />
           <p>Discovering repositories from your connected data sources...</p>
         </div>
       </div>
