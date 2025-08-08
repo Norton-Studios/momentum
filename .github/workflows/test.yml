@@ -166,7 +166,7 @@ jobs:
         if: failure()
         with:
           name: playwright-report
-          path: e2e-tests/playwright-report/
+          path: e2e-tests/test-results/
           retention-days: 30
 
   sonarqube:
