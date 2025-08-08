@@ -107,7 +107,8 @@ jobs:
           if [ "${{ github.event_name }}" = "pull_request" ]; then
             npx turbo test --filter="...[origin/${{ github.base_ref }}]" -- --coverage
           else
-            npx turbo test --filter="...[HEAD^1]" -- --coverage
+            # Run full test suite on master pushes to ensure coverage data
+            npx turbo test -- --coverage
           fi
 
       - name: Merge coverage reports
