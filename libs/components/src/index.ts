@@ -54,5 +54,22 @@ export type { SearchInputProps } from "./components/SearchInput/SearchInput";
 export { Toggle } from "./components/Toggle/Toggle";
 export type { ToggleProps } from "./components/Toggle/Toggle";
 
+// Onboarding Wizard Components
+export { OnboardingWizard } from "./components/OnboardingWizard/OnboardingWizard";
+export type { OnboardingWizardProps, WizardStep } from "./components/OnboardingWizard/OnboardingWizard";
+
+export { SignupForm } from "./components/SignupForm/SignupForm";
+export type { SignupFormProps, SignupFormData } from "./components/SignupForm/SignupForm";
+
+export { SignInForm } from "./components/SignInForm/SignInForm";
+export type { SignInFormProps, SignInFormData } from "./components/SignInForm/SignInForm";
+
+export { DataSourceConfigForm } from "./components/DataSourceConfigForm/DataSourceConfigForm";
+export type { DataSourceConfigFormProps, DataSourceConfig, DataSourceProvider } from "./components/DataSourceConfigForm/DataSourceConfigForm";
+
+// TODO: Re-enable once @mmtm/resource-repository types are properly resolved
+// export { RepositorySelector } from "./components/RepositorySelector/RepositorySelector";
+// export type { RepositorySelectorProps } from "./components/RepositorySelector/RepositorySelector";
+
 // Re-export Chart.js types for convenience
 export type { ChartData, ChartOptions } from "chart.js";

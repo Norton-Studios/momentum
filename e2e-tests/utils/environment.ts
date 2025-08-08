@@ -8,7 +8,7 @@ const execAsync = promisify(exec);
 export interface EnvironmentState {
   databaseUrl: string;
   apiUrl: string;
-  frontendUrl: string;
+  dashboardUrl: string;
   systemAdminToken: string;
 }
 
@@ -17,11 +17,11 @@ export class E2EEnvironment {
 
   private postgresContainer: StartedPostgreSqlContainer | null = null;
   private apiProcess: ChildProcess | null = null;
-  private frontendProcess: ChildProcess | null = null;
+  private dashboardProcess: ChildProcess | null = null;
 
   private readonly SYSTEM_ADMIN_TOKEN = "test-system-admin-token-12345";
   private readonly API_PORT = 3001;
-  private readonly FRONTEND_PORT = 3000;
+  private readonly DASHBOARD_PORT = 3000;
 
   private state: EnvironmentState | null = null;
 
@@ -45,18 +45,22 @@ export class E2EEnvironment {
       await this.startPostgreSQL();
       await this.runMigrations();
       await this.startAPI();
-      await this.startFrontend();
+      await this.startDashboard();
 
       this.state = {
         databaseUrl: process.env.DATABASE_URL!,
         apiUrl: `http://localhost:${this.API_PORT}`,
-        frontendUrl: `http://localhost:${this.FRONTEND_PORT}`,
+        dashboardUrl: `http://localhost:${this.DASHBOARD_PORT}`,
         systemAdminToken: this.SYSTEM_ADMIN_TOKEN,
       };
 
+      // Set environment variables for tests
+      process.env.E2E_FRONTEND_URL = this.state.dashboardUrl;
+      process.env.E2E_API_URL = this.state.apiUrl;
+
       console.log("✅ E2E environment ready!");
       console.log(`📍 API: ${this.state.apiUrl}`);
-      console.log(`📍 Frontend: ${this.state.frontendUrl}`);
+      console.log(`📍 Dashboard: ${this.state.dashboardUrl}`);
 
       if (options.keepAlive) {
         this.setupGracefulShutdown();
@@ -73,11 +77,11 @@ export class E2EEnvironment {
   async stop(): Promise<void> {
     console.log("🧹 Stopping E2E environment...");
 
-    if (this.frontendProcess) {
-      console.log("🛑 Stopping frontend...");
-      this.frontendProcess.kill("SIGTERM");
-      await this.waitForProcessExit(this.frontendProcess, 5000);
-      this.frontendProcess = null;
+    if (this.dashboardProcess) {
+      console.log("🛑 Stopping dashboard...");
+      this.dashboardProcess.kill("SIGTERM");
+      await this.waitForProcessExit(this.dashboardProcess, 5000);
+      this.dashboardProcess = null;
     }
 
     if (this.apiProcess) {
@@ -198,47 +202,47 @@ export class E2EEnvironment {
     });
   }
 
-  private async startFrontend(): Promise<void> {
-    console.log("🎨 Starting frontend server...");
+  private async startDashboard(): Promise<void> {
+    console.log("🎨 Starting dashboard server...");
 
     return new Promise((resolve, _reject) => {
       const projectRoot = process.cwd().replace("/e2e-tests", "");
 
-      this.frontendProcess = spawn("yarn", ["workspace", "@mmtm/frontend", "run", "dev"], {
+      this.dashboardProcess = spawn("yarn", ["workspace", "@mmtm/dashboard", "run", "dev"], {
         cwd: projectRoot,
         env: {
           ...process.env,
-          PORT: this.FRONTEND_PORT.toString(),
+          PORT: this.DASHBOARD_PORT.toString(),
         },
         stdio: ["pipe", "pipe", "pipe"],
       });
 
-      let frontendReady = false;
+      let dashboardReady = false;
       const timeout = setTimeout(() => {
-        if (!frontendReady) {
-          console.log("⚠️ Frontend took longer than expected, continuing...");
+        if (!dashboardReady) {
+          console.log("⚠️ Dashboard took longer than expected, continuing...");
           resolve();
         }
       }, 60000);
 
-      this.frontendProcess.stdout?.on("data", (data) => {
+      this.dashboardProcess.stdout?.on("data", (data) => {
         const output = data.toString();
-        if (process.env.DEBUG) console.log("Frontend:", output.trim());
+        if (process.env.DEBUG) console.log("Dashboard:", output.trim());
 
-        if (output.includes(`http://localhost:${this.FRONTEND_PORT}`) || output.includes("ready") || output.includes("Local:")) {
-          frontendReady = true;
+        if (output.includes(`http://localhost:${this.DASHBOARD_PORT}`) || output.includes("ready") || output.includes("Local:")) {
+          dashboardReady = true;
           clearTimeout(timeout);
-          console.log("✅ Frontend server started");
+          console.log("✅ Dashboard server started");
           resolve();
         }
       });
 
-      this.frontendProcess.stderr?.on("data", (data) => {
-        if (process.env.DEBUG) console.log("Frontend Error:", data.toString().trim());
+      this.dashboardProcess.stderr?.on("data", (data) => {
+        if (process.env.DEBUG) console.log("Dashboard Error:", data.toString().trim());
       });
 
-      this.frontendProcess.on("error", (error) => {
-        console.log("⚠️ Frontend startup error (continuing):", error.message);
+      this.dashboardProcess.on("error", (error) => {
+        console.log("⚠️ Dashboard startup error (continuing):", error.message);
         clearTimeout(timeout);
         resolve();
       });

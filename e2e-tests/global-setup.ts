@@ -22,7 +22,7 @@ async function globalSetup(_config: FullConfig) {
 
   // Store environment and test data for tests
   process.env.E2E_API_URL = state.apiUrl;
-  process.env.E2E_FRONTEND_URL = state.frontendUrl;
+  process.env.E2E_FRONTEND_URL = state.dashboardUrl;
   process.env.E2E_SYSTEM_ADMIN_TOKEN = state.systemAdminToken;
 
   process.env.TEST_USER_EMAIL = testUser.email;

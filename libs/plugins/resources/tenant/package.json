@@ -2,7 +2,7 @@
   "name": "@mmtm/resource-tenant",
   "version": "1.0.0",
   "description": "Tenant resource plugin for developer productivity platform",
-  "main": "api/index.js",
+  "main": "index.js",
   "type": "module",
   "scripts": {
     "test": "vitest run",

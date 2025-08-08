@@ -7,6 +7,7 @@ model Tenant {
   users                   User[]
   tenantDataSourceConfigs TenantDataSourceConfig[]
   dataSourceRuns          DataSourceRun[]
+  onboardingProgress      OnboardingProgress?
   mergeRequests           MergeRequest[]
   pipelines               Pipeline[]
   builds                  Build[]
@@ -18,17 +19,23 @@ model Tenant {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  tenantId  String   @map("tenant_id")
-  email     String   @unique
-  password  String
-  apiToken  String   @unique @map("api_token")
-  isAdmin   Boolean  @default(false) @map("is_admin")
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  id            String    @id @default(cuid())
+  tenantId      String    @map("tenant_id")
+  email         String    @unique
+  fullName      String?   @map("full_name")
+  password      String?
+  apiToken      String    @unique @map("api_token")
+  isAdmin       Boolean   @default(false) @map("is_admin")
+  // SSO fields
+  ssoProvider   String?   @map("sso_provider")
+  ssoProviderId String?   @map("sso_provider_id")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
 
   tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  sessions UserSession[]
 
+  @@unique([ssoProvider, ssoProviderId])
   @@index([tenantId])
   @@index([email])
   @@index([apiToken])
@@ -70,6 +77,40 @@ model DataSourceRun {
   @@index([tenantId])
   @@index([dataSource])
   @@index([startedAt])
+  @@schema("core")
+}
+
+model OnboardingProgress {
+  id             String   @id @default(cuid())
+  tenantId       String   @unique @map("tenant_id")
+  currentStep    String   @map("current_step")
+  completedSteps Json     @map("completed_steps")
+  wizardData     Json     @map("wizard_data")
+  completed      Boolean  @default(false)
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+  
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  
+  @@map("onboarding_progress")
+  @@schema("core")
+}
+
+model UserSession {
+  id           String   @id @default(cuid())
+  userId       String   @map("user_id")
+  sessionToken String   @unique @map("session_token")
+  sessionData  Json     @map("session_data")
+  expiresAt    DateTime @map("expires_at")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([sessionToken])
+  @@index([expiresAt])
+  @@map("user_session")
   @@schema("core")
 }
 

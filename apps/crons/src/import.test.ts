@@ -202,7 +202,7 @@ describe("import", () => {
       const startDate = new Date("2024-01-01");
       const endDate = new Date("2024-01-31");
 
-      await executeDataSources(dataSources, startDate, endDate);
+      await executeDataSources(dataSources, "test-tenant", startDate, endDate);
 
       expect(pGraph).toHaveBeenCalledWith(expect.any(Map), [["repository", "commits"]]);
       expect(mockGraphRun).toHaveBeenCalled();
@@ -230,13 +230,14 @@ describe("import", () => {
       });
       (pGraph as any).mockReturnValue({ run: mockGraphRun });
 
-      await executeDataSources(dataSources);
+      await executeDataSources(dataSources, "test-tenant");
 
       expect(mockDb.dataSourceRun.create).toHaveBeenCalledWith({
         data: {
           dataSource: "test-source",
           status: "RUNNING",
           startedAt: expect.any(Date),
+          tenantId: "test-tenant",
         },
       });
 
@@ -274,7 +275,7 @@ describe("import", () => {
 
       const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
-      await expect(executeDataSources(dataSources)).rejects.toThrow("Data source failed");
+      await expect(executeDataSources(dataSources, "test-tenant")).rejects.toThrow("Data source failed");
 
       expect(mockDb.dataSourceRun.update).toHaveBeenCalledWith({
         where: { id: "run-456" },
@@ -311,7 +312,7 @@ describe("import", () => {
       const startDate = new Date("2024-01-01");
       const endDate = new Date("2024-01-31");
 
-      await executeDataSources(dataSources, startDate, endDate);
+      await executeDataSources(dataSources, "test-tenant", startDate, endDate);
 
       expect(mockRun).toHaveBeenCalledWith(mockDb, startDate, endDate);
     });

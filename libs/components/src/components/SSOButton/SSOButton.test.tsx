@@ -109,7 +109,7 @@ describe("SSOButton", () => {
   });
 
   it("should render icon and label in correct structure", () => {
-    const { container } = render(<SSOButton provider="github" />);
+    render(<SSOButton provider="github" />);
 
     const button = screen.getByRole("button");
     const icon = button.querySelector("svg");

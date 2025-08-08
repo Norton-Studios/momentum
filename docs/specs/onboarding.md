@@ -75,13 +75,9 @@ At least one VCS source must be configured to proceed.
 - Organization Name(s) (required)
 - Repository visibility (all/public/private)
 
-**Multiple Instances:**
-- Users can add multiple instances of the same provider
-- Each instance is identified as: `{provider}/{org-name}` (e.g., "GitHub/Norton-Studios")
-- Stored in TenantDataSourceConfig with:
-  - `data_source`: "github"
-  - `instance_id`: "Norton-Studios"
-  - Configuration stored as key-value pairs
+**Configuration:**
+- Each provider can be configured once per tenant
+- Configuration stored as key-value pairs in TenantDataSourceConfig
 
 **Connection Validation:**
 - Test authentication upon configuration
@@ -124,7 +120,7 @@ After configuring data sources, users organize their repositories into teams.
 
 #### 3.1 Repository Discovery
 - Automatically fetch all repositories from configured VCS sources
-- Display repositories grouped by source (e.g., "GitHub/Norton-Studios")
+- Display repositories from all configured sources
 - Show repository metadata: name, description, primary language, last activity
 
 #### 3.2 Team Creation
@@ -190,14 +186,14 @@ model TenantDataSourceConfig {
   id           String   @id @default(cuid())
   tenantId     String   @map("tenant_id")
   dataSource   String   @map("data_source")
-  instanceId   String?  @map("instance_id")  // For multiple instances
   key          String
   value        String
   createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
   
   tenant       Tenant   @relation(fields: [tenantId], references: [id])
   
-  @@unique([tenantId, dataSource, instanceId, key])
+  @@unique([tenantId, dataSource, key])
   @@map("tenant_data_source_config")
 }
 

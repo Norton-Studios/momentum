@@ -97,7 +97,7 @@ describe("Sidebar", () => {
   });
 
   it("should render chevron for items with children", () => {
-    const { container } = render(<Sidebar items={mockItems} />);
+    render(<Sidebar items={mockItems} />);
 
     const settingsButton = screen.getByText("Settings").closest("button");
     const chevron = settingsButton?.querySelector("svg");
@@ -105,7 +105,7 @@ describe("Sidebar", () => {
   });
 
   it("should not render chevron for items without children", () => {
-    const { container } = render(<Sidebar items={mockItems} />);
+    render(<Sidebar items={mockItems} />);
 
     const dashboardButton = screen.getByText("Dashboard");
     const chevron = dashboardButton.querySelector("svg");

@@ -23,7 +23,7 @@ describe("RepositoryCard", () => {
   });
 
   it("should render visibility indicator", () => {
-    const { container, rerender } = render(<RepositoryCard {...basicProps} visibility="public" />);
+    const { rerender } = render(<RepositoryCard {...basicProps} visibility="public" />);
     expect(screen.getByText(/public/)).toBeInTheDocument();
 
     rerender(<RepositoryCard {...basicProps} visibility="private" />);

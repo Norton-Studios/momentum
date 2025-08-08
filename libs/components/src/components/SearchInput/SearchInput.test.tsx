@@ -160,7 +160,7 @@ describe("SearchInput", () => {
   });
 
   it("should render clear button icon", () => {
-    const { container } = render(<SearchInput value="test" />);
+    render(<SearchInput value="test" />);
 
     const clearButton = screen.getByRole("button", { name: "Clear search" });
     const clearIcon = clearButton.querySelector("svg");
