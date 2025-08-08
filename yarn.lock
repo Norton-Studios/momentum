@@ -3116,14 +3116,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@playwright/test@npm:^1.45.3":
-  version: 1.54.2
-  resolution: "@playwright/test@npm:1.54.2"
+"@playwright/test@npm:1.45.3":
+  version: 1.45.3
+  resolution: "@playwright/test@npm:1.45.3"
   dependencies:
-    playwright: "npm:1.54.2"
+    playwright: "npm:1.45.3"
   bin:
     playwright: cli.js
-  checksum: 10c0/a032d9714a91d6dc40405575ca65ec52f95b0ca95974cd0140e2c12b6c39fbe5311239b2d581b289acaa1e227dd871cf5c43a537f32457f6329723e4add6e6f1
+  checksum: 10c0/d6c2179601093ae0e4feaf6a73841c62045102739d6607e38ea6ab820301f4659ee767c629479b3ce929d72a5f448819a6ee96b0c501fb39b90fceee83fafcde
   languageName: node
   linkType: hard
 
@@ -5453,12 +5453,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testcontainers/postgresql@npm:^10.7.2":
-  version: 10.28.0
-  resolution: "@testcontainers/postgresql@npm:10.28.0"
+"@testcontainers/postgresql@npm:10.7.2":
+  version: 10.7.2
+  resolution: "@testcontainers/postgresql@npm:10.7.2"
   dependencies:
-    testcontainers: "npm:^10.28.0"
-  checksum: 10c0/1e6bf7c7217cadd84f6a66563ee8b2fa0092fcab573f0e25877a575e3a3ea28128f2340707c32ab565a09e822ed8d3e84daeae4bcc6da2b7584904cf8872eb3a
+    testcontainers: "npm:^10.7.2"
+  checksum: 10c0/66be232fe347f1fe03bc2e8a2dc86a79e41ce196a9485a0e102655f7deaeb5f7524dd52e1ce9e357ac200ed285f5a5dc7fab5347e60d66fd993d30e9aace3336
   languageName: node
   linkType: hard
 
@@ -5627,7 +5627,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/bcrypt@npm:6.0.0, @types/bcrypt@npm:^6.0.0":
+"@types/bcrypt@npm:6.0.0":
   version: 6.0.0
   resolution: "@types/bcrypt@npm:6.0.0"
   dependencies:
@@ -5987,7 +5987,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:22.17.0, @types/node@npm:^22.10.5":
+"@types/node@npm:22.10.5":
+  version: 22.10.5
+  resolution: "@types/node@npm:22.10.5"
+  dependencies:
+    undici-types: "npm:~6.20.0"
+  checksum: 10c0/6a0e7d1fe6a86ef6ee19c3c6af4c15542e61aea2f4cee655b6252efb356795f1f228bc8299921e82924e80ff8eca29b74d9dd0dd5cc1a90983f892f740b480df
+  languageName: node
+  linkType: hard
+
+"@types/node@npm:22.17.0":
   version: 22.17.0
   resolution: "@types/node@npm:22.17.0"
   dependencies:
@@ -6887,14 +6896,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"axios@npm:^1.6.7":
-  version: 1.11.0
-  resolution: "axios@npm:1.11.0"
+"axios@npm:1.6.7":
+  version: 1.6.7
+  resolution: "axios@npm:1.6.7"
   dependencies:
-    follow-redirects: "npm:^1.15.6"
-    form-data: "npm:^4.0.4"
+    follow-redirects: "npm:^1.15.4"
+    form-data: "npm:^4.0.0"
     proxy-from-env: "npm:^1.1.0"
-  checksum: 10c0/5de273d33d43058610e4d252f0963cc4f10714da0bfe872e8ef2cbc23c2c999acc300fd357b6bce0fc84a2ca9bd45740fa6bb28199ce2c1266c8b1a393f2b36e
+  checksum: 10c0/131bf8e62eee48ca4bd84e6101f211961bf6a21a33b95e5dfb3983d5a2fe50d9fffde0b57668d7ce6f65063d3dc10f2212cbcb554f75cfca99da1c73b210358d
   languageName: node
   linkType: hard
 
@@ -7058,7 +7067,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"bcrypt@npm:6.0.0, bcrypt@npm:^6.0.0":
+"bcrypt@npm:6.0.0":
   version: 6.0.0
   resolution: "bcrypt@npm:6.0.0"
   dependencies:
@@ -8380,14 +8389,14 @@ __metadata:
   resolution: "e2e-tests@workspace:e2e-tests"
   dependencies:
     "@mmtm/database": "workspace:*"
-    "@playwright/test": "npm:^1.45.3"
-    "@testcontainers/postgresql": "npm:^10.7.2"
-    "@types/bcrypt": "npm:^6.0.0"
-    "@types/node": "npm:^22.10.5"
-    axios: "npm:^1.6.7"
-    bcrypt: "npm:^6.0.0"
-    tsx: "npm:^4.7.0"
-    typescript: "npm:^5.7.3"
+    "@playwright/test": "npm:1.45.3"
+    "@testcontainers/postgresql": "npm:10.7.2"
+    "@types/bcrypt": "npm:6.0.0"
+    "@types/node": "npm:22.10.5"
+    axios: "npm:1.6.7"
+    bcrypt: "npm:6.0.0"
+    tsx: "npm:4.7.0"
+    typescript: "npm:5.7.3"
   languageName: unknown
   linkType: soft
 
@@ -8948,7 +8957,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"esbuild@npm:esbuild@~0.17.6 || ~0.18.0 || ~0.19.0":
+"esbuild@npm:esbuild@~0.17.6 || ~0.18.0 || ~0.19.0, esbuild@npm:~0.19.10":
   version: 0.19.12
   resolution: "esbuild@npm:0.19.12"
   dependencies:
@@ -9587,7 +9596,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"follow-redirects@npm:^1.15.6":
+"follow-redirects@npm:^1.15.4":
   version: 1.15.11
   resolution: "follow-redirects@npm:1.15.11"
   peerDependenciesMeta:
@@ -9885,7 +9894,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"get-tsconfig@npm:^4.7.5":
+"get-tsconfig@npm:^4.7.2, get-tsconfig@npm:^4.7.5":
   version: 4.10.1
   resolution: "get-tsconfig@npm:4.10.1"
   dependencies:
@@ -13352,27 +13361,27 @@ __metadata:
   languageName: node
   linkType: hard
 
-"playwright-core@npm:1.54.2":
-  version: 1.54.2
-  resolution: "playwright-core@npm:1.54.2"
+"playwright-core@npm:1.45.3":
+  version: 1.45.3
+  resolution: "playwright-core@npm:1.45.3"
   bin:
     playwright-core: cli.js
-  checksum: 10c0/44850e20bf35237c8c3dedf1096c655f8af939dde53c5469f72cae3dd744966858a302419b909a73d7a2093323123e7ebcc0fdd55151b4193afb7812c1fd2c88
+  checksum: 10c0/39cc5920b27c42300e13a0646ca723578085d85940fc1f03e858fa348b5ac06f2eadf34cf15a0c0f4443e63ae188097d3ddbeb4389e7bbf5ae3438d8f6ed23e1
   languageName: node
   linkType: hard
 
-"playwright@npm:1.54.2":
-  version: 1.54.2
-  resolution: "playwright@npm:1.54.2"
+"playwright@npm:1.45.3":
+  version: 1.45.3
+  resolution: "playwright@npm:1.45.3"
   dependencies:
     fsevents: "npm:2.3.2"
-    playwright-core: "npm:1.54.2"
+    playwright-core: "npm:1.45.3"
   dependenciesMeta:
     fsevents:
       optional: true
   bin:
     playwright: cli.js
-  checksum: 10c0/6f642fa70179eee5d5bf8a90df2a6147c9638ff926f4f3ad0a0517396b8a3fe00ccebf13377e032a75b3f0b2610ec1562293e0cfc3bde234181c7a50af8af80a
+  checksum: 10c0/3516ca49deb589171ac6525c0367f2ff948514d791d197f3cc0a135154c2df08a4d7cd11a810e187f35ae9ca490b37ca3a92fb3eb51560f03aefcaca0613efdb
   languageName: node
   linkType: hard
 
@@ -15620,7 +15629,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"testcontainers@npm:^10.28.0":
+"testcontainers@npm:^10.7.2":
   version: 10.28.0
   resolution: "testcontainers@npm:10.28.0"
   dependencies:
@@ -15981,7 +15990,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tsx@npm:4.20.3, tsx@npm:^4.7.0":
+"tsx@npm:4.20.3":
   version: 4.20.3
   resolution: "tsx@npm:4.20.3"
   dependencies:
@@ -15994,6 +16003,22 @@ __metadata:
   bin:
     tsx: dist/cli.mjs
   checksum: 10c0/6ff0d91ed046ec743fac7ed60a07f3c025e5b71a5aaf58f3d2a6b45e4db114c83e59ebbb078c8e079e48d3730b944a02bc0de87695088aef4ec8bbc705dc791b
+  languageName: node
+  linkType: hard
+
+"tsx@npm:4.7.0":
+  version: 4.7.0
+  resolution: "tsx@npm:4.7.0"
+  dependencies:
+    esbuild: "npm:~0.19.10"
+    fsevents: "npm:~2.3.3"
+    get-tsconfig: "npm:^4.7.2"
+  dependenciesMeta:
+    fsevents:
+      optional: true
+  bin:
+    tsx: dist/cli.mjs
+  checksum: 10c0/ac522a3017aedea31ff468dc161b6408d16a273bd23556716b550d1c08395d7e2568009c8927131481f0a8980ddda84999ac4bc2c00659b08a19b45bec31ef23
   languageName: node
   linkType: hard
 
@@ -16145,7 +16170,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@npm:5.9.2, typescript@npm:^5.7.3":
+"typescript@npm:5.7.3":
+  version: 5.7.3
+  resolution: "typescript@npm:5.7.3"
+  bin:
+    tsc: bin/tsc
+    tsserver: bin/tsserver
+  checksum: 10c0/b7580d716cf1824736cc6e628ab4cd8b51877408ba2be0869d2866da35ef8366dd6ae9eb9d0851470a39be17cbd61df1126f9e211d8799d764ea7431d5435afa
+  languageName: node
+  linkType: hard
+
+"typescript@npm:5.9.2":
   version: 5.9.2
   resolution: "typescript@npm:5.9.2"
   bin:
@@ -16155,7 +16190,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@npm%3A5.9.2#optional!builtin<compat/typescript>, typescript@patch:typescript@npm%3A^5.7.3#optional!builtin<compat/typescript>":
+"typescript@patch:typescript@npm%3A5.7.3#optional!builtin<compat/typescript>":
+  version: 5.7.3
+  resolution: "typescript@patch:typescript@npm%3A5.7.3#optional!builtin<compat/typescript>::version=5.7.3&hash=5786d5"
+  bin:
+    tsc: bin/tsc
+    tsserver: bin/tsserver
+  checksum: 10c0/6fd7e0ed3bf23a81246878c613423730c40e8bdbfec4c6e4d7bf1b847cbb39076e56ad5f50aa9d7ebd89877999abaee216002d3f2818885e41c907caaa192cc4
+  languageName: node
+  linkType: hard
+
+"typescript@patch:typescript@npm%3A5.9.2#optional!builtin<compat/typescript>":
   version: 5.9.2
   resolution: "typescript@patch:typescript@npm%3A5.9.2#optional!builtin<compat/typescript>::version=5.9.2&hash=5786d5"
   bin:
@@ -16192,6 +16237,13 @@ __metadata:
   version: 5.26.5
   resolution: "undici-types@npm:5.26.5"
   checksum: 10c0/bb673d7876c2d411b6eb6c560e0c571eef4a01c1c19925175d16e3a30c4c428181fb8d7ae802a261f283e4166a0ac435e2f505743aa9e45d893f9a3df017b501
+  languageName: node
+  linkType: hard
+
+"undici-types@npm:~6.20.0":
+  version: 6.20.0
+  resolution: "undici-types@npm:6.20.0"
+  checksum: 10c0/68e659a98898d6a836a9a59e6adf14a5d799707f5ea629433e025ac90d239f75e408e2e5ff086afc3cace26f8b26ee52155293564593fbb4a2f666af57fc59bf
   languageName: node
   linkType: hard
 
