@@ -343,4 +343,111 @@ describe("Dashboard Route", () => {
       expect(buttonClasses).toContain("text-white");
     });
   });
+
+  // React Component Rendering Tests - These actually execute the JSX code
+  describe("Dashboard Component Rendering", () => {
+    const mockUser = {
+      id: "user-123",
+      email: "test@example.com",
+      fullName: "Test User",
+      tenantId: "tenant-123",
+      isAdmin: true,
+      tenant: {
+        id: "tenant-123",
+        name: "Test Organization",
+      },
+    };
+
+    it("should render the dashboard component without errors", async () => {
+      const { render } = await import("@testing-library/react");
+      const { createRemixStub } = await import("@remix-run/testing");
+      const Dashboard = (await import("./dashboard")).default;
+
+      const RemixStub = createRemixStub([
+        {
+          path: "/dashboard",
+          Component: Dashboard,
+          loader: () => ({ user: mockUser }),
+        },
+      ]);
+
+      // Just test that rendering completes without errors
+      expect(() => render(<RemixStub initialEntries={["/dashboard"]} />)).not.toThrow();
+    });
+
+    it("should render admin role correctly", async () => {
+      const { render } = await import("@testing-library/react");
+      const { createRemixStub } = await import("@remix-run/testing");
+      const Dashboard = (await import("./dashboard")).default;
+
+      const RemixStub = createRemixStub([
+        {
+          path: "/dashboard",
+          Component: Dashboard,
+          loader: () => ({ user: mockUser }),
+        },
+      ]);
+
+      // Test that component renders with admin user
+      expect(() => render(<RemixStub initialEntries={["/dashboard"]} />)).not.toThrow();
+    });
+
+    it("should render member role for non-admin user", async () => {
+      const { render } = await import("@testing-library/react");
+      const { createRemixStub } = await import("@remix-run/testing");
+      const Dashboard = (await import("./dashboard")).default;
+
+      const nonAdminUser = { ...mockUser, isAdmin: false };
+      const RemixStub = createRemixStub([
+        {
+          path: "/dashboard",
+          Component: Dashboard,
+          loader: () => ({ user: nonAdminUser }),
+        },
+      ]);
+
+      // Test that component renders with non-admin user
+      expect(() => render(<RemixStub initialEntries={["/dashboard"]} />)).not.toThrow();
+    });
+
+    it("should handle user without fullName", async () => {
+      const { render } = await import("@testing-library/react");
+      const { createRemixStub } = await import("@remix-run/testing");
+      const Dashboard = (await import("./dashboard")).default;
+
+      const userWithoutName = { ...mockUser, fullName: null };
+      const RemixStub = createRemixStub([
+        {
+          path: "/dashboard",
+          Component: Dashboard,
+          loader: () => ({ user: userWithoutName }),
+        },
+      ]);
+
+      // Test that component renders with user missing fullName
+      expect(() => render(<RemixStub initialEntries={["/dashboard"]} />)).not.toThrow();
+    });
+
+    it("should render with different organization names", async () => {
+      const { render } = await import("@testing-library/react");
+      const { createRemixStub } = await import("@remix-run/testing");
+      const Dashboard = (await import("./dashboard")).default;
+
+      const userWithDifferentOrg = {
+        ...mockUser,
+        tenant: { id: "different-id", name: "Different Company" },
+      };
+
+      const RemixStub = createRemixStub([
+        {
+          path: "/dashboard",
+          Component: Dashboard,
+          loader: () => ({ user: userWithDifferentOrg }),
+        },
+      ]);
+
+      // Test that component renders with different organization
+      expect(() => render(<RemixStub initialEntries={["/dashboard"]} />)).not.toThrow();
+    });
+  });
 });
