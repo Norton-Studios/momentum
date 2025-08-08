@@ -27,7 +27,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: '22.15.0'
 
       - name: Cache Yarn dependencies
         uses: actions/cache@v4
@@ -40,27 +40,8 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-yarn-
 
-      - name: Debug environment
-        run: |
-          echo "Node version: $(node --version)"
-          echo "Yarn version: $(yarn --version)" 
-          echo "Platform: $(uname -a)"
-          echo "Package manager from package.json:"
-          cat package.json | grep packageManager || echo "No packageManager specified"
-
       - name: Install dependencies
-        run: |
-          echo "Attempting immutable install..."
-          yarn install --immutable || {
-            echo "Immutable install failed. Generating diff..."
-            cp yarn.lock yarn.lock.original
-            rm yarn.lock
-            yarn install
-            echo "=== LOCKFILE DIFFERENCES ==="
-            diff yarn.lock.original yarn.lock || true
-            echo "=== END DIFFERENCES ==="
-            exit 1
-          }
+        run: yarn install --immutable
 
       - name: Setup Turbo cache
         uses: actions/cache@v4
@@ -94,7 +75,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: '22.15.0'
 
       - name: Cache Yarn dependencies
         uses: actions/cache@v4
@@ -107,27 +88,8 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-yarn-
 
-      - name: Debug environment
-        run: |
-          echo "Node version: $(node --version)"
-          echo "Yarn version: $(yarn --version)" 
-          echo "Platform: $(uname -a)"
-          echo "Package manager from package.json:"
-          cat package.json | grep packageManager || echo "No packageManager specified"
-
       - name: Install dependencies
-        run: |
-          echo "Attempting immutable install..."
-          yarn install --immutable || {
-            echo "Immutable install failed. Generating diff..."
-            cp yarn.lock yarn.lock.original
-            rm yarn.lock
-            yarn install
-            echo "=== LOCKFILE DIFFERENCES ==="
-            diff yarn.lock.original yarn.lock || true
-            echo "=== END DIFFERENCES ==="
-            exit 1
-          }
+        run: yarn install --immutable
 
       - name: Generate Prisma client
         run: yarn workspace @mmtm/database run generate
@@ -174,7 +136,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: '22.15.0'
 
       - name: Cache Yarn dependencies
         uses: actions/cache@v4
@@ -187,27 +149,8 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-yarn-
 
-      - name: Debug environment
-        run: |
-          echo "Node version: $(node --version)"
-          echo "Yarn version: $(yarn --version)" 
-          echo "Platform: $(uname -a)"
-          echo "Package manager from package.json:"
-          cat package.json | grep packageManager || echo "No packageManager specified"
-
       - name: Install dependencies
-        run: |
-          echo "Attempting immutable install..."
-          yarn install --immutable || {
-            echo "Immutable install failed. Generating diff..."
-            cp yarn.lock yarn.lock.original
-            rm yarn.lock
-            yarn install
-            echo "=== LOCKFILE DIFFERENCES ==="
-            diff yarn.lock.original yarn.lock || true
-            echo "=== END DIFFERENCES ==="
-            exit 1
-          }
+        run: yarn install --immutable
 
       - name: Generate Prisma client
         run: yarn workspace @mmtm/database run generate
