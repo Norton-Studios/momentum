@@ -19,18 +19,18 @@ yarn install
 yarn dev
 
 # Run individual services
-yarn start:db      # Start PostgreSQL in Docker
-yarn start:api     # Start API server on port 3001
-yarn start:frontend # Start Remix frontend on port 3000
+yarn start:db        # Start PostgreSQL in Docker
+yarn start:api       # Start API server on port 3001
+yarn start:dashboard # Start Remix frontend on port 3000
 
 # Testing
-yarn test          # Run all tests across workspaces
-yarn test:ui       # Run tests with Vitest UI (in frontend)
+yarn test            # Run all tests across workspaces
+yarn test:ui         # Run tests with Vitest UI (in frontend)
 
 # Code quality
-yarn lint          # Run Biome linter
-yarn format        # Format code with Biome
-yarn test:coverage # Run tests with coverage report
+yarn lint            # Run Biome linter
+yarn format          # Format code with Biome
+yarn test:coverage   # Run tests with coverage report
 
 # Database operations
 yarn workspace @mmtm/database run synthesise  # Combine schema files
@@ -43,18 +43,18 @@ yarn workspace @mmtm/database run migrate     # Run migrations
 ### Monorepo Layout
 ```
 momentum/
-├── apps/               # Core applications
-│   ├── api/           # Express API server
-│   ├── frontend/      # Remix application
-│   ├── crons/         # Job scheduler
-│   └── database/      # Prisma schema synthesis
+├── apps/                  # Core applications
+│   ├── api/               # Express API server
+│   ├── frontend/          # Remix application
+│   ├── crons/             # Job scheduler
+│   └── database/          # Prisma schema synthesis
 ├── libs/
 │   ├── plugins/           # Extensible modules
 │   │   ├── resources/     # Data models (e.g., team, repository)
 │   │   ├── data-sources/  # External integrations (e.g., GitHub)
 │   │   └── reports/       # Analytics and insights
-├── docs/     # Project docs and ADRs
-└── e2e-tests/        # Playwright E2E tests
+├── docs/                  # Project docs and ADRs
+└── e2e-tests/             # Playwright E2E tests
 ```
 
 ### Plugin Architecture Rules
@@ -113,19 +113,6 @@ Follow these strict naming conventions throughout the project:
    - Use singular for specific resources: `/user/:id`, `/merge-request/:id`
    - Use singular for resource creation, e.g., `POST /user` to create a new user
 
-### Dynamic Loading Pattern
-
-The core applications use dynamic imports to discover plugins:
-
-```typescript
-// Example from API server
-const routes = await glob('../../plugins/*/*/api/index.ts')
-routes.forEach(route => {
-  const module = await import(route)
-  // Register routes dynamically
-})
-```
-
 ## Database Schema Management
 
 1. Each plugin defines its own schema in `db/schema.prisma`
@@ -139,7 +126,7 @@ routes.forEach(route => {
 2. Required environment variables:
    - `DATABASE_URL` in `apps/database/.env`
    - `SONAR_TOKEN` and `SONAR_HOST_URL` for SonarQube integration (CI/CD only)
-
+   - `SESSION_SECRET` in `apps/dashboard/.env`
 3. Default local database connection:
    ```
    DATABASE_URL="postgresql://postgres:password@localhost:5432/dp-dev"
