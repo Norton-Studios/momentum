@@ -155,8 +155,22 @@ jobs:
       - name: Generate Prisma client
         run: yarn workspace @mmtm/database run generate
 
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        id: playwright-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('e2e-tests/package.json') }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-
+
       - name: Install Playwright browsers
-        run: yarn workspace e2e-tests run playwright install --with-deps
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: yarn workspace e2e-tests run playwright install chromium --with-deps
+
+      - name: Install Playwright system dependencies (if cached)
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: yarn workspace e2e-tests run playwright install-deps chromium
 
       - name: Run E2E tests
         run: yarn workspace e2e-tests run test:e2e
