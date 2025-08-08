@@ -260,4 +260,14 @@ This project is optimized for AI-assisted development:
 - Test coverage helps validate AI-generated code
 - Schema-first approach provides clear data contracts
 
+### Library Usage and Documentation
+
+When working with libraries or frameworks in this project, use the **context7 MCP** to:
+- Find usage examples and best practices for libraries already in use
+- Look up API documentation and patterns
+- Understand how to properly implement features with existing dependencies
+- Get contextual help for TypeScript, React, Prisma, and other technologies in the stack
+
+This helps ensure code follows established patterns and uses libraries correctly.
+
 Remember: The plugin architecture means you can often add features without modifying core code. Always consider if a new feature should be a plugin rather than a core change.
