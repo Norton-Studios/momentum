@@ -5506,7 +5506,7 @@ __metadata:
     "@types/node": "npm:22.10.5"
     axios: "npm:1.6.7"
     bcrypt: "npm:6.0.0"
-    tsx: "npm:4.7.0"
+    tsx: "npm:4.20.3"
   languageName: unknown
   linkType: soft
 
@@ -5947,7 +5947,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"esbuild@npm:esbuild@~0.17.6 || ~0.18.0 || ~0.19.0, esbuild@npm:~0.19.10":
+"esbuild@npm:esbuild@~0.17.6 || ~0.18.0 || ~0.19.0":
   version: 0.19.12
   resolution: "esbuild@npm:0.19.12"
   dependencies:
@@ -6728,7 +6728,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"get-tsconfig@npm:^4.7.2, get-tsconfig@npm:^4.7.5":
+"get-tsconfig@npm:^4.7.5":
   version: 4.10.1
   resolution: "get-tsconfig@npm:4.10.1"
   dependencies:
@@ -11724,22 +11724,6 @@ __metadata:
   bin:
     tsx: dist/cli.mjs
   checksum: 10c0/6ff0d91ed046ec743fac7ed60a07f3c025e5b71a5aaf58f3d2a6b45e4db114c83e59ebbb078c8e079e48d3730b944a02bc0de87695088aef4ec8bbc705dc791b
-  languageName: node
-  linkType: hard
-
-"tsx@npm:4.7.0":
-  version: 4.7.0
-  resolution: "tsx@npm:4.7.0"
-  dependencies:
-    esbuild: "npm:~0.19.10"
-    fsevents: "npm:~2.3.3"
-    get-tsconfig: "npm:^4.7.2"
-  dependenciesMeta:
-    fsevents:
-      optional: true
-  bin:
-    tsx: dist/cli.mjs
-  checksum: 10c0/ac522a3017aedea31ff468dc161b6408d16a273bd23556716b550d1c08395d7e2568009c8927131481f0a8980ddda84999ac4bc2c00659b08a19b45bec31ef23
   languageName: node
   linkType: hard
 
