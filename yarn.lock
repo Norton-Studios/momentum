@@ -1240,13 +1240,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@fastify/busboy@npm:^2.0.0":
-  version: 2.1.1
-  resolution: "@fastify/busboy@npm:2.1.1"
-  checksum: 10c0/6f8027a8cba7f8f7b736718b013f5a38c0476eea67034c94a0d3c375e2b114366ad4419e6a6fa7ffc2ef9c6d3e0435d76dd584a7a1cbac23962fda7650b579e3
-  languageName: node
-  linkType: hard
-
 "@grpc/grpc-js@npm:^1.11.1":
   version: 1.13.4
   resolution: "@grpc/grpc-js@npm:1.13.4"
@@ -3106,12 +3099,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testcontainers/postgresql@npm:10.7.2":
-  version: 10.7.2
-  resolution: "@testcontainers/postgresql@npm:10.7.2"
+"@testcontainers/postgresql@npm:11.5.1":
+  version: 11.5.1
+  resolution: "@testcontainers/postgresql@npm:11.5.1"
   dependencies:
-    testcontainers: "npm:^10.7.2"
-  checksum: 10c0/66be232fe347f1fe03bc2e8a2dc86a79e41ce196a9485a0e102655f7deaeb5f7524dd52e1ce9e357ac200ed285f5a5dc7fab5347e60d66fd993d30e9aace3336
+    testcontainers: "npm:^11.5.1"
+  checksum: 10c0/f8de81ba759aa5e25bf051afb1a27e819e8ca256470f48cc9fb48c118021aa203edc34695141ce1ad4b8dc6853838023f17f080adef73655feb1b0e890fe7988
   languageName: node
   linkType: hard
 
@@ -3383,7 +3376,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/dockerode@npm:^3.3.35":
+"@types/dockerode@npm:^3.3.42":
   version: 3.3.42
   resolution: "@types/dockerode@npm:3.3.42"
   dependencies:
@@ -5406,12 +5399,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"docker-compose@npm:^0.24.8":
-  version: 0.24.8
-  resolution: "docker-compose@npm:0.24.8"
+"docker-compose@npm:^1.2.0":
+  version: 1.2.0
+  resolution: "docker-compose@npm:1.2.0"
   dependencies:
     yaml: "npm:^2.2.2"
-  checksum: 10c0/1494389e554fed8aabf9fef24210a641cd2442028b1462d7f68186919f5e75045f7bfb4ccaf47c94ed879dcb63e4d82885c389399f531550c4b244920740b2b3
+  checksum: 10c0/0bc4ef187904dba55b76b3450b7b2d65b7ee19afdff0d74ffc6ccb573d7ae63de329f13ad01ffc76ddf702a12060a848287b3ff76477014d5e9b63e0958146dd
   languageName: node
   linkType: hard
 
@@ -5427,7 +5420,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dockerode@npm:^4.0.5":
+"dockerode@npm:^4.0.7":
   version: 4.0.7
   resolution: "dockerode@npm:4.0.7"
   dependencies:
@@ -5508,7 +5501,7 @@ __metadata:
   dependencies:
     "@mmtm/database": "workspace:*"
     "@playwright/test": "npm:1.45.3"
-    "@testcontainers/postgresql": "npm:10.7.2"
+    "@testcontainers/postgresql": "npm:11.5.1"
     "@types/bcrypt": "npm:6.0.0"
     "@types/node": "npm:22.10.5"
     axios: "npm:1.6.7"
@@ -11294,7 +11287,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tar-fs@npm:^3.0.7":
+"tar-fs@npm:^3.1.0":
   version: 3.1.0
   resolution: "tar-fs@npm:3.1.0"
   dependencies:
@@ -11383,26 +11376,26 @@ __metadata:
   languageName: node
   linkType: hard
 
-"testcontainers@npm:^10.7.2":
-  version: 10.28.0
-  resolution: "testcontainers@npm:10.28.0"
+"testcontainers@npm:^11.5.1":
+  version: 11.5.1
+  resolution: "testcontainers@npm:11.5.1"
   dependencies:
     "@balena/dockerignore": "npm:^1.0.2"
-    "@types/dockerode": "npm:^3.3.35"
+    "@types/dockerode": "npm:^3.3.42"
     archiver: "npm:^7.0.1"
     async-lock: "npm:^1.4.1"
     byline: "npm:^5.0.0"
-    debug: "npm:^4.3.5"
-    docker-compose: "npm:^0.24.8"
-    dockerode: "npm:^4.0.5"
+    debug: "npm:^4.4.1"
+    docker-compose: "npm:^1.2.0"
+    dockerode: "npm:^4.0.7"
     get-port: "npm:^7.1.0"
     proper-lockfile: "npm:^4.1.2"
     properties-reader: "npm:^2.3.0"
     ssh-remote-port-forward: "npm:^1.0.4"
-    tar-fs: "npm:^3.0.7"
-    tmp: "npm:^0.2.3"
-    undici: "npm:^5.29.0"
-  checksum: 10c0/0bdefbcac5b774df4ed373f7e6f6a4df91f2c7fd2be135571471df6bdfa62919843824d11329a36a53c7446210db1eb17d8fb6658b7616d4b0158c089ed9563b
+    tar-fs: "npm:^3.1.0"
+    tmp: "npm:^0.2.4"
+    undici: "npm:^7.13.0"
+  checksum: 10c0/f036765c7ce21da2602b2a800dd7c0e67b639c8c80c25ec07aef1ae344ee893ee565bec26bc63714ab293865193beee6cc3ed9409250edcc54f3c4537d557739
   languageName: node
   linkType: hard
 
@@ -11534,7 +11527,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tmp@npm:^0.2.3":
+"tmp@npm:^0.2.4":
   version: 0.2.4
   resolution: "tmp@npm:0.2.4"
   checksum: 10c0/ac4a7538a9ddb89ead6f4ee019bc23c28ce31549a0bd0ba499a64f81e0804b1e9a3a758622b33807a1f9644dbde9a0205637985f9450abdba1d5062704f98782
@@ -11932,19 +11925,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"undici@npm:^5.29.0":
-  version: 5.29.0
-  resolution: "undici@npm:5.29.0"
-  dependencies:
-    "@fastify/busboy": "npm:^2.0.0"
-  checksum: 10c0/e4e4d631ca54ee0ad82d2e90e7798fa00a106e27e6c880687e445cc2f13b4bc87c5eba2a88c266c3eecffb18f26e227b778412da74a23acc374fca7caccec49b
-  languageName: node
-  linkType: hard
-
 "undici@npm:^6.21.2":
   version: 6.21.3
   resolution: "undici@npm:6.21.3"
   checksum: 10c0/294da109853fad7a6ef5a172ad0ca3fb3f1f60cf34703d062a5ec967daf69ad8c03b52e6d536c5cba3bb65615769bf08e5b30798915cbccdddaca01045173dda
+  languageName: node
+  linkType: hard
+
+"undici@npm:^7.13.0":
+  version: 7.13.0
+  resolution: "undici@npm:7.13.0"
+  checksum: 10c0/8865d40b141f073215a6763aad5d1b2f4bd4e252600e93e68055d6c5d23a8a0e5782669236b2ecfa4d415d1d969d9c4623ff1c0386d32fa60088a19ffa58c611
   languageName: node
   linkType: hard
 

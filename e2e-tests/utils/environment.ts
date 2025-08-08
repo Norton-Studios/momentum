@@ -112,7 +112,7 @@ export class E2EEnvironment {
   private async startPostgreSQL(): Promise<void> {
     console.log("🐘 Starting PostgreSQL container...");
 
-    this.postgresContainer = await new PostgreSqlContainer()
+    this.postgresContainer = await new PostgreSqlContainer("postgres:15-alpine")
       .withDatabase("e2e_test_db")
       .withUsername("test_user")
       .withPassword("test_password")
