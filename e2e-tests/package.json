@@ -13,7 +13,7 @@
   "dependencies": {
     "@mmtm/database": "workspace:*",
     "@testcontainers/postgresql": "11.5.1",
-    "axios": "1.6.7",
+    "axios": "1.11.0",
     "bcrypt": "6.0.0"
   },
   "devDependencies": {
