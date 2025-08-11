@@ -6,7 +6,10 @@
   "type": "module",
   "scripts": {
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "format": "../../../../node_modules/@biomejs/biome/bin/biome format . --write",
+    "lint": "../../../../node_modules/@biomejs/biome/bin/biome lint .",
+    "lint:fix": "../../../../node_modules/@biomejs/biome/bin/biome lint . --write --unsafe"
   },
   "dependencies": {
     "@mmtm/database": "workspace:*",

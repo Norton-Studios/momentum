@@ -3,7 +3,10 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "test": "vitest run"
+    "test": "vitest run",
+    "format": "../../../../node_modules/@biomejs/biome/bin/biome format . --write",
+    "lint": "../../../../node_modules/@biomejs/biome/bin/biome lint .",
+    "lint:fix": "../../../../node_modules/@biomejs/biome/bin/biome lint . --write --unsafe"
   },
   "dependencies": {
     "@octokit/rest": "22.0.0",

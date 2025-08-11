@@ -15,8 +15,9 @@
     "dev": "tsup src/index.ts --format cjs,esm --dts --external react --watch",
     "test": "vitest run",
     "test:watch": "vitest",
+    "format": "biome format ./src --write",
     "lint": "biome lint ./src",
-    "format": "biome format ./src --write"
+    "lint:fix": "biome lint ./src --write --unsafe"
   },
   "dependencies": {
     "chart.js": "4.5.0",

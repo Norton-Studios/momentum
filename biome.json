@@ -14,6 +14,8 @@
       "!**/coverage/**",
       "!**/dist/**",
       "!**/build/**",
+      "libs/plugins/resources/build/**",
+      "!libs/plugins/resources/build/coverage/**",
       "!**/storybook-static/**",
       "!**/node_modules/**",
       "!**/.turbo/**"

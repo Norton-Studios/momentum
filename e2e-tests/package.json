@@ -8,7 +8,10 @@
     "playwright:install": "playwright install --with-deps",
     "test:e2e": "playwright test",
     "test:ui": "playwright test --ui",
-    "test:debug": "playwright test --debug"
+    "test:debug": "playwright test --debug",
+    "format": "../node_modules/@biomejs/biome/bin/biome format . --write",
+    "lint": "../node_modules/@biomejs/biome/bin/biome lint .",
+    "lint:fix": "../node_modules/@biomejs/biome/bin/biome lint . --write --unsafe"
   },
   "dependencies": {
     "@mmtm/database": "workspace:*",

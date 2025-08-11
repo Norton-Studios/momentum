@@ -6,7 +6,10 @@
     "schema": "db/schema.prisma"
   },
   "scripts": {
-    "test": "vitest run"
+    "test": "vitest run",
+    "format": "../../../../node_modules/@biomejs/biome/bin/biome format . --write",
+    "lint": "../../../../node_modules/@biomejs/biome/bin/biome lint .",
+    "lint:fix": "../../../../node_modules/@biomejs/biome/bin/biome lint . --write --unsafe"
   },
   "peerDependencies": {
     "@types/express": "^5.0.3",

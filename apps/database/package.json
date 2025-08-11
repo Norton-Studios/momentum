@@ -7,7 +7,10 @@
     "dev": "docker compose up -d",
     "synthesise": "tsx src/synthesise.ts && npx prisma format --schema=build/schema.prisma",
     "migrate": "run synthesise && prisma migrate dev --schema=build/schema.prisma",
-    "generate": "run synthesise && prisma generate --schema=build/schema.prisma"
+    "generate": "run synthesise && prisma generate --schema=build/schema.prisma",
+    "format": "biome format . --write",
+    "lint": "biome lint .",
+    "lint:fix": "biome lint . --write --unsafe"
   },
   "keywords": [],
   "author": "",
