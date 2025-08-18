@@ -1,23 +1,54 @@
 import type { PrismaClient } from "@mmtm/database";
 import { Octokit } from "@octokit/rest";
-import "dotenv/config";
 
 export const resources: string[] = ["repository"];
 
-const octokit = new Octokit({
-  auth: process.env.GITHUB_TOKEN,
-});
+// Optional: specify import window duration (defaults to 24 hours)
+export const importWindowDuration = 7 * 24 * 60 * 60 * 1000; // 7 days
 
-export const run = async (db: PrismaClient, startDate: Date, endDate: Date, tenantId: string) => {
-  console.log("Importing repositories from GitHub...");
+export const run = async (env: Record<string, string>, db: PrismaClient, tenantId: string, startDate: Date, endDate: Date) => {
+  console.log(`Importing repositories from GitHub for tenant ${tenantId}...`);
+  console.log(`Date range: ${startDate.toISOString()} to ${endDate.toISOString()}`);
 
-  const { data: repos } = await octokit.repos.listForAuthenticatedUser({
-    per_page: 100,
-    since: startDate.toISOString(),
-    until: endDate.toISOString(),
+  // Validate required environment variables
+  if (!env.GITHUB_TOKEN) {
+    throw new Error("GITHUB_TOKEN is required in tenant configuration");
+  }
+
+  const octokit = new Octokit({
+    auth: env.GITHUB_TOKEN,
   });
 
-  for (const repo of repos) {
+  // If GITHUB_ORG is provided, fetch org repos, otherwise fetch user repos
+  let repos: any[] = [];
+
+  if (env.GITHUB_ORG) {
+    console.log(`Fetching repositories for organization: ${env.GITHUB_ORG}`);
+    const { data } = await octokit.repos.listForOrg({
+      org: env.GITHUB_ORG,
+      per_page: 100,
+      type: "all",
+    });
+    repos = data;
+  } else {
+    console.log("Fetching repositories for authenticated user");
+    const { data } = await octokit.repos.listForAuthenticatedUser({
+      per_page: 100,
+      type: "all",
+    });
+    repos = data;
+  }
+
+  // Filter repos by date range if they have been updated within the range
+  const filteredRepos = repos.filter((repo) => {
+    if (!repo.updated_at) return false;
+    const updatedAt = new Date(repo.updated_at);
+    return updatedAt >= startDate && updatedAt <= endDate;
+  });
+
+  console.log(`Found ${filteredRepos.length} repositories updated between ${startDate.toISOString()} and ${endDate.toISOString()}`);
+
+  for (const repo of filteredRepos) {
     if (!repo.owner) continue;
 
     const data = {
@@ -37,11 +68,16 @@ export const run = async (db: PrismaClient, startDate: Date, endDate: Date, tena
     };
 
     await db.repository.upsert({
-      where: { externalId: data.externalId },
+      where: {
+        tenantId_externalId: {
+          tenantId,
+          externalId: data.externalId,
+        },
+      },
       update: data,
       create: data,
     });
   }
 
-  console.log(`Imported ${repos.length} repositories.`);
+  console.log(`Imported/updated ${filteredRepos.length} repositories for tenant ${tenantId}.`);
 };

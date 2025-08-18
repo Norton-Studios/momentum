@@ -1,191 +1,95 @@
-import fg from "fast-glob";
-import path from "node:path";
-import pGraph from "p-graph";
-import { prisma, type PrismaClient } from "@mmtm/database";
+import { prisma } from "@mmtm/database";
+import { getTenantConfigurations } from "./lib/config/tenant-config";
+import { loadDataSourceScripts } from "./lib/dependencies/loader";
+import { executeForTenant } from "./lib/execution/tenant-executor";
+import type { TenantEnvironment } from "./lib/config/tenant-config";
+import type { DataSourceScript } from "./lib/dependencies/loader";
 
-interface DataSource {
-  name: string;
-  resources: string[];
-  dependencies: string[];
-  run: (db: PrismaClient, startDate?: Date, endDate?: Date) => Promise<void>;
-}
-
-export async function loadDataSources(): Promise<DataSource[]> {
-  const dataSourcePaths = await fg(["../../libs/plugins/data-sources/*/index.ts", "../../libs/plugins/data-sources/*/*.ts"], {
-    absolute: true,
-    cwd: __dirname,
-  });
-
-  const dataSources: DataSource[] = [];
-
-  for (const dataSourcePath of dataSourcePaths) {
-    try {
-      const module = await import(dataSourcePath);
-
-      if (module.resources && module.run) {
-        const name = path.basename(dataSourcePath, ".ts");
-        const parentDir = path.basename(path.dirname(dataSourcePath));
-        const dataSourceName = name === "index" ? parentDir : `${parentDir}-${name}`;
-
-        dataSources.push({
-          name: dataSourceName,
-          resources: module.resources || [],
-          dependencies: module.dependencies || [],
-          run: module.run,
-        });
-
-        console.log(`Loaded data source: ${dataSourceName}`);
-      }
-    } catch (error) {
-      console.error(`Error loading data source from ${dataSourcePath}:`, error);
-    }
-  }
-
-  return dataSources;
-}
-
-export function buildDependencyGraph(dataSources: DataSource[]): Map<string, string[]> {
-  const graph = new Map<string, string[]>();
-
-  // Initialize graph with all data sources
-  for (const dataSource of dataSources) {
-    graph.set(dataSource.name, []);
-  }
-
-  // Build dependencies based on resources and dependencies arrays
-  for (const dataSource of dataSources) {
-    const dependencies: string[] = [];
-
-    // Add explicit dependencies
-    for (const dep of dataSource.dependencies) {
-      const dependentDataSource = dataSources.find((ds) => ds.resources.includes(dep) || ds.name === dep);
-      if (dependentDataSource && dependentDataSource.name !== dataSource.name) {
-        dependencies.push(dependentDataSource.name);
-      }
-    }
-
-    graph.set(dataSource.name, dependencies);
-  }
-
-  return graph;
-}
-
-export async function executeDataSources(dataSources: DataSource[], tenantId: string, startDate?: Date, endDate?: Date): Promise<void> {
+/**
+ * Main import orchestrator function
+ */
+export async function runImport(): Promise<void> {
+  console.log("Starting tenant-based data source import...");
+  const startTime = Date.now();
   const db = prisma;
 
   try {
-    const dependencyGraph = buildDependencyGraph(dataSources);
-    const dataSourceMap = new Map(dataSources.map((ds) => [ds.name, ds]));
+    // Step 1: Get tenant configurations
+    const environments = await getTenantConfigurations(db);
 
-    console.log("Dependency Graph:", Object.fromEntries(dependencyGraph));
-
-    // Create execution graph using p-graph
-    const nodeMap = new Map();
-    const dependencies: Array<[string, string]> = [];
-
-    // Build node map
-    for (const name of Array.from(dependencyGraph.keys())) {
-      nodeMap.set(name, {
-        run: async () => {
-          const dataSource = dataSourceMap.get(name);
-          if (!dataSource) {
-            throw new Error(`Data source ${name} not found`);
-          }
-
-          console.log(`Starting data source: ${name}`);
-
-          // Record run start
-          const runRecord = await db.dataSourceRun.create({
-            data: {
-              dataSource: name,
-              status: "RUNNING",
-              startedAt: new Date(),
-              tenantId,
-            },
-          });
-
-          try {
-            await dataSource.run(db, startDate, endDate);
-
-            // Record successful completion
-            await db.dataSourceRun.update({
-              where: { id: runRecord.id },
-              data: {
-                status: "COMPLETED",
-                completedAt: new Date(),
-                lastFetchedDataDate: endDate || new Date(),
-              },
-            });
-
-            console.log(`Completed data source: ${name}`);
-          } catch (error) {
-            // Record failure
-            await db.dataSourceRun.update({
-              where: { id: runRecord.id },
-              data: {
-                status: "FAILED",
-                completedAt: new Date(),
-                error: error instanceof Error ? error.message : String(error),
-              },
-            });
-
-            console.error(`Failed data source: ${name}`, error);
-            throw error;
-          }
-        },
-      });
+    if (environments.length === 0) {
+      console.log("No tenant data source configurations found");
+      return;
     }
 
-    // Build dependencies array
-    for (const [name, deps] of Array.from(dependencyGraph.entries())) {
-      for (const dep of deps) {
-        dependencies.push([dep, name]); // dep must complete before name
+    console.log(`Found configurations for ${environments.length} tenant/data source combinations`);
+
+    // Step 2: Get unique configured data sources
+    const configuredDataSources = new Set(environments.map((e) => e.dataSource));
+    console.log(`Configured data sources: ${Array.from(configuredDataSources).join(", ")}`);
+
+    // Step 3: Load scripts for configured data sources
+    const allScripts = await loadDataSourceScripts(configuredDataSources);
+
+    if (allScripts.length === 0) {
+      console.log("No data source scripts found");
+      return;
+    }
+
+    console.log(`Loaded ${allScripts.length} scripts`);
+
+    // Step 4: Group scripts by tenant and execute
+    const tenantExecutions: Promise<void>[] = [];
+
+    // Group environments by tenant
+    const tenantGroups = new Map<string, TenantEnvironment[]>();
+    for (const env of environments) {
+      if (!tenantGroups.has(env.tenantId)) {
+        tenantGroups.set(env.tenantId, []);
       }
+      tenantGroups.get(env.tenantId)!.push(env);
     }
 
-    // Execute tasks in dependency order
-    const graph = pGraph(nodeMap, dependencies);
-    await graph.run();
+    // Execute for each tenant
+    tenantGroups.forEach((tenantEnvs, tenantId) => {
+      // Collect all scripts for this tenant
+      const tenantScripts: DataSourceScript[] = [];
+      const mergedEnv: Record<string, string> = {};
 
-    console.log("All data sources executed successfully");
+      for (const tenantEnv of tenantEnvs) {
+        // Merge environment variables
+        Object.assign(mergedEnv, tenantEnv.env);
+
+        // Add scripts for this data source
+        const dataSourceScripts = allScripts.filter((s) => s.dataSource === tenantEnv.dataSource);
+        tenantScripts.push(...dataSourceScripts);
+      }
+
+      // Execute scripts for this tenant
+      tenantExecutions.push(
+        executeForTenant(db, tenantId, tenantScripts, mergedEnv).catch((error) => {
+          console.error(`Failed to execute scripts for tenant ${tenantId}:`, error);
+        }),
+      );
+    });
+
+    // Wait for all tenant executions to complete
+    await Promise.all(tenantExecutions);
+
+    const duration = Date.now() - startTime;
+    console.log(`Data source import completed in ${duration}ms`);
+  } catch (error) {
+    console.error("Fatal error during import:", error);
+    throw error;
   } finally {
     await db.$disconnect();
   }
 }
 
-export async function runImport(startDate?: Date, endDate?: Date): Promise<void> {
-  console.log("Starting data source import...");
-
-  if (startDate) {
-    console.log(`Import range: ${startDate.toISOString()} to ${endDate?.toISOString() || "now"}`);
-  }
-
-  const dataSources = await loadDataSources();
-
-  if (dataSources.length === 0) {
-    console.log("No data sources found");
-    return;
-  }
-
-  console.log(`Found ${dataSources.length} data sources`);
-  // TODO: This should be updated to run for all tenants or accept tenantId parameter
-  // For now, using a placeholder tenant ID to fix build error
-  const tenantId = process.env.DEFAULT_TENANT_ID || "default-tenant";
-  await executeDataSources(dataSources, tenantId, startDate, endDate);
-}
-
-// CLI execution
+// CLI execution for testing
 if (typeof require !== "undefined" && require.main === module) {
-  const args = process.argv.slice(2);
-  let startDate: Date | undefined;
-  let endDate: Date | undefined;
-
-  if (args.length >= 1) {
-    startDate = new Date(args[0]);
-  }
-  if (args.length >= 2) {
-    endDate = new Date(args[1]);
-  }
-
-  runImport(startDate, endDate).catch(console.error);
+  runImport().catch((error) => {
+    console.error("Import failed:", error);
+    process.exit(1);
+  });
 }

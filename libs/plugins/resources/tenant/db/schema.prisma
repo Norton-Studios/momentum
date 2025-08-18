@@ -64,7 +64,8 @@ model TenantDataSourceConfig {
 model DataSourceRun {
   id                   String                @id @default(cuid())
   tenantId             String                @map("tenant_id")
-  dataSource           String                @map("data_source") // name of the data source (e.g., "github-repository")
+  dataSource           String                @map("data_source") // e.g., "github"
+  script               String                // e.g., "repository.ts"
   startedAt            DateTime              @default(now()) @map("started_at")
   completedAt          DateTime?             @map("completed_at")
   status               DataSourceRunStatus   @default(RUNNING)
@@ -73,9 +74,11 @@ model DataSourceRun {
   
   tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   
+  @@unique([tenantId, dataSource, script])
   @@map("data_source_run")
   @@index([tenantId])
   @@index([dataSource])
+  @@index([tenantId, dataSource])
   @@index([startedAt])
   @@schema("core")
 }
