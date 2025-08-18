@@ -5,11 +5,23 @@ import { useState, useCallback } from "react";
 import { SignupForm, type SignupFormData } from "@mmtm/components";
 import { validateOrganizationName, createUserAccount, createUserSession } from "@mmtm/resource-tenant";
 import { prisma as db } from "@mmtm/database";
-import { createUserSessionAndRedirect } from "~/utils/session.server";
+import { createUserSessionAndRedirect, getCurrentUser } from "~/utils/session.server";
 
 export const meta: MetaFunction = () => {
   return [{ title: "Sign Up - Momentum" }, { name: "description", content: "Create your Momentum account" }];
 };
+
+export async function loader({ request }: { request: Request }) {
+  // If user is already logged in, redirect to dashboard
+  const user = await getCurrentUser(request);
+  if (user) {
+    throw new Response(null, {
+      status: 302,
+      headers: { Location: "/dashboard" },
+    });
+  }
+  return null;
+}
 
 export async function action({ request }: ActionFunctionArgs) {
   try {
