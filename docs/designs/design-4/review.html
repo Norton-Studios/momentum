@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Review & Complete Setup - Momentum Platform</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="onboarding-body">
+    <!-- Header -->
+    <header class="onboarding-header">
+        <div class="onboarding-header-container">
+            <div class="brand-logo">
+                <h1 class="brand-title">Momentum</h1>
+            </div>
+            <div class="onboarding-progress">
+                <div class="progress-steps">
+                    <div class="progress-step completed">
+                        <div class="step-number">1</div>
+                        <span class="step-label">Account</span>
+                    </div>
+                    <div class="progress-step completed">
+                        <div class="step-number">2</div>
+                        <span class="step-label">Data Sources</span>
+                    </div>
+                    <div class="progress-step completed">
+                        <div class="step-number">3</div>
+                        <span class="step-label">Teams</span>
+                    </div>
+                    <div class="progress-step active">
+                        <div class="step-number">4</div>
+                        <span class="step-label">Review</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="onboarding-main">
+        <div class="onboarding-container">
+            <div class="onboarding-content">
+                <!-- Page Header -->
+                <div class="page-header">
+                    <h2 class="page-title">Review Your Configuration</h2>
+                    <p class="page-subtitle">Please review your setup before we start collecting data. You can modify any settings after completion.</p>
+                </div>
+
+                <!-- Configuration Review -->
+                <div class="configuration-review">
+                    <!-- Account & Organization Summary -->
+                    <div class="review-section">
+                        <div class="section-header">
+                            <h3 class="section-title">
+                                <span class="section-icon">🏢</span>
+                                Organization Details
+                            </h3>
+                            <button class="btn-link edit-btn" onclick="editSection('organization')">Edit</button>
+                        </div>
+                        <div class="review-content">
+                            <div class="review-grid">
+                                <div class="review-item">
+                                    <span class="review-label">Organization:</span>
+                                    <span class="review-value">Acme Corporation</span>
+                                </div>
+                                <div class="review-item">
+                                    <span class="review-label">Company Size:</span>
+                                    <span class="review-value">201-1,000 employees</span>
+                                </div>
+                                <div class="review-item">
+                                    <span class="review-label">Primary Contact:</span>
+                                    <span class="review-value">John Smith (john.smith@acme.com)</span>
+                                </div>
+                                <div class="review-item">
+                                    <span class="review-label">Department:</span>
+                                    <span class="review-value">Engineering</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Data Sources Summary -->
+                    <div class="review-section">
+                        <div class="section-header">
+                            <h3 class="section-title">
+                                <span class="section-icon">🔗</span>
+                                Connected Data Sources
+                            </h3>
+                            <button class="btn-link edit-btn" onclick="editSection('data-sources')">Edit</button>
+                        </div>
+                        <div class="review-content">
+                            <div class="connected-sources">
+                                <div class="source-summary connected">
+                                    <div class="source-info">
+                                        <span class="source-icon">⚡</span>
+                                        <div class="source-details">
+                                            <span class="source-name">GitHub Enterprise</span>
+                                            <span class="source-scope">3 organizations, 47 repositories</span>
+                                        </div>
+                                    </div>
+                                    <span class="connection-status connected">Connected</span>
+                                </div>
+
+                                <div class="source-summary connected">
+                                    <div class="source-info">
+                                        <span class="source-icon">🔷</span>
+                                        <div class="source-details">
+                                            <span class="source-name">Jira Cloud</span>
+                                            <span class="source-scope">2 projects, 1,247 issues</span>
+                                        </div>
+                                    </div>
+                                    <span class="connection-status connected">Connected</span>
+                                </div>
+
+                                <div class="source-summary connected">
+                                    <div class="source-info">
+                                        <span class="source-icon">🔧</span>
+                                        <div class="source-details">
+                                            <span class="source-name">Jenkins</span>
+                                            <span class="source-scope">12 jobs, 847 builds</span>
+                                        </div>
+                                    </div>
+                                    <span class="connection-status connected">Connected</span>
+                                </div>
+
+                                <div class="source-summary optional">
+                                    <div class="source-info">
+                                        <span class="source-icon">🔎</span>
+                                        <div class="source-details">
+                                            <span class="source-name">SonarQube</span>
+                                            <span class="source-scope">Not connected</span>
+                                        </div>
+                                    </div>
+                                    <span class="connection-status optional">Optional</span>
+                                </div>
+                            </div>
+                            
+                            <div class="data-collection-info">
+                                <div class="info-card">
+                                    <h4 class="info-title">Data Collection Schedule</h4>
+                                    <div class="collection-schedule">
+                                        <div class="schedule-item">
+                                            <span class="schedule-source">GitHub</span>
+                                            <span class="schedule-frequency">Every 15 minutes</span>
+                                        </div>
+                                        <div class="schedule-item">
+                                            <span class="schedule-source">Jira</span>
+                                            <span class="schedule-frequency">Every 30 minutes</span>
+                                        </div>
+                                        <div class="schedule-item">
+                                            <span class="schedule-source">Jenkins</span>
+                                            <span class="schedule-frequency">Real-time webhooks</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Teams Summary -->
+                    <div class="review-section">
+                        <div class="section-header">
+                            <h3 class="section-title">
+                                <span class="section-icon">👥</span>
+                                Team Structure
+                            </h3>
+                            <button class="btn-link edit-btn" onclick="editSection('teams')">Edit</button>
+                        </div>
+                        <div class="review-content">
+                            <div class="teams-summary">
+                                <div class="team-summary-card">
+                                    <div class="team-header">
+                                        <h4 class="team-name">Frontend Team</h4>
+                                        <span class="team-status active">Active</span>
+                                    </div>
+                                    <div class="team-metrics">
+                                        <div class="metric">
+                                            <span class="metric-value">8</span>
+                                            <span class="metric-label">Repositories</span>
+                                        </div>
+                                        <div class="metric">
+                                            <span class="metric-value">12</span>
+                                            <span class="metric-label">Contributors</span>
+                                        </div>
+                                        <div class="metric">
+                                            <span class="metric-value">347</span>
+                                            <span class="metric-label">Commits (30d)</span>
+                                        </div>
+                                    </div>
+                                    <div class="team-repos">
+                                        <span class="repo-tag">web-app</span>
+                                        <span class="repo-tag">mobile-app</span>
+                                        <span class="repo-tag">ui-components</span>
+                                        <span class="repo-tag">+5 more</span>
+                                    </div>
+                                </div>
+
+                                <div class="team-summary-card">
+                                    <div class="team-header">
+                                        <h4 class="team-name">Backend Team</h4>
+                                        <span class="team-status active">Active</span>
+                                    </div>
+                                    <div class="team-metrics">
+                                        <div class="metric">
+                                            <span class="metric-value">15</span>
+                                            <span class="metric-label">Repositories</span>
+                                        </div>
+                                        <div class="metric">
+                                            <span class="metric-value">18</span>
+                                            <span class="metric-label">Contributors</span>
+                                        </div>
+                                        <div class="metric">
+                                            <span class="metric-value">523</span>
+                                            <span class="metric-label">Commits (30d)</span>
+                                        </div>
+                                    </div>
+                                    <div class="team-repos">
+                                        <span class="repo-tag">api-service</span>
+                                        <span class="repo-tag">auth-service</span>
+                                        <span class="repo-tag">data-pipeline</span>
+                                        <span class="repo-tag">+12 more</span>
+                                    </div>
+                                </div>
+
+                                <div class="team-summary-card">
+                                    <div class="team-header">
+                                        <h4 class="team-name">DevOps Team</h4>
+                                        <span class="team-status active">Active</span>
+                                    </div>
+                                    <div class="team-metrics">
+                                        <div class="metric">
+                                            <span class="metric-value">6</span>
+                                            <span class="metric-label">Repositories</span>
+                                        </div>
+                                        <div class="metric">
+                                            <span class="metric-value">8</span>
+                                            <span class="metric-label">Contributors</span>
+                                        </div>
+                                        <div class="metric">
+                                            <span class="metric-value">142</span>
+                                            <span class="metric-label">Commits (30d)</span>
+                                        </div>
+                                    </div>
+                                    <div class="team-repos">
+                                        <span class="repo-tag">infrastructure</span>
+                                        <span class="repo-tag">ci-cd-templates</span>
+                                        <span class="repo-tag">monitoring</span>
+                                        <span class="repo-tag">+3 more</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="unassigned-warning" id="unassignedWarning">
+                                <div class="warning-content">
+                                    <span class="warning-icon">⚠️</span>
+                                    <div class="warning-text">
+                                        <strong>18 repositories remain unassigned</strong>
+                                        <p>These repositories won't appear in team-specific reports until assigned.</p>
+                                    </div>
+                                    <button class="btn-link" onclick="showUnassignedRepos()">View unassigned</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Initial Data Collection -->
+                    <div class="review-section">
+                        <div class="section-header">
+                            <h3 class="section-title">
+                                <span class="section-icon">📊</span>
+                                Initial Data Collection
+                            </h3>
+                        </div>
+                        <div class="review-content">
+                            <div class="collection-options">
+                                <div class="option-card">
+                                    <label class="option-label">
+                                        <input type="radio" name="collectionMode" value="historical" checked>
+                                        <div class="option-content">
+                                            <h4 class="option-title">Include Historical Data</h4>
+                                            <p class="option-description">
+                                                Collect data from the past 90 days to provide immediate insights and baselines.
+                                                This will take approximately 10-15 minutes to complete.
+                                            </p>
+                                            <div class="option-benefits">
+                                                <span class="benefit">✅ Immediate insights</span>
+                                                <span class="benefit">✅ Historical trends</span>
+                                                <span class="benefit">✅ Baseline metrics</span>
+                                            </div>
+                                        </div>
+                                    </label>
+                                </div>
+
+                                <div class="option-card">
+                                    <label class="option-label">
+                                        <input type="radio" name="collectionMode" value="realtime">
+                                        <div class="option-content">
+                                            <h4 class="option-title">Start Fresh (Real-time Only)</h4>
+                                            <p class="option-description">
+                                                Begin collecting data from now onwards. Dashboards will populate as new activity occurs.
+                                                Setup completes immediately.
+                                            </p>
+                                            <div class="option-benefits">
+                                                <span class="benefit">⚡ Instant setup</span>
+                                                <span class="benefit">🔄 Real-time updates</span>
+                                                <span class="benefit">📈 Growth from day one</span>
+                                            </div>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Setup Summary -->
+                <div class="setup-summary">
+                    <div class="summary-header">
+                        <h3 class="summary-title">Setup Summary</h3>
+                    </div>
+                    <div class="summary-stats">
+                        <div class="summary-stat">
+                            <div class="stat-icon">🔗</div>
+                            <div class="stat-content">
+                                <span class="stat-number">3</span>
+                                <span class="stat-label">Data Sources</span>
+                            </div>
+                        </div>
+                        <div class="summary-stat">
+                            <div class="stat-icon">👥</div>
+                            <div class="stat-content">
+                                <span class="stat-number">3</span>
+                                <span class="stat-label">Teams</span>
+                            </div>
+                        </div>
+                        <div class="summary-stat">
+                            <div class="stat-icon">📁</div>
+                            <div class="stat-content">
+                                <span class="stat-number">29</span>
+                                <span class="stat-label">Assigned Repos</span>
+                            </div>
+                        </div>
+                        <div class="summary-stat">
+                            <div class="stat-icon">👤</div>
+                            <div class="stat-content">
+                                <span class="stat-number">38</span>
+                                <span class="stat-label">Contributors</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Next Steps Preview -->
+                <div class="next-steps-preview">
+                    <div class="preview-header">
+                        <h3 class="preview-title">What Happens Next?</h3>
+                    </div>
+                    <div class="steps-timeline">
+                        <div class="timeline-step">
+                            <div class="step-indicator">1</div>
+                            <div class="step-content">
+                                <h4 class="step-title">Data Collection Begins</h4>
+                                <p class="step-description">We'll start collecting data from your connected sources according to the schedule above.</p>
+                                <span class="step-duration">Immediate</span>
+                            </div>
+                        </div>
+                        <div class="timeline-step">
+                            <div class="step-indicator">2</div>
+                            <div class="step-content">
+                                <h4 class="step-title">Dashboard Preparation</h4>
+                                <p class="step-description">Your personalized dashboards and reports will be generated with initial data.</p>
+                                <span class="step-duration">5-15 minutes</span>
+                            </div>
+                        </div>
+                        <div class="timeline-step">
+                            <div class="step-indicator">3</div>
+                            <div class="step-content">
+                                <h4 class="step-title">Welcome Email</h4>
+                                <p class="step-description">You'll receive a welcome email with quick start guides and best practices.</p>
+                                <span class="step-duration">Within 1 hour</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="onboarding-sidebar">
+                <div class="sidebar-section">
+                    <h3 class="sidebar-title">Ready to Launch?</h3>
+                    <div class="launch-checklist">
+                        <div class="checklist-item completed">
+                            <span class="check-icon">✅</span>
+                            <span class="check-text">Account created</span>
+                        </div>
+                        <div class="checklist-item completed">
+                            <span class="check-icon">✅</span>
+                            <span class="check-text">Data sources connected</span>
+                        </div>
+                        <div class="checklist-item completed">
+                            <span class="check-icon">✅</span>
+                            <span class="check-text">Teams configured</span>
+                        </div>
+                        <div class="checklist-item pending">
+                            <span class="check-icon">⏳</span>
+                            <span class="check-text">Final confirmation</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
+                    <h3 class="sidebar-title">Need Support?</h3>
+                    <div class="support-options">
+                        <a href="#" class="support-link">
+                            <span class="support-icon">📚</span>
+                            <span class="support-text">Documentation</span>
+                        </a>
+                        <a href="#" class="support-link">
+                            <span class="support-icon">💬</span>
+                            <span class="support-text">Live Chat</span>
+                        </a>
+                        <a href="#" class="support-link">
+                            <span class="support-icon">📧</span>
+                            <span class="support-text">Email Support</span>
+                        </a>
+                        <a href="#" class="support-link">
+                            <span class="support-icon">📞</span>
+                            <span class="support-text">Schedule Demo</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
+                    <h3 class="sidebar-title">Security & Privacy</h3>
+                    <div class="security-badges">
+                        <div class="security-badge">
+                            <span class="badge-icon">🔒</span>
+                            <span class="badge-text">SOC 2 Compliant</span>
+                        </div>
+                        <div class="security-badge">
+                            <span class="badge-icon">🛡️</span>
+                            <span class="badge-text">GDPR Ready</span>
+                        </div>
+                        <div class="security-badge">
+                            <span class="badge-icon">🔐</span>
+                            <span class="badge-text">256-bit Encryption</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="onboarding-navigation">
+            <button class="btn-secondary" onclick="goToPreviousStep()">
+                ← Back to Team Setup
+            </button>
+            <button class="btn-primary btn-large completion-btn" id="completeSetupBtn" onclick="completeSetup()">
+                🚀 Complete Setup & Launch Dashboard
+            </button>
+        </div>
+    </main>
+
+    <!-- Completion Modal -->
+    <div class="modal-overlay" id="completionModal" style="display: none;">
+        <div class="modal-container completion-modal">
+            <div class="modal-content">
+                <div class="completion-animation">
+                    <div class="success-icon">🎉</div>
+                    <h2 class="completion-title">Setup Complete!</h2>
+                    <p class="completion-message">Your Momentum platform is being prepared. We're collecting initial data and setting up your dashboards.</p>
+                </div>
+                
+                <div class="completion-progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <div class="progress-status" id="progressStatus">Connecting to data sources...</div>
+                </div>
+
+                <div class="completion-actions">
+                    <button class="btn-primary" id="goToDashboard" onclick="goToDashboard()" style="display: none;">
+                        View Dashboard
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

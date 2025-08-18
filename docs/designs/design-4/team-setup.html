@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team Setup - Momentum Platform</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="onboarding-body">
+    <!-- Header -->
+    <header class="onboarding-header">
+        <div class="onboarding-header-container">
+            <div class="brand-logo">
+                <h1 class="brand-title">Momentum</h1>
+            </div>
+            <div class="onboarding-progress">
+                <div class="progress-steps">
+                    <div class="progress-step completed">
+                        <div class="step-number">1</div>
+                        <span class="step-label">Account</span>
+                    </div>
+                    <div class="progress-step completed">
+                        <div class="step-number">2</div>
+                        <span class="step-label">Data Sources</span>
+                    </div>
+                    <div class="progress-step active">
+                        <div class="step-number">3</div>
+                        <span class="step-label">Teams</span>
+                    </div>
+                    <div class="progress-step">
+                        <div class="step-number">4</div>
+                        <span class="step-label">Review</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="onboarding-main">
+        <div class="onboarding-container">
+            <div class="onboarding-content">
+                <!-- Page Header -->
+                <div class="page-header">
+                    <h2 class="page-title">Organize Your Teams</h2>
+                    <p class="page-subtitle">We've discovered your repositories. Now let's organize them into teams for better analytics and insights.</p>
+                </div>
+
+                <!-- Repository Discovery Summary -->
+                <div class="discovery-summary">
+                    <div class="summary-card">
+                        <div class="summary-header">
+                            <h3 class="summary-title">Repository Discovery Results</h3>
+                            <span class="discovery-status">✅ Complete</span>
+                        </div>
+                        <div class="summary-stats">
+                            <div class="stat-item">
+                                <span class="stat-number">47</span>
+                                <span class="stat-label">Repositories Found</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-number">156</span>
+                                <span class="stat-label">Contributors</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-number">3</span>
+                                <span class="stat-label">Organizations</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Team Setup Tabs -->
+                <div class="setup-tabs">
+                    <div class="tab-nav">
+                        <button class="tab-button active" onclick="showTab('auto-detect')">
+                            🤖 Auto-Detect Teams
+                        </button>
+                        <button class="tab-button" onclick="showTab('manual-create')">
+                            ➕ Manual Setup
+                        </button>
+                        <button class="tab-button" onclick="showTab('bulk-assign')">
+                            📋 Bulk Assignment
+                        </button>
+                    </div>
+
+                    <!-- Auto-Detect Tab -->
+                    <div class="tab-content active" id="auto-detect">
+                        <div class="tab-header">
+                            <h3 class="tab-title">Automatic Team Detection</h3>
+                            <p class="tab-description">We'll analyze your repositories to suggest team structures based on naming patterns, contributors, and activity.</p>
+                        </div>
+
+                        <div class="auto-detect-options">
+                            <div class="detection-method">
+                                <label class="method-label">
+                                    <input type="radio" name="detectionMethod" value="repository-names" checked>
+                                    <span class="method-icon">📁</span>
+                                    <div class="method-content">
+                                        <h4 class="method-title">Repository Name Patterns</h4>
+                                        <p class="method-description">Group repositories by common prefixes or patterns in names</p>
+                                    </div>
+                                </label>
+                            </div>
+
+                            <div class="detection-method">
+                                <label class="method-label">
+                                    <input type="radio" name="detectionMethod" value="contributors">
+                                    <span class="method-icon">👥</span>
+                                    <div class="method-content">
+                                        <h4 class="method-title">Contributor Overlap</h4>
+                                        <p class="method-description">Group repositories that share the same core contributors</p>
+                                    </div>
+                                </label>
+                            </div>
+
+                            <div class="detection-method">
+                                <label class="method-label">
+                                    <input type="radio" name="detectionMethod" value="topics">
+                                    <span class="method-icon">🏷️</span>
+                                    <div class="method-content">
+                                        <h4 class="method-title">Repository Topics & Labels</h4>
+                                        <p class="method-description">Use GitHub/GitLab topics and labels to create teams</p>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <button class="btn-primary" onclick="runAutoDetection()">
+                            🔍 Analyze & Suggest Teams
+                        </button>
+
+                        <!-- Suggested Teams (shown after analysis) -->
+                        <div class="suggested-teams" id="suggestedTeams" style="display: none;">
+                            <h4 class="suggestions-title">Suggested Team Structure</h4>
+                            
+                            <div class="team-suggestions">
+                                <div class="suggested-team">
+                                    <div class="team-header">
+                                        <h5 class="team-name">Frontend Team</h5>
+                                        <span class="confidence-score">95% confidence</span>
+                                    </div>
+                                    <div class="team-details">
+                                        <div class="team-repos">
+                                            <span class="repo-count">8 repositories</span>
+                                            <div class="repo-list">
+                                                <span class="repo-tag">web-app</span>
+                                                <span class="repo-tag">mobile-app</span>
+                                                <span class="repo-tag">ui-components</span>
+                                                <span class="repo-tag">+5 more</span>
+                                            </div>
+                                        </div>
+                                        <div class="team-contributors">
+                                            <span class="contributor-count">12 contributors</span>
+                                        </div>
+                                    </div>
+                                    <div class="team-actions">
+                                        <button class="btn-secondary btn-small" onclick="editTeam('frontend')">Edit</button>
+                                        <button class="btn-primary btn-small" onclick="acceptTeam('frontend')">Accept</button>
+                                    </div>
+                                </div>
+
+                                <div class="suggested-team">
+                                    <div class="team-header">
+                                        <h5 class="team-name">Backend Team</h5>
+                                        <span class="confidence-score">89% confidence</span>
+                                    </div>
+                                    <div class="team-details">
+                                        <div class="team-repos">
+                                            <span class="repo-count">15 repositories</span>
+                                            <div class="repo-list">
+                                                <span class="repo-tag">api-service</span>
+                                                <span class="repo-tag">auth-service</span>
+                                                <span class="repo-tag">data-pipeline</span>
+                                                <span class="repo-tag">+12 more</span>
+                                            </div>
+                                        </div>
+                                        <div class="team-contributors">
+                                            <span class="contributor-count">18 contributors</span>
+                                        </div>
+                                    </div>
+                                    <div class="team-actions">
+                                        <button class="btn-secondary btn-small" onclick="editTeam('backend')">Edit</button>
+                                        <button class="btn-primary btn-small" onclick="acceptTeam('backend')">Accept</button>
+                                    </div>
+                                </div>
+
+                                <div class="suggested-team">
+                                    <div class="team-header">
+                                        <h5 class="team-name">DevOps Team</h5>
+                                        <span class="confidence-score">92% confidence</span>
+                                    </div>
+                                    <div class="team-details">
+                                        <div class="team-repos">
+                                            <span class="repo-count">6 repositories</span>
+                                            <div class="repo-list">
+                                                <span class="repo-tag">infrastructure</span>
+                                                <span class="repo-tag">ci-cd-templates</span>
+                                                <span class="repo-tag">monitoring</span>
+                                                <span class="repo-tag">+3 more</span>
+                                            </div>
+                                        </div>
+                                        <div class="team-contributors">
+                                            <span class="contributor-count">8 contributors</span>
+                                        </div>
+                                    </div>
+                                    <div class="team-actions">
+                                        <button class="btn-secondary btn-small" onclick="editTeam('devops')">Edit</button>
+                                        <button class="btn-primary btn-small" onclick="acceptTeam('devops')">Accept</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Manual Create Tab -->
+                    <div class="tab-content" id="manual-create">
+                        <div class="tab-header">
+                            <h3 class="tab-title">Create Teams Manually</h3>
+                            <p class="tab-description">Create custom teams and assign repositories manually for complete control over your team structure.</p>
+                        </div>
+
+                        <div class="manual-team-creation">
+                            <div class="create-team-form">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="teamName" class="form-label">Team Name</label>
+                                        <input type="text" id="teamName" class="form-input" placeholder="e.g., Frontend Team">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="teamDescription" class="form-label">Description (Optional)</label>
+                                        <input type="text" id="teamDescription" class="form-input" placeholder="Brief description of the team's focus">
+                                    </div>
+                                </div>
+                                <button class="btn-primary" onclick="createTeam()">Create Team</button>
+                            </div>
+
+                            <div class="created-teams" id="createdTeams">
+                                <!-- Created teams will appear here -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bulk Assignment Tab -->
+                    <div class="tab-content" id="bulk-assign">
+                        <div class="tab-header">
+                            <h3 class="tab-title">Bulk Repository Assignment</h3>
+                            <p class="tab-description">Use regex patterns or filters to quickly assign multiple repositories to teams.</p>
+                        </div>
+
+                        <div class="bulk-assignment">
+                            <div class="assignment-rules">
+                                <div class="rule-builder">
+                                    <h4 class="rule-title">Assignment Rules</h4>
+                                    
+                                    <div class="rule-form">
+                                        <div class="form-row">
+                                            <div class="form-group">
+                                                <label for="rulePattern" class="form-label">Repository Pattern</label>
+                                                <input type="text" id="rulePattern" class="form-input" placeholder="frontend-*, web-*, ui-*">
+                                                <span class="form-hint">Use * as wildcard, separate multiple patterns with commas</span>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="ruleTeam" class="form-label">Assign to Team</label>
+                                                <select id="ruleTeam" class="form-select">
+                                                    <option value="">Select team</option>
+                                                    <option value="frontend">Frontend Team</option>
+                                                    <option value="backend">Backend Team</option>
+                                                    <option value="devops">DevOps Team</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <button class="btn-secondary" onclick="addAssignmentRule()">Add Rule</button>
+                                    </div>
+
+                                    <div class="active-rules" id="activeRules">
+                                        <div class="rule-item">
+                                            <span class="rule-pattern">frontend-*, web-*, ui-*</span>
+                                            <span class="rule-arrow">→</span>
+                                            <span class="rule-team">Frontend Team</span>
+                                            <span class="rule-matches">8 matches</span>
+                                            <button class="rule-remove" onclick="removeRule(0)">×</button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <button class="btn-primary" onclick="applyBulkRules()">
+                                    Apply Assignment Rules
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Current Team Structure -->
+                <div class="current-teams">
+                    <div class="section-header">
+                        <h3 class="section-title">Current Team Structure</h3>
+                        <div class="section-actions">
+                            <span class="team-count">3 teams configured</span>
+                            <button class="btn-secondary btn-small" onclick="resetTeams()">Reset All</button>
+                        </div>
+                    </div>
+
+                    <div class="teams-overview">
+                        <div class="team-overview-card">
+                            <div class="team-info">
+                                <h4 class="team-name">Frontend Team</h4>
+                                <div class="team-stats">
+                                    <span class="stat">8 repositories</span>
+                                    <span class="stat">12 contributors</span>
+                                </div>
+                            </div>
+                            <div class="team-actions">
+                                <button class="btn-secondary btn-small" onclick="editTeamDetails('frontend')">Edit</button>
+                                <button class="btn-danger btn-small" onclick="deleteTeam('frontend')">Delete</button>
+                            </div>
+                        </div>
+
+                        <div class="team-overview-card">
+                            <div class="team-info">
+                                <h4 class="team-name">Backend Team</h4>
+                                <div class="team-stats">
+                                    <span class="stat">15 repositories</span>
+                                    <span class="stat">18 contributors</span>
+                                </div>
+                            </div>
+                            <div class="team-actions">
+                                <button class="btn-secondary btn-small" onclick="editTeamDetails('backend')">Edit</button>
+                                <button class="btn-danger btn-small" onclick="deleteTeam('backend')">Delete</button>
+                            </div>
+                        </div>
+
+                        <div class="team-overview-card">
+                            <div class="team-info">
+                                <h4 class="team-name">DevOps Team</h4>
+                                <div class="team-stats">
+                                    <span class="stat">6 repositories</span>
+                                    <span class="stat">8 contributors</span>
+                                </div>
+                            </div>
+                            <div class="team-actions">
+                                <button class="btn-secondary btn-small" onclick="editTeamDetails('devops')">Edit</button>
+                                <button class="btn-danger btn-small" onclick="deleteTeam('devops')">Delete</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Unassigned Repositories -->
+                <div class="unassigned-repos">
+                    <div class="section-header">
+                        <h3 class="section-title">Unassigned Repositories</h3>
+                        <span class="unassigned-count">18 repositories</span>
+                    </div>
+                    
+                    <div class="repo-grid">
+                        <div class="repo-card unassigned">
+                            <div class="repo-info">
+                                <h5 class="repo-name">mobile-app-ios</h5>
+                                <div class="repo-details">
+                                    <span class="repo-language">Swift</span>
+                                    <span class="repo-activity">Active</span>
+                                </div>
+                            </div>
+                            <div class="repo-actions">
+                                <select class="assign-select" onchange="assignRepo('mobile-app-ios', this.value)">
+                                    <option value="">Assign to team...</option>
+                                    <option value="frontend">Frontend Team</option>
+                                    <option value="backend">Backend Team</option>
+                                    <option value="devops">DevOps Team</option>
+                                    <option value="new">+ Create New Team</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="repo-card unassigned">
+                            <div class="repo-info">
+                                <h5 class="repo-name">analytics-dashboard</h5>
+                                <div class="repo-details">
+                                    <span class="repo-language">Python</span>
+                                    <span class="repo-activity">Active</span>
+                                </div>
+                            </div>
+                            <div class="repo-actions">
+                                <select class="assign-select" onchange="assignRepo('analytics-dashboard', this.value)">
+                                    <option value="">Assign to team...</option>
+                                    <option value="frontend">Frontend Team</option>
+                                    <option value="backend">Backend Team</option>
+                                    <option value="devops">DevOps Team</option>
+                                    <option value="new">+ Create New Team</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- More repo cards would be dynamically generated -->
+                        <div class="repo-card more-repos">
+                            <div class="more-info">
+                                <span class="more-count">+16 more repositories</span>
+                                <button class="btn-link" onclick="showAllUnassigned()">View all</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="onboarding-sidebar">
+                <div class="sidebar-section">
+                    <h3 class="sidebar-title">Team Setup Tips</h3>
+                    
+                    <div class="tip-item">
+                        <div class="tip-icon">💡</div>
+                        <div class="tip-content">
+                            <h4 class="tip-title">Organize by Function</h4>
+                            <p class="tip-description">Group repositories by team responsibility (Frontend, Backend, DevOps) for clearer metrics.</p>
+                        </div>
+                    </div>
+
+                    <div class="tip-item">
+                        <div class="tip-icon">🎯</div>
+                        <div class="tip-content">
+                            <h4 class="tip-title">Keep Teams Focused</h4>
+                            <p class="tip-description">Smaller, focused teams (5-12 people) often provide more actionable insights than large groups.</p>
+                        </div>
+                    </div>
+
+                    <div class="tip-item">
+                        <div class="tip-icon">🔄</div>
+                        <div class="tip-content">
+                            <h4 class="tip-title">Teams Can Change</h4>
+                            <p class="tip-description">You can always reorganize teams later as your structure evolves.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
+                    <h3 class="sidebar-title">What's Next?</h3>
+                    <div class="next-steps">
+                        <div class="next-step">
+                            <span class="step-icon">📊</span>
+                            <span class="step-text">Review configuration</span>
+                        </div>
+                        <div class="next-step">
+                            <span class="step-icon">🚀</span>
+                            <span class="step-text">Start data collection</span>
+                        </div>
+                        <div class="next-step">
+                            <span class="step-icon">📈</span>
+                            <span class="step-text">View your dashboard</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="onboarding-navigation">
+            <button class="btn-secondary" onclick="goToPreviousStep()">
+                ← Back to Data Sources
+            </button>
+            <button class="btn-primary" onclick="goToNextStep()">
+                Continue to Review →
+            </button>
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>

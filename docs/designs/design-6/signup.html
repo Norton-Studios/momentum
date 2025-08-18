@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - Momentum</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="onboarding-container">
+        <div class="onboarding-card glass animate-slide-up">
+            <!-- Progress Steps -->
+            <div class="progress-steps">
+                <div class="progress-step">
+                    <div class="step-circle active">1</div>
+                    <span class="text-muted">Sign Up</span>
+                </div>
+                <div class="progress-step">
+                    <div class="step-circle"><i class="fas fa-arrow-right"></i></div>
+                </div>
+                <div class="progress-step">
+                    <div class="step-circle">2</div>
+                    <span class="text-muted">Data Sources</span>
+                </div>
+                <div class="progress-step">
+                    <div class="step-circle"><i class="fas fa-arrow-right"></i></div>
+                </div>
+                <div class="progress-step">
+                    <div class="step-circle">3</div>
+                    <span class="text-muted">Team Setup</span>
+                </div>
+                <div class="progress-step">
+                    <div class="step-circle"><i class="fas fa-arrow-right"></i></div>
+                </div>
+                <div class="progress-step">
+                    <div class="step-circle">4</div>
+                    <span class="text-muted">Complete</span>
+                </div>
+            </div>
+
+            <!-- Logo and Title -->
+            <div class="text-center mb-xl">
+                <div class="logo mb-lg" style="font-size: 2.5rem;">
+                    <i class="fas fa-rocket"></i> Momentum
+                </div>
+                <h1 class="onboarding-title">Welcome to Momentum</h1>
+                <p class="onboarding-subtitle">
+                    Create your account to start measuring and improving your team's productivity
+                </p>
+            </div>
+
+            <!-- Social Login Options -->
+            <div class="grid grid-3 gap-md mb-xl">
+                <button class="btn btn-glass">
+                    <i class="fab fa-github"></i>
+                    GitHub
+                </button>
+                <button class="btn btn-glass">
+                    <i class="fab fa-google"></i>
+                    Google
+                </button>
+                <button class="btn btn-glass">
+                    <i class="fab fa-gitlab"></i>
+                    GitLab
+                </button>
+            </div>
+
+            <!-- Divider -->
+            <div class="flex items-center mb-xl">
+                <div style="flex: 1; height: 1px; background: var(--glass-border);"></div>
+                <span class="text-muted" style="padding: 0 var(--space-md); font-size: 0.875rem;">or continue with email</span>
+                <div style="flex: 1; height: 1px; background: var(--glass-border);"></div>
+            </div>
+
+            <!-- Sign Up Form -->
+            <form class="signup-form">
+                <div class="grid grid-2 gap-md">
+                    <div class="form-group">
+                        <label class="form-label">First Name</label>
+                        <input type="text" class="form-input" placeholder="John" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Last Name</label>
+                        <input type="text" class="form-input" placeholder="Doe" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Email Address</label>
+                    <input type="email" class="form-input" placeholder="john@company.com" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <div style="position: relative;">
+                        <input type="password" class="form-input" placeholder="Create a strong password" required>
+                        <button type="button" class="password-toggle" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-muted); cursor: pointer;">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <div class="password-strength mt-sm">
+                        <div class="password-strength-bar">
+                            <div class="password-strength-fill" style="width: 0%; background: #f87171;"></div>
+                        </div>
+                        <div class="text-muted" style="font-size: 0.75rem; margin-top: 0.25rem;">
+                            Password strength: <span class="strength-text">Weak</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Organization Name</label>
+                    <input type="text" class="form-input" placeholder="Your Company" required>
+                </div>
+                
+                <!-- Organization Type -->
+                <div class="form-group">
+                    <label class="form-label">Organization Type</label>
+                    <div class="grid grid-2 gap-sm">
+                        <label class="radio-option glass-light">
+                            <input type="radio" name="orgType" value="startup" style="display: none;">
+                            <div class="radio-content">
+                                <i class="fas fa-rocket"></i>
+                                <span>Startup</span>
+                            </div>
+                        </label>
+                        <label class="radio-option glass-light">
+                            <input type="radio" name="orgType" value="enterprise" style="display: none;">
+                            <div class="radio-content">
+                                <i class="fas fa-building"></i>
+                                <span>Enterprise</span>
+                            </div>
+                        </label>
+                        <label class="radio-option glass-light">
+                            <input type="radio" name="orgType" value="agency" style="display: none;">
+                            <div class="radio-content">
+                                <i class="fas fa-users"></i>
+                                <span>Agency</span>
+                            </div>
+                        </label>
+                        <label class="radio-option glass-light">
+                            <input type="radio" name="orgType" value="other" style="display: none;">
+                            <div class="radio-content">
+                                <i class="fas fa-ellipsis-h"></i>
+                                <span>Other</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Terms and Privacy -->
+                <div class="form-group">
+                    <label class="flex items-center gap-sm cursor-pointer">
+                        <input type="checkbox" class="checkbox" required>
+                        <span class="text-muted" style="font-size: 0.875rem;">
+                            I agree to the <a href="#" class="text-primary">Terms of Service</a> and 
+                            <a href="#" class="text-primary">Privacy Policy</a>
+                        </span>
+                    </label>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="btn btn-primary w-full mb-lg" style="padding: var(--space-lg);">
+                    <i class="fas fa-arrow-right"></i>
+                    Create Account
+                </button>
+
+                <!-- Login Link -->
+                <div class="text-center">
+                    <span class="text-muted">Already have an account? </span>
+                    <a href="#" class="text-primary">Sign in</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Additional Styles -->
+    <style>
+        .password-strength-bar {
+            width: 100%;
+            height: 4px;
+            background: var(--glass-white);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .password-strength-fill {
+            height: 100%;
+            transition: all 0.3s ease;
+            border-radius: 2px;
+        }
+
+        .radio-option {
+            padding: var(--space-md);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .radio-option:hover {
+            background: var(--glass-white);
+            transform: translateY(-2px);
+        }
+
+        .radio-option input:checked + .radio-content {
+            color: var(--text-primary);
+        }
+
+        .radio-option input:checked {
+            border-color: rgba(79, 172, 254, 0.5);
+            background: rgba(79, 172, 254, 0.1);
+        }
+
+        .radio-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: var(--space-sm);
+            color: var(--text-muted);
+            transition: all 0.3s ease;
+        }
+
+        .radio-content i {
+            font-size: 1.25rem;
+        }
+
+        .checkbox {
+            width: 18px;
+            height: 18px;
+            border: 2px solid var(--glass-border);
+            border-radius: 4px;
+            background: var(--glass-white);
+            cursor: pointer;
+        }
+
+        .checkbox:checked {
+            background: var(--accent-gradient);
+            border-color: rgba(79, 172, 254, 0.5);
+        }
+
+        .text-primary {
+            color: rgba(79, 172, 254, 1);
+            text-decoration: none;
+        }
+
+        .text-primary:hover {
+            text-decoration: underline;
+        }
+
+        .cursor-pointer {
+            cursor: pointer;
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .onboarding-card {
+                margin: var(--space-md);
+                padding: var(--space-xl);
+            }
+            
+            .progress-steps {
+                flex-wrap: wrap;
+                gap: var(--space-sm);
+                margin-bottom: var(--space-lg);
+            }
+            
+            .progress-step span {
+                display: none;
+            }
+            
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+            
+            .grid-3 {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+
+    <script>
+        // Password strength checker
+        document.querySelector('input[type="password"]').addEventListener('input', function(e) {
+            const password = e.target.value;
+            const strengthBar = document.querySelector('.password-strength-fill');
+            const strengthText = document.querySelector('.strength-text');
+            
+            let strength = 0;
+            let strengthLabel = 'Weak';
+            let color = '#f87171';
+            
+            if (password.length >= 8) strength += 1;
+            if (/[a-z]/.test(password)) strength += 1;
+            if (/[A-Z]/.test(password)) strength += 1;
+            if (/[0-9]/.test(password)) strength += 1;
+            if (/[^A-Za-z0-9]/.test(password)) strength += 1;
+            
+            const percentage = (strength / 5) * 100;
+            
+            if (strength >= 4) {
+                strengthLabel = 'Strong';
+                color = '#4ade80';
+            } else if (strength >= 3) {
+                strengthLabel = 'Good';
+                color = '#fb923c';
+            } else if (strength >= 2) {
+                strengthLabel = 'Fair';
+                color = '#fbbf24';
+            }
+            
+            strengthBar.style.width = percentage + '%';
+            strengthBar.style.background = color;
+            strengthText.textContent = strengthLabel;
+        });
+
+        // Password toggle
+        document.querySelector('.password-toggle').addEventListener('click', function() {
+            const passwordInput = document.querySelector('input[type="password"], input[type="text"]');
+            const icon = this.querySelector('i');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.className = 'fas fa-eye-slash';
+            } else {
+                passwordInput.type = 'password';
+                icon.className = 'fas fa-eye';
+            }
+        });
+
+        // Radio button selection
+        document.querySelectorAll('.radio-option').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.radio-option').forEach(opt => {
+                    opt.style.borderColor = 'transparent';
+                    opt.style.background = '';
+                });
+                
+                this.style.borderColor = 'rgba(79, 172, 254, 0.5)';
+                this.style.background = 'rgba(79, 172, 254, 0.1)';
+                this.querySelector('input').checked = true;
+            });
+        });
+
+        // Form submission
+        document.querySelector('.signup-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Add loading state
+            const submitBtn = document.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating Account...';
+            submitBtn.disabled = true;
+            
+            // Simulate API call
+            setTimeout(() => {
+                window.location.href = 'data-sources.html';
+            }, 2000);
+        });
+    </script>
+</body>
+</html>

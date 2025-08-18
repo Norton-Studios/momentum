@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security & Quality Dashboard - Momentum</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* Security-focused color scheme */
+            --critical-red: #dc2626;
+            --high-red: #ef4444;
+            --medium-orange: #f97316;
+            --low-yellow: #eab308;
+            --success-green: #10b981;
+            --info-blue: #3b82f6;
+            --dark-blue: #1e40af;
+            
+            /* Neutral colors */
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-400: #9ca3af;
+            --gray-500: #6b7280;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --gray-900: #111827;
+            
+            /* UI colors */
+            --bg-primary: #ffffff;
+            --bg-secondary: var(--gray-50);
+            --border-color: var(--gray-200);
+            --text-primary: var(--gray-900);
+            --text-secondary: var(--gray-600);
+            --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .dashboard {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            width: 260px;
+            background: var(--bg-primary);
+            border-right: 1px solid var(--border-color);
+            box-shadow: var(--shadow);
+            padding: 1.5rem 0;
+        }
+
+        .logo {
+            padding: 0 1.5rem 2rem;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 2rem;
+        }
+
+        .logo h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--dark-blue);
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-item {
+            margin-bottom: 0.25rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .nav-link:hover {
+            background-color: var(--gray-100);
+            color: var(--text-primary);
+        }
+
+        .nav-link.active {
+            background-color: var(--info-blue);
+            color: white;
+            border-right: 3px solid var(--dark-blue);
+        }
+
+        .nav-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 0.75rem;
+            fill: currentColor;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+            overflow-x: auto;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .last-updated {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        /* Security Metrics Grid */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .metric-card {
+            background: var(--bg-primary);
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            border-left: 4px solid var(--info-blue);
+        }
+
+        .metric-card.critical {
+            border-left-color: var(--critical-red);
+        }
+
+        .metric-card.warning {
+            border-left-color: var(--medium-orange);
+        }
+
+        .metric-card.success {
+            border-left-color: var(--success-green);
+        }
+
+        .metric-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .metric-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .metric-icon {
+            width: 24px;
+            height: 24px;
+            opacity: 0.7;
+        }
+
+        .metric-value {
+            font-size: 2.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1;
+        }
+
+        .metric-change {
+            display: flex;
+            align-items: center;
+            margin-top: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .metric-change.positive {
+            color: var(--success-green);
+        }
+
+        .metric-change.negative {
+            color: var(--critical-red);
+        }
+
+        .metric-breakdown {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .breakdown-item {
+            flex: 1;
+            text-align: center;
+        }
+
+        .breakdown-value {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .breakdown-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+        }
+
+        .breakdown-value.critical { color: var(--critical-red); }
+        .breakdown-value.high { color: var(--high-red); }
+        .breakdown-value.medium { color: var(--medium-orange); }
+        .breakdown-value.low { color: var(--low-yellow); }
+
+        /* Charts and Tables Container */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-container {
+            background: var(--bg-primary);
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .chart-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .chart-placeholder {
+            height: 300px;
+            background: linear-gradient(135deg, var(--gray-100) 0%, var(--gray-200) 100%);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            font-style: italic;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chart-placeholder::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") repeat;
+            opacity: 0.5;
+        }
+
+        /* Vulnerability Table */
+        .vulnerability-section {
+            grid-column: 1 / -1;
+            background: var(--bg-primary);
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .filter-controls {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .filter-select {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 0.875rem;
+        }
+
+        .vulnerability-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .vulnerability-table th {
+            background: var(--gray-100);
+            padding: 0.75rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .vulnerability-table td {
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.875rem;
+        }
+
+        .vulnerability-table tr:hover {
+            background: var(--gray-50);
+        }
+
+        .severity-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .severity-badge.critical {
+            background: rgba(220, 38, 38, 0.1);
+            color: var(--critical-red);
+            border: 1px solid rgba(220, 38, 38, 0.2);
+        }
+
+        .severity-badge.high {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--high-red);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .severity-badge.medium {
+            background: rgba(249, 115, 22, 0.1);
+            color: var(--medium-orange);
+            border: 1px solid rgba(249, 115, 22, 0.2);
+        }
+
+        .severity-badge.low {
+            background: rgba(234, 179, 8, 0.1);
+            color: var(--low-yellow);
+            border: 1px solid rgba(234, 179, 8, 0.2);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .status-badge.open {
+            background: rgba(220, 38, 38, 0.1);
+            color: var(--critical-red);
+        }
+
+        .status-badge.in-progress {
+            background: rgba(249, 115, 22, 0.1);
+            color: var(--medium-orange);
+        }
+
+        .status-badge.resolved {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success-green);
+        }
+
+        /* Quality Metrics Section */
+        .quality-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .quality-card {
+            background: var(--bg-primary);
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+        }
+
+        .quality-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .quality-icon {
+            width: 32px;
+            height: 32px;
+            margin-right: 1rem;
+            padding: 0.5rem;
+            border-radius: 4px;
+            background: var(--gray-100);
+        }
+
+        .quality-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .quality-metrics {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .quality-metric {
+            text-align: center;
+            padding: 1rem;
+            background: var(--gray-50);
+            border-radius: 4px;
+        }
+
+        .quality-metric-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .quality-metric-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+        }
+
+        /* Progress Bars */
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--gray-200);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+
+        .progress-fill {
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-fill.excellent {
+            background: var(--success-green);
+        }
+
+        .progress-fill.good {
+            background: var(--info-blue);
+        }
+
+        .progress-fill.warning {
+            background: var(--medium-orange);
+        }
+
+        .progress-fill.critical {
+            background: var(--critical-red);
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--info-blue);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--dark-blue);
+        }
+
+        .btn-secondary {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: var(--gray-100);
+        }
+
+        .btn-danger {
+            background: var(--critical-red);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #b91c1c;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .metrics-grid {
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                position: relative;
+            }
+            
+            .main-content {
+                padding: 1rem;
+            }
+            
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .quality-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar">
+            <div class="logo">
+                <h1>Momentum</h1>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <svg class="nav-icon" viewBox="0 0 24 24">
+                            <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>
+                        </svg>
+                        Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link active">
+                        <svg class="nav-icon" viewBox="0 0 24 24">
+                            <path d="M12,1L3,5V11C3,16.55 6.84,21.74 12,23C17.16,21.74 21,16.55 21,11V5L12,1M12,3.18L19,6.3V11C19,15.5 16.18,19.68 12,20.81C7.82,19.68 5,15.5 5,11V6.3L12,3.18Z"/>
+                        </svg>
+                        Security
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <svg class="nav-icon" viewBox="0 0 24 24">
+                            <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+                        </svg>
+                        Code Quality
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <svg class="nav-icon" viewBox="0 0 24 24">
+                            <path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4M11,7V13H12.5L16,10.5L14.5,9L12,11.5V7H11Z"/>
+                        </svg>
+                        Vulnerabilities
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <svg class="nav-icon" viewBox="0 0 24 24">
+                            <path d="M19,3H5C3.89,3 3,3.89 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5C21,3.89 20.1,3 19,3M19,5V19H5V5H19Z"/>
+                        </svg>
+                        Test Coverage
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <svg class="nav-icon" viewBox="0 0 24 24">
+                            <path d="M17,3H7A2,2 0 0,0 5,5V21L12,18L19,21V5C19,3.89 18.1,3 17,3Z"/>
+                        </svg>
+                        Compliance
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <svg class="nav-icon" viewBox="0 0 24 24">
+                            <path d="M3,3V21H21V3H3M20,20H4V4H20V20Z"/>
+                        </svg>
+                        Reports
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="page-header">
+                <div>
+                    <h1 class="page-title">Security & Quality Dashboard</h1>
+                    <div class="last-updated">Last updated: 2 minutes ago</div>
+                </div>
+            </header>
+
+            <!-- Security Metrics Grid -->
+            <div class="metrics-grid">
+                <div class="metric-card critical">
+                    <div class="metric-header">
+                        <span class="metric-title">Total Vulnerabilities</span>
+                        <svg class="metric-icon" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4M11,7V13H12.5L16,10.5L14.5,9L12,11.5V7H11Z"/>
+                        </svg>
+                    </div>
+                    <div class="metric-value">75</div>
+                    <div class="metric-change negative">
+                        ↑ 8 new this week
+                    </div>
+                    <div class="metric-breakdown">
+                        <div class="breakdown-item">
+                            <div class="breakdown-value critical">7</div>
+                            <div class="breakdown-label">Critical</div>
+                        </div>
+                        <div class="breakdown-item">
+                            <div class="breakdown-value high">23</div>
+                            <div class="breakdown-label">High</div>
+                        </div>
+                        <div class="breakdown-item">
+                            <div class="breakdown-value medium">45</div>
+                            <div class="breakdown-label">Medium/Low</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="metric-card success">
+                    <div class="metric-header">
+                        <span class="metric-title">Code Coverage</span>
+                        <svg class="metric-icon" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M19,3H5C3.89,3 3,3.89 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5C21,3.89 20.1,3 19,3M19,5V19H5V5H19Z"/>
+                        </svg>
+                    </div>
+                    <div class="metric-value">87.3%</div>
+                    <div class="metric-change positive">
+                        ↑ 2.1% improvement
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill excellent" style="width: 87.3%"></div>
+                    </div>
+                </div>
+
+                <div class="metric-card warning">
+                    <div class="metric-header">
+                        <span class="metric-title">Code Smells</span>
+                        <svg class="metric-icon" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+                        </svg>
+                    </div>
+                    <div class="metric-value">142</div>
+                    <div class="metric-change negative">
+                        ↑ 15 since last scan
+                    </div>
+                    <div class="metric-breakdown">
+                        <div class="breakdown-item">
+                            <div class="breakdown-value high">34</div>
+                            <div class="breakdown-label">Major</div>
+                        </div>
+                        <div class="breakdown-item">
+                            <div class="breakdown-value medium">68</div>
+                            <div class="breakdown-label">Minor</div>
+                        </div>
+                        <div class="breakdown-item">
+                            <div class="breakdown-value low">40</div>
+                            <div class="breakdown-label">Info</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="metric-card warning">
+                    <div class="metric-header">
+                        <span class="metric-title">Technical Debt</span>
+                        <svg class="metric-icon" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4M11,7V13H12.5L16,10.5L14.5,9L12,11.5V7H11Z"/>
+                        </svg>
+                    </div>
+                    <div class="metric-value">2.3d</div>
+                    <div class="metric-change positive">
+                        ↓ 0.4d reduced
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill warning" style="width: 45%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts and Insights -->
+            <div class="content-grid">
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3 class="chart-title">Vulnerability Trend (Last 30 Days)</h3>
+                        <select class="filter-select">
+                            <option>All Severities</option>
+                            <option>Critical Only</option>
+                            <option>High & Critical</option>
+                        </select>
+                    </div>
+                    <div class="chart-placeholder">
+                        <span>Vulnerability trend chart would show daily counts of new vulnerabilities discovered, with lines for each severity level</span>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3 class="chart-title">Security Scan Results</h3>
+                    </div>
+                    <div class="chart-placeholder">
+                        <span>Timeline showing security scan execution status and results over time</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Code Quality Metrics -->
+            <div class="quality-grid">
+                <div class="quality-card">
+                    <div class="quality-header">
+                        <svg class="quality-icon" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+                        </svg>
+                        <h3 class="quality-title">Maintainability Index</h3>
+                    </div>
+                    <div class="quality-metrics">
+                        <div class="quality-metric">
+                            <div class="quality-metric-value" style="color: var(--success-green);">78</div>
+                            <div class="quality-metric-label">Overall Score</div>
+                        </div>
+                        <div class="quality-metric">
+                            <div class="quality-metric-value" style="color: var(--medium-orange);">12</div>
+                            <div class="quality-metric-label">Files at Risk</div>
+                        </div>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill good" style="width: 78%"></div>
+                    </div>
+                </div>
+
+                <div class="quality-card">
+                    <div class="quality-header">
+                        <svg class="quality-icon" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,17L8,13H11V9H13V13H16L12,17Z"/>
+                        </svg>
+                        <h3 class="quality-title">Cyclomatic Complexity</h3>
+                    </div>
+                    <div class="quality-metrics">
+                        <div class="quality-metric">
+                            <div class="quality-metric-value" style="color: var(--medium-orange);">6.2</div>
+                            <div class="quality-metric-label">Average</div>
+                        </div>
+                        <div class="quality-metric">
+                            <div class="quality-metric-value" style="color: var(--critical-red);">23</div>
+                            <div class="quality-metric-label">Max</div>
+                        </div>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill warning" style="width: 65%"></div>
+                    </div>
+                </div>
+
+                <div class="quality-card">
+                    <div class="quality-header">
+                        <svg class="quality-icon" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M19,3H5C3.89,3 3,3.89 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5C21,3.89 20.1,3 19,3M19,5V19H5V5H19Z"/>
+                        </svg>
+                        <h3 class="quality-title">Code Duplication</h3>
+                    </div>
+                    <div class="quality-metrics">
+                        <div class="quality-metric">
+                            <div class="quality-metric-value" style="color: var(--success-green);">3.8%</div>
+                            <div class="quality-metric-label">Duplicated</div>
+                        </div>
+                        <div class="quality-metric">
+                            <div class="quality-metric-value" style="color: var(--info-blue);">847</div>
+                            <div class="quality-metric-label">Blocks</div>
+                        </div>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill excellent" style="width: 96.2%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vulnerability Table -->
+            <div class="vulnerability-section">
+                <div class="section-header">
+                    <h2 class="section-title">Recent Vulnerabilities</h2>
+                    <div class="filter-controls">
+                        <select class="filter-select">
+                            <option>All Repositories</option>
+                            <option>Frontend</option>
+                            <option>API</option>
+                            <option>Database</option>
+                        </select>
+                        <select class="filter-select">
+                            <option>All Severities</option>
+                            <option>Critical</option>
+                            <option>High</option>
+                        </select>
+                        <select class="filter-select">
+                            <option>All Status</option>
+                            <option>Open</option>
+                            <option>In Progress</option>
+                            <option>Resolved</option>
+                        </select>
+                    </div>
+                </div>
+                <table class="vulnerability-table">
+                    <thead>
+                        <tr>
+                            <th>CVE ID</th>
+                            <th>Severity</th>
+                            <th>Package</th>
+                            <th>Description</th>
+                            <th>Status</th>
+                            <th>Age</th>
+                            <th>CVSS Score</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>CVE-2024-1234</td>
+                            <td><span class="severity-badge critical">Critical</span></td>
+                            <td>express@4.17.1</td>
+                            <td>Remote code execution via crafted request</td>
+                            <td><span class="status-badge open">Open</span></td>
+                            <td>3 days</td>
+                            <td>9.8</td>
+                        </tr>
+                        <tr>
+                            <td>CVE-2024-5678</td>
+                            <td><span class="severity-badge high">High</span></td>
+                            <td>lodash@4.17.20</td>
+                            <td>Prototype pollution vulnerability</td>
+                            <td><span class="status-badge in-progress">In Progress</span></td>
+                            <td>1 week</td>
+                            <td>7.5</td>
+                        </tr>
+                        <tr>
+                            <td>CVE-2024-9012</td>
+                            <td><span class="severity-badge high">High</span></td>
+                            <td>react@17.0.1</td>
+                            <td>Cross-site scripting (XSS) vulnerability</td>
+                            <td><span class="status-badge open">Open</span></td>
+                            <td>5 days</td>
+                            <td>7.2</td>
+                        </tr>
+                        <tr>
+                            <td>CVE-2024-3456</td>
+                            <td><span class="severity-badge medium">Medium</span></td>
+                            <td>axios@0.21.1</td>
+                            <td>Information disclosure vulnerability</td>
+                            <td><span class="status-badge resolved">Resolved</span></td>
+                            <td>2 weeks</td>
+                            <td>5.3</td>
+                        </tr>
+                        <tr>
+                            <td>CVE-2024-7890</td>
+                            <td><span class="severity-badge medium">Medium</span></td>
+                            <td>jsonwebtoken@8.5.1</td>
+                            <td>Algorithm confusion attack</td>
+                            <td><span class="status-badge in-progress">In Progress</span></td>
+                            <td>1 week</td>
+                            <td>6.1</td>
+                        </tr>
+                        <tr>
+                            <td>CVE-2024-2345</td>
+                            <td><span class="severity-badge low">Low</span></td>
+                            <td>moment@2.29.1</td>
+                            <td>Regular expression denial of service</td>
+                            <td><span class="status-badge open">Open</span></td>
+                            <td>3 weeks</td>
+                            <td>3.7</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Additional Charts -->
+            <div class="content-grid">
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3 class="chart-title">Code Coverage by Repository</h3>
+                    </div>
+                    <div class="chart-placeholder">
+                        <span>Bar chart showing test coverage percentage for each repository in the organization</span>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3 class="chart-title">Technical Debt Distribution</h3>
+                    </div>
+                    <div class="chart-placeholder">
+                        <span>Pie chart showing technical debt breakdown by category (complexity, duplication, maintainability)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <button class="btn btn-primary">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z"/>
+                    </svg>
+                    Run Security Scan
+                </button>
+                <button class="btn btn-secondary">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M14,3V5H17.59L7.76,14.83L9.17,16.24L19,6.41V10H21V3M19,19H5V5H12V3H5C3.89,3 3,3.89 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V12H19V19Z"/>
+                    </svg>
+                    Export Report
+                </button>
+                <button class="btn btn-danger">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4M11,7V13H12.5L16,10.5L14.5,9L12,11.5V7H11Z"/>
+                    </svg>
+                    Alert on Critical
+                </button>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

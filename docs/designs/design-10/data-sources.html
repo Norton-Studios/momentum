@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configure Data Sources - Momentum</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body class="data-sources-body">
+    <div class="data-sources-container">
+        <!-- Animated Background -->
+        <div class="data-flow-bg">
+            <div class="flow-line line-1"></div>
+            <div class="flow-line line-2"></div>
+            <div class="flow-line line-3"></div>
+            <div class="flow-particles">
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="setup-nav">
+            <div class="nav-brand">
+                <div class="logo-fragments">
+                    <div class="fragment"></div>
+                    <div class="fragment"></div>
+                    <div class="fragment"></div>
+                </div>
+                <span>MOMENTUM</span>
+            </div>
+            <div class="setup-progress">
+                <div class="progress-step completed">1</div>
+                <div class="progress-connector completed"></div>
+                <div class="progress-step active">2</div>
+                <div class="progress-connector"></div>
+                <div class="progress-step">3</div>
+                <div class="progress-connector"></div>
+                <div class="progress-step">4</div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="data-sources-main">
+            <header class="section-header">
+                <h1>Connect Your Data Sources</h1>
+                <p>Integrate with your development tools to unlock powerful insights</p>
+                <div class="header-visual">
+                    <div class="integration-preview">
+                        <div class="preview-node central">
+                            <div class="node-icon">M</div>
+                            <span>Momentum</span>
+                        </div>
+                        <div class="preview-connections">
+                            <div class="connection-line active"></div>
+                            <div class="connection-line"></div>
+                            <div class="connection-line"></div>
+                        </div>
+                        <div class="preview-sources">
+                            <div class="source-node">GitHub</div>
+                            <div class="source-node">GitLab</div>
+                            <div class="source-node">Jenkins</div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Data Source Categories -->
+            <section class="data-categories">
+                <!-- Version Control Systems (Required) -->
+                <div class="category-section required">
+                    <div class="category-header">
+                        <h2>Version Control Systems</h2>
+                        <span class="category-badge required">Required</span>
+                        <p>Connect your code repositories to track commits, pull requests, and code quality</p>
+                    </div>
+                    
+                    <div class="data-source-grid">
+                        <div class="data-source-card github" data-source="github">
+                            <div class="card-header">
+                                <div class="source-icon">
+                                    <svg viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+                                    </svg>
+                                </div>
+                                <div class="source-info">
+                                    <h3>GitHub</h3>
+                                    <p>Connect repositories, track PRs, and monitor code quality</p>
+                                </div>
+                                <div class="connection-status">
+                                    <div class="status-indicator"></div>
+                                </div>
+                            </div>
+                            <div class="card-content">
+                                <div class="source-features">
+                                    <div class="feature">✓ Pull Requests</div>
+                                    <div class="feature">✓ Commits & Authors</div>
+                                    <div class="feature">✓ Issues & Reviews</div>
+                                    <div class="feature">✓ Repository Analytics</div>
+                                </div>
+                                <button class="connect-btn" data-action="connect-github">
+                                    <span>Connect GitHub</span>
+                                    <div class="btn-arrow">→</div>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="data-source-card gitlab" data-source="gitlab">
+                            <div class="card-header">
+                                <div class="source-icon">
+                                    <svg viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M22.65 14.39L12 22.13 1.35 14.39a.84.84 0 01-.3-.94l1.22-3.78 2.44-7.51A.42.42 0 014.82 2a.43.43 0 01.58 0 .42.42 0 01.11.18l2.44 7.49h8.1l2.44-7.51A.42.42 0 0118.6 2a.43.43 0 01.58 0 .42.42 0 01.11.18l2.44 7.51L23 13.45a.84.84 0 01-.35.94z"/>
+                                    </svg>
+                                </div>
+                                <div class="source-info">
+                                    <h3>GitLab</h3>
+                                    <p>Integrate with GitLab repositories and CI/CD pipelines</p>
+                                </div>
+                                <div class="connection-status">
+                                    <div class="status-indicator"></div>
+                                </div>
+                            </div>
+                            <div class="card-content">
+                                <div class="source-features">
+                                    <div class="feature">✓ Merge Requests</div>
+                                    <div class="feature">✓ Pipeline Data</div>
+                                    <div class="feature">✓ Issue Tracking</div>
+                                    <div class="feature">✓ Code Quality</div>
+                                </div>
+                                <button class="connect-btn" data-action="connect-gitlab">
+                                    <span>Connect GitLab</span>
+                                    <div class="btn-arrow">→</div>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="data-source-card bitbucket" data-source="bitbucket">
+                            <div class="card-header">
+                                <div class="source-icon">
+                                    <svg viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M.778 1.213a.768.768 0 00-.768.892l3.263 19.81c.084.5.515.868 1.022.873H19.95a.772.772 0 00.77-.646l3.27-20.03a.768.768 0 00-.768-.891zM14.52 15.53H9.522L8.17 8.466h7.561z"/>
+                                    </svg>
+                                </div>
+                                <div class="source-info">
+                                    <h3>Bitbucket</h3>
+                                    <p>Connect Atlassian Bitbucket repositories and workflows</p>
+                                </div>
+                                <div class="connection-status">
+                                    <div class="status-indicator"></div>
+                                </div>
+                            </div>
+                            <div class="card-content">
+                                <div class="source-features">
+                                    <div class="feature">✓ Pull Requests</div>
+                                    <div class="feature">✓ Pipelines</div>
+                                    <div class="feature">✓ Jira Integration</div>
+                                    <div class="feature">✓ Branch Analysis</div>
+                                </div>
+                                <button class="connect-btn" data-action="connect-bitbucket">
+                                    <span>Connect Bitbucket</span>
+                                    <div class="btn-arrow">→</div>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CI/CD Systems (Optional) -->
+                <div class="category-section optional">
+                    <div class="category-header">
+                        <h2>CI/CD & Build Systems</h2>
+                        <span class="category-badge optional">Optional</span>
+                        <p>Monitor deployment frequency, build success rates, and pipeline performance</p>
+                    </div>
+                    
+                    <div class="data-source-grid">
+                        <div class="data-source-card jenkins" data-source="jenkins">
+                            <div class="card-header">
+                                <div class="source-icon">
+                                    <svg viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm-.5 1.5h1v4h-1v-4zm5.303 2.197l.707.707-2.828 2.828-.707-.707 2.828-2.828zM5.5 11.5h4v1h-4v-1zm8.5 8.5h-4v-1h4v1zm5.303-2.197l-.707.707-2.828-2.828.707-.707 2.828 2.828z"/>
+                                    </svg>
+                                </div>
+                                <div class="source-info">
+                                    <h3>Jenkins</h3>
+                                    <p>Track build pipelines and deployment metrics</p>
+                                </div>
+                                <div class="connection-status">
+                                    <div class="status-indicator"></div>
+                                </div>
+                            </div>
+                            <div class="card-content">
+                                <div class="source-features">
+                                    <div class="feature">✓ Build Status</div>
+                                    <div class="feature">✓ Test Results</div>
+                                    <div class="feature">✓ Deploy Frequency</div>
+                                    <div class="feature">✓ Pipeline Metrics</div>
+                                </div>
+                                <button class="connect-btn" data-action="connect-jenkins">
+                                    <span>Connect Jenkins</span>
+                                    <div class="btn-arrow">→</div>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="data-source-card github-actions" data-source="github-actions">
+                            <div class="card-header">
+                                <div class="source-icon">
+                                    <svg viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm0 18c-4.418 0-8-3.582-8-8s3.582-8 8-8 8 3.582 8 8-3.582 8-8 8z"/>
+                                        <path d="M12 6.5L15.5 10 12 13.5 8.5 10z"/>
+                                    </svg>
+                                </div>
+                                <div class="source-info">
+                                    <h3>GitHub Actions</h3>
+                                    <p>Monitor workflows and action performance</p>
+                                </div>
+                                <div class="connection-status">
+                                    <div class="status-indicator"></div>
+                                </div>
+                            </div>
+                            <div class="card-content">
+                                <div class="source-features">
+                                    <div class="feature">✓ Workflow Status</div>
+                                    <div class="feature">✓ Action Metrics</div>
+                                    <div class="feature">✓ Runner Usage</div>
+                                    <div class="feature">✓ Job Duration</div>
+                                </div>
+                                <button class="connect-btn" data-action="connect-actions">
+                                    <span>Connect Actions</span>
+                                    <div class="btn-arrow">→</div>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="data-source-card circleci" data-source="circleci">
+                            <div class="card-header">
+                                <div class="source-icon">
+                                    <svg viewBox="0 0 24 24" fill="currentColor">
+                                        <circle cx="12" cy="12" r="10"/>
+                                        <circle cx="12" cy="12" r="4"/>
+                                    </svg>
+                                </div>
+                                <div class="source-info">
+                                    <h3>CircleCI</h3>
+                                    <p>Integrate continuous integration workflows</p>
+                                </div>
+                                <div class="connection-status">
+                                    <div class="status-indicator"></div>
+                                </div>
+                            </div>
+                            <div class="card-content">
+                                <div class="source-features">
+                                    <div class="feature">✓ Pipeline Data</div>
+                                    <div class="feature">✓ Build Analytics</div>
+                                    <div class="feature">✓ Test Insights</div>
+                                    <div class="feature">✓ Resource Usage</div>
+                                </div>
+                                <button class="connect-btn" data-action="connect-circleci">
+                                    <span>Connect CircleCI</span>
+                                    <div class="btn-arrow">→</div>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Project Management (Optional) -->
+                <div class="category-section optional">
+                    <div class="category-header">
+                        <h2>Project Management</h2>
+                        <span class="category-badge optional">Optional</span>
+                        <p>Track issues, sprint progress, and development velocity</p>
+                    </div>
+                    
+                    <div class="data-source-grid">
+                        <div class="data-source-card jira" data-source="jira">
+                            <div class="card-header">
+                                <div class="source-icon">
+                                    <svg viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M11.571 11.513H0a5.218 5.218 0 000 1.04h11.571a5.218 5.218 0 000-1.04zm0 0"/>
+                                        <path d="M24 11.513H12.43a5.218 5.218 0 000 1.04H24a5.218 5.218 0 000-1.04zm0 0"/>
+                                    </svg>
+                                </div>
+                                <div class="source-info">
+                                    <h3>Jira</h3>
+                                    <p>Sync issues, sprints, and project tracking data</p>
+                                </div>
+                                <div class="connection-status">
+                                    <div class="status-indicator"></div>
+                                </div>
+                            </div>
+                            <div class="card-content">
+                                <div class="source-features">
+                                    <div class="feature">✓ Issue Tracking</div>
+                                    <div class="feature">✓ Sprint Metrics</div>
+                                    <div class="feature">✓ Velocity Reports</div>
+                                    <div class="feature">✓ Burndown Charts</div>
+                                </div>
+                                <button class="connect-btn" data-action="connect-jira">
+                                    <span>Connect Jira</span>
+                                    <div class="btn-arrow">→</div>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="data-source-card linear" data-source="linear">
+                            <div class="card-header">
+                                <div class="source-icon">
+                                    <svg viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M12 2L2 7v10c0 5.55 3.84 9.74 9 9 5.16-.74 9-4.45 9-10V7l-10-5z"/>
+                                    </svg>
+                                </div>
+                                <div class="source-info">
+                                    <h3>Linear</h3>
+                                    <p>Modern issue tracking and project management</p>
+                                </div>
+                                <div class="connection-status">
+                                    <div class="status-indicator"></div>
+                                </div>
+                            </div>
+                            <div class="card-content">
+                                <div class="source-features">
+                                    <div class="feature">✓ Issue Management</div>
+                                    <div class="feature">✓ Cycle Tracking</div>
+                                    <div class="feature">✓ Team Velocity</div>
+                                    <div class="feature">✓ Roadmap Planning</div>
+                                </div>
+                                <button class="connect-btn" data-action="connect-linear">
+                                    <span>Connect Linear</span>
+                                    <div class="btn-arrow">→</div>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Code Quality (Optional) -->
+                <div class="category-section optional">
+                    <div class="category-header">
+                        <h2>Code Quality & Security</h2>
+                        <span class="category-badge optional">Optional</span>
+                        <p>Monitor code quality metrics, security vulnerabilities, and technical debt</p>
+                    </div>
+                    
+                    <div class="data-source-grid">
+                        <div class="data-source-card sonarqube" data-source="sonarqube">
+                            <div class="card-header">
+                                <div class="source-icon">
+                                    <svg viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                                    </svg>
+                                </div>
+                                <div class="source-info">
+                                    <h3>SonarQube</h3>
+                                    <p>Code quality analysis and technical debt tracking</p>
+                                </div>
+                                <div class="connection-status">
+                                    <div class="status-indicator"></div>
+                                </div>
+                            </div>
+                            <div class="card-content">
+                                <div class="source-features">
+                                    <div class="feature">✓ Code Coverage</div>
+                                    <div class="feature">✓ Quality Gates</div>
+                                    <div class="feature">✓ Security Hotspots</div>
+                                    <div class="feature">✓ Technical Debt</div>
+                                </div>
+                                <button class="connect-btn" data-action="connect-sonar">
+                                    <span>Connect SonarQube</span>
+                                    <div class="btn-arrow">→</div>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="data-source-card snyk" data-source="snyk">
+                            <div class="card-header">
+                                <div class="source-icon">
+                                    <svg viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                    </svg>
+                                </div>
+                                <div class="source-info">
+                                    <h3>Snyk</h3>
+                                    <p>Security vulnerability scanning and monitoring</p>
+                                </div>
+                                <div class="connection-status">
+                                    <div class="status-indicator"></div>
+                                </div>
+                            </div>
+                            <div class="card-content">
+                                <div class="source-features">
+                                    <div class="feature">✓ Vulnerability Scan</div>
+                                    <div class="feature">✓ License Issues</div>
+                                    <div class="feature">✓ Dependency Health</div>
+                                    <div class="feature">✓ Fix Suggestions</div>
+                                </div>
+                                <button class="connect-btn" data-action="connect-snyk">
+                                    <span>Connect Snyk</span>
+                                    <div class="btn-arrow">→</div>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Connection Summary -->
+            <section class="connection-summary">
+                <div class="summary-header">
+                    <h3>Connection Summary</h3>
+                    <div class="summary-stats">
+                        <div class="stat">
+                            <span class="stat-number">0</span>
+                            <span class="stat-label">Connected</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-number">1</span>
+                            <span class="stat-label">Required</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="summary-content">
+                    <div class="requirement-notice">
+                        <div class="notice-icon">⚠️</div>
+                        <div class="notice-text">
+                            <strong>Version Control System Required</strong>
+                            <p>You need to connect at least one VCS (GitHub, GitLab, or Bitbucket) to continue.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Navigation Actions -->
+            <div class="form-actions">
+                <button class="action-btn secondary" onclick="history.back()">
+                    <span>← Back</span>
+                </button>
+                <button class="action-btn primary" id="continueBtn" disabled>
+                    <span>Continue to Team Setup</span>
+                    <div class="btn-arrow">→</div>
+                </button>
+            </div>
+        </main>
+    </div>
+
+    <!-- Connection Modal Template -->
+    <div class="modal-overlay" id="connectionModal">
+        <div class="connection-modal">
+            <div class="modal-header">
+                <h3 id="modalTitle">Connect GitHub</h3>
+                <button class="modal-close">×</button>
+            </div>
+            <div class="modal-content">
+                <div class="auth-flow">
+                    <div class="auth-step active">
+                        <div class="step-icon">🔐</div>
+                        <h4>Authorize Access</h4>
+                        <p>Grant Momentum permission to access your repositories and data</p>
+                        <button class="auth-btn">Authorize with GitHub</button>
+                    </div>
+                    <div class="auth-step">
+                        <div class="step-icon">📡</div>
+                        <h4>Configure Scope</h4>
+                        <p>Select which organizations and repositories to include</p>
+                    </div>
+                    <div class="auth-step">
+                        <div class="step-icon">✅</div>
+                        <h4>Verify Connection</h4>
+                        <p>Test the connection and begin data synchronization</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

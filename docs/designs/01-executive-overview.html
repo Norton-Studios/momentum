@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Executive Overview - Momentum Developer Productivity</title>
+    <style>
+        /* CSS Custom Properties for Design System */
+        :root {
+            --primary-blue: #2563eb;
+            --secondary-blue: #3b82f6;
+            --light-blue: #dbeafe;
+            --accent-blue: #1e40af;
+            --dark-gray: #1f2937;
+            --medium-gray: #6b7280;
+            --light-gray: #f9fafb;
+            --border-gray: #e5e7eb;
+            --success-green: #10b981;
+            --warning-orange: #f59e0b;
+            --error-red: #ef4444;
+            --white: #ffffff;
+            --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --border-radius: 8px;
+            --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+        }
+
+        /* Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--light-gray);
+            color: var(--dark-gray);
+            line-height: 1.6;
+        }
+
+        /* Header Styles */
+        .header {
+            background-color: var(--white);
+            border-bottom: 1px solid var(--border-gray);
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 64px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-blue);
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue));
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .nav {
+            display: flex;
+            gap: 32px;
+        }
+
+        .nav-link {
+            color: var(--medium-gray);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: var(--border-radius);
+            transition: all 0.2s ease;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: var(--primary-blue);
+            background-color: var(--light-blue);
+        }
+
+        /* Main Layout */
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 32px 24px;
+        }
+
+        .page-header {
+            margin-bottom: 32px;
+        }
+
+        .page-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--dark-gray);
+            margin-bottom: 8px;
+        }
+
+        .page-subtitle {
+            color: var(--medium-gray);
+            font-size: 16px;
+        }
+
+        /* KPI Cards Grid */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .kpi-card {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            padding: 24px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-gray);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .kpi-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .kpi-title {
+            color: var(--medium-gray);
+            font-size: 14px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .kpi-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+        }
+
+        .kpi-icon.commits { background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue)); }
+        .kpi-icon.developers { background: linear-gradient(135deg, var(--success-green), #22c55e); }
+        .kpi-icon.deployments { background: linear-gradient(135deg, var(--warning-orange), #fbbf24); }
+        .kpi-icon.coverage { background: linear-gradient(135deg, #8b5cf6, #a855f7); }
+
+        .kpi-value {
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--dark-gray);
+            margin-bottom: 8px;
+        }
+
+        .kpi-change {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .kpi-change.positive { color: var(--success-green); }
+        .kpi-change.negative { color: var(--error-red); }
+
+        /* Charts Grid */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .chart-card {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            padding: 24px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-gray);
+        }
+
+        .chart-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-gray);
+        }
+
+        .chart-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--dark-gray);
+        }
+
+        .chart-period {
+            font-size: 14px;
+            color: var(--medium-gray);
+            background: var(--light-gray);
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: 1px solid var(--border-gray);
+        }
+
+        /* Chart Placeholders */
+        .chart-placeholder {
+            height: 300px;
+            background: linear-gradient(135deg, var(--light-blue) 0%, #f0f9ff 100%);
+            border-radius: var(--border-radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-blue);
+            font-weight: 500;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .line-chart {
+            background: linear-gradient(135deg, var(--light-blue) 0%, #f0f9ff 100%);
+            position: relative;
+        }
+
+        .line-chart::after {
+            content: '';
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            height: 2px;
+            background: var(--primary-blue);
+            border-radius: 1px;
+            opacity: 0.3;
+        }
+
+        .bar-chart {
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+        }
+
+        .donut-chart {
+            background: linear-gradient(135deg, #fefce8 0%, #fef3c7 100%);
+            position: relative;
+        }
+
+        .donut-chart::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80px;
+            height: 80px;
+            border: 12px solid var(--warning-orange);
+            border-top-color: transparent;
+            border-radius: 50%;
+            opacity: 0.3;
+        }
+
+        /* Bottom Grid */
+        .bottom-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        /* Team Performance Table */
+        .team-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .team-table th,
+        .team-table td {
+            text-align: left;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-gray);
+        }
+
+        .team-table th {
+            background: var(--light-gray);
+            font-weight: 600;
+            color: var(--dark-gray);
+            font-size: 14px;
+        }
+
+        .team-table td {
+            font-size: 14px;
+            color: var(--dark-gray);
+        }
+
+        .team-name {
+            font-weight: 500;
+        }
+
+        .performance-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .performance-badge.high {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .performance-badge.medium {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .performance-badge.low {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .bottom-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                padding: 0 16px;
+            }
+            
+            .nav {
+                display: none;
+            }
+            
+            .main-container {
+                padding: 24px 16px;
+            }
+            
+            .kpi-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .page-title {
+                font-size: 24px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .kpi-value {
+                font-size: 28px;
+            }
+            
+            .chart-placeholder {
+                height: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <a href="#" class="logo">
+                <div class="logo-icon">M</div>
+                <span>Momentum</span>
+            </a>
+            <nav class="nav">
+                <a href="#" class="nav-link active">Dashboard</a>
+                <a href="#" class="nav-link">Teams</a>
+                <a href="#" class="nav-link">Repositories</a>
+                <a href="#" class="nav-link">Reports</a>
+                <a href="#" class="nav-link">Settings</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1 class="page-title">Executive Overview</h1>
+            <p class="page-subtitle">High-level insights into your development team's productivity and performance</p>
+        </div>
+
+        <!-- KPI Cards -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-header">
+                    <h3 class="kpi-title">Total Commits</h3>
+                    <div class="kpi-icon commits">📝</div>
+                </div>
+                <div class="kpi-value">2,847</div>
+                <div class="kpi-change positive">
+                    ↗ +12.5% from last month
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-header">
+                    <h3 class="kpi-title">Active Developers</h3>
+                    <div class="kpi-icon developers">👥</div>
+                </div>
+                <div class="kpi-value">23</div>
+                <div class="kpi-change positive">
+                    ↗ +2 new developers
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-header">
+                    <h3 class="kpi-title">Deployment Success</h3>
+                    <div class="kpi-icon deployments">🚀</div>
+                </div>
+                <div class="kpi-value">94.2%</div>
+                <div class="kpi-change positive">
+                    ↗ +1.8% improvement
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-header">
+                    <h3 class="kpi-title">Code Coverage</h3>
+                    <div class="kpi-icon coverage">🛡️</div>
+                </div>
+                <div class="kpi-value">87.3%</div>
+                <div class="kpi-change negative">
+                    ↘ -2.1% from target
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="charts-grid">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3 class="chart-title">Monthly Commit Trends</h3>
+                    <select class="chart-period">
+                        <option>Last 6 Months</option>
+                        <option>Last 12 Months</option>
+                        <option>Year to Date</option>
+                    </select>
+                </div>
+                <div class="chart-placeholder line-chart">
+                    <span>📈 Line Chart: Commit trends over time</span>
+                </div>
+            </div>
+
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3 class="chart-title">Pipeline Success Rate</h3>
+                    <select class="chart-period">
+                        <option>This Month</option>
+                        <option>Last Month</option>
+                        <option>Last Quarter</option>
+                    </select>
+                </div>
+                <div class="chart-placeholder donut-chart">
+                    <span>🍩 94.2% Success Rate</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Section -->
+        <div class="bottom-grid">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3 class="chart-title">Team Performance Comparison</h3>
+                    <select class="chart-period">
+                        <option>This Quarter</option>
+                        <option>Last Quarter</option>
+                        <option>Year to Date</option>
+                    </select>
+                </div>
+                <div class="chart-placeholder bar-chart">
+                    <span>📊 Bar Chart: Team performance metrics</span>
+                </div>
+            </div>
+
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3 class="chart-title">Top Performing Teams</h3>
+                </div>
+                <table class="team-table">
+                    <thead>
+                        <tr>
+                            <th>Team</th>
+                            <th>Commits</th>
+                            <th>Success Rate</th>
+                            <th>Performance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="team-name">Frontend Team</td>
+                            <td>1,247</td>
+                            <td>96.8%</td>
+                            <td><span class="performance-badge high">High</span></td>
+                        </tr>
+                        <tr>
+                            <td class="team-name">Backend Team</td>
+                            <td>982</td>
+                            <td>94.1%</td>
+                            <td><span class="performance-badge high">High</span></td>
+                        </tr>
+                        <tr>
+                            <td class="team-name">DevOps Team</td>
+                            <td>418</td>
+                            <td>98.2%</td>
+                            <td><span class="performance-badge high">High</span></td>
+                        </tr>
+                        <tr>
+                            <td class="team-name">QA Team</td>
+                            <td>200</td>
+                            <td>88.5%</td>
+                            <td><span class="performance-badge medium">Medium</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

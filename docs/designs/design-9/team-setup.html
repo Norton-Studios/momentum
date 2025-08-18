@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team Setup - Momentum</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+</head>
+<body>
+    <div class="onboarding">
+        <div class="onboarding-card fade-in" style="max-width: 1000px;">
+            <!-- Progress Bar -->
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: 66%;"></div>
+            </div>
+
+            <!-- Header -->
+            <div class="onboarding-header">
+                <div style="display: flex; align-items: center; gap: var(--spacing-base); margin-bottom: var(--spacing-xl);">
+                    <a href="#" class="navbar-brand" style="margin-bottom: 0;">
+                        <div style="width: 40px; height: 40px; background: var(--gradient-primary); border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 1.25rem;">M</div>
+                        Momentum
+                    </a>
+                    <div style="margin-left: auto; display: flex; align-items: center; gap: var(--spacing-sm);">
+                        <span class="caption">Step 2 of 3</span>
+                    </div>
+                </div>
+                <h1 class="display-2" style="margin-bottom: var(--spacing-base);">Organize Your Teams</h1>
+                <p class="body-large">Structure your development teams and assign repositories for accurate analytics and insights.</p>
+            </div>
+
+            <!-- Body -->
+            <div class="onboarding-body">
+                <!-- Repository Discovery -->
+                <div style="background: var(--color-emerald-50); border-radius: var(--radius-lg); padding: var(--spacing-xl); margin-bottom: var(--spacing-3xl); border: 1px solid var(--color-emerald-200);">
+                    <div style="display: flex; align-items: center; gap: var(--spacing-sm); margin-bottom: var(--spacing-base);">
+                        <i data-lucide="check-circle" style="color: var(--color-emerald-600); width: 20px; height: 20px;"></i>
+                        <h3 class="heading-3">Repository Discovery Complete</h3>
+                    </div>
+                    <p class="body-base" style="color: var(--color-emerald-700); margin-bottom: var(--spacing-base);">
+                        Found <strong>24 repositories</strong> from your connected GitHub organization.
+                    </p>
+                    <div style="display: flex; gap: var(--spacing-sm);">
+                        <span class="badge badge-success">12 Active</span>
+                        <span class="badge badge-warning">8 Low Activity</span>
+                        <span class="badge badge-neutral">4 Archived</span>
+                    </div>
+                </div>
+
+                <!-- Team Creation Section -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-3xl); margin-bottom: var(--spacing-3xl);">
+                    <!-- Left Column: Team Management -->
+                    <div>
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--spacing-xl);">
+                            <h3 class="heading-2">Development Teams</h3>
+                            <button class="btn btn-primary" onclick="showCreateTeamModal()">
+                                <i data-lucide="plus" style="width: 16px; height: 16px;"></i>
+                                Create Team
+                            </button>
+                        </div>
+
+                        <!-- Teams List -->
+                        <div class="team-list" id="teamsList">
+                            <div class="team-item">
+                                <div class="team-info">
+                                    <div class="team-avatar">FE</div>
+                                    <div class="team-details">
+                                        <h4>Frontend Team</h4>
+                                        <p>8 repositories • React, TypeScript, Next.js</p>
+                                    </div>
+                                </div>
+                                <div style="display: flex; gap: var(--spacing-sm);">
+                                    <button class="btn btn-ghost btn-sm" onclick="editTeam('frontend')">
+                                        <i data-lucide="edit-2" style="width: 14px; height: 14px;"></i>
+                                    </button>
+                                    <button class="btn btn-ghost btn-sm" onclick="deleteTeam('frontend')">
+                                        <i data-lucide="trash-2" style="width: 14px; height: 14px;"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="team-item">
+                                <div class="team-info">
+                                    <div class="team-avatar">API</div>
+                                    <div class="team-details">
+                                        <h4>Backend API Team</h4>
+                                        <p>6 repositories • Node.js, Python, GraphQL</p>
+                                    </div>
+                                </div>
+                                <div style="display: flex; gap: var(--spacing-sm);">
+                                    <button class="btn btn-ghost btn-sm" onclick="editTeam('backend')">
+                                        <i data-lucide="edit-2" style="width: 14px; height: 14px;"></i>
+                                    </button>
+                                    <button class="btn btn-ghost btn-sm" onclick="deleteTeam('backend')">
+                                        <i data-lucide="trash-2" style="width: 14px; height: 14px;"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="team-item">
+                                <div class="team-info">
+                                    <div class="team-avatar">INF</div>
+                                    <div class="team-details">
+                                        <h4>Infrastructure Team</h4>
+                                        <p>4 repositories • DevOps, Kubernetes, Terraform</p>
+                                    </div>
+                                </div>
+                                <div style="display: flex; gap: var(--spacing-sm);">
+                                    <button class="btn btn-ghost btn-sm" onclick="editTeam('infrastructure')">
+                                        <i data-lucide="edit-2" style="width: 14px; height: 14px;"></i>
+                                    </button>
+                                    <button class="btn btn-ghost btn-sm" onclick="deleteTeam('infrastructure')">
+                                        <i data-lucide="trash-2" style="width: 14px; height: 14px;"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="team-item">
+                                <div class="team-info">
+                                    <div class="team-avatar">MOB</div>
+                                    <div class="team-details">
+                                        <h4>Mobile Team</h4>
+                                        <p>3 repositories • React Native, Swift, Kotlin</p>
+                                    </div>
+                                </div>
+                                <div style="display: flex; gap: var(--spacing-sm);">
+                                    <button class="btn btn-ghost btn-sm" onclick="editTeam('mobile')">
+                                        <i data-lucide="edit-2" style="width: 14px; height: 14px;"></i>
+                                    </button>
+                                    <button class="btn btn-ghost btn-sm" onclick="deleteTeam('mobile')">
+                                        <i data-lucide="trash-2" style="width: 14px; height: 14px;"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="team-item">
+                                <div class="team-info">
+                                    <div class="team-avatar">QA</div>
+                                    <div class="team-details">
+                                        <h4>Quality Assurance</h4>
+                                        <p>3 repositories • Testing, Automation, Cypress</p>
+                                    </div>
+                                </div>
+                                <div style="display: flex; gap: var(--spacing-sm);">
+                                    <button class="btn btn-ghost btn-sm" onclick="editTeam('qa')">
+                                        <i data-lucide="edit-2" style="width: 14px; height: 14px;"></i>
+                                    </button>
+                                    <button class="btn btn-ghost btn-sm" onclick="deleteTeam('qa')">
+                                        <i data-lucide="trash-2" style="width: 14px; height: 14px;"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Repository Assignment -->
+                    <div>
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--spacing-lg);">
+                            <h3 class="heading-2">Repository Assignment</h3>
+                            <div style="display: flex; gap: var(--spacing-sm);">
+                                <button class="btn btn-ghost btn-sm" onclick="toggleAssignmentMode('regex')">
+                                    <i data-lucide="hash" style="width: 14px; height: 14px;"></i>
+                                    Regex
+                                </button>
+                                <button class="btn btn-ghost btn-sm" onclick="toggleAssignmentMode('labels')">
+                                    <i data-lucide="tag" style="width: 14px; height: 14px;"></i>
+                                    Labels
+                                </button>
+                                <button class="btn btn-primary btn-sm" onclick="toggleAssignmentMode('bulk')">
+                                    <i data-lucide="check-square" style="width: 14px; height: 14px;"></i>
+                                    Bulk Select
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Assignment Mode Indicator -->
+                        <div id="assignmentModeIndicator" style="background: var(--color-blue-50); border-radius: var(--radius-base); padding: var(--spacing-sm) var(--spacing-base); margin-bottom: var(--spacing-base); border: 1px solid var(--color-blue-200);">
+                            <div style="display: flex; align-items: center; gap: var(--spacing-xs);">
+                                <i data-lucide="check-square" style="color: var(--color-blue-600); width: 16px; height: 16px;"></i>
+                                <span class="body-small" style="color: var(--color-blue-700); font-weight: 500;">Bulk Selection Mode</span>
+                            </div>
+                        </div>
+
+                        <!-- Search and Filter -->
+                        <div style="margin-bottom: var(--spacing-lg);">
+                            <div style="position: relative;">
+                                <input type="text" class="form-control" placeholder="Search repositories..." style="padding-left: 2.5rem;">
+                                <i data-lucide="search" style="position: absolute; left: var(--spacing-sm); top: 50%; transform: translateY(-50%); color: var(--color-slate-400); width: 16px; height: 16px;"></i>
+                            </div>
+                        </div>
+
+                        <!-- Repository List -->
+                        <div class="repository-list" id="repositoryList">
+                            <div class="repository-item">
+                                <input type="checkbox" class="repository-checkbox" id="repo-frontend-app">
+                                <div style="flex: 1;">
+                                    <div class="repository-name">frontend-app</div>
+                                    <div style="display: flex; gap: var(--spacing-xs); margin-top: var(--spacing-xs);">
+                                        <span class="badge badge-info">TypeScript</span>
+                                        <span class="badge badge-neutral">React</span>
+                                    </div>
+                                </div>
+                                <div class="repository-description">Main web application</div>
+                            </div>
+
+                            <div class="repository-item">
+                                <input type="checkbox" class="repository-checkbox" id="repo-frontend-components">
+                                <div style="flex: 1;">
+                                    <div class="repository-name">frontend-components</div>
+                                    <div style="display: flex; gap: var(--spacing-xs); margin-top: var(--spacing-xs);">
+                                        <span class="badge badge-info">TypeScript</span>
+                                        <span class="badge badge-neutral">Library</span>
+                                    </div>
+                                </div>
+                                <div class="repository-description">Shared UI components</div>
+                            </div>
+
+                            <div class="repository-item">
+                                <input type="checkbox" class="repository-checkbox" id="repo-api-gateway">
+                                <div style="flex: 1;">
+                                    <div class="repository-name">api-gateway</div>
+                                    <div style="display: flex; gap: var(--spacing-xs); margin-top: var(--spacing-xs);">
+                                        <span class="badge badge-success">Node.js</span>
+                                        <span class="badge badge-neutral">GraphQL</span>
+                                    </div>
+                                </div>
+                                <div class="repository-description">Main API gateway</div>
+                            </div>
+
+                            <div class="repository-item">
+                                <input type="checkbox" class="repository-checkbox" id="repo-user-service">
+                                <div style="flex: 1;">
+                                    <div class="repository-name">user-service</div>
+                                    <div style="display: flex; gap: var(--spacing-xs); margin-top: var(--spacing-xs);">
+                                        <span class="badge badge-warning">Python</span>
+                                        <span class="badge badge-neutral">Django</span>
+                                    </div>
+                                </div>
+                                <div class="repository-description">User management service</div>
+                            </div>
+
+                            <div class="repository-item">
+                                <input type="checkbox" class="repository-checkbox" id="repo-mobile-app">
+                                <div style="flex: 1;">
+                                    <div class="repository-name">mobile-app</div>
+                                    <div style="display: flex; gap: var(--spacing-xs); margin-top: var(--spacing-xs);">
+                                        <span class="badge badge-info">React Native</span>
+                                        <span class="badge badge-neutral">Mobile</span>
+                                    </div>
+                                </div>
+                                <div class="repository-description">Cross-platform mobile app</div>
+                            </div>
+
+                            <div class="repository-item">
+                                <input type="checkbox" class="repository-checkbox" id="repo-infrastructure">
+                                <div style="flex: 1;">
+                                    <div class="repository-name">infrastructure</div>
+                                    <div style="display: flex; gap: var(--spacing-xs); margin-top: var(--spacing-xs);">
+                                        <span class="badge badge-error">Terraform</span>
+                                        <span class="badge badge-neutral">DevOps</span>
+                                    </div>
+                                </div>
+                                <div class="repository-description">Infrastructure as code</div>
+                            </div>
+
+                            <div class="repository-item">
+                                <input type="checkbox" class="repository-checkbox" id="repo-e2e-tests">
+                                <div style="flex: 1;">
+                                    <div class="repository-name">e2e-tests</div>
+                                    <div style="display: flex; gap: var(--spacing-xs); margin-top: var(--spacing-xs);">
+                                        <span class="badge badge-info">TypeScript</span>
+                                        <span class="badge badge-neutral">Cypress</span>
+                                    </div>
+                                </div>
+                                <div class="repository-description">End-to-end test suite</div>
+                            </div>
+                        </div>
+
+                        <!-- Assignment Actions -->
+                        <div style="margin-top: var(--spacing-lg); padding: var(--spacing-lg); background: var(--color-slate-50); border-radius: var(--radius-lg); border: 1px solid var(--color-slate-200);">
+                            <div style="display: flex; align-items: center; gap: var(--spacing-base); margin-bottom: var(--spacing-base);">
+                                <span class="body-small" style="font-weight: 600;">Assign selected repositories to:</span>
+                                <select class="form-control form-select" style="max-width: 200px;">
+                                    <option value="">Select team...</option>
+                                    <option value="frontend">Frontend Team</option>
+                                    <option value="backend">Backend API Team</option>
+                                    <option value="infrastructure">Infrastructure Team</option>
+                                    <option value="mobile">Mobile Team</option>
+                                    <option value="qa">Quality Assurance</option>
+                                </select>
+                                <button class="btn btn-primary btn-sm">
+                                    <i data-lucide="arrow-right" style="width: 14px; height: 14px;"></i>
+                                    Assign
+                                </button>
+                            </div>
+                            <div style="display: flex; gap: var(--spacing-sm);">
+                                <button class="btn btn-ghost btn-sm" onclick="selectAllRepositories()">Select All</button>
+                                <button class="btn btn-ghost btn-sm" onclick="clearRepositorySelection()">Clear Selection</button>
+                                <span class="caption" style="margin-left: auto; align-self: center;">
+                                    <span id="selectedCount">0</span> repositories selected
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Smart Assignment Suggestions -->
+                <div style="background: var(--color-amber-50); border-radius: var(--radius-lg); padding: var(--spacing-xl); border: 1px solid var(--color-amber-200);">
+                    <div style="display: flex; align-items: center; gap: var(--spacing-sm); margin-bottom: var(--spacing-base);">
+                        <i data-lucide="lightbulb" style="color: var(--color-amber-600); width: 20px; height: 20px;"></i>
+                        <h4 class="heading-3">Smart Assignment Suggestions</h4>
+                    </div>
+                    <p class="body-base" style="color: var(--color-amber-700); margin-bottom: var(--spacing-base);">
+                        Based on repository names and languages, we suggest these assignments:
+                    </p>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: var(--spacing-base);">
+                        <div style="background: white; border-radius: var(--radius-base); padding: var(--spacing-base); border: 1px solid var(--color-amber-300);">
+                            <div class="body-small" style="font-weight: 600; margin-bottom: var(--spacing-xs);">Frontend Team</div>
+                            <div style="display: flex; flex-wrap: gap: var(--spacing-xs);">
+                                <span class="badge badge-neutral" style="font-size: 0.625rem;">frontend-app</span>
+                                <span class="badge badge-neutral" style="font-size: 0.625rem;">frontend-components</span>
+                                <span class="badge badge-neutral" style="font-size: 0.625rem;">design-system</span>
+                            </div>
+                        </div>
+                        <div style="background: white; border-radius: var(--radius-base); padding: var(--spacing-base); border: 1px solid var(--color-amber-300);">
+                            <div class="body-small" style="font-weight: 600; margin-bottom: var(--spacing-xs);">Backend API Team</div>
+                            <div style="display: flex; flex-wrap: gap: var(--spacing-xs);">
+                                <span class="badge badge-neutral" style="font-size: 0.625rem;">api-gateway</span>
+                                <span class="badge badge-neutral" style="font-size: 0.625rem;">user-service</span>
+                                <span class="badge badge-neutral" style="font-size: 0.625rem;">auth-service</span>
+                            </div>
+                        </div>
+                        <div style="background: white; border-radius: var(--radius-base); padding: var(--spacing-base); border: 1px solid var(--color-amber-300);">
+                            <div class="body-small" style="font-weight: 600; margin-bottom: var(--spacing-xs);">Infrastructure Team</div>
+                            <div style="display: flex; flex-wrap: gap: var(--spacing-xs);">
+                                <span class="badge badge-neutral" style="font-size: 0.625rem;">infrastructure</span>
+                                <span class="badge badge-neutral" style="font-size: 0.625rem;">k8s-configs</span>
+                                <span class="badge badge-neutral" style="font-size: 0.625rem;">monitoring</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="margin-top: var(--spacing-base);">
+                        <button class="btn btn-primary btn-sm">
+                            <i data-lucide="zap" style="width: 14px; height: 14px;"></i>
+                            Apply Smart Assignments
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="onboarding-footer">
+                <button class="btn btn-ghost" onclick="window.history.back()">
+                    <i data-lucide="arrow-left" style="width: 16px; height: 16px;"></i>
+                    Back
+                </button>
+                <button class="btn btn-primary" onclick="continueToReview()">
+                    Review & Complete
+                    <i data-lucide="arrow-right" style="width: 16px; height: 16px;"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Team Modal -->
+    <div id="createTeamModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 1000; align-items: center; justify-content: center;">
+        <div style="background: white; border-radius: var(--radius-xl); padding: var(--spacing-3xl); max-width: 500px; width: 90%; box-shadow: var(--shadow-premium);">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--spacing-xl);">
+                <h3 class="heading-2">Create New Team</h3>
+                <button onclick="hideCreateTeamModal()" style="background: none; border: none; cursor: pointer; color: var(--color-slate-400);">
+                    <i data-lucide="x" style="width: 24px; height: 24px;"></i>
+                </button>
+            </div>
+            
+            <form id="createTeamForm" style="display: flex; flex-direction: column; gap: var(--spacing-lg);">
+                <div class="form-group">
+                    <label class="form-label" for="teamName">Team Name</label>
+                    <input type="text" id="teamName" class="form-control" placeholder="e.g., Data Science Team" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="teamDescription">Description</label>
+                    <textarea id="teamDescription" class="form-control" rows="3" placeholder="Brief description of the team's responsibilities..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="teamColor">Team Color</label>
+                    <div style="display: flex; gap: var(--spacing-sm);">
+                        <input type="color" id="teamColor" value="#667eea" style="width: 50px; height: 40px; border: 2px solid var(--color-slate-200); border-radius: var(--radius-base); cursor: pointer;">
+                        <input type="text" class="form-control" value="#667eea" readonly style="flex: 1;">
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: var(--spacing-base); justify-content: flex-end; margin-top: var(--spacing-lg);">
+                    <button type="button" class="btn btn-ghost" onclick="hideCreateTeamModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Team</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let assignmentMode = 'bulk';
+        let selectedRepositories = new Set();
+
+        function showCreateTeamModal() {
+            document.getElementById('createTeamModal').style.display = 'flex';
+        }
+
+        function hideCreateTeamModal() {
+            document.getElementById('createTeamModal').style.display = 'none';
+            document.getElementById('createTeamForm').reset();
+        }
+
+        function toggleAssignmentMode(mode) {
+            assignmentMode = mode;
+            const indicator = document.getElementById('assignmentModeIndicator');
+            
+            switch(mode) {
+                case 'regex':
+                    indicator.innerHTML = `
+                        <div style="display: flex; align-items: center; gap: var(--spacing-xs);">
+                            <i data-lucide="hash" style="color: var(--color-blue-600); width: 16px; height: 16px;"></i>
+                            <span class="body-small" style="color: var(--color-blue-700); font-weight: 500;">Regex Pattern Mode</span>
+                        </div>
+                    `;
+                    break;
+                case 'labels':
+                    indicator.innerHTML = `
+                        <div style="display: flex; align-items: center; gap: var(--spacing-xs);">
+                            <i data-lucide="tag" style="color: var(--color-blue-600); width: 16px; height: 16px;"></i>
+                            <span class="body-small" style="color: var(--color-blue-700); font-weight: 500;">Label-based Assignment</span>
+                        </div>
+                    `;
+                    break;
+                default:
+                    indicator.innerHTML = `
+                        <div style="display: flex; align-items: center; gap: var(--spacing-xs);">
+                            <i data-lucide="check-square" style="color: var(--color-blue-600); width: 16px; height: 16px;"></i>
+                            <span class="body-small" style="color: var(--color-blue-700); font-weight: 500;">Bulk Selection Mode</span>
+                        </div>
+                    `;
+            }
+            
+            lucide.createIcons();
+        }
+
+        function selectAllRepositories() {
+            const checkboxes = document.querySelectorAll('.repository-checkbox');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = true;
+                selectedRepositories.add(checkbox.id);
+            });
+            updateSelectedCount();
+        }
+
+        function clearRepositorySelection() {
+            const checkboxes = document.querySelectorAll('.repository-checkbox');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = false;
+                selectedRepositories.delete(checkbox.id);
+            });
+            updateSelectedCount();
+        }
+
+        function updateSelectedCount() {
+            document.getElementById('selectedCount').textContent = selectedRepositories.size;
+        }
+
+        function editTeam(teamId) {
+            console.log('Edit team:', teamId);
+            // Implement team editing functionality
+        }
+
+        function deleteTeam(teamId) {
+            if (confirm('Are you sure you want to delete this team?')) {
+                console.log('Delete team:', teamId);
+                // Implement team deletion functionality
+            }
+        }
+
+        function continueToReview() {
+            const continueBtn = event.target;
+            const originalText = continueBtn.innerHTML;
+            
+            continueBtn.innerHTML = `
+                <div style="width: 16px; height: 16px; border: 2px solid currentColor; border-top: 2px solid transparent; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                Saving...
+            `;
+            continueBtn.disabled = true;
+            
+            setTimeout(() => {
+                window.location.href = 'review.html';
+            }, 1500);
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Repository checkbox listeners
+            const checkboxes = document.querySelectorAll('.repository-checkbox');
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    if (this.checked) {
+                        selectedRepositories.add(this.id);
+                    } else {
+                        selectedRepositories.delete(this.id);
+                    }
+                    updateSelectedCount();
+                });
+            });
+
+            // Create team form listener
+            document.getElementById('createTeamForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const formData = new FormData(e.target);
+                const teamName = formData.get('teamName') || document.getElementById('teamName').value;
+                
+                // Add team to list (simplified implementation)
+                console.log('Creating team:', teamName);
+                
+                hideCreateTeamModal();
+            });
+
+            // Team color picker synchronization
+            const colorPicker = document.getElementById('teamColor');
+            const colorInput = colorPicker.nextElementSibling;
+            
+            colorPicker.addEventListener('change', function() {
+                colorInput.value = this.value;
+            });
+        });
+
+        // Add CSS animation for spinner
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Initialize Lucide icons
+        lucide.createIcons();
+    </script>
+</body>
+</html>

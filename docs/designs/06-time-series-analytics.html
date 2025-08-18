@@ -1,0 +1,1235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Time-Series Analytics Dashboard - Momentum</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Analytics Color Palette */
+            --primary-blue: #1e40af;
+            --secondary-blue: #3b82f6;
+            --light-blue: #60a5fa;
+            --primary-purple: #7c3aed;
+            --secondary-purple: #a855f7;
+            --light-purple: #c084fc;
+            --primary-teal: #0d9488;
+            --secondary-teal: #14b8a6;
+            --light-teal: #5eead4;
+            --accent-cyan: #06b6d4;
+            --accent-indigo: #6366f1;
+            
+            /* Neutral Colors */
+            --background: #0f1419;
+            --surface: #1a1f2e;
+            --surface-elevated: #242b3d;
+            --surface-hover: #2d3548;
+            --border: #374151;
+            --border-light: #4b5563;
+            
+            /* Text Colors */
+            --text-primary: #f9fafb;
+            --text-secondary: #d1d5db;
+            --text-muted: #9ca3af;
+            
+            /* Status Colors */
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --info: var(--accent-cyan);
+            
+            /* Typography */
+            --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-size-xs: 0.75rem;
+            --font-size-sm: 0.875rem;
+            --font-size-base: 1rem;
+            --font-size-lg: 1.125rem;
+            --font-size-xl: 1.25rem;
+            --font-size-2xl: 1.5rem;
+            --font-size-3xl: 1.875rem;
+            
+            /* Spacing */
+            --spacing-xs: 0.25rem;
+            --spacing-sm: 0.5rem;
+            --spacing-md: 1rem;
+            --spacing-lg: 1.5rem;
+            --spacing-xl: 2rem;
+            --spacing-2xl: 3rem;
+            
+            /* Shadows */
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            
+            /* Border Radius */
+            --radius-sm: 0.375rem;
+            --radius-md: 0.5rem;
+            --radius-lg: 0.75rem;
+            --radius-xl: 1rem;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--background);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Layout */
+        .dashboard {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            grid-template-rows: auto 1fr;
+            grid-template-areas: 
+                "sidebar header"
+                "sidebar main";
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            grid-area: sidebar;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            padding: var(--spacing-xl);
+            overflow-y: auto;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-2xl);
+            padding-bottom: var(--spacing-lg);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--primary-blue), var(--primary-purple));
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: var(--font-size-lg);
+        }
+
+        .logo-text {
+            font-size: var(--font-size-xl);
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .nav {
+            list-style: none;
+        }
+
+        .nav-item {
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            padding: var(--spacing-md) var(--spacing-lg);
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: var(--radius-md);
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+
+        .nav-link:hover {
+            background: var(--surface-hover);
+            color: var(--text-primary);
+            transform: translateX(4px);
+        }
+
+        .nav-link.active {
+            background: linear-gradient(135deg, var(--primary-blue), var(--primary-purple));
+            color: white;
+            box-shadow: var(--shadow-md);
+        }
+
+        .nav-icon {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Header */
+        .header {
+            grid-area: header;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: var(--spacing-lg) var(--spacing-xl);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header-title {
+            font-size: var(--font-size-2xl);
+            font-weight: 700;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+        }
+
+        .header-subtitle {
+            font-size: var(--font-size-sm);
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-lg);
+        }
+
+        /* Time Period Selector */
+        .time-selector {
+            display: flex;
+            background: var(--surface-elevated);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+        }
+
+        .time-option {
+            padding: var(--spacing-sm) var(--spacing-lg);
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-family: inherit;
+            font-size: var(--font-size-sm);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .time-option:hover {
+            background: var(--surface-hover);
+            color: var(--text-primary);
+        }
+
+        .time-option.active {
+            background: var(--primary-blue);
+            color: white;
+        }
+
+        /* Main Content */
+        .main {
+            grid-area: main;
+            padding: var(--spacing-xl);
+            overflow-y: auto;
+        }
+
+        /* Metrics Grid */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-2xl);
+        }
+
+        .metric-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            padding: var(--spacing-xl);
+            transition: all 0.3s ease;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-xl);
+            border-color: var(--border-light);
+        }
+
+        .metric-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .metric-title {
+            font-size: var(--font-size-sm);
+            color: var(--text-muted);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .metric-trend {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            font-size: var(--font-size-xs);
+            font-weight: 600;
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border-radius: var(--radius-sm);
+        }
+
+        .metric-trend.positive {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .metric-trend.negative {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--error);
+        }
+
+        .metric-trend.neutral {
+            background: rgba(156, 163, 175, 0.1);
+            color: var(--text-muted);
+        }
+
+        .metric-value {
+            font-size: var(--font-size-3xl);
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .metric-subtitle {
+            font-size: var(--font-size-sm);
+            color: var(--text-secondary);
+        }
+
+        .metric-chart {
+            height: 60px;
+            margin-top: var(--spacing-lg);
+            background: linear-gradient(90deg, transparent, var(--primary-blue), var(--primary-purple), transparent);
+            border-radius: var(--radius-sm);
+            opacity: 0.3;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .metric-chart::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: repeating-linear-gradient(
+                90deg,
+                transparent,
+                transparent 10px,
+                rgba(255, 255, 255, 0.1) 10px,
+                rgba(255, 255, 255, 0.1) 11px
+            );
+        }
+
+        /* Charts Section */
+        .charts-section {
+            margin-bottom: var(--spacing-2xl);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .section-title {
+            font-size: var(--font-size-2xl);
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            grid-template-rows: auto auto;
+            gap: var(--spacing-lg);
+        }
+
+        .chart-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            padding: var(--spacing-xl);
+            transition: all 0.3s ease;
+        }
+
+        .chart-card:hover {
+            border-color: var(--border-light);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .chart-card.large {
+            grid-row: span 2;
+        }
+
+        .chart-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--spacing-lg);
+            padding-bottom: var(--spacing-md);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .chart-title {
+            font-size: var(--font-size-lg);
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .chart-controls {
+            display: flex;
+            gap: var(--spacing-sm);
+        }
+
+        .chart-control {
+            padding: var(--spacing-xs) var(--spacing-md);
+            background: var(--surface-elevated);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+            font-size: var(--font-size-xs);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .chart-control:hover {
+            background: var(--surface-hover);
+            color: var(--text-primary);
+        }
+
+        .chart-control.active {
+            background: var(--primary-blue);
+            color: white;
+            border-color: var(--primary-blue);
+        }
+
+        .chart-content {
+            height: 300px;
+            position: relative;
+            background: linear-gradient(135deg, 
+                rgba(30, 64, 175, 0.05), 
+                rgba(124, 58, 237, 0.05), 
+                rgba(13, 148, 136, 0.05)
+            );
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            font-size: var(--font-size-sm);
+            overflow: hidden;
+        }
+
+        .chart-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 20px,
+                    rgba(255, 255, 255, 0.02) 20px,
+                    rgba(255, 255, 255, 0.02) 21px
+                ),
+                repeating-linear-gradient(
+                    90deg,
+                    transparent,
+                    transparent 30px,
+                    rgba(255, 255, 255, 0.02) 30px,
+                    rgba(255, 255, 255, 0.02) 31px
+                );
+        }
+
+        .chart-content.large {
+            height: 620px;
+        }
+
+        .chart-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-lg);
+            margin-top: var(--spacing-lg);
+            padding-top: var(--spacing-md);
+            border-top: 1px solid var(--border);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .legend-color.blue {
+            background: var(--primary-blue);
+        }
+
+        .legend-color.purple {
+            background: var(--primary-purple);
+        }
+
+        .legend-color.teal {
+            background: var(--primary-teal);
+        }
+
+        .legend-color.cyan {
+            background: var(--accent-cyan);
+        }
+
+        .legend-label {
+            font-size: var(--font-size-sm);
+            color: var(--text-secondary);
+        }
+
+        /* Comparative Analysis */
+        .comparative-section {
+            margin-bottom: var(--spacing-2xl);
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: var(--spacing-lg);
+        }
+
+        .comparison-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            padding: var(--spacing-xl);
+            transition: all 0.3s ease;
+        }
+
+        .comparison-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--border-light);
+        }
+
+        .comparison-header {
+            display: flex;
+            align-items: center;
+            justify-content: between;
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .comparison-title {
+            font-size: var(--font-size-lg);
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .comparison-period {
+            font-size: var(--font-size-sm);
+            color: var(--text-muted);
+        }
+
+        .comparison-metrics {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-md);
+        }
+
+        .comparison-metric {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: var(--spacing-md);
+            background: var(--surface-elevated);
+            border-radius: var(--radius-md);
+        }
+
+        .comparison-metric-label {
+            font-size: var(--font-size-sm);
+            color: var(--text-secondary);
+        }
+
+        .comparison-metric-value {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .comparison-value {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .comparison-change {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            font-size: var(--font-size-xs);
+            font-weight: 600;
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border-radius: var(--radius-sm);
+        }
+
+        .comparison-change.positive {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .comparison-change.negative {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--error);
+        }
+
+        /* Statistical Insights */
+        .insights-section {
+            margin-bottom: var(--spacing-2xl);
+        }
+
+        .insights-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: var(--spacing-lg);
+        }
+
+        .insight-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            padding: var(--spacing-xl);
+            transition: all 0.3s ease;
+        }
+
+        .insight-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary-blue);
+        }
+
+        .insight-type {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            padding: var(--spacing-xs) var(--spacing-md);
+            background: rgba(30, 64, 175, 0.1);
+            color: var(--primary-blue);
+            border-radius: var(--radius-sm);
+            font-size: var(--font-size-xs);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .insight-title {
+            font-size: var(--font-size-lg);
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .insight-description {
+            font-size: var(--font-size-sm);
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .insight-stats {
+            display: flex;
+            gap: var(--spacing-lg);
+            padding-top: var(--spacing-md);
+            border-top: 1px solid var(--border);
+        }
+
+        .insight-stat {
+            text-align: center;
+        }
+
+        .insight-stat-value {
+            font-size: var(--font-size-xl);
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .insight-stat-label {
+            font-size: var(--font-size-xs);
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .chart-card.large {
+                grid-row: span 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+                grid-template-areas: 
+                    "header"
+                    "main";
+            }
+            
+            .sidebar {
+                display: none;
+            }
+            
+            .main {
+                padding: var(--spacing-lg);
+            }
+            
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header-actions {
+                flex-direction: column;
+                gap: var(--spacing-md);
+            }
+            
+            .time-selector {
+                flex-wrap: wrap;
+            }
+        }
+
+        /* Animation keyframes */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .metric-card,
+        .chart-card,
+        .comparison-card,
+        .insight-card {
+            animation: slideIn 0.6s ease-out;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--surface);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: var(--radius-sm);
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--border-light);
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <div class="logo-icon">M</div>
+                <div class="logo-text">Momentum</div>
+            </div>
+            
+            <nav>
+                <ul class="nav">
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <span class="nav-icon">📊</span>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link active">
+                            <span class="nav-icon">📈</span>
+                            Analytics
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <span class="nav-icon">📉</span>
+                            Trends
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <span class="nav-icon">🕒</span>
+                            Historical Data
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <span class="nav-icon">🔮</span>
+                            Forecasting
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <span class="nav-icon">💡</span>
+                            Insights
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <span class="nav-icon">📋</span>
+                            Reports
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Header -->
+        <header class="header">
+            <div>
+                <h1 class="header-title">
+                    Time-Series Analytics
+                    <span class="header-subtitle">Advanced temporal analysis and trend forecasting</span>
+                </h1>
+            </div>
+            
+            <div class="header-actions">
+                <div class="time-selector">
+                    <button class="time-option">7D</button>
+                    <button class="time-option active">30D</button>
+                    <button class="time-option">90D</button>
+                    <button class="time-option">6M</button>
+                    <button class="time-option">1Y</button>
+                    <button class="time-option">Custom</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main">
+            <!-- Time-Focused Metrics -->
+            <section class="metrics-section">
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <h3 class="metric-title">30-Day Velocity Trend</h3>
+                            <span class="metric-trend positive">
+                                ↗ +12.5%
+                            </span>
+                        </div>
+                        <div class="metric-value">847</div>
+                        <div class="metric-subtitle">Story Points Completed</div>
+                        <div class="metric-chart"></div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <h3 class="metric-title">Weekly Growth Rate</h3>
+                            <span class="metric-trend positive">
+                                ↗ +8.7%
+                            </span>
+                        </div>
+                        <div class="metric-value">156</div>
+                        <div class="metric-subtitle">Commits per Week</div>
+                        <div class="metric-chart"></div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <h3 class="metric-title">Monthly Deployment Rate</h3>
+                            <span class="metric-trend negative">
+                                ↘ -3.2%
+                            </span>
+                        </div>
+                        <div class="metric-value">24</div>
+                        <div class="metric-subtitle">Deployments this Month</div>
+                        <div class="metric-chart"></div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <h3 class="metric-title">Seasonal Pattern Score</h3>
+                            <span class="metric-trend neutral">
+                                → 0.0%
+                            </span>
+                        </div>
+                        <div class="metric-value">0.73</div>
+                        <div class="metric-subtitle">Autocorrelation Coefficient</div>
+                        <div class="metric-chart"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Charts Section -->
+            <section class="charts-section">
+                <div class="section-header">
+                    <h2 class="section-title">Temporal Analysis</h2>
+                </div>
+
+                <div class="charts-grid">
+                    <!-- Multi-line Trend Chart -->
+                    <div class="chart-card large">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Development Activity Trends</h3>
+                            <div class="chart-controls">
+                                <button class="chart-control active">All Metrics</button>
+                                <button class="chart-control">Commits</button>
+                                <button class="chart-control">MRs</button>
+                                <button class="chart-control">Builds</button>
+                            </div>
+                        </div>
+                        <div class="chart-content large">
+                            Multi-line Chart: Commits, Merge Requests, Builds over Time
+                        </div>
+                        <div class="chart-legend">
+                            <div class="legend-item">
+                                <div class="legend-color blue"></div>
+                                <span class="legend-label">Commits</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color purple"></div>
+                                <span class="legend-label">Merge Requests</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color teal"></div>
+                                <span class="legend-label">Builds</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color cyan"></div>
+                                <span class="legend-label">Deployments</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Area Chart -->
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Cumulative Metrics</h3>
+                            <div class="chart-controls">
+                                <button class="chart-control active">Lines of Code</button>
+                                <button class="chart-control">Test Coverage</button>
+                            </div>
+                        </div>
+                        <div class="chart-content">
+                            Area Chart: Cumulative Growth
+                        </div>
+                    </div>
+
+                    <!-- Velocity Candlestick Chart -->
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Velocity Distribution</h3>
+                            <div class="chart-controls">
+                                <button class="chart-control active">Sprint</button>
+                                <button class="chart-control">Weekly</button>
+                            </div>
+                        </div>
+                        <div class="chart-content">
+                            Candlestick Chart: Min/Max/Avg Velocity
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Seasonal Heatmap -->
+            <section class="charts-section">
+                <div class="section-header">
+                    <h2 class="section-title">Seasonal Patterns</h2>
+                </div>
+
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3 class="chart-title">Activity Heatmap</h3>
+                        <div class="chart-controls">
+                            <button class="chart-control active">Hour of Day</button>
+                            <button class="chart-control">Day of Week</button>
+                            <button class="chart-control">Month</button>
+                        </div>
+                    </div>
+                    <div class="chart-content">
+                        Seasonal Heatmap: Activity patterns by time periods
+                    </div>
+                </div>
+            </section>
+
+            <!-- Comparative Analysis -->
+            <section class="comparative-section">
+                <div class="section-header">
+                    <h2 class="section-title">Period-over-Period Analysis</h2>
+                </div>
+
+                <div class="comparison-grid">
+                    <div class="comparison-card">
+                        <div class="comparison-header">
+                            <h3 class="comparison-title">This Month vs Last Month</h3>
+                            <div class="comparison-period">Jan 2024 vs Dec 2023</div>
+                        </div>
+                        <div class="comparison-metrics">
+                            <div class="comparison-metric">
+                                <span class="comparison-metric-label">Commits</span>
+                                <div class="comparison-metric-value">
+                                    <span class="comparison-value">1,247</span>
+                                    <span class="comparison-change positive">+15.3%</span>
+                                </div>
+                            </div>
+                            <div class="comparison-metric">
+                                <span class="comparison-metric-label">Merge Requests</span>
+                                <div class="comparison-metric-value">
+                                    <span class="comparison-value">89</span>
+                                    <span class="comparison-change positive">+22.1%</span>
+                                </div>
+                            </div>
+                            <div class="comparison-metric">
+                                <span class="comparison-metric-label">Deployments</span>
+                                <div class="comparison-metric-value">
+                                    <span class="comparison-value">24</span>
+                                    <span class="comparison-change negative">-8.5%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="comparison-card">
+                        <div class="comparison-header">
+                            <h3 class="comparison-title">This Quarter vs Last Quarter</h3>
+                            <div class="comparison-period">Q1 2024 vs Q4 2023</div>
+                        </div>
+                        <div class="comparison-metrics">
+                            <div class="comparison-metric">
+                                <span class="comparison-metric-label">Velocity</span>
+                                <div class="comparison-metric-value">
+                                    <span class="comparison-value">2,847</span>
+                                    <span class="comparison-change positive">+12.7%</span>
+                                </div>
+                            </div>
+                            <div class="comparison-metric">
+                                <span class="comparison-metric-label">Bug Reports</span>
+                                <div class="comparison-metric-value">
+                                    <span class="comparison-value">156</span>
+                                    <span class="comparison-change negative">-18.9%</span>
+                                </div>
+                            </div>
+                            <div class="comparison-metric">
+                                <span class="comparison-metric-label">Test Coverage</span>
+                                <div class="comparison-metric-value">
+                                    <span class="comparison-value">87.3%</span>
+                                    <span class="comparison-change positive">+4.2%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="comparison-card">
+                        <div class="comparison-header">
+                            <h3 class="comparison-title">Year-over-Year</h3>
+                            <div class="comparison-period">2024 vs 2023</div>
+                        </div>
+                        <div class="comparison-metrics">
+                            <div class="comparison-metric">
+                                <span class="comparison-metric-label">Team Growth</span>
+                                <div class="comparison-metric-value">
+                                    <span class="comparison-value">28</span>
+                                    <span class="comparison-change positive">+33.3%</span>
+                                </div>
+                            </div>
+                            <div class="comparison-metric">
+                                <span class="comparison-metric-label">Code Quality</span>
+                                <div class="comparison-metric-value">
+                                    <span class="comparison-value">8.7/10</span>
+                                    <span class="comparison-change positive">+12.9%</span>
+                                </div>
+                            </div>
+                            <div class="comparison-metric">
+                                <span class="comparison-metric-label">Deployment Freq</span>
+                                <div class="comparison-metric-value">
+                                    <span class="comparison-value">2.3x/day</span>
+                                    <span class="comparison-change positive">+67.8%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Statistical Insights -->
+            <section class="insights-section">
+                <div class="section-header">
+                    <h2 class="section-title">Statistical Insights</h2>
+                </div>
+
+                <div class="insights-grid">
+                    <div class="insight-card">
+                        <div class="insight-type">Trend Analysis</div>
+                        <h3 class="insight-title">Positive Acceleration Detected</h3>
+                        <p class="insight-description">
+                            Development velocity shows strong positive acceleration with a 95% confidence interval. 
+                            The team's output has increased consistently over the past 8 weeks with minimal variance.
+                        </p>
+                        <div class="insight-stats">
+                            <div class="insight-stat">
+                                <div class="insight-stat-value">0.73</div>
+                                <div class="insight-stat-label">R-Squared</div>
+                            </div>
+                            <div class="insight-stat">
+                                <div class="insight-stat-value">95%</div>
+                                <div class="insight-stat-label">Confidence</div>
+                            </div>
+                            <div class="insight-stat">
+                                <div class="insight-stat-value">+15.3%</div>
+                                <div class="insight-stat-label">Weekly Growth</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="insight-card">
+                        <div class="insight-type">Seasonality</div>
+                        <h3 class="insight-title">Strong Weekly Patterns</h3>
+                        <p class="insight-description">
+                            Clear cyclical patterns emerge in commit activity, with peak performance on Tuesday-Wednesday 
+                            and reduced activity during weekends. Autocorrelation analysis confirms 7-day seasonality.
+                        </p>
+                        <div class="insight-stats">
+                            <div class="insight-stat">
+                                <div class="insight-stat-value">0.85</div>
+                                <div class="insight-stat-label">Periodicity</div>
+                            </div>
+                            <div class="insight-stat">
+                                <div class="insight-stat-value">7</div>
+                                <div class="insight-stat-label">Day Cycle</div>
+                            </div>
+                            <div class="insight-stat">
+                                <div class="insight-stat-value">42%</div>
+                                <div class="insight-stat-label">Peak Variance</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="insight-card">
+                        <div class="insight-type">Forecasting</div>
+                        <h3 class="insight-title">Predictable Growth Trajectory</h3>
+                        <p class="insight-description">
+                            ARIMA model suggests continued growth with 87% accuracy. Expected velocity increase of 
+                            18-25% over next quarter based on current trajectory and seasonal adjustments.
+                        </p>
+                        <div class="insight-stats">
+                            <div class="insight-stat">
+                                <div class="insight-stat-value">87%</div>
+                                <div class="insight-stat-label">Model Accuracy</div>
+                            </div>
+                            <div class="insight-stat">
+                                <div class="insight-stat-value">22%</div>
+                                <div class="insight-stat-label">Expected Growth</div>
+                            </div>
+                            <div class="insight-stat">
+                                <div class="insight-stat-value">0.12</div>
+                                <div class="insight-stat-label">MAPE</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="insight-card">
+                        <div class="insight-type">Anomaly Detection</div>
+                        <h3 class="insight-title">Performance Outliers Identified</h3>
+                        <p class="insight-description">
+                            Statistical analysis reveals 3 significant performance anomalies in the past month. 
+                            These outliers correlate with release cycles and show 2.5σ deviation from normal patterns.
+                        </p>
+                        <div class="insight-stats">
+                            <div class="insight-stat">
+                                <div class="insight-stat-value">3</div>
+                                <div class="insight-stat-label">Anomalies</div>
+                            </div>
+                            <div class="insight-stat">
+                                <div class="insight-stat-value">2.5σ</div>
+                                <div class="insight-stat-label">Deviation</div>
+                            </div>
+                            <div class="insight-stat">
+                                <div class="insight-stat-value">0.05</div>
+                                <div class="insight-stat-label">P-Value</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // Add interactive functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Time period selector
+            const timeOptions = document.querySelectorAll('.time-option');
+            timeOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    timeOptions.forEach(opt => opt.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+
+            // Chart controls
+            const chartControls = document.querySelectorAll('.chart-control');
+            chartControls.forEach(control => {
+                control.addEventListener('click', function() {
+                    const siblings = this.parentElement.querySelectorAll('.chart-control');
+                    siblings.forEach(sibling => sibling.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+
+            // Add hover effects and animations
+            const cards = document.querySelectorAll('.metric-card, .chart-card, .comparison-card, .insight-card');
+            cards.forEach((card, index) => {
+                card.style.animationDelay = `${index * 0.1}s`;
+            });
+        });
+    </script>
+</body>
+</html>

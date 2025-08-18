@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configure Data Sources - Momentum Platform</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="onboarding-body">
+    <!-- Header -->
+    <header class="onboarding-header">
+        <div class="onboarding-header-container">
+            <div class="brand-logo">
+                <h1 class="brand-title">Momentum</h1>
+            </div>
+            <div class="onboarding-progress">
+                <div class="progress-steps">
+                    <div class="progress-step completed">
+                        <div class="step-number">1</div>
+                        <span class="step-label">Account</span>
+                    </div>
+                    <div class="progress-step active">
+                        <div class="step-number">2</div>
+                        <span class="step-label">Data Sources</span>
+                    </div>
+                    <div class="progress-step">
+                        <div class="step-number">3</div>
+                        <span class="step-label">Teams</span>
+                    </div>
+                    <div class="progress-step">
+                        <div class="step-number">4</div>
+                        <span class="step-label">Review</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="onboarding-main">
+        <div class="onboarding-container">
+            <div class="onboarding-content">
+                <!-- Page Header -->
+                <div class="page-header">
+                    <h2 class="page-title">Configure Your Data Sources</h2>
+                    <p class="page-subtitle">Connect the tools your team uses to start collecting productivity metrics. At least one Version Control System is required.</p>
+                </div>
+
+                <!-- Data Sources Configuration -->
+                <div class="data-sources-sections">
+                    <!-- Version Control Systems (Required) -->
+                    <div class="source-category required">
+                        <div class="category-header">
+                            <h3 class="category-title">
+                                <span class="category-icon">📁</span>
+                                Version Control Systems
+                                <span class="required-badge">Required</span>
+                            </h3>
+                            <p class="category-description">Connect your repositories to track commits, merge requests, and code changes</p>
+                        </div>
+
+                        <div class="sources-grid">
+                            <div class="source-card" data-source="github">
+                                <div class="source-header">
+                                    <div class="source-logo github-logo">⚡</div>
+                                    <div class="source-info">
+                                        <h4 class="source-name">GitHub</h4>
+                                        <p class="source-description">Connect your GitHub repositories and organizations</p>
+                                    </div>
+                                    <div class="source-status">
+                                        <button class="btn-primary btn-connect" onclick="connectSource('github')">
+                                            Connect
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="source-features">
+                                    <span class="feature-tag">Repositories</span>
+                                    <span class="feature-tag">Pull Requests</span>
+                                    <span class="feature-tag">Issues</span>
+                                    <span class="feature-tag">Actions</span>
+                                </div>
+                            </div>
+
+                            <div class="source-card" data-source="gitlab">
+                                <div class="source-header">
+                                    <div class="source-logo gitlab-logo">🟠</div>
+                                    <div class="source-info">
+                                        <h4 class="source-name">GitLab</h4>
+                                        <p class="source-description">Connect GitLab projects and groups</p>
+                                    </div>
+                                    <div class="source-status">
+                                        <button class="btn-secondary btn-connect" onclick="connectSource('gitlab')">
+                                            Connect
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="source-features">
+                                    <span class="feature-tag">Projects</span>
+                                    <span class="feature-tag">Merge Requests</span>
+                                    <span class="feature-tag">Issues</span>
+                                    <span class="feature-tag">CI/CD</span>
+                                </div>
+                            </div>
+
+                            <div class="source-card" data-source="bitbucket">
+                                <div class="source-header">
+                                    <div class="source-logo bitbucket-logo">🔵</div>
+                                    <div class="source-info">
+                                        <h4 class="source-name">Bitbucket</h4>
+                                        <p class="source-description">Connect Bitbucket repositories and workspaces</p>
+                                    </div>
+                                    <div class="source-status">
+                                        <button class="btn-secondary btn-connect" onclick="connectSource('bitbucket')">
+                                            Connect
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="source-features">
+                                    <span class="feature-tag">Repositories</span>
+                                    <span class="feature-tag">Pull Requests</span>
+                                    <span class="feature-tag">Pipelines</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CI/CD Tools (Optional) -->
+                    <div class="source-category optional">
+                        <div class="category-header">
+                            <h3 class="category-title">
+                                <span class="category-icon">⚙️</span>
+                                CI/CD & Build Tools
+                                <span class="optional-badge">Optional</span>
+                            </h3>
+                            <p class="category-description">Track build performance, deployment frequency, and pipeline reliability</p>
+                        </div>
+
+                        <div class="sources-grid">
+                            <div class="source-card" data-source="jenkins">
+                                <div class="source-header">
+                                    <div class="source-logo jenkins-logo">🔧</div>
+                                    <div class="source-info">
+                                        <h4 class="source-name">Jenkins</h4>
+                                        <p class="source-description">Monitor build jobs and deployment pipelines</p>
+                                    </div>
+                                    <div class="source-status">
+                                        <button class="btn-secondary btn-connect" onclick="connectSource('jenkins')">
+                                            Connect
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="source-card" data-source="circleci">
+                                <div class="source-header">
+                                    <div class="source-logo circleci-logo">⭕</div>
+                                    <div class="source-info">
+                                        <h4 class="source-name">CircleCI</h4>
+                                        <p class="source-description">Track CircleCI builds and workflows</p>
+                                    </div>
+                                    <div class="source-status">
+                                        <button class="btn-secondary btn-connect" onclick="connectSource('circleci')">
+                                            Connect
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="source-card" data-source="actions">
+                                <div class="source-header">
+                                    <div class="source-logo actions-logo">🚀</div>
+                                    <div class="source-info">
+                                        <h4 class="source-name">GitHub Actions</h4>
+                                        <p class="source-description">Monitor GitHub Actions workflows</p>
+                                    </div>
+                                    <div class="source-status connected">
+                                        <span class="status-badge connected">Connected</span>
+                                        <span class="connection-note">Auto-enabled with GitHub</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Project Management (Optional) -->
+                    <div class="source-category optional">
+                        <div class="category-header">
+                            <h3 class="category-title">
+                                <span class="category-icon">📋</span>
+                                Project Management
+                                <span class="optional-badge">Optional</span>
+                            </h3>
+                            <p class="category-description">Connect work tracking tools to correlate development activity with business requirements</p>
+                        </div>
+
+                        <div class="sources-grid">
+                            <div class="source-card" data-source="jira">
+                                <div class="source-header">
+                                    <div class="source-logo jira-logo">🔷</div>
+                                    <div class="source-info">
+                                        <h4 class="source-name">Jira</h4>
+                                        <p class="source-description">Track issues, sprints, and project progress</p>
+                                    </div>
+                                    <div class="source-status">
+                                        <button class="btn-secondary btn-connect" onclick="connectSource('jira')">
+                                            Connect
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="source-card" data-source="linear">
+                                <div class="source-header">
+                                    <div class="source-logo linear-logo">📏</div>
+                                    <div class="source-info">
+                                        <h4 class="source-name">Linear</h4>
+                                        <p class="source-description">Connect Linear issues and projects</p>
+                                    </div>
+                                    <div class="source-status">
+                                        <button class="btn-secondary btn-connect" onclick="connectSource('linear')">
+                                            Connect
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="source-card" data-source="asana">
+                                <div class="source-header">
+                                    <div class="source-logo asana-logo">🎯</div>
+                                    <div class="source-info">
+                                        <h4 class="source-name">Asana</h4>
+                                        <p class="source-description">Track tasks and project milestones</p>
+                                    </div>
+                                    <div class="source-status">
+                                        <button class="btn-secondary btn-connect" onclick="connectSource('asana')">
+                                            Connect
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Code Quality (Optional) -->
+                    <div class="source-category optional">
+                        <div class="category-header">
+                            <h3 class="category-title">
+                                <span class="category-icon">🔍</span>
+                                Code Quality & Security
+                                <span class="optional-badge">Optional</span>
+                            </h3>
+                            <p class="category-description">Monitor code quality metrics, security vulnerabilities, and technical debt</p>
+                        </div>
+
+                        <div class="sources-grid">
+                            <div class="source-card" data-source="sonarqube">
+                                <div class="source-header">
+                                    <div class="source-logo sonar-logo">🔎</div>
+                                    <div class="source-info">
+                                        <h4 class="source-name">SonarQube</h4>
+                                        <p class="source-description">Code quality and security analysis</p>
+                                    </div>
+                                    <div class="source-status">
+                                        <button class="btn-secondary btn-connect" onclick="connectSource('sonarqube')">
+                                            Connect
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="source-card" data-source="codeql">
+                                <div class="source-header">
+                                    <div class="source-logo codeql-logo">🛡️</div>
+                                    <div class="source-info">
+                                        <h4 class="source-name">CodeQL</h4>
+                                        <p class="source-description">Security vulnerability scanning</p>
+                                    </div>
+                                    <div class="source-status">
+                                        <button class="btn-secondary btn-connect" onclick="connectSource('codeql')">
+                                            Connect
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Connection Status Summary -->
+                <div class="connection-summary">
+                    <div class="summary-header">
+                        <h3 class="summary-title">Connection Summary</h3>
+                    </div>
+                    <div class="summary-content">
+                        <div class="summary-item">
+                            <span class="summary-label">Required:</span>
+                            <span class="summary-status incomplete" id="requiredStatus">
+                                <span class="status-icon">⚠️</span>
+                                Connect at least one Version Control System
+                            </span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">Optional:</span>
+                            <span class="summary-status" id="optionalStatus">
+                                <span class="status-icon">ℹ️</span>
+                                0 optional integrations connected
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="onboarding-sidebar">
+                <div class="sidebar-section">
+                    <h3 class="sidebar-title">Integration Benefits</h3>
+                    
+                    <div class="benefit-item">
+                        <div class="benefit-icon">📊</div>
+                        <div class="benefit-content">
+                            <h4 class="benefit-title">Automated Data Collection</h4>
+                            <p class="benefit-description">No manual reporting required - metrics are collected automatically from your existing tools.</p>
+                        </div>
+                    </div>
+
+                    <div class="benefit-item">
+                        <div class="benefit-icon">🔒</div>
+                        <div class="benefit-content">
+                            <h4 class="benefit-title">Secure Connections</h4>
+                            <p class="benefit-description">All integrations use OAuth 2.0 or secure API tokens. We never store your source code.</p>
+                        </div>
+                    </div>
+
+                    <div class="benefit-item">
+                        <div class="benefit-icon">⚡</div>
+                        <div class="benefit-content">
+                            <h4 class="benefit-title">Real-time Sync</h4>
+                            <p class="benefit-description">Data is synchronized in real-time, ensuring your dashboards always show current information.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
+                    <h3 class="sidebar-title">Need Help?</h3>
+                    <div class="help-content">
+                        <p>Our integration team is here to help with custom setups and enterprise requirements.</p>
+                        <div class="help-actions">
+                            <a href="#" class="help-link">📚 Integration Docs</a>
+                            <a href="#" class="help-link">💬 Chat with Support</a>
+                            <a href="#" class="help-link">📧 Email Support</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="onboarding-navigation">
+            <button class="btn-secondary" onclick="goToPreviousStep()">
+                ← Back
+            </button>
+            <button class="btn-primary" id="continueButton" onclick="goToNextStep()" disabled>
+                Continue to Team Setup →
+            </button>
+        </div>
+    </main>
+
+    <!-- Connection Modal -->
+    <div class="modal-overlay" id="connectionModal" style="display: none;">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">Connect to GitHub</h3>
+                <button class="modal-close" onclick="closeConnectionModal()">×</button>
+            </div>
+            <div class="modal-content" id="modalContent">
+                <!-- Dynamic content based on selected source -->
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

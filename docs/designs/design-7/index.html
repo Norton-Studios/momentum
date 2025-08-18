@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Momentum - Developer Productivity Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="page-wrapper">
+        <!-- Header Navigation -->
+        <header class="header">
+            <div class="container">
+                <nav class="nav-container">
+                    <a href="#" class="logo">
+                        <div class="logo-icon">M</div>
+                        <span class="logo-text">Momentum</span>
+                    </a>
+                    <ul class="nav-menu">
+                        <li><a href="#" class="nav-link active">Dashboard</a></li>
+                        <li><a href="#" class="nav-link">Teams</a></li>
+                        <li><a href="#" class="nav-link">Contributors</a></li>
+                        <li><a href="#" class="nav-link">Reports</a></li>
+                        <li><a href="#" class="nav-link">Settings</a></li>
+                    </ul>
+                    <div style="display: flex; gap: 1rem; align-items: center;">
+                        <button class="btn btn-ghost btn-sm">Profile</button>
+                        <button class="btn btn-secondary btn-sm">Sign Out</button>
+                    </div>
+                </nav>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="container">
+                <!-- Dashboard Header -->
+                <div class="dashboard-header">
+                    <div class="breadcrumb">
+                        <span>Organization</span>
+                        <span class="breadcrumb-separator">→</span>
+                        <span>Acme Corp</span>
+                        <span class="breadcrumb-separator">→</span>
+                        <span class="font-medium">Dashboard</span>
+                    </div>
+                    <h1>Developer Productivity Overview</h1>
+                    <p class="subtitle">Track your team's performance with beautiful, vintage-inspired analytics</p>
+                </div>
+
+                <!-- Date Range Selector -->
+                <div class="date-selector">
+                    <button class="date-btn">7d</button>
+                    <button class="date-btn active">30d</button>
+                    <button class="date-btn">60d</button>
+                    <button class="date-btn">90d</button>
+                    <button class="date-btn">Custom</button>
+                </div>
+
+                <!-- Key Metrics Grid -->
+                <div class="grid grid-4 mb-8">
+                    <div class="metric-card">
+                        <div class="metric-title">CVE Dashboard</div>
+                        <div class="metric-value">23</div>
+                        <div class="metric-change positive">
+                            <span class="status-dot"></span>
+                            -12% from last month
+                        </div>
+                        <div class="chart-container">
+                            <div style="height: 60px; background: linear-gradient(45deg, var(--emerald-100) 0%, var(--emerald-200) 100%); border-radius: 6px; display: flex; align-items: end; justify-content: center; color: var(--emerald-700); font-size: 0.8rem;">Security Trends ↓</div>
+                        </div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-title">Pipeline Stability</div>
+                        <div class="metric-value">94.2%</div>
+                        <div class="metric-change positive">
+                            <span class="status-dot"></span>
+                            +2.1% improvement
+                        </div>
+                        <div class="chart-container">
+                            <div style="height: 60px; background: linear-gradient(45deg, var(--amber-100) 0%, var(--amber-200) 100%); border-radius: 6px; display: flex; align-items: end; justify-content: center; color: var(--amber-700); font-size: 0.8rem;">Stability ↑</div>
+                        </div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-title">Delivery Velocity</div>
+                        <div class="metric-value">127</div>
+                        <div class="metric-change positive">
+                            <span class="status-dot"></span>
+                            +8% faster delivery
+                        </div>
+                        <div class="chart-container">
+                            <div style="height: 60px; background: linear-gradient(45deg, var(--violet-100) 0%, var(--violet-200) 100%); border-radius: 6px; display: flex; align-items: end; justify-content: center; color: var(--violet-700); font-size: 0.8rem;">Velocity ↑</div>
+                        </div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-title">Active Contributors</div>
+                        <div class="metric-value">42</div>
+                        <div class="metric-change negative">
+                            <span class="status-dot"></span>
+                            -3 from last month
+                        </div>
+                        <div class="chart-container">
+                            <div style="height: 60px; background: linear-gradient(45deg, var(--red-100) 0%, var(--red-200) 100%); border-radius: 6px; display: flex; align-items: end; justify-content: center; color: var(--red-700); font-size: 0.8rem;">Contributors</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Dashboard Grid -->
+                <div class="grid grid-2 mb-8">
+                    <!-- Commit Activity Heatmap -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Commit Activity Heatmap</h3>
+                            <p class="card-subtitle">Daily contribution patterns across your organization</p>
+                        </div>
+                        <div class="chart-container" style="height: 200px;">
+                            <!-- Simulated Heatmap -->
+                            <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; height: 100%;">
+                                <div style="display: flex; flex-direction: column; gap: 4px;">
+                                    <div style="height: 20px; background: var(--emerald-200); border-radius: 2px;"></div>
+                                    <div style="height: 20px; background: var(--emerald-300); border-radius: 2px;"></div>
+                                    <div style="height: 20px; background: var(--emerald-400); border-radius: 2px;"></div>
+                                    <div style="height: 20px; background: var(--emerald-200); border-radius: 2px;"></div>
+                                    <div style="height: 20px; background: var(--emerald-100); border-radius: 2px;"></div>
+                                    <div style="height: 20px; background: var(--cream-200); border-radius: 2px;"></div>
+                                    <div style="height: 20px; background: var(--cream-200); border-radius: 2px;"></div>
+                                </div>
+                                <div style="display: flex; flex-direction: column; gap: 4px;">
+                                    <div style="height: 20px; background: var(--emerald-300); border-radius: 2px;"></div>
+                                    <div style="height: 20px; background: var(--emerald-400); border-radius: 2px;"></div>
+                                    <div style="height: 20px; background: var(--emerald-500); border-radius: 2px;"></div>
+                                    <div style="height: 20px; background: var(--emerald-300); border-radius: 2px;"></div>
+                                    <div style="height: 20px; background: var(--emerald-200); border-radius: 2px;"></div>
+                                    <div style="height: 20px; background: var(--cream-200); border-radius: 2px;"></div>
+                                    <div style="height: 20px; background: var(--cream-200); border-radius: 2px;"></div>
+                                </div>
+                                <div style="display: flex; flex-direction: column; gap: 4px;">
+                                    <div style="height: 20px; background: var(--emerald-400); border-radius: 2px;"></div>
+                                    <div style="height: 20px; background: var(--emerald-500); border-radius: 2px;"></div>
+                                    <div style="height: 20px; background: var(--emerald-600); border-radius: 2px;"></div>
+                                    <div style="height: 20px; background: var(--emerald-400); border-radius: 2px;"></div>
+                                    <div style="height: 20px; background: var(--emerald-300); border-radius: 2px;"></div>
+                                    <div style="height: 20px; background: var(--emerald-100); border-radius: 2px;"></div>
+                                    <div style="height: 20px; background: var(--cream-200); border-radius: 2px;"></div>
+                                </div>
+                                <div style="display: flex; flex-direction: column; gap: 4px;">
+                                    <div style="height: 20px; background: var(--emerald-300); border-radius: 2px;"></div>
+                                    <div style="height: 20px; background: var(--emerald-400); border-radius: 2px;"></div>
+                                    <div style="height: 20px; background: var(--emerald-500); border-radius: 2px;"></div>
+                                    <div style="height: 20px; background: var(--emerald-300); border-radius: 2px;"></div>
+                                    <div style="height: 20px; background: var(--emerald-200); border-radius: 2px;"></div>
+                                    <div style="height: 20px; background: var(--cream-200); border-radius: 2px;"></div>
+                                    <div style="height: 20px; background: var(--cream-200); border-radius: 2px;"></div>
+                                </div>
+                                <div style="display: flex; flex-direction: column; gap: 4px;">
+                                    <div style="height: 20px; background: var(--emerald-200); border-radius: 2px;"></div>
+                                    <div style="height: 20px; background: var(--emerald-300); border-radius: 2px;"></div>
+                                    <div style="height: 20px; background: var(--emerald-400); border-radius: 2px;"></div>
+                                    <div style="height: 20px; background: var(--emerald-200); border-radius: 2px;"></div>
+                                    <div style="height: 20px; background: var(--emerald-100); border-radius: 2px;"></div>
+                                    <div style="height: 20px; background: var(--cream-200); border-radius: 2px;"></div>
+                                    <div style="height: 20px; background: var(--cream-200); border-radius: 2px;"></div>
+                                </div>
+                                <div style="display: flex; flex-direction: column; gap: 4px;">
+                                    <div style="height: 20px; background: var(--cream-200); border-radius: 2px;"></div>
+                                    <div style="height: 20px; background: var(--emerald-100); border-radius: 2px;"></div>
+                                    <div style="height: 20px; background: var(--emerald-200); border-radius: 2px;"></div>
+                                    <div style="height: 20px; background: var(--emerald-100); border-radius: 2px;"></div>
+                                    <div style="height: 20px; background: var(--cream-200); border-radius: 2px;"></div>
+                                    <div style="height: 20px; background: var(--cream-200); border-radius: 2px;"></div>
+                                    <div style="height: 20px; background: var(--cream-200); border-radius: 2px;"></div>
+                                </div>
+                                <div style="display: flex; flex-direction: column; gap: 4px;">
+                                    <div style="height: 20px; background: var(--cream-200); border-radius: 2px;"></div>
+                                    <div style="height: 20px; background: var(--emerald-100); border-radius: 2px;"></div>
+                                    <div style="height: 20px; background: var(--emerald-200); border-radius: 2px;"></div>
+                                    <div style="height: 20px; background: var(--emerald-100); border-radius: 2px;"></div>
+                                    <div style="height: 20px; background: var(--cream-200); border-radius: 2px;"></div>
+                                    <div style="height: 20px; background: var(--cream-200); border-radius: 2px;"></div>
+                                    <div style="height: 20px; background: var(--cream-200); border-radius: 2px;"></div>
+                                </div>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-top: 1rem; font-size: 0.75rem; color: var(--warm-gray-600);">
+                                <span>Mon</span>
+                                <span>Tue</span>
+                                <span>Wed</span>
+                                <span>Thu</span>
+                                <span>Fri</span>
+                                <span>Sat</span>
+                                <span>Sun</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pipeline Performance -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Pipeline Performance</h3>
+                            <p class="card-subtitle">Build success rates and deployment frequency</p>
+                        </div>
+                        <div class="chart-container" style="height: 200px;">
+                            <div style="display: flex; flex-direction: column; gap: 1rem; height: 100%;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.5rem; background: var(--emerald-50); border-radius: 6px;">
+                                    <span class="text-sm font-medium">Production</span>
+                                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                        <div class="progress-bar" style="width: 100px;">
+                                            <div class="progress-fill" style="width: 94%;"></div>
+                                        </div>
+                                        <span class="text-sm font-bold text-emerald-600">94%</span>
+                                    </div>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.5rem; background: var(--amber-50); border-radius: 6px;">
+                                    <span class="text-sm font-medium">Staging</span>
+                                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                        <div class="progress-bar" style="width: 100px;">
+                                            <div class="progress-fill" style="width: 87%;"></div>
+                                        </div>
+                                        <span class="text-sm font-bold text-amber-600">87%</span>
+                                    </div>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.5rem; background: var(--red-50); border-radius: 6px;">
+                                    <span class="text-sm font-medium">Development</span>
+                                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                        <div class="progress-bar" style="width: 100px;">
+                                            <div class="progress-fill" style="width: 78%;"></div>
+                                        </div>
+                                        <span class="text-sm font-bold text-red-600">78%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Teams & Contributors Overview -->
+                <div class="grid grid-2">
+                    <!-- Top Teams -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Top Performing Teams</h3>
+                            <p class="card-subtitle">Based on delivery velocity and code quality</p>
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 1rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: var(--cream-50); border-radius: var(--border-radius); border: 1px solid var(--amber-200);">
+                                <div>
+                                    <div class="font-medium">Frontend Team</div>
+                                    <div class="text-sm" style="color: var(--warm-gray-600);">12 contributors</div>
+                                </div>
+                                <div class="status-indicator status-success">
+                                    <span class="status-dot"></span>
+                                    Excellent
+                                </div>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: var(--cream-50); border-radius: var(--border-radius); border: 1px solid var(--amber-200);">
+                                <div>
+                                    <div class="font-medium">Backend Team</div>
+                                    <div class="text-sm" style="color: var(--warm-gray-600);">8 contributors</div>
+                                </div>
+                                <div class="status-indicator status-success">
+                                    <span class="status-dot"></span>
+                                    Excellent
+                                </div>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: var(--cream-50); border-radius: var(--border-radius); border: 1px solid var(--amber-200);">
+                                <div>
+                                    <div class="font-medium">DevOps Team</div>
+                                    <div class="text-sm" style="color: var(--warm-gray-600);">5 contributors</div>
+                                </div>
+                                <div class="status-indicator status-warning">
+                                    <span class="status-dot"></span>
+                                    Good
+                                </div>
+                            </div>
+                        </div>
+                        <button class="btn btn-ghost" style="margin-top: 1rem; width: 100%;">View All Teams</button>
+                    </div>
+
+                    <!-- Top Contributors -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Top Contributors</h3>
+                            <p class="card-subtitle">Most active developers this month</p>
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 1rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: var(--cream-50); border-radius: var(--border-radius); border: 1px solid var(--amber-200);">
+                                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                    <div style="width: 40px; height: 40px; background: var(--gradient-warm); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">SA</div>
+                                    <div>
+                                        <div class="font-medium">Sarah Anderson</div>
+                                        <div class="text-sm" style="color: var(--warm-gray-600);">Frontend Lead</div>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="font-bold">127</div>
+                                    <div class="text-sm" style="color: var(--warm-gray-600);">commits</div>
+                                </div>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: var(--cream-50); border-radius: var(--border-radius); border: 1px solid var(--amber-200);">
+                                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                    <div style="width: 40px; height: 40px; background: var(--emerald-500); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">MJ</div>
+                                    <div>
+                                        <div class="font-medium">Mike Johnson</div>
+                                        <div class="text-sm" style="color: var(--warm-gray-600);">Backend Dev</div>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="font-bold">98</div>
+                                    <div class="text-sm" style="color: var(--warm-gray-600);">commits</div>
+                                </div>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: var(--cream-50); border-radius: var(--border-radius); border: 1px solid var(--amber-200);">
+                                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                    <div style="width: 40px; height: 40px; background: var(--violet-500); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">LC</div>
+                                    <div>
+                                        <div class="font-medium">Lisa Chen</div>
+                                        <div class="text-sm" style="color: var(--warm-gray-600);">Full Stack</div>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="font-bold">84</div>
+                                    <div class="text-sm" style="color: var(--warm-gray-600);">commits</div>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="btn btn-ghost" style="margin-top: 1rem; width: 100%;">View All Contributors</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

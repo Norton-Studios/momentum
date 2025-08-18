@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team Setup - Momentum</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="page-wrapper">
+        <!-- Progress Header -->
+        <header style="background: rgba(254, 251, 243, 0.95); backdrop-filter: blur(10px); border-bottom: 1px solid var(--amber-200); padding: 1.5rem 0;">
+            <div class="container">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <div class="logo-icon">M</div>
+                        <span class="logo-text">Momentum</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.5rem; color: var(--warm-gray-600); font-size: 0.9rem;">
+                        <span>Step 3 of 4</span>
+                    </div>
+                </div>
+                
+                <!-- Progress Bar -->
+                <div class="progress-bar" style="height: 6px;">
+                    <div class="progress-fill" style="width: 75%;"></div>
+                </div>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="container" style="max-width: 1000px;">
+                
+                <!-- Header Section -->
+                <div style="text-align: center; margin-bottom: 3rem;">
+                    <h1 style="font-size: 3rem; margin-bottom: 1rem;">Organize Your Teams</h1>
+                    <p class="subtitle" style="font-size: 1.125rem; max-width: 600px; margin: 0 auto;">
+                        We've discovered your repositories. Now let's organize them into teams and assign the right people.
+                    </p>
+                </div>
+
+                <!-- Repository Discovery Results -->
+                <div class="card" style="margin-bottom: 2rem;">
+                    <div class="card-header">
+                        <h2 class="card-title" style="display: flex; align-items: center; gap: 0.75rem;">
+                            <span style="background: var(--emerald-100); color: var(--emerald-600); padding: 0.25rem 0.75rem; border-radius: var(--border-radius-sm); font-size: 0.75rem; font-weight: 600;">DISCOVERED</span>
+                            Repository Scan Results
+                        </h2>
+                        <p class="card-subtitle">Found 24 repositories across your connected GitHub organizations</p>
+                    </div>
+
+                    <div class="grid grid-3" style="gap: 1.5rem;">
+                        <div style="text-align: center; padding: 1.5rem; background: var(--cream-50); border-radius: var(--border-radius); border: 1px solid var(--amber-200);">
+                            <div style="font-size: 2.5rem; font-weight: bold; color: var(--amber-600); margin-bottom: 0.5rem;">24</div>
+                            <div style="color: var(--warm-gray-600); font-size: 0.9rem;">Total Repositories</div>
+                        </div>
+                        <div style="text-align: center; padding: 1.5rem; background: var(--cream-50); border-radius: var(--border-radius); border: 1px solid var(--emerald-200);">
+                            <div style="font-size: 2.5rem; font-weight: bold; color: var(--emerald-600); margin-bottom: 0.5rem;">42</div>
+                            <div style="color: var(--warm-gray-600); font-size: 0.9rem;">Active Contributors</div>
+                        </div>
+                        <div style="text-align: center; padding: 1.5rem; background: var(--cream-50); border-radius: var(--border-radius); border: 1px solid var(--violet-200);">
+                            <div style="font-size: 2.5rem; font-weight: bold; color: var(--violet-600); margin-bottom: 0.5rem;">3</div>
+                            <div style="color: var(--warm-gray-600); font-size: 0.9rem;">Organizations</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Team Creation Interface -->
+                <div class="grid grid-2" style="gap: 2rem; margin-bottom: 2rem;">
+                    
+                    <!-- Team Management Panel -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Create Teams</h3>
+                            <p class="card-subtitle">Organize your repositories into logical teams</p>
+                        </div>
+
+                        <!-- New Team Form -->
+                        <div style="margin-bottom: 2rem; padding: 1.5rem; background: var(--cream-50); border-radius: var(--border-radius); border: 1px solid var(--amber-200);">
+                            <h4 style="margin-bottom: 1rem; color: var(--warm-gray-800);">Add New Team</h4>
+                            <form id="team-form" style="display: flex; flex-direction: column; gap: 1rem;">
+                                <div class="form-group">
+                                    <label for="team-name" class="form-label">Team Name</label>
+                                    <input type="text" id="team-name" class="form-input" placeholder="e.g., Frontend Team, Backend Team" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="team-description" class="form-label">Description (Optional)</label>
+                                    <input type="text" id="team-description" class="form-input" placeholder="Brief description of team responsibilities">
+                                </div>
+                                <button type="submit" class="btn btn-primary">Add Team</button>
+                            </form>
+                        </div>
+
+                        <!-- Existing Teams List -->
+                        <div>
+                            <h4 style="margin-bottom: 1rem; color: var(--warm-gray-800);">Teams</h4>
+                            <div id="teams-list" style="display: flex; flex-direction: column; gap: 1rem;">
+                                <!-- Teams will be added here dynamically -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Repository Assignment Panel -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Assign Repositories</h3>
+                            <p class="card-subtitle">Drag repositories to teams or use bulk assignment methods</p>
+                        </div>
+
+                        <!-- Assignment Methods Tabs -->
+                        <div style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem; border-bottom: 1px solid var(--amber-200);">
+                            <button class="assignment-tab active" data-tab="manual" style="padding: 0.75rem 1rem; border: none; background: none; border-bottom: 2px solid var(--amber-400); color: var(--amber-600); font-weight: 600; cursor: pointer;">Manual</button>
+                            <button class="assignment-tab" data-tab="regex" style="padding: 0.75rem 1rem; border: none; background: none; border-bottom: 2px solid transparent; color: var(--warm-gray-600); cursor: pointer;">Regex</button>
+                            <button class="assignment-tab" data-tab="labels" style="padding: 0.75rem 1rem; border: none; background: none; border-bottom: 2px solid transparent; color: var(--warm-gray-600); cursor: pointer;">Labels</button>
+                        </div>
+
+                        <!-- Manual Assignment -->
+                        <div id="manual-tab" class="assignment-content">
+                            <div style="display: flex; flex-direction: column; gap: 1rem; max-height: 400px; overflow-y: auto;">
+                                <!-- Unassigned Repositories -->
+                                <div class="repo-item" draggable="true" data-repo="frontend-app" style="padding: 1rem; background: var(--cream-50); border-radius: var(--border-radius); border: 1px solid var(--amber-200); cursor: move; display: flex; justify-content: space-between; align-items: center;">
+                                    <div>
+                                        <div class="font-medium">frontend-app</div>
+                                        <div style="font-size: 0.8rem; color: var(--warm-gray-600);">React application • 15 contributors</div>
+                                    </div>
+                                    <div style="font-size: 1.25rem;">🎨</div>
+                                </div>
+
+                                <div class="repo-item" draggable="true" data-repo="backend-api" style="padding: 1rem; background: var(--cream-50); border-radius: var(--border-radius); border: 1px solid var(--amber-200); cursor: move; display: flex; justify-content: space-between; align-items: center;">
+                                    <div>
+                                        <div class="font-medium">backend-api</div>
+                                        <div style="font-size: 0.8rem; color: var(--warm-gray-600);">Node.js API • 12 contributors</div>
+                                    </div>
+                                    <div style="font-size: 1.25rem;">⚙️</div>
+                                </div>
+
+                                <div class="repo-item" draggable="true" data-repo="mobile-app" style="padding: 1rem; background: var(--cream-50); border-radius: var(--border-radius); border: 1px solid var(--amber-200); cursor: move; display: flex; justify-content: space-between; align-items: center;">
+                                    <div>
+                                        <div class="font-medium">mobile-app</div>
+                                        <div style="font-size: 0.8rem; color: var(--warm-gray-600);">React Native • 8 contributors</div>
+                                    </div>
+                                    <div style="font-size: 1.25rem;">📱</div>
+                                </div>
+
+                                <div class="repo-item" draggable="true" data-repo="data-pipeline" style="padding: 1rem; background: var(--cream-50); border-radius: var(--border-radius); border: 1px solid var(--amber-200); cursor: move; display: flex; justify-content: space-between; align-items: center;">
+                                    <div>
+                                        <div class="font-medium">data-pipeline</div>
+                                        <div style="font-size: 0.8rem; color: var(--warm-gray-600);">Python ETL • 5 contributors</div>
+                                    </div>
+                                    <div style="font-size: 1.25rem;">🔄</div>
+                                </div>
+
+                                <div class="repo-item" draggable="true" data-repo="devops-config" style="padding: 1rem; background: var(--cream-50); border-radius: var(--border-radius); border: 1px solid var(--amber-200); cursor: move; display: flex; justify-content: space-between; align-items: center;">
+                                    <div>
+                                        <div class="font-medium">devops-config</div>
+                                        <div style="font-size: 0.8rem; color: var(--warm-gray-600);">Infrastructure • 7 contributors</div>
+                                    </div>
+                                    <div style="font-size: 1.25rem;">🚀</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Regex Assignment -->
+                        <div id="regex-tab" class="assignment-content" style="display: none;">
+                            <div style="margin-bottom: 1.5rem;">
+                                <label class="form-label">Repository Name Pattern</label>
+                                <input type="text" class="form-input" placeholder="e.g., ^frontend-.* or .*-api$" style="font-family: var(--font-mono);">
+                                <div style="font-size: 0.8rem; color: var(--warm-gray-600); margin-top: 0.5rem;">Use regular expressions to match repository names</div>
+                            </div>
+                            <button class="btn btn-secondary">Preview Matches</button>
+                        </div>
+
+                        <!-- Labels Assignment -->
+                        <div id="labels-tab" class="assignment-content" style="display: none;">
+                            <div style="margin-bottom: 1.5rem;">
+                                <label class="form-label">Repository Labels</label>
+                                <select class="form-select">
+                                    <option>frontend</option>
+                                    <option>backend</option>
+                                    <option>mobile</option>
+                                    <option>infrastructure</option>
+                                    <option>data</option>
+                                </select>
+                                <div style="font-size: 0.8rem; color: var(--warm-gray-600); margin-top: 0.5rem;">Assign repositories based on GitHub labels</div>
+                            </div>
+                            <button class="btn btn-secondary">Apply Label Assignments</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Team Overview -->
+                <div class="card" style="margin-bottom: 2rem;">
+                    <div class="card-header">
+                        <h3 class="card-title">Team Overview</h3>
+                        <p class="card-subtitle">Current team configuration and repository assignments</p>
+                    </div>
+
+                    <div id="team-overview" style="display: flex; flex-direction: column; gap: 1.5rem;">
+                        <div style="text-align: center; padding: 3rem; color: var(--warm-gray-500);">
+                            <div style="font-size: 3rem; margin-bottom: 1rem;">👥</div>
+                            <div>Create your first team to get started</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Navigation -->
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 3rem;">
+                    <button class="btn btn-ghost" onclick="window.location.href='data-sources.html'">← Back to Data Sources</button>
+                    <div style="display: flex; gap: 1rem;">
+                        <button class="btn btn-secondary">Skip Team Setup</button>
+                        <button id="continue-btn" class="btn btn-primary btn-lg" disabled>Review & Complete →</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        let teams = [];
+        let repositories = ['frontend-app', 'backend-api', 'mobile-app', 'data-pipeline', 'devops-config'];
+
+        // Team form handling
+        document.getElementById('team-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('team-name').value;
+            const description = document.getElementById('team-description').value;
+            
+            if (name.trim()) {
+                const team = {
+                    id: Date.now(),
+                    name: name.trim(),
+                    description: description.trim(),
+                    repositories: []
+                };
+                
+                teams.push(team);
+                updateTeamsList();
+                updateTeamOverview();
+                
+                // Reset form
+                this.reset();
+                
+                // Enable continue button if teams exist
+                document.getElementById('continue-btn').disabled = teams.length === 0;
+            }
+        });
+
+        function updateTeamsList() {
+            const teamsList = document.getElementById('teams-list');
+            
+            if (teams.length === 0) {
+                teamsList.innerHTML = '<div style="text-align: center; color: var(--warm-gray-500); padding: 2rem; font-style: italic;">No teams created yet</div>';
+                return;
+            }
+            
+            teamsList.innerHTML = teams.map(team => `
+                <div class="team-item" data-team-id="${team.id}" style="padding: 1rem; background: var(--emerald-50); border-radius: var(--border-radius); border: 1px solid var(--emerald-200); position: relative;">
+                    <div style="display: flex; justify-content: space-between; align-items: start;">
+                        <div>
+                            <div class="font-medium" style="color: var(--emerald-800);">${team.name}</div>
+                            ${team.description ? `<div style="font-size: 0.8rem; color: var(--emerald-600); margin-top: 0.25rem;">${team.description}</div>` : ''}
+                            <div style="font-size: 0.8rem; color: var(--emerald-600); margin-top: 0.5rem;">${team.repositories.length} repositories assigned</div>
+                        </div>
+                        <button onclick="removeTeam(${team.id})" style="color: var(--red-600); background: none; border: none; cursor: pointer; padding: 0.25rem;">✕</button>
+                    </div>
+                </div>
+            `).join('');
+            
+            // Add drop zones for drag and drop
+            document.querySelectorAll('.team-item').forEach(item => {
+                item.addEventListener('dragover', handleDragOver);
+                item.addEventListener('drop', handleDrop);
+            });
+        }
+
+        function updateTeamOverview() {
+            const overview = document.getElementById('team-overview');
+            
+            if (teams.length === 0) {
+                overview.innerHTML = `
+                    <div style="text-align: center; padding: 3rem; color: var(--warm-gray-500);">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">👥</div>
+                        <div>Create your first team to get started</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            overview.innerHTML = teams.map(team => `
+                <div style="border: 2px solid var(--emerald-200); border-radius: var(--border-radius-lg); padding: 1.5rem; background: var(--emerald-50);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h4 style="color: var(--emerald-800); margin: 0;">${team.name}</h4>
+                        <span style="background: var(--emerald-200); color: var(--emerald-800); padding: 0.25rem 0.75rem; border-radius: var(--border-radius-sm); font-size: 0.8rem; font-weight: 600;">${team.repositories.length} repos</span>
+                    </div>
+                    ${team.description ? `<p style="color: var(--emerald-700); margin-bottom: 1rem; font-size: 0.9rem;">${team.description}</p>` : ''}
+                    <div style="display: flex; flex-wrap: gap; gap: 0.5rem;">
+                        ${team.repositories.map(repo => `
+                            <span style="background: var(--emerald-100); color: var(--emerald-800); padding: 0.25rem 0.75rem; border-radius: var(--border-radius-sm); font-size: 0.8rem;">${repo}</span>
+                        `).join('')}
+                        ${team.repositories.length === 0 ? '<span style="color: var(--emerald-600); font-style: italic;">No repositories assigned</span>' : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function removeTeam(teamId) {
+            // Move repositories back to unassigned
+            const team = teams.find(t => t.id === teamId);
+            if (team) {
+                repositories.push(...team.repositories);
+            }
+            
+            teams = teams.filter(t => t.id !== teamId);
+            updateTeamsList();
+            updateTeamOverview();
+            updateRepositoryList();
+            
+            document.getElementById('continue-btn').disabled = teams.length === 0;
+        }
+
+        // Tab switching
+        document.querySelectorAll('.assignment-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                const targetTab = this.dataset.tab;
+                
+                // Update tab appearance
+                document.querySelectorAll('.assignment-tab').forEach(t => {
+                    t.style.borderBottomColor = 'transparent';
+                    t.style.color = 'var(--warm-gray-600)';
+                });
+                this.style.borderBottomColor = 'var(--amber-400)';
+                this.style.color = 'var(--amber-600)';
+                
+                // Show/hide content
+                document.querySelectorAll('.assignment-content').forEach(content => {
+                    content.style.display = 'none';
+                });
+                document.getElementById(targetTab + '-tab').style.display = 'block';
+            });
+        });
+
+        // Drag and drop functionality
+        let draggedRepo = null;
+
+        document.querySelectorAll('.repo-item').forEach(item => {
+            item.addEventListener('dragstart', function(e) {
+                draggedRepo = this.dataset.repo;
+                this.style.opacity = '0.5';
+            });
+            
+            item.addEventListener('dragend', function(e) {
+                this.style.opacity = '1';
+                draggedRepo = null;
+            });
+        });
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            this.style.backgroundColor = 'var(--emerald-100)';
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            this.style.backgroundColor = '';
+            
+            if (draggedRepo) {
+                const teamId = parseInt(this.dataset.teamId);
+                const team = teams.find(t => t.id === teamId);
+                
+                if (team && !team.repositories.includes(draggedRepo)) {
+                    team.repositories.push(draggedRepo);
+                    repositories = repositories.filter(repo => repo !== draggedRepo);
+                    
+                    updateTeamsList();
+                    updateTeamOverview();
+                    updateRepositoryList();
+                }
+            }
+        }
+
+        function updateRepositoryList() {
+            const container = document.querySelector('#manual-tab');
+            const repoItems = repositories.map(repo => {
+                const repoData = {
+                    'frontend-app': { icon: '🎨', desc: 'React application • 15 contributors' },
+                    'backend-api': { icon: '⚙️', desc: 'Node.js API • 12 contributors' },
+                    'mobile-app': { icon: '📱', desc: 'React Native • 8 contributors' },
+                    'data-pipeline': { icon: '🔄', desc: 'Python ETL • 5 contributors' },
+                    'devops-config': { icon: '🚀', desc: 'Infrastructure • 7 contributors' }
+                };
+                
+                const data = repoData[repo] || { icon: '📁', desc: 'Repository' };
+                
+                return `
+                    <div class="repo-item" draggable="true" data-repo="${repo}" style="padding: 1rem; background: var(--cream-50); border-radius: var(--border-radius); border: 1px solid var(--amber-200); cursor: move; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <div class="font-medium">${repo}</div>
+                            <div style="font-size: 0.8rem; color: var(--warm-gray-600);">${data.desc}</div>
+                        </div>
+                        <div style="font-size: 1.25rem;">${data.icon}</div>
+                    </div>
+                `;
+            }).join('');
+            
+            container.innerHTML = `<div style="display: flex; flex-direction: column; gap: 1rem; max-height: 400px; overflow-y: auto;">${repoItems}</div>`;
+            
+            // Re-attach drag event listeners
+            document.querySelectorAll('.repo-item').forEach(item => {
+                item.addEventListener('dragstart', function(e) {
+                    draggedRepo = this.dataset.repo;
+                    this.style.opacity = '0.5';
+                });
+                
+                item.addEventListener('dragend', function(e) {
+                    this.style.opacity = '1';
+                    draggedRepo = null;
+                });
+            });
+        }
+
+        // Continue button action
+        document.getElementById('continue-btn').addEventListener('click', function() {
+            if (teams.length === 0) return;
+            
+            this.textContent = 'Finalizing setup...';
+            this.disabled = true;
+            
+            setTimeout(() => {
+                window.location.href = 'review.html';
+            }, 2000);
+        });
+
+        // Initialize
+        updateTeamsList();
+        updateTeamOverview();
+    </script>
+</body>
+</html>

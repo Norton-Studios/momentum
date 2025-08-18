@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configure Data Sources - Momentum</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+</head>
+<body>
+    <div class="onboarding">
+        <div class="onboarding-card fade-in" style="max-width: 900px;">
+            <!-- Progress Bar -->
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: 33%;"></div>
+            </div>
+
+            <!-- Header -->
+            <div class="onboarding-header">
+                <div style="display: flex; align-items: center; gap: var(--spacing-base); margin-bottom: var(--spacing-xl);">
+                    <a href="#" class="navbar-brand" style="margin-bottom: 0;">
+                        <div style="width: 40px; height: 40px; background: var(--gradient-primary); border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 1.25rem;">M</div>
+                        Momentum
+                    </a>
+                    <div style="margin-left: auto; display: flex; align-items: center; gap: var(--spacing-sm);">
+                        <span class="caption">Step 1 of 3</span>
+                    </div>
+                </div>
+                <h1 class="display-2" style="margin-bottom: var(--spacing-base);">Connect Your Development Tools</h1>
+                <p class="body-large">Integrate with your existing workflow to unlock powerful insights and analytics.</p>
+            </div>
+
+            <!-- Body -->
+            <div class="onboarding-body">
+                <!-- Required Section -->
+                <div style="margin-bottom: var(--spacing-3xl);">
+                    <div style="display: flex; align-items: center; gap: var(--spacing-sm); margin-bottom: var(--spacing-lg);">
+                        <h3 class="heading-2">Version Control</h3>
+                        <span class="badge badge-error">Required</span>
+                    </div>
+                    <p class="body-base" style="color: var(--color-slate-600); margin-bottom: var(--spacing-xl);">
+                        Connect your code repository to track commits, pull requests, and development velocity.
+                    </p>
+
+                    <div class="data-source-grid">
+                        <!-- GitHub -->
+                        <div class="data-source-card" id="github-card" onclick="selectDataSource('github')">
+                            <div class="data-source-header">
+                                <div class="data-source-icon" style="background: #f6f8fa;">
+                                    <i data-lucide="github" style="color: #24292f; width: 32px; height: 32px;"></i>
+                                </div>
+                                <div>
+                                    <div class="data-source-name">GitHub</div>
+                                    <div style="display: flex; align-items: center; gap: var(--spacing-xs); margin-top: var(--spacing-xs);">
+                                        <span class="badge badge-success">Popular</span>
+                                        <div style="display: flex; align-items: center; gap: 2px;">
+                                            <i data-lucide="star" style="color: var(--color-amber-500); width: 12px; height: 12px;"></i>
+                                            <span class="caption">Most used</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="data-source-description">
+                                Connect your GitHub repositories to track commits, pull requests, code reviews, and team collaboration metrics.
+                            </div>
+                            <div style="margin-top: var(--spacing-base); display: flex; flex-wrap: gap: var(--spacing-xs);">
+                                <span class="badge badge-neutral">Commits</span>
+                                <span class="badge badge-neutral">Pull Requests</span>
+                                <span class="badge badge-neutral">Code Reviews</span>
+                                <span class="badge badge-neutral">Issues</span>
+                            </div>
+                        </div>
+
+                        <!-- GitLab -->
+                        <div class="data-source-card" id="gitlab-card" onclick="selectDataSource('gitlab')">
+                            <div class="data-source-header">
+                                <div class="data-source-icon" style="background: #fdf2f8;">
+                                    <svg style="width: 32px; height: 32px;" viewBox="0 0 24 24" fill="#FC6D26">
+                                        <path d="M12 21.42l3.684-11.333h-7.368L12 21.42z"/>
+                                        <path d="M3.316 10.087L12 21.42l-8.684-11.333.526-1.621 1.579-4.856c.105-.323.579-.323.684 0L8.684 10.087H3.316z"/>
+                                        <path d="M20.684 10.087L12 21.42l8.684-11.333-.526-1.621-1.579-4.856c-.105-.323-.579-.323-.684 0L15.316 10.087h5.368z"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="data-source-name">GitLab</div>
+                                    <div style="display: flex; align-items: center; gap: var(--spacing-xs); margin-top: var(--spacing-xs);">
+                                        <span class="badge badge-info">DevOps Platform</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="data-source-description">
+                                Integrate with GitLab for comprehensive DevOps metrics including merge requests, CI/CD pipelines, and deployment tracking.
+                            </div>
+                            <div style="margin-top: var(--spacing-base); display: flex; flex-wrap: gap: var(--spacing-xs);">
+                                <span class="badge badge-neutral">Merge Requests</span>
+                                <span class="badge badge-neutral">CI/CD</span>
+                                <span class="badge badge-neutral">Deployments</span>
+                                <span class="badge badge-neutral">Issues</span>
+                            </div>
+                        </div>
+
+                        <!-- Bitbucket -->
+                        <div class="data-source-card" id="bitbucket-card" onclick="selectDataSource('bitbucket')">
+                            <div class="data-source-header">
+                                <div class="data-source-icon" style="background: #e3f2fd;">
+                                    <svg style="width: 32px; height: 32px;" viewBox="0 0 24 24" fill="#0052CC">
+                                        <path d="M.778 1.213a.768.768 0 00-.768.892l3.263 19.81c.084.5.515.868 1.022.873H19.95a.772.772 0 00.77-.646l3.27-20.03a.768.768 0 00-.768-.891zM14.52 15.53H9.22L8.05 8.466h7.5z"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="data-source-name">Bitbucket</div>
+                                    <div style="display: flex; align-items: center; gap: var(--spacing-xs); margin-top: var(--spacing-xs);">
+                                        <span class="badge badge-warning">Enterprise</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="data-source-description">
+                                Connect Bitbucket repositories for tracking pull requests, branch management, and Atlassian ecosystem integration.
+                            </div>
+                            <div style="margin-top: var(--spacing-base); display: flex; flex-wrap: gap: var(--spacing-xs);">
+                                <span class="badge badge-neutral">Pull Requests</span>
+                                <span class="badge badge-neutral">Branches</span>
+                                <span class="badge badge-neutral">Pipelines</span>
+                                <span class="badge badge-neutral">Jira Integration</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Optional Integrations -->
+                <div style="margin-bottom: var(--spacing-3xl);">
+                    <div style="display: flex; align-items: center; gap: var(--spacing-sm); margin-bottom: var(--spacing-lg);">
+                        <h3 class="heading-2">CI/CD & Build Systems</h3>
+                        <span class="badge badge-info">Optional</span>
+                    </div>
+                    <p class="body-base" style="color: var(--color-slate-600); margin-bottom: var(--spacing-xl);">
+                        Monitor build performance, deployment frequency, and pipeline reliability.
+                    </p>
+
+                    <div class="data-source-grid">
+                        <!-- Jenkins -->
+                        <div class="data-source-card" id="jenkins-card" onclick="selectDataSource('jenkins')">
+                            <div class="data-source-header">
+                                <div class="data-source-icon" style="background: #f0f9ff;">
+                                    <svg style="width: 32px; height: 32px;" viewBox="0 0 24 24" fill="#335061">
+                                        <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm0 2.4c5.302 0 9.6 4.298 9.6 9.6s-4.298 9.6-9.6 9.6S2.4 17.302 2.4 12 6.698 2.4 12 2.4z"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="data-source-name">Jenkins</div>
+                                </div>
+                            </div>
+                            <div class="data-source-description">
+                                Monitor Jenkins builds, test results, and deployment pipelines for comprehensive CI/CD analytics.
+                            </div>
+                        </div>
+
+                        <!-- GitHub Actions -->
+                        <div class="data-source-card" id="actions-card" onclick="selectDataSource('actions')">
+                            <div class="data-source-header">
+                                <div class="data-source-icon" style="background: #f6f8fa;">
+                                    <i data-lucide="zap" style="color: #24292f; width: 32px; height: 32px;"></i>
+                                </div>
+                                <div>
+                                    <div class="data-source-name">GitHub Actions</div>
+                                </div>
+                            </div>
+                            <div class="data-source-description">
+                                Track GitHub Actions workflows, build times, and automation performance directly from GitHub.
+                            </div>
+                        </div>
+
+                        <!-- Azure DevOps -->
+                        <div class="data-source-card" id="azure-card" onclick="selectDataSource('azure')">
+                            <div class="data-source-header">
+                                <div class="data-source-icon" style="background: #e1f5fe;">
+                                    <svg style="width: 32px; height: 32px;" viewBox="0 0 24 24" fill="#0078D4">
+                                        <path d="M0 10.61l7.11-2.58 5.78-5.36L24 4.93v14.14l-11.11 1.86L0 17.39V10.61zM2.68 13.2l7.83 2.44v-5.19L2.68 13.2zm19.64-6.54l-6.47-.86-3.25 2.86v6L21.3 16.8V6.66z"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="data-source-name">Azure DevOps</div>
+                                </div>
+                            </div>
+                            <div class="data-source-description">
+                                Integrate Azure DevOps for end-to-end visibility into builds, releases, and work item tracking.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Project Management -->
+                <div style="margin-bottom: var(--spacing-3xl);">
+                    <div style="display: flex; align-items: center; gap: var(--spacing-sm); margin-bottom: var(--spacing-lg);">
+                        <h3 class="heading-2">Project Management</h3>
+                        <span class="badge badge-info">Optional</span>
+                    </div>
+                    <p class="body-base" style="color: var(--color-slate-600); margin-bottom: var(--spacing-xl);">
+                        Connect project management tools to correlate development activity with business objectives.
+                    </p>
+
+                    <div class="data-source-grid">
+                        <!-- Jira -->
+                        <div class="data-source-card" id="jira-card" onclick="selectDataSource('jira')">
+                            <div class="data-source-header">
+                                <div class="data-source-icon" style="background: #e3f2fd;">
+                                    <svg style="width: 32px; height: 32px;" viewBox="0 0 24 24" fill="#0052CC">
+                                        <path d="M11.571 11.513H0a5.218 5.218 0 000 .973h11.571a5.218 5.218 0 000-.973z"/>
+                                        <path d="M24 11.513H12.429a5.218 5.218 0 000 .973H24a5.218 5.218 0 000-.973z"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="data-source-name">Jira</div>
+                                </div>
+                            </div>
+                            <div class="data-source-description">
+                                Link development work to Jira tickets for comprehensive project visibility and cycle time analysis.
+                            </div>
+                        </div>
+
+                        <!-- Linear -->
+                        <div class="data-source-card" id="linear-card" onclick="selectDataSource('linear')">
+                            <div class="data-source-header">
+                                <div class="data-source-icon" style="background: #f8fafc;">
+                                    <svg style="width: 32px; height: 32px;" viewBox="0 0 24 24" fill="#5E6AD2">
+                                        <path d="M3.293 3.293a1 1 0 011.414 0L12 10.586l7.293-7.293a1 1 0 111.414 1.414L13.414 12l7.293 7.293a1 1 0 01-1.414 1.414L12 13.414l-7.293 7.293a1 1 0 01-1.414-1.414L10.586 12 3.293 4.707a1 1 0 010-1.414z"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="data-source-name">Linear</div>
+                                </div>
+                            </div>
+                            <div class="data-source-description">
+                                Connect Linear issues to track development progress and measure feature delivery velocity.
+                            </div>
+                        </div>
+
+                        <!-- Asana -->
+                        <div class="data-source-card" id="asana-card" onclick="selectDataSource('asana')">
+                            <div class="data-source-header">
+                                <div class="data-source-icon" style="background: #fef7f0;">
+                                    <svg style="width: 32px; height: 32px;" viewBox="0 0 24 24" fill="#F06A6A">
+                                        <circle cx="12" cy="6" r="4"/>
+                                        <circle cx="6" cy="18" r="4"/>
+                                        <circle cx="18" cy="18" r="4"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="data-source-name">Asana</div>
+                                </div>
+                            </div>
+                            <div class="data-source-description">
+                                Integrate Asana tasks to understand development impact on project milestones and goals.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Code Quality -->
+                <div style="margin-bottom: var(--spacing-2xl);">
+                    <div style="display: flex; align-items: center; gap: var(--spacing-sm); margin-bottom: var(--spacing-lg);">
+                        <h3 class="heading-2">Code Quality & Security</h3>
+                        <span class="badge badge-info">Optional</span>
+                    </div>
+                    <p class="body-base" style="color: var(--color-slate-600); margin-bottom: var(--spacing-xl);">
+                        Monitor code quality metrics, security vulnerabilities, and technical debt.
+                    </p>
+
+                    <div class="data-source-grid">
+                        <!-- SonarQube -->
+                        <div class="data-source-card" id="sonar-card" onclick="selectDataSource('sonar')">
+                            <div class="data-source-header">
+                                <div class="data-source-icon" style="background: #f0f9ff;">
+                                    <svg style="width: 32px; height: 32px;" viewBox="0 0 24 24" fill="#4E9BCD">
+                                        <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.568 17.568a8.4 8.4 0 01-11.136 0 8.4 8.4 0 010-11.136 8.4 8.4 0 0111.136 0 8.4 8.4 0 010 11.136z"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="data-source-name">SonarQube</div>
+                                </div>
+                            </div>
+                            <div class="data-source-description">
+                                Track code quality metrics, technical debt, and security vulnerabilities from SonarQube analysis.
+                            </div>
+                        </div>
+
+                        <!-- CodeClimate -->
+                        <div class="data-source-card" id="codeclimate-card" onclick="selectDataSource('codeclimate')">
+                            <div class="data-source-header">
+                                <div class="data-source-icon" style="background: #f0fdf4;">
+                                    <svg style="width: 32px; height: 32px;" viewBox="0 0 24 24" fill="#22C55E">
+                                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="data-source-name">Code Climate</div>
+                                </div>
+                            </div>
+                            <div class="data-source-description">
+                                Monitor maintainability scores, test coverage, and code quality trends from Code Climate.
+                            </div>
+                        </div>
+
+                        <!-- Snyk -->
+                        <div class="data-source-card" id="snyk-card" onclick="selectDataSource('snyk')">
+                            <div class="data-source-header">
+                                <div class="data-source-icon" style="background: #fef2f2;">
+                                    <svg style="width: 32px; height: 32px;" viewBox="0 0 24 24" fill="#DC2626">
+                                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="data-source-name">Snyk</div>
+                                </div>
+                            </div>
+                            <div class="data-source-description">
+                                Track security vulnerabilities, dependency issues, and security debt from Snyk scanning.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Selected Sources Summary -->
+                <div id="selectedSources" style="display: none; background: var(--color-blue-50); border-radius: var(--radius-lg); padding: var(--spacing-xl); border: 1px solid var(--color-blue-200);">
+                    <div style="display: flex; align-items: center; gap: var(--spacing-sm); margin-bottom: var(--spacing-base);">
+                        <i data-lucide="check-circle" style="color: var(--color-blue-600); width: 20px; height: 20px;"></i>
+                        <h4 class="heading-3">Selected Data Sources</h4>
+                    </div>
+                    <div id="sourcesList" style="display: flex; flex-wrap: gap: var(--spacing-sm);"></div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="onboarding-footer">
+                <button class="btn btn-ghost" onclick="window.history.back()">
+                    <i data-lucide="arrow-left" style="width: 16px; height: 16px;"></i>
+                    Back
+                </button>
+                <button id="continueBtn" class="btn btn-primary" onclick="continueToTeamSetup()" disabled>
+                    Continue to Team Setup
+                    <i data-lucide="arrow-right" style="width: 16px; height: 16px;"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedSources = new Set();
+        let requiredSourceSelected = false;
+
+        function selectDataSource(source) {
+            const card = document.getElementById(`${source}-card`);
+            const isRequired = ['github', 'gitlab', 'bitbucket'].includes(source);
+            
+            if (selectedSources.has(source)) {
+                // Deselect
+                selectedSources.delete(source);
+                card.classList.remove('selected');
+                
+                if (isRequired) {
+                    requiredSourceSelected = false;
+                }
+            } else {
+                // Select
+                if (isRequired) {
+                    // Deselect other VCS options
+                    ['github', 'gitlab', 'bitbucket'].forEach(vcs => {
+                        if (vcs !== source) {
+                            selectedSources.delete(vcs);
+                            const vcsCard = document.getElementById(`${vcs}-card`);
+                            if (vcsCard) vcsCard.classList.remove('selected');
+                        }
+                    });
+                    requiredSourceSelected = true;
+                }
+                
+                selectedSources.add(source);
+                card.classList.add('selected');
+            }
+            
+            updateSelectedSources();
+            updateContinueButton();
+        }
+
+        function updateSelectedSources() {
+            const selectedDiv = document.getElementById('selectedSources');
+            const sourcesList = document.getElementById('sourcesList');
+            
+            if (selectedSources.size > 0) {
+                selectedDiv.style.display = 'block';
+                sourcesList.innerHTML = '';
+                
+                selectedSources.forEach(source => {
+                    const badge = document.createElement('span');
+                    badge.className = 'badge badge-info';
+                    badge.textContent = getSourceDisplayName(source);
+                    sourcesList.appendChild(badge);
+                });
+            } else {
+                selectedDiv.style.display = 'none';
+            }
+        }
+
+        function updateContinueButton() {
+            const continueBtn = document.getElementById('continueBtn');
+            continueBtn.disabled = !requiredSourceSelected;
+            
+            if (requiredSourceSelected) {
+                continueBtn.classList.remove('btn-secondary');
+                continueBtn.classList.add('btn-primary');
+            } else {
+                continueBtn.classList.remove('btn-primary');
+                continueBtn.classList.add('btn-secondary');
+            }
+        }
+
+        function getSourceDisplayName(source) {
+            const names = {
+                'github': 'GitHub',
+                'gitlab': 'GitLab',
+                'bitbucket': 'Bitbucket',
+                'jenkins': 'Jenkins',
+                'actions': 'GitHub Actions',
+                'azure': 'Azure DevOps',
+                'jira': 'Jira',
+                'linear': 'Linear',
+                'asana': 'Asana',
+                'sonar': 'SonarQube',
+                'codeclimate': 'Code Climate',
+                'snyk': 'Snyk'
+            };
+            return names[source] || source;
+        }
+
+        function continueToTeamSetup() {
+            if (!requiredSourceSelected) return;
+            
+            const continueBtn = document.getElementById('continueBtn');
+            const originalText = continueBtn.innerHTML;
+            
+            continueBtn.innerHTML = `
+                <div style="width: 16px; height: 16px; border: 2px solid currentColor; border-top: 2px solid transparent; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                Connecting...
+            `;
+            continueBtn.disabled = true;
+            
+            // Simulate connection process
+            setTimeout(() => {
+                window.location.href = 'team-setup.html';
+            }, 2000);
+        }
+
+        // Add CSS animation for spinner
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Initialize Lucide icons
+        lucide.createIcons();
+    </script>
+</body>
+</html>

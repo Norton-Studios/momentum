@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Momentum - Developer Productivity Analytics</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="#" class="navbar-brand">
+                <div style="width: 32px; height: 32px; background: var(--gradient-primary); border-radius: var(--radius-base); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700;">M</div>
+                Momentum
+            </a>
+            <ul class="navbar-nav">
+                <li><a href="#" class="nav-link active">Dashboard</a></li>
+                <li><a href="#" class="nav-link">Teams</a></li>
+                <li><a href="#" class="nav-link">Contributors</a></li>
+                <li><a href="#" class="nav-link">Reports</a></li>
+                <li><a href="#" class="nav-link">Settings</a></li>
+                <li>
+                    <div style="width: 36px; height: 36px; background: var(--gradient-primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; cursor: pointer;">JD</div>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Dashboard -->
+    <div class="dashboard">
+        <!-- Dashboard Header -->
+        <div class="dashboard-header">
+            <div class="container">
+                <div class="dashboard-title">
+                    <div>
+                        <h1 class="display-2">Organization Overview</h1>
+                        <p class="body-large" style="margin-top: var(--spacing-sm);">Comprehensive analytics for engineering excellence</p>
+                    </div>
+                    <div class="date-range-selector">
+                        <button class="date-range-option">7d</button>
+                        <button class="date-range-option">30d</button>
+                        <button class="date-range-option active">60d</button>
+                        <button class="date-range-option">90d</button>
+                        <button class="date-range-option">Custom</button>
+                    </div>
+                </div>
+                
+                <!-- Navigation Tabs -->
+                <div class="dashboard-nav">
+                    <a href="#" class="dashboard-nav-item active">Organization</a>
+                    <a href="#" class="dashboard-nav-item">All Teams</a>
+                    <a href="#" class="dashboard-nav-item">All Contributors</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Content -->
+        <div class="dashboard-content">
+            <div class="container">
+                <!-- Key Metrics Grid -->
+                <div class="grid grid-4" style="margin-bottom: var(--spacing-3xl);">
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <div class="metric-icon" style="background: var(--color-blue-50);">
+                                <i data-lucide="shield-check" style="color: var(--color-blue-600); width: 24px; height: 24px;"></i>
+                            </div>
+                        </div>
+                        <div class="metric-value">23</div>
+                        <div class="metric-label">Critical CVEs Resolved</div>
+                        <div class="metric-trend trend-positive">
+                            <i data-lucide="trending-up" style="width: 12px; height: 12px;"></i>
+                            +15.3% vs last period
+                        </div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <div class="metric-icon" style="background: var(--color-emerald-50);">
+                                <i data-lucide="activity" style="color: var(--color-emerald-600); width: 24px; height: 24px;"></i>
+                            </div>
+                        </div>
+                        <div class="metric-value">94.7%</div>
+                        <div class="metric-label">Pipeline Stability</div>
+                        <div class="metric-trend trend-positive">
+                            <i data-lucide="trending-up" style="width: 12px; height: 12px;"></i>
+                            +2.1% vs last period
+                        </div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <div class="metric-icon" style="background: var(--color-amber-50);">
+                                <i data-lucide="zap" style="color: var(--color-amber-600); width: 24px; height: 24px;"></i>
+                            </div>
+                        </div>
+                        <div class="metric-value">2.3d</div>
+                        <div class="metric-label">Avg Delivery Velocity</div>
+                        <div class="metric-trend trend-negative">
+                            <i data-lucide="trending-down" style="width: 12px; height: 12px;"></i>
+                            -0.4d vs last period
+                        </div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <div class="metric-icon" style="background: var(--color-slate-100);">
+                                <i data-lucide="git-commit" style="color: var(--color-slate-600); width: 24px; height: 24px;"></i>
+                            </div>
+                        </div>
+                        <div class="metric-value">1,247</div>
+                        <div class="metric-label">Total Commits</div>
+                        <div class="metric-trend trend-positive">
+                            <i data-lucide="trending-up" style="width: 12px; height: 12px;"></i>
+                            +8.7% vs last period
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Row -->
+                <div class="grid grid-2" style="margin-bottom: var(--spacing-3xl);">
+                    <!-- CVE Dashboard Chart -->
+                    <div class="chart-container">
+                        <div class="chart-header">
+                            <h3 class="chart-title">CVE Resolution Trends</h3>
+                            <div style="display: flex; gap: var(--spacing-sm);">
+                                <span class="badge badge-error">Critical</span>
+                                <span class="badge badge-warning">High</span>
+                                <span class="badge badge-info">Medium</span>
+                            </div>
+                        </div>
+                        <canvas id="cveChart" style="max-height: 300px;"></canvas>
+                    </div>
+
+                    <!-- Pipeline Stability Chart -->
+                    <div class="chart-container">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Pipeline Stability</h3>
+                            <div class="badge badge-success">94.7% Success Rate</div>
+                        </div>
+                        <canvas id="pipelineChart" style="max-height: 300px;"></canvas>
+                    </div>
+                </div>
+
+                <!-- Delivery Velocity Chart -->
+                <div class="chart-container" style="margin-bottom: var(--spacing-3xl);">
+                    <div class="chart-header">
+                        <h3 class="chart-title">Delivery Velocity Trends</h3>
+                        <div style="display: flex; gap: var(--spacing-sm);">
+                            <span class="badge badge-info">Feature Development</span>
+                            <span class="badge badge-success">Bug Fixes</span>
+                            <span class="badge badge-warning">Hotfixes</span>
+                        </div>
+                    </div>
+                    <canvas id="velocityChart" style="height: 400px;"></canvas>
+                </div>
+
+                <!-- Commit Activity Heatmap -->
+                <div class="card-premium" style="margin-bottom: var(--spacing-3xl);">
+                    <div class="card-header">
+                        <h3 class="heading-3">Commit Activity Heatmap</h3>
+                        <div class="body-small">Activity patterns across teams and time periods</div>
+                    </div>
+                    <div class="card-body">
+                        <div id="commitHeatmap" style="height: 300px; background: var(--color-slate-50); border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; color: var(--color-slate-500);">
+                            <div style="text-align: center;">
+                                <i data-lucide="calendar" style="width: 48px; height: 48px; margin-bottom: var(--spacing-base);"></i>
+                                <div>Interactive heatmap visualization would be rendered here</div>
+                                <div class="caption" style="margin-top: var(--spacing-sm);">Showing activity patterns for the last 60 days</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Top Performing Teams -->
+                <div class="grid grid-2">
+                    <div class="data-table">
+                        <div style="padding: var(--spacing-xl); border-bottom: 1px solid var(--color-slate-200);">
+                            <h3 class="heading-3">Top Performing Teams</h3>
+                            <p class="body-small" style="margin-top: var(--spacing-xs);">Based on delivery velocity and code quality</p>
+                        </div>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Team</th>
+                                    <th>Velocity</th>
+                                    <th>Quality Score</th>
+                                    <th>Trend</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <div style="display: flex; align-items: center; gap: var(--spacing-sm);">
+                                            <div class="team-avatar" style="width: 32px; height: 32px; font-size: 0.75rem;">FE</div>
+                                            <div>
+                                                <div class="body-base" style="font-weight: 600;">Frontend Team</div>
+                                                <div class="caption">8 contributors</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td><span class="badge badge-success">1.8d</span></td>
+                                    <td><span class="badge badge-success">9.2/10</span></td>
+                                    <td><i data-lucide="trending-up" class="trend-positive" style="width: 16px; height: 16px;"></i></td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div style="display: flex; align-items: center; gap: var(--spacing-sm);">
+                                            <div class="team-avatar" style="width: 32px; height: 32px; font-size: 0.75rem;">API</div>
+                                            <div>
+                                                <div class="body-base" style="font-weight: 600;">API Team</div>
+                                                <div class="caption">6 contributors</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td><span class="badge badge-success">2.1d</span></td>
+                                    <td><span class="badge badge-success">8.9/10</span></td>
+                                    <td><i data-lucide="trending-up" class="trend-positive" style="width: 16px; height: 16px;"></i></td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div style="display: flex; align-items: center; gap: var(--spacing-sm);">
+                                            <div class="team-avatar" style="width: 32px; height: 32px; font-size: 0.75rem;">INF</div>
+                                            <div>
+                                                <div class="body-base" style="font-weight: 600;">Infrastructure</div>
+                                                <div class="caption">4 contributors</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td><span class="badge badge-warning">2.8d</span></td>
+                                    <td><span class="badge badge-success">9.1/10</span></td>
+                                    <td><i data-lucide="minus" class="trend-neutral" style="width: 16px; height: 16px;"></i></td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div style="display: flex; align-items: center; gap: var(--spacing-sm);">
+                                            <div class="team-avatar" style="width: 32px; height: 32px; font-size: 0.75rem;">MOB</div>
+                                            <div>
+                                                <div class="body-base" style="font-weight: 600;">Mobile Team</div>
+                                                <div class="caption">5 contributors</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td><span class="badge badge-warning">3.2d</span></td>
+                                    <td><span class="badge badge-warning">7.8/10</span></td>
+                                    <td><i data-lucide="trending-down" class="trend-negative" style="width: 16px; height: 16px;"></i></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Recent Activity Feed -->
+                    <div class="card-premium">
+                        <div class="card-header">
+                            <h3 class="heading-3">Recent Activity</h3>
+                            <div class="body-small">Latest updates across all teams</div>
+                        </div>
+                        <div class="card-body">
+                            <div style="display: flex; flex-direction: column; gap: var(--spacing-base);">
+                                <div style="display: flex; gap: var(--spacing-base); padding: var(--spacing-base); background: var(--color-emerald-50); border-radius: var(--radius-base); border-left: 4px solid var(--color-emerald-500);">
+                                    <i data-lucide="shield-check" style="color: var(--color-emerald-600); width: 20px; height: 20px; margin-top: 2px;"></i>
+                                    <div>
+                                        <div class="body-base" style="font-weight: 600;">Critical CVE patched</div>
+                                        <div class="body-small">Infrastructure team resolved CVE-2024-1234 in production</div>
+                                        <div class="caption" style="margin-top: var(--spacing-xs);">2 hours ago</div>
+                                    </div>
+                                </div>
+
+                                <div style="display: flex; gap: var(--spacing-base); padding: var(--spacing-base); background: var(--color-blue-50); border-radius: var(--radius-base); border-left: 4px solid var(--color-blue-500);">
+                                    <i data-lucide="git-merge" style="color: var(--color-blue-600); width: 20px; height: 20px; margin-top: 2px;"></i>
+                                    <div>
+                                        <div class="body-base" style="font-weight: 600;">Major feature deployed</div>
+                                        <div class="body-small">Frontend team shipped user dashboard v2.0</div>
+                                        <div class="caption" style="margin-top: var(--spacing-xs);">4 hours ago</div>
+                                    </div>
+                                </div>
+
+                                <div style="display: flex; gap: var(--spacing-base); padding: var(--spacing-base); background: var(--color-amber-50); border-radius: var(--radius-base); border-left: 4px solid var(--color-amber-500);">
+                                    <i data-lucide="alert-triangle" style="color: var(--color-amber-600); width: 20px; height: 20px; margin-top: 2px;"></i>
+                                    <div>
+                                        <div class="body-base" style="font-weight: 600;">Pipeline optimization needed</div>
+                                        <div class="body-small">Mobile team build time increased by 23%</div>
+                                        <div class="caption" style="margin-top: var(--spacing-xs);">6 hours ago</div>
+                                    </div>
+                                </div>
+
+                                <div style="display: flex; gap: var(--spacing-base); padding: var(--spacing-base); background: var(--color-slate-50); border-radius: var(--radius-base); border-left: 4px solid var(--color-slate-400);">
+                                    <i data-lucide="users" style="color: var(--color-slate-600); width: 20px; height: 20px; margin-top: 2px;"></i>
+                                    <div>
+                                        <div class="body-base" style="font-weight: 600;">New team member onboarded</div>
+                                        <div class="body-small">Sarah Chen joined the API team as Senior Engineer</div>
+                                        <div class="caption" style="margin-top: var(--spacing-xs);">1 day ago</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <a href="#" class="btn btn-ghost" style="margin: 0 auto;">View All Activity</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

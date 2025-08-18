@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Momentum - Developer Productivity Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@300;400;500;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Experimental Asymmetric Header -->
+        <header class="header-experimental">
+            <div class="header-left">
+                <div class="logo-container">
+                    <div class="logo-shape"></div>
+                    <h1 class="logo-text">MOMENTUM</h1>
+                </div>
+            </div>
+            
+            <div class="header-center">
+                <nav class="nav-experimental">
+                    <div class="nav-item active" data-view="dashboard">
+                        <div class="nav-shape"></div>
+                        <span>Dashboard</span>
+                    </div>
+                    <div class="nav-item" data-view="organizations">
+                        <div class="nav-shape"></div>
+                        <span>Organizations</span>
+                    </div>
+                    <div class="nav-item" data-view="teams">
+                        <div class="nav-shape"></div>
+                        <span>Teams</span>
+                    </div>
+                    <div class="nav-item" data-view="contributors">
+                        <div class="nav-shape"></div>
+                        <span>Contributors</span>
+                    </div>
+                </nav>
+            </div>
+            
+            <div class="header-right">
+                <div class="time-selector">
+                    <div class="time-option active" data-range="7d">7d</div>
+                    <div class="time-option" data-range="30d">30d</div>
+                    <div class="time-option" data-range="60d">60d</div>
+                    <div class="time-option" data-range="90d">90d</div>
+                    <div class="time-option" data-range="custom">Custom</div>
+                </div>
+                <div class="user-avatar">
+                    <div class="avatar-shape"></div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Experimental Asymmetric Main Content -->
+        <main class="main-experimental">
+            <!-- Dashboard View -->
+            <div class="view-container active" id="dashboard-view">
+                <div class="dashboard-grid">
+                    <!-- Asymmetric Hero Metrics -->
+                    <section class="hero-metrics">
+                        <div class="metric-card primary">
+                            <div class="metric-shape-bg"></div>
+                            <div class="metric-content">
+                                <h3>Delivery Velocity</h3>
+                                <div class="metric-value">87.3%</div>
+                                <div class="metric-trend positive">+12.4%</div>
+                            </div>
+                            <div class="metric-visual">
+                                <div class="velocity-bars">
+                                    <div class="bar" style="height: 60%"></div>
+                                    <div class="bar" style="height: 85%"></div>
+                                    <div class="bar" style="height: 72%"></div>
+                                    <div class="bar" style="height: 95%"></div>
+                                    <div class="bar active" style="height: 87%"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="metric-card secondary">
+                            <div class="metric-shape-bg"></div>
+                            <div class="metric-content">
+                                <h3>Pipeline Stability</h3>
+                                <div class="metric-value">92.1%</div>
+                                <div class="metric-trend positive">+5.2%</div>
+                            </div>
+                            <div class="stability-ring">
+                                <svg viewBox="0 0 100 100">
+                                    <circle cx="50" cy="50" r="45" class="ring-bg"/>
+                                    <circle cx="50" cy="50" r="45" class="ring-progress" style="--progress: 92.1"/>
+                                </svg>
+                            </div>
+                        </div>
+
+                        <div class="metric-card tertiary">
+                            <div class="metric-shape-bg"></div>
+                            <div class="metric-content">
+                                <h3>CVE Score</h3>
+                                <div class="metric-value critical">3.2</div>
+                                <div class="metric-trend negative">+0.8</div>
+                            </div>
+                            <div class="cve-visualization">
+                                <div class="cve-dots">
+                                    <div class="dot low"></div>
+                                    <div class="dot low"></div>
+                                    <div class="dot medium"></div>
+                                    <div class="dot high"></div>
+                                    <div class="dot critical active"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Asymmetric Activity Heatmap -->
+                    <section class="activity-section">
+                        <div class="section-header">
+                            <h2>Commit Activity Heatmap</h2>
+                            <div class="heatmap-legend">
+                                <span>Less</span>
+                                <div class="legend-squares">
+                                    <div class="square level-0"></div>
+                                    <div class="square level-1"></div>
+                                    <div class="square level-2"></div>
+                                    <div class="square level-3"></div>
+                                    <div class="square level-4"></div>
+                                </div>
+                                <span>More</span>
+                            </div>
+                        </div>
+                        <div class="heatmap-container">
+                            <div class="heatmap-grid" id="activity-heatmap">
+                                <!-- Generated by JavaScript -->
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Asymmetric Team Performance -->
+                    <section class="team-performance">
+                        <div class="section-header">
+                            <h2>Team Performance Matrix</h2>
+                            <div class="performance-filter">
+                                <button class="filter-btn active">All Teams</button>
+                                <button class="filter-btn">Frontend</button>
+                                <button class="filter-btn">Backend</button>
+                                <button class="filter-btn">DevOps</button>
+                            </div>
+                        </div>
+                        <div class="performance-grid">
+                            <div class="team-card">
+                                <div class="team-header">
+                                    <h3>Frontend Squad</h3>
+                                    <div class="team-score excellent">94</div>
+                                </div>
+                                <div class="team-metrics">
+                                    <div class="mini-metric">
+                                        <span>Cycle Time</span>
+                                        <strong>2.3d</strong>
+                                    </div>
+                                    <div class="mini-metric">
+                                        <span>Review Time</span>
+                                        <strong>4.2h</strong>
+                                    </div>
+                                    <div class="mini-metric">
+                                        <span>WIP</span>
+                                        <strong>12</strong>
+                                    </div>
+                                </div>
+                                <div class="team-visual">
+                                    <div class="performance-polygon" data-metrics="94,87,91,89,92"></div>
+                                </div>
+                            </div>
+
+                            <div class="team-card">
+                                <div class="team-header">
+                                    <h3>Backend Core</h3>
+                                    <div class="team-score good">87</div>
+                                </div>
+                                <div class="team-metrics">
+                                    <div class="mini-metric">
+                                        <span>Cycle Time</span>
+                                        <strong>3.1d</strong>
+                                    </div>
+                                    <div class="mini-metric">
+                                        <span>Review Time</span>
+                                        <strong>6.8h</strong>
+                                    </div>
+                                    <div class="mini-metric">
+                                        <span>WIP</span>
+                                        <strong>18</strong>
+                                    </div>
+                                </div>
+                                <div class="team-visual">
+                                    <div class="performance-polygon" data-metrics="87,82,89,85,88"></div>
+                                </div>
+                            </div>
+
+                            <div class="team-card">
+                                <div class="team-header">
+                                    <h3>DevOps Platform</h3>
+                                    <div class="team-score excellent">96</div>
+                                </div>
+                                <div class="team-metrics">
+                                    <div class="mini-metric">
+                                        <span>Cycle Time</span>
+                                        <strong>1.8d</strong>
+                                    </div>
+                                    <div class="mini-metric">
+                                        <span>Review Time</span>
+                                        <strong>3.1h</strong>
+                                    </div>
+                                    <div class="mini-metric">
+                                        <span>WIP</span>
+                                        <strong>8</strong>
+                                    </div>
+                                </div>
+                                <div class="team-visual">
+                                    <div class="performance-polygon" data-metrics="96,94,92,91,95"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Experimental Code Health Dashboard -->
+                    <section class="code-health">
+                        <div class="section-header">
+                            <h2>Code Health Spectrum</h2>
+                        </div>
+                        <div class="health-visualization">
+                            <div class="health-spectrum">
+                                <div class="spectrum-segment excellent" style="width: 45%">
+                                    <span>Excellent</span>
+                                    <strong>45%</strong>
+                                </div>
+                                <div class="spectrum-segment good" style="width: 32%">
+                                    <span>Good</span>
+                                    <strong>32%</strong>
+                                </div>
+                                <div class="spectrum-segment needs-attention" style="width: 18%">
+                                    <span>Needs Attention</span>
+                                    <strong>18%</strong>
+                                </div>
+                                <div class="spectrum-segment critical" style="width: 5%">
+                                    <span>Critical</span>
+                                    <strong>5%</strong>
+                                </div>
+                            </div>
+                            <div class="health-details">
+                                <div class="health-metric">
+                                    <div class="metric-icon coverage"></div>
+                                    <div class="metric-info">
+                                        <h4>Test Coverage</h4>
+                                        <div class="metric-bar">
+                                            <div class="bar-fill" style="width: 78%"></div>
+                                        </div>
+                                        <span>78%</span>
+                                    </div>
+                                </div>
+                                <div class="health-metric">
+                                    <div class="metric-icon complexity"></div>
+                                    <div class="metric-info">
+                                        <h4>Complexity Score</h4>
+                                        <div class="metric-bar">
+                                            <div class="bar-fill" style="width: 65%"></div>
+                                        </div>
+                                        <span>6.5</span>
+                                    </div>
+                                </div>
+                                <div class="health-metric">
+                                    <div class="metric-icon duplication"></div>
+                                    <div class="metric-info">
+                                        <h4>Duplication</h4>
+                                        <div class="metric-bar">
+                                            <div class="bar-fill" style="width: 12%"></div>
+                                        </div>
+                                        <span>12%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+
+            <!-- Organizations View -->
+            <div class="view-container" id="organizations-view">
+                <div class="org-dashboard">
+                    <h2>Organization Overview</h2>
+                    <div class="org-metrics">
+                        <!-- Organization-specific content -->
+                        <div class="coming-soon">
+                            <div class="coming-soon-shape"></div>
+                            <h3>Organization View</h3>
+                            <p>Advanced organization analytics coming soon</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Teams View -->  
+            <div class="view-container" id="teams-view">
+                <div class="teams-dashboard">
+                    <h2>Teams Comparison</h2>
+                    <div class="teams-metrics">
+                        <!-- Teams-specific content -->
+                        <div class="coming-soon">
+                            <div class="coming-soon-shape"></div>
+                            <h3>Teams Analysis</h3>
+                            <p>Detailed team comparison view coming soon</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contributors View -->
+            <div class="view-container" id="contributors-view">
+                <div class="contributors-dashboard">
+                    <h2>Contributors Analysis</h2>
+                    <div class="contributors-metrics">
+                        <!-- Contributors-specific content -->
+                        <div class="coming-soon">
+                            <div class="coming-soon-shape"></div>
+                            <h3>Individual Performance</h3>
+                            <p>Contributor analytics dashboard coming soon</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Experimental Floating Action Button -->
+        <div class="fab-container">
+            <button class="fab-main">
+                <div class="fab-icon"></div>
+            </button>
+            <div class="fab-menu">
+                <button class="fab-item" data-action="export">
+                    <span>Export Data</span>
+                </button>
+                <button class="fab-item" data-action="settings">
+                    <span>Settings</span>
+                </button>
+                <button class="fab-item" data-action="help">
+                    <span>Help</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

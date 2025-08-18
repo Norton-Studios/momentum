@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Review & Complete - Momentum Setup</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <a href="index.html" class="logo">Momentum</a>
+                <div class="text-sm text-medium">Setup Wizard</div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container" style="padding-top: 2rem; padding-bottom: 4rem;">
+        <!-- Wizard Steps -->
+        <div class="wizard-steps">
+            <div class="wizard-step completed">
+                <div class="wizard-step-number">1</div>
+                <span class="wizard-step-label">Account</span>
+            </div>
+            <div class="wizard-step completed">
+                <div class="wizard-step-number">2</div>
+                <span class="wizard-step-label">Data Sources</span>
+            </div>
+            <div class="wizard-step completed">
+                <div class="wizard-step-number">3</div>
+                <span class="wizard-step-label">Team Setup</span>
+            </div>
+            <div class="wizard-step active">
+                <div class="wizard-step-number">4</div>
+                <span class="wizard-step-label">Review</span>
+            </div>
+        </div>
+
+        <!-- Review & Complete -->
+        <div class="container-sm">
+            <div class="text-center mb-12">
+                <h1>Review Your Configuration</h1>
+                <p class="text-lg text-medium">Verify your setup before we start collecting data and generating insights</p>
+            </div>
+
+            <!-- Configuration Summary -->
+            <div class="space-y-6 mb-12">
+                <!-- Account Information -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <h3 class="card-title">Account Information</h3>
+                                <p class="card-description">Your organization and account details</p>
+                            </div>
+                            <button class="btn btn-ghost btn-sm" onclick="editStep('account')">Edit</button>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <div class="text-sm font-medium text-medium mb-1">Organization</div>
+                                <div class="text-sm">Acme Inc.</div>
+                            </div>
+                            <div>
+                                <div class="text-sm font-medium text-medium mb-1">Admin</div>
+                                <div class="text-sm">John Doe (john@acme.com)</div>
+                            </div>
+                            <div>
+                                <div class="text-sm font-medium text-medium mb-1">Team Size</div>
+                                <div class="text-sm">16-50 developers</div>
+                            </div>
+                            <div>
+                                <div class="text-sm font-medium text-medium mb-1">Plan</div>
+                                <div class="text-sm">Professional (14-day trial)</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Connected Data Sources -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <h3 class="card-title">Connected Data Sources</h3>
+                                <p class="card-description">Integrations for collecting development metrics</p>
+                            </div>
+                            <button class="btn btn-ghost btn-sm" onclick="editStep('data-sources')">Edit</button>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <!-- Version Control -->
+                        <div class="mb-6">
+                            <div class="text-sm font-medium text-medium mb-3">Version Control System</div>
+                            <div class="flex items-center gap-3 p-3 bg-hover rounded-lg">
+                                <div class="w-8 h-8 bg-black rounded flex items-center justify-center">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
+                                        <path d="M12 0C5.374 0 0 5.373 0 12 0 17.302 3.438 21.8 8.207 23.387c.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="text-sm font-medium">GitHub</div>
+                                    <div class="text-xs text-medium">47 repositories discovered</div>
+                                </div>
+                                <div class="ml-auto">
+                                    <div class="w-2 h-2 bg-medium rounded-full"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Optional Integrations -->
+                        <div class="mb-4">
+                            <div class="text-sm font-medium text-medium mb-3">Optional Integrations</div>
+                            <div class="space-y-2">
+                                <div class="flex items-center gap-3 p-2 rounded">
+                                    <div class="w-6 h-6 bg-light rounded flex items-center justify-center">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="white">
+                                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                                        </svg>
+                                    </div>
+                                    <div class="flex-1">
+                                        <span class="text-sm">GitHub Actions</span>
+                                        <span class="text-xs text-medium ml-2">CI/CD pipeline monitoring</span>
+                                    </div>
+                                    <div class="w-2 h-2 bg-medium rounded-full"></div>
+                                </div>
+                                <div class="flex items-center gap-3 p-2 rounded">
+                                    <div class="w-6 h-6 bg-light rounded flex items-center justify-center">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="white">
+                                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                                        </svg>
+                                    </div>
+                                    <div class="flex-1">
+                                        <span class="text-sm">Jira</span>
+                                        <span class="text-xs text-medium ml-2">Project management and tickets</span>
+                                    </div>
+                                    <div class="w-2 h-2 bg-medium rounded-full"></div>
+                                </div>
+                                <div class="flex items-center gap-3 p-2 rounded">
+                                    <div class="w-6 h-6 bg-light rounded flex items-center justify-center">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="white">
+                                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                                        </svg>
+                                    </div>
+                                    <div class="flex-1">
+                                        <span class="text-sm">SonarQube</span>
+                                        <span class="text-xs text-medium ml-2">Code quality and security</span>
+                                    </div>
+                                    <div class="w-2 h-2 bg-medium rounded-full"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="text-xs text-medium">
+                            Data collection will begin immediately after setup completion
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Team Configuration -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <h3 class="card-title">Team Configuration</h3>
+                                <p class="card-description">Teams and repository assignments</p>
+                            </div>
+                            <button class="btn btn-ghost btn-sm" onclick="editStep('team-setup')">Edit</button>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <div class="space-y-4">
+                            <!-- Frontend Team -->
+                            <div class="border border-color-border rounded-lg p-4">
+                                <div class="flex justify-between items-start mb-3">
+                                    <div>
+                                        <h4 class="font-semibold">Frontend Team</h4>
+                                        <p class="text-sm text-medium">Responsible for frontend development and user experience</p>
+                                    </div>
+                                    <span class="text-xs bg-hover px-2 py-1 rounded">3 repos</span>
+                                </div>
+                                <div class="flex flex-wrap gap-2">
+                                    <span class="text-xs bg-active px-2 py-1 rounded">web-frontend</span>
+                                    <span class="text-xs bg-active px-2 py-1 rounded">design-system</span>
+                                    <span class="text-xs bg-active px-2 py-1 rounded">landing-page</span>
+                                </div>
+                            </div>
+
+                            <!-- Backend Team -->
+                            <div class="border border-color-border rounded-lg p-4">
+                                <div class="flex justify-between items-start mb-3">
+                                    <div>
+                                        <h4 class="font-semibold">Backend Team</h4>
+                                        <p class="text-sm text-medium">Core API services and business logic</p>
+                                    </div>
+                                    <span class="text-xs bg-hover px-2 py-1 rounded">5 repos</span>
+                                </div>
+                                <div class="flex flex-wrap gap-2">
+                                    <span class="text-xs bg-active px-2 py-1 rounded">api-service</span>
+                                    <span class="text-xs bg-active px-2 py-1 rounded">auth-service</span>
+                                    <span class="text-xs bg-active px-2 py-1 rounded">payment-service</span>
+                                    <span class="text-xs bg-active px-2 py-1 rounded">notification-service</span>
+                                    <span class="text-xs bg-active px-2 py-1 rounded">webhook-service</span>
+                                </div>
+                            </div>
+
+                            <!-- Mobile Team -->
+                            <div class="border border-color-border rounded-lg p-4">
+                                <div class="flex justify-between items-start mb-3">
+                                    <div>
+                                        <h4 class="font-semibold">Mobile Team</h4>
+                                        <p class="text-sm text-medium">iOS and Android mobile applications</p>
+                                    </div>
+                                    <span class="text-xs bg-hover px-2 py-1 rounded">2 repos</span>
+                                </div>
+                                <div class="flex flex-wrap gap-2">
+                                    <span class="text-xs bg-active px-2 py-1 rounded">mobile-app</span>
+                                    <span class="text-xs bg-active px-2 py-1 rounded">mobile-sdk</span>
+                                </div>
+                            </div>
+
+                            <!-- DevOps Team -->
+                            <div class="border border-color-border rounded-lg p-4">
+                                <div class="flex justify-between items-start mb-3">
+                                    <div>
+                                        <h4 class="font-semibold">DevOps Team</h4>
+                                        <p class="text-sm text-medium">Infrastructure, deployment, and monitoring</p>
+                                    </div>
+                                    <span class="text-xs bg-hover px-2 py-1 rounded">4 repos</span>
+                                </div>
+                                <div class="flex flex-wrap gap-2">
+                                    <span class="text-xs bg-active px-2 py-1 rounded">infrastructure</span>
+                                    <span class="text-xs bg-active px-2 py-1 rounded">deployment-scripts</span>
+                                    <span class="text-xs bg-active px-2 py-1 rounded">monitoring</span>
+                                    <span class="text-xs bg-active px-2 py-1 rounded">docker-images</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between mt-4 pt-4 border-t border-color-border">
+                            <div class="text-sm text-medium">
+                                4 teams created • 14 repositories assigned • 33 unassigned
+                            </div>
+                            <button class="btn btn-ghost btn-sm">View All</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Data Collection Settings -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Data Collection Settings</h3>
+                        <p class="card-description">Configure how and when we collect your development data</p>
+                    </div>
+                    <div class="card-content">
+                        <div class="space-y-4">
+                            <div class="form-checkbox">
+                                <input type="checkbox" id="historical-data" checked>
+                                <label for="historical-data">
+                                    <div>
+                                        <div class="font-medium">Import historical data</div>
+                                        <div class="text-xs text-medium">Collect data from the last 90 days for initial insights</div>
+                                    </div>
+                                </label>
+                            </div>
+                            
+                            <div class="form-checkbox">
+                                <input type="checkbox" id="real-time-sync" checked>
+                                <label for="real-time-sync">
+                                    <div>
+                                        <div class="font-medium">Real-time synchronization</div>
+                                        <div class="text-xs text-medium">Sync data as changes occur in your repositories</div>
+                                    </div>
+                                </label>
+                            </div>
+                            
+                            <div class="form-checkbox">
+                                <input type="checkbox" id="weekly-reports" checked>
+                                <label for="weekly-reports">
+                                    <div>
+                                        <div class="font-medium">Weekly summary reports</div>
+                                        <div class="text-xs text-medium">Receive weekly insights via email</div>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Setup Completion -->
+            <div class="card mb-8 text-center">
+                <div class="card-content">
+                    <div class="mb-6">
+                        <div class="w-16 h-16 bg-black rounded-full flex items-center justify-center mb-4 mx-auto">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                                <polyline points="22,4 12,14.01 9,11.01"/>
+                            </svg>
+                        </div>
+                        <h3>Ready to Launch!</h3>
+                        <p class="text-medium">Your Momentum workspace is configured and ready to start collecting insights</p>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-4 mb-6 text-center">
+                        <div>
+                            <div class="stat-value text-lg">47</div>
+                            <div class="stat-label">Repositories</div>
+                        </div>
+                        <div>
+                            <div class="stat-value text-lg">4</div>
+                            <div class="stat-label">Teams</div>
+                        </div>
+                        <div>
+                            <div class="stat-value text-lg">6</div>
+                            <div class="stat-label">Integrations</div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-3">
+                        <button class="btn btn-primary btn-lg" style="width: 100%;" id="complete-setup">
+                            Complete Setup & Go to Dashboard
+                        </button>
+                        <p class="text-xs text-medium">
+                            We'll start collecting data immediately. Initial insights will be available within 24 hours.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Next Steps -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">What Happens Next?</h3>
+                    <p class="card-description">Here's what you can expect after completing setup</p>
+                </div>
+                <div class="card-content">
+                    <div class="space-y-4">
+                        <div class="flex gap-4">
+                            <div class="w-8 h-8 bg-black rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                                <span class="text-white text-sm font-semibold">1</span>
+                            </div>
+                            <div>
+                                <h4 class="font-medium">Data Collection Begins</h4>
+                                <p class="text-sm text-medium">We'll start collecting data from your connected sources and importing historical data from the last 90 days.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex gap-4">
+                            <div class="w-8 h-8 bg-black rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                                <span class="text-white text-sm font-semibold">2</span>
+                            </div>
+                            <div>
+                                <h4 class="font-medium">Initial Insights (24 hours)</h4>
+                                <p class="text-sm text-medium">Basic metrics and team performance indicators will be available in your dashboard within 24 hours.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex gap-4">
+                            <div class="w-8 h-8 bg-black rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                                <span class="text-white text-sm font-semibold">3</span>
+                            </div>
+                            <div>
+                                <h4 class="font-medium">Full Analytics (7 days)</h4>
+                                <p class="text-sm text-medium">Comprehensive analytics, trends, and actionable insights will be available after a week of data collection.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex gap-4">
+                            <div class="w-8 h-8 bg-black rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                                <span class="text-white text-sm font-semibold">4</span>
+                            </div>
+                            <div>
+                                <h4 class="font-medium">Weekly Reports</h4>
+                                <p class="text-sm text-medium">Receive your first weekly summary report via email with key insights and recommendations.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <div class="flex justify-between items-center mt-8">
+                <button class="btn btn-ghost" onclick="window.location.href='team-setup.html'">
+                    ← Back to Team Setup
+                </button>
+                
+                <div class="text-sm text-medium">
+                    Need help? <a href="#" class="text-black">Contact support</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Completion Modal -->
+    <div id="completion-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden" style="z-index: 1000;">
+        <div class="bg-white rounded-lg p-8 max-w-md w-full mx-4 text-center">
+            <div class="w-16 h-16 bg-black rounded-full flex items-center justify-center mb-4 mx-auto">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                    <polyline points="22,4 12,14.01 9,11.01"/>
+                </svg>
+            </div>
+            <h3 class="mb-2">Setup Complete!</h3>
+            <p class="text-medium mb-6">Your Momentum workspace is ready. We're now collecting data from your repositories.</p>
+            
+            <div class="space-y-3">
+                <button class="btn btn-primary" style="width: 100%;" onclick="window.location.href='index.html'">
+                    Go to Dashboard
+                </button>
+                <button class="btn btn-ghost" onclick="closeCompletionModal()">
+                    Stay on this page
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
