@@ -1,5 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { loadDataSources, buildDependencyGraph, executeDataSources, runImport } from "./import";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
 // Mock fast-glob
 vi.mock("fast-glob", () => ({
@@ -11,331 +10,134 @@ vi.mock("p-graph", () => ({
   default: vi.fn(),
 }));
 
-// Mock database
-vi.mock("@mmtm/database", () => ({
-  prisma: {
+// Mock database - define the mock inline to avoid initialization issues
+vi.mock("@mmtm/database", () => {
+  const mockPrisma = {
+    tenantDataSourceConfig: {
+      findMany: vi.fn(),
+    },
     dataSourceRun: {
-      create: vi.fn(),
+      findFirst: vi.fn(),
+      findMany: vi.fn(),
+      upsert: vi.fn(),
       update: vi.fn(),
     },
     $disconnect: vi.fn(),
-  },
-}));
+    $queryRaw: vi.fn(),
+  };
 
+  return {
+    prisma: mockPrisma,
+    Prisma: {
+      sql: vi.fn((strings: TemplateStringsArray, ...values: any[]) => ({
+        strings,
+        text: strings.join("?"),
+        values: values,
+      })),
+    },
+  };
+});
+
+import { runImport } from "./import";
 import fg from "fast-glob";
 import pGraph from "p-graph";
 import { prisma } from "@mmtm/database";
 
-describe("import", () => {
-  let mockDb: any;
+// Get the mocked prisma for use in tests
+const mockPrisma = prisma as any;
 
+describe("import", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-
-    // Setup mock database - prisma is already mocked in vi.mock above
-    mockDb = prisma;
+    vi.resetModules();
   });
 
-  describe("loadDataSources", () => {
-    it("should discover and load data sources from plugins", async () => {
-      // Mock file system
-      (fg as any).mockResolvedValue(["/libs/plugins/data-sources/github/repository.ts", "/libs/plugins/data-sources/gitlab/issues.ts"]);
-
-      // Mock dynamic imports
-      vi.doMock("/libs/plugins/data-sources/github/repository.ts", () => ({
-        resources: ["repository"],
-        dependencies: [],
-        run: vi.fn(),
-      }));
-
-      vi.doMock("/libs/plugins/data-sources/gitlab/issues.ts", () => ({
-        resources: ["issue"],
-        dependencies: ["repository"],
-        run: vi.fn(),
-      }));
-
-      const dataSources = await loadDataSources();
-
-      expect(fg).toHaveBeenCalledWith(
-        ["../../libs/plugins/data-sources/*/index.ts", "../../libs/plugins/data-sources/*/*.ts"],
-        expect.objectContaining({ absolute: true }),
-      );
-
-      expect(dataSources).toHaveLength(2);
-      expect(dataSources[0].name).toBe("github-repository");
-      expect(dataSources[0].resources).toEqual(["repository"]);
-      expect(dataSources[0].dependencies).toEqual([]);
-
-      expect(dataSources[1].name).toBe("gitlab-issues");
-      expect(dataSources[1].resources).toEqual(["issue"]);
-      expect(dataSources[1].dependencies).toEqual(["repository"]);
-    });
-
-    it("should handle modules without required exports", async () => {
-      (fg as any).mockResolvedValue(["/libs/plugins/data-sources/invalid/test.ts"]);
-
-      // Mock invalid module - has undefined resources and run
-      vi.doMock("/libs/plugins/data-sources/invalid/test.ts", () => ({
-        resources: undefined,
-        run: undefined,
-        someOtherExport: "value",
-      }));
-
-      const dataSources = await loadDataSources();
-      expect(dataSources).toHaveLength(0);
-    });
-
-    it("should handle import errors gracefully", async () => {
-      (fg as any).mockResolvedValue(["/libs/plugins/data-sources/broken/test.ts"]);
-
-      const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-
-      // Mock import that throws
-      vi.doMock("/libs/plugins/data-sources/broken/test.ts", () => {
-        throw new Error("Import failed");
-      });
-
-      const dataSources = await loadDataSources();
-
-      expect(dataSources).toHaveLength(0);
-      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining("Error loading data source"), expect.any(Error));
-
-      consoleSpy.mockRestore();
-    });
-  });
-
-  describe("buildDependencyGraph", () => {
-    it("should build correct dependency relationships", () => {
-      const dataSources = [
-        {
-          name: "repository",
-          resources: ["repository"],
-          dependencies: [],
-          run: vi.fn(),
-        },
-        {
-          name: "commits",
-          resources: ["commit"],
-          dependencies: ["repository"],
-          run: vi.fn(),
-        },
-        {
-          name: "pull-requests",
-          resources: ["pull_request"],
-          dependencies: ["repository", "commit"],
-          run: vi.fn(),
-        },
-      ];
-
-      const graph = buildDependencyGraph(dataSources);
-
-      expect(graph.get("repository")).toEqual([]);
-      expect(graph.get("commits")).toEqual(["repository"]);
-      expect(graph.get("pull-requests")).toEqual(["repository", "commits"]);
-    });
-
-    it("should handle circular dependencies gracefully", () => {
-      const dataSources = [
-        {
-          name: "a",
-          resources: ["resource_a"],
-          dependencies: ["resource_b"],
-          run: vi.fn(),
-        },
-        {
-          name: "b",
-          resources: ["resource_b"],
-          dependencies: ["resource_a"],
-          run: vi.fn(),
-        },
-      ];
-
-      const graph = buildDependencyGraph(dataSources);
-
-      expect(graph.get("a")).toEqual(["b"]);
-      expect(graph.get("b")).toEqual(["a"]);
-    });
-
-    it("should handle missing dependencies", () => {
-      const dataSources = [
-        {
-          name: "dependent",
-          resources: ["resource"],
-          dependencies: ["non-existent"],
-          run: vi.fn(),
-        },
-      ];
-
-      const graph = buildDependencyGraph(dataSources);
-      expect(graph.get("dependent")).toEqual([]);
-    });
-  });
-
-  describe("executeDataSources", () => {
-    it("should execute data sources in dependency order", async () => {
-      const mockRun1 = vi.fn().mockResolvedValue(undefined);
-      const mockRun2 = vi.fn().mockResolvedValue(undefined);
-
-      const dataSources = [
-        {
-          name: "repository",
-          resources: ["repository"],
-          dependencies: [],
-          run: mockRun1,
-        },
-        {
-          name: "commits",
-          resources: ["commit"],
-          dependencies: ["repository"],
-          run: mockRun2,
-        },
-      ];
-
-      // Mock database operations
-      mockDb.dataSourceRun.create.mockResolvedValue({ id: "run-id" });
-      mockDb.dataSourceRun.update.mockResolvedValue({});
-
-      // Mock p-graph
-      const mockGraphRun = vi.fn().mockResolvedValue(undefined);
-      (pGraph as any).mockReturnValue({ run: mockGraphRun });
-
-      const startDate = new Date("2024-01-01");
-      const endDate = new Date("2024-01-31");
-
-      await executeDataSources(dataSources, "test-tenant", startDate, endDate);
-
-      expect(pGraph).toHaveBeenCalledWith(expect.any(Map), [["repository", "commits"]]);
-      expect(mockGraphRun).toHaveBeenCalled();
-      expect(mockDb.$disconnect).toHaveBeenCalled();
-    });
-
-    it("should record successful runs in database", async () => {
-      const mockRun = vi.fn().mockResolvedValue(undefined);
-      const dataSources = [
-        {
-          name: "test-source",
-          resources: ["test"],
-          dependencies: [],
-          run: mockRun,
-        },
-      ];
-
-      mockDb.dataSourceRun.create.mockResolvedValue({ id: "run-123" });
-
-      const mockGraphRun = vi.fn().mockImplementation(async () => {
-        // Simulate p-graph executing the task
-        const nodeMap = (pGraph as any).mock.calls[0][0];
-        const testNode = nodeMap.get("test-source");
-        await testNode.run();
-      });
-      (pGraph as any).mockReturnValue({ run: mockGraphRun });
-
-      await executeDataSources(dataSources, "test-tenant");
-
-      expect(mockDb.dataSourceRun.create).toHaveBeenCalledWith({
-        data: {
-          dataSource: "test-source",
-          status: "RUNNING",
-          startedAt: expect.any(Date),
-          tenantId: "test-tenant",
-        },
-      });
-
-      expect(mockDb.dataSourceRun.update).toHaveBeenCalledWith({
-        where: { id: "run-123" },
-        data: {
-          status: "COMPLETED",
-          completedAt: expect.any(Date),
-          lastFetchedDataDate: expect.any(Date),
-        },
-      });
-
-      expect(mockRun).toHaveBeenCalledWith(mockDb, undefined, undefined);
-    });
-
-    it("should record failed runs in database", async () => {
-      const mockRun = vi.fn().mockRejectedValue(new Error("Data source failed"));
-      const dataSources = [
-        {
-          name: "failing-source",
-          resources: ["test"],
-          dependencies: [],
-          run: mockRun,
-        },
-      ];
-
-      mockDb.dataSourceRun.create.mockResolvedValue({ id: "run-456" });
-
-      const mockGraphRun = vi.fn().mockImplementation(async () => {
-        const nodeMap = (pGraph as any).mock.calls[0][0];
-        const failingNode = nodeMap.get("failing-source");
-        await failingNode.run();
-      });
-      (pGraph as any).mockReturnValue({ run: mockGraphRun });
-
-      const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-
-      await expect(executeDataSources(dataSources, "test-tenant")).rejects.toThrow("Data source failed");
-
-      expect(mockDb.dataSourceRun.update).toHaveBeenCalledWith({
-        where: { id: "run-456" },
-        data: {
-          status: "FAILED",
-          completedAt: expect.any(Date),
-          error: "Data source failed",
-        },
-      });
-
-      consoleSpy.mockRestore();
-    });
-
-    it("should pass date range to data source run function", async () => {
-      const mockRun = vi.fn().mockResolvedValue(undefined);
-      const dataSources = [
-        {
-          name: "date-aware-source",
-          resources: ["test"],
-          dependencies: [],
-          run: mockRun,
-        },
-      ];
-
-      mockDb.dataSourceRun.create.mockResolvedValue({ id: "run-789" });
-
-      const mockGraphRun = vi.fn().mockImplementation(async () => {
-        const nodeMap = (pGraph as any).mock.calls[0][0];
-        const testNode = nodeMap.get("date-aware-source");
-        await testNode.run();
-      });
-      (pGraph as any).mockReturnValue({ run: mockGraphRun });
-
-      const startDate = new Date("2024-01-01");
-      const endDate = new Date("2024-01-31");
-
-      await executeDataSources(dataSources, "test-tenant", startDate, endDate);
-
-      expect(mockRun).toHaveBeenCalledWith(mockDb, startDate, endDate);
-    });
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   describe("runImport", () => {
-    it("should load and execute data sources", async () => {
-      // Mock file system to return test sources
-      (fg as any).mockResolvedValue(["/libs/plugins/data-sources/test/source.ts"]);
+    it("should discover tenant configurations and execute matching data sources", async () => {
+      // Mock tenant configurations
+      (mockPrisma.tenantDataSourceConfig.findMany as any).mockResolvedValue([
+        {
+          id: "1",
+          tenantId: "tenant-1",
+          dataSource: "github",
+          key: "GITHUB_TOKEN",
+          value: "ghp_test123",
+          tenant: { id: "tenant-1", name: "Test Tenant 1" },
+        },
+        {
+          id: "2",
+          tenantId: "tenant-1",
+          dataSource: "github",
+          key: "GITHUB_ORG",
+          value: "test-org",
+          tenant: { id: "tenant-1", name: "Test Tenant 1" },
+        },
+        {
+          id: "3",
+          tenantId: "tenant-2",
+          dataSource: "gitlab",
+          key: "GITLAB_TOKEN",
+          value: "glpat_test456",
+          tenant: { id: "tenant-2", name: "Test Tenant 2" },
+        },
+      ]);
 
-      // Mock the test data source
-      vi.doMock("/libs/plugins/data-sources/test/source.ts", () => ({
-        resources: ["test"],
+      // Mock file discovery - only github and gitlab plugins exist
+      (fg as any).mockImplementation(async (patterns: string[]) => {
+        const pattern = patterns[0];
+        if (pattern.includes("github")) {
+          return ["/libs/plugins/data-sources/github/repository.ts"];
+        }
+        if (pattern.includes("gitlab")) {
+          return ["/libs/plugins/data-sources/gitlab/repository.ts"];
+        }
+        return [];
+      });
+
+      // Mock data source modules with all required exports
+      const mockGithubRun = vi.fn().mockResolvedValue(undefined);
+      vi.doMock("/libs/plugins/data-sources/github/repository.ts", () => ({
+        resources: ["repository"],
         dependencies: [],
-        run: vi.fn(),
+        importWindowDuration: 86400 * 1000,
+        run: mockGithubRun,
       }));
 
-      mockDb.dataSourceRun.create.mockResolvedValue({ id: "test-run" });
+      const mockGitlabRun = vi.fn().mockResolvedValue(undefined);
+      vi.doMock("/libs/plugins/data-sources/gitlab/repository.ts", () => ({
+        resources: ["repository"],
+        dependencies: [],
+        importWindowDuration: 86400 * 1000,
+        run: mockGitlabRun,
+      }));
 
+      // Mock DataSourceRun operations
+      (mockPrisma.dataSourceRun.findFirst as any).mockResolvedValue(null); // No previous runs
+      (mockPrisma.dataSourceRun.findMany as any).mockResolvedValue([]);
+      (mockPrisma.dataSourceRun.upsert as any).mockResolvedValue({ id: "run-1" });
+      (mockPrisma.dataSourceRun.update as any).mockResolvedValue({});
+
+      // Mock p-graph execution
       const mockGraphRun = vi.fn().mockImplementation(async () => {
+        // Simulate executing the scripts
         const nodeMap = (pGraph as any).mock.calls[0][0];
-        const testNode = nodeMap.get("test-source");
-        await testNode.run();
+        const nodeMap2 = (pGraph as any).mock.calls[1]?.[0];
+
+        // Execute for tenant-1 (github)
+        if (nodeMap) {
+          const githubNode = nodeMap.get("github-repository");
+          if (githubNode) await githubNode.run();
+        }
+
+        // Execute for tenant-2 (gitlab)
+        if (nodeMap2) {
+          const gitlabNode = nodeMap2.get("gitlab-repository");
+          if (gitlabNode) await gitlabNode.run();
+        }
       });
       (pGraph as any).mockReturnValue({ run: mockGraphRun });
 
@@ -343,35 +145,291 @@ describe("import", () => {
 
       await runImport();
 
-      expect(consoleSpy).toHaveBeenCalledWith("Starting data source import...");
-      expect(consoleSpy).toHaveBeenCalledWith("Found 1 data sources");
+      // Verify configuration was queried
+      expect(mockPrisma.tenantDataSourceConfig.findMany).toHaveBeenCalledWith({
+        include: { tenant: true },
+      });
+
+      // Verify scripts were loaded for configured data sources
+      expect(fg).toHaveBeenCalledWith(expect.arrayContaining([expect.stringContaining("github/*.ts")]), expect.any(Object));
+      expect(fg).toHaveBeenCalledWith(expect.arrayContaining([expect.stringContaining("gitlab/*.ts")]), expect.any(Object));
+
+      // Verify p-graph was called for both tenants
+      expect(pGraph).toHaveBeenCalledTimes(2);
+
+      // Verify completion message
+      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining("Data source import completed"));
 
       consoleSpy.mockRestore();
     });
 
-    it("should handle no data sources found", async () => {
+    it("should handle no tenant configurations gracefully", async () => {
+      (mockPrisma.tenantDataSourceConfig.findMany as any).mockResolvedValue([]);
+
+      const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+
+      await runImport();
+
+      expect(consoleSpy).toHaveBeenCalledWith("No tenant data source configurations found");
+      expect(fg).not.toHaveBeenCalled();
+
+      consoleSpy.mockRestore();
+    });
+
+    it("should handle missing data source plugins", async () => {
+      // Mock tenant configuration for a non-existent plugin
+      (mockPrisma.tenantDataSourceConfig.findMany as any).mockResolvedValue([
+        {
+          id: "1",
+          tenantId: "tenant-1",
+          dataSource: "nonexistent",
+          key: "API_KEY",
+          value: "test",
+          tenant: { id: "tenant-1", name: "Test Tenant" },
+        },
+      ]);
+
+      // Mock file discovery - no plugins found
       (fg as any).mockResolvedValue([]);
 
       const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
 
       await runImport();
 
-      expect(consoleSpy).toHaveBeenCalledWith("No data sources found");
+      expect(consoleSpy).toHaveBeenCalledWith("No data source scripts found");
 
       consoleSpy.mockRestore();
     });
 
-    it("should log date range when provided", async () => {
-      (fg as any).mockResolvedValue([]);
+    it("should respect incremental collection with lastFetchedDataDate", async () => {
+      // Mock tenant configuration
+      (mockPrisma.tenantDataSourceConfig.findMany as any).mockResolvedValue([
+        {
+          id: "1",
+          tenantId: "tenant-1",
+          dataSource: "github",
+          key: "GITHUB_TOKEN",
+          value: "ghp_test",
+          tenant: { id: "tenant-1", name: "Test Tenant" },
+        },
+      ]);
+
+      // Mock file discovery
+      (fg as any).mockResolvedValue(["/libs/plugins/data-sources/github/repository.ts"]);
+
+      // Mock data source module with all exports
+      const mockRun = vi.fn().mockResolvedValue(undefined);
+      vi.doMock("/libs/plugins/data-sources/github/repository.ts", () => ({
+        resources: ["repository"],
+        dependencies: [],
+        importWindowDuration: 7 * 24 * 60 * 60 * 1000, // 7 days
+        run: mockRun,
+      }));
+
+      // Mock previous successful run
+      const lastFetchedDate = new Date("2024-01-15");
+      (mockPrisma.dataSourceRun.findFirst as any).mockResolvedValue({
+        id: "previous-run",
+        status: "COMPLETED",
+        lastFetchedDataDate: lastFetchedDate,
+      });
+
+      (mockPrisma.dataSourceRun.findMany as any).mockResolvedValue([]);
+      (mockPrisma.dataSourceRun.upsert as any).mockResolvedValue({ id: "new-run" });
+      (mockPrisma.dataSourceRun.update as any).mockResolvedValue({});
+
+      // Mock p-graph execution
+      const mockGraphRun = vi.fn().mockImplementation(async () => {
+        const nodeMap = (pGraph as any).mock.calls[0][0];
+        const node = nodeMap.get("github-repository");
+        if (node) await node.run();
+      });
+      (pGraph as any).mockReturnValue({ run: mockGraphRun });
+
+      await runImport();
+
+      // Verify the run function was called with correct parameters
+      expect(mockRun).toHaveBeenCalledWith(
+        expect.objectContaining({ GITHUB_TOKEN: "ghp_test" }), // env
+        mockPrisma, // db
+        "tenant-1", // tenantId
+        expect.any(Date), // startDate (will be constrained by 7-day window)
+        expect.any(Date), // endDate should be current time
+      );
+
+      // Verify that it was called with a date range that respects the 7-day window
+      const callArgs = mockRun.mock.calls[0];
+      const startDate = callArgs[3];
+      const endDate = callArgs[4];
+      const windowSize = endDate.getTime() - startDate.getTime();
+      const sevenDaysInMs = 7 * 24 * 60 * 60 * 1000;
+
+      // Should be approximately 7 days (the import window duration)
+      expect(windowSize).toBeLessThanOrEqual(sevenDaysInMs);
+    });
+
+    it("should handle data source failures gracefully", async () => {
+      // Mock tenant configuration
+      (mockPrisma.tenantDataSourceConfig.findMany as any).mockResolvedValue([
+        {
+          id: "1",
+          tenantId: "tenant-1",
+          dataSource: "github",
+          key: "GITHUB_TOKEN",
+          value: "ghp_test",
+          tenant: { id: "tenant-1", name: "Test Tenant" },
+        },
+      ]);
+
+      // Mock file discovery
+      (fg as any).mockResolvedValue(["/libs/plugins/data-sources/github/repository.ts"]);
+
+      // Mock data source module that fails
+      const mockRun = vi.fn().mockRejectedValue(new Error("GitHub API error"));
+      vi.doMock("/libs/plugins/data-sources/github/repository.ts", () => ({
+        resources: ["repository"],
+        dependencies: [],
+        importWindowDuration: 86400 * 1000,
+        run: mockRun,
+      }));
+
+      (mockPrisma.dataSourceRun.findFirst as any).mockResolvedValue(null);
+      (mockPrisma.dataSourceRun.findMany as any).mockResolvedValue([]);
+      (mockPrisma.dataSourceRun.upsert as any).mockResolvedValue({ id: "run-1" });
+      (mockPrisma.dataSourceRun.update as any).mockResolvedValue({});
+
+      // Mock p-graph execution
+      const mockGraphRun = vi.fn().mockImplementation(async () => {
+        const nodeMap = (pGraph as any).mock.calls[0][0];
+        const node = nodeMap.get("github-repository");
+        if (node) await node.run();
+      });
+      (pGraph as any).mockReturnValue({ run: mockGraphRun });
+
+      const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+
+      await runImport();
+
+      // Verify error was logged
+      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining("Failed to execute scripts for tenant tenant-1"), expect.any(Error));
+
+      // Verify failure was recorded in database
+      expect(mockPrisma.dataSourceRun.update).toHaveBeenCalledWith({
+        where: { id: "run-1" },
+        data: {
+          status: "FAILED",
+          completedAt: expect.any(Date),
+          error: "GitHub API error",
+        },
+      });
+
+      consoleSpy.mockRestore();
+    });
+
+    it("should execute data sources with correct dependencies", async () => {
+      // Mock tenant configuration
+      (mockPrisma.tenantDataSourceConfig.findMany as any).mockResolvedValue([
+        {
+          id: "1",
+          tenantId: "tenant-1",
+          dataSource: "github",
+          key: "GITHUB_TOKEN",
+          value: "ghp_test",
+          tenant: { id: "tenant-1", name: "Test Tenant" },
+        },
+      ]);
+
+      // Mock file discovery - multiple scripts with dependencies
+      (fg as any).mockResolvedValue(["/libs/plugins/data-sources/github/repository.ts", "/libs/plugins/data-sources/github/commits.ts"]);
+
+      // Mock data source modules with all exports
+      const mockRepoRun = vi.fn().mockResolvedValue(undefined);
+      vi.doMock("/libs/plugins/data-sources/github/repository.ts", () => ({
+        resources: ["repository"],
+        dependencies: [],
+        importWindowDuration: 86400 * 1000,
+        run: mockRepoRun,
+      }));
+
+      const mockCommitRun = vi.fn().mockResolvedValue(undefined);
+      vi.doMock("/libs/plugins/data-sources/github/commits.ts", () => ({
+        resources: ["commit"],
+        dependencies: ["repository"], // Depends on repository
+        importWindowDuration: 86400 * 1000,
+        run: mockCommitRun,
+      }));
+
+      (mockPrisma.dataSourceRun.findFirst as any).mockResolvedValue(null);
+      (mockPrisma.dataSourceRun.findMany as any).mockResolvedValue([]);
+      (mockPrisma.dataSourceRun.upsert as any).mockResolvedValue({ id: "run-1" });
+      (mockPrisma.dataSourceRun.update as any).mockResolvedValue({});
+
+      // Mock p-graph - capture the dependency array
+      let capturedDependencies: any[] = [];
+      (pGraph as any).mockImplementation((_nodeMap: any, dependencies: any[]) => {
+        capturedDependencies = dependencies;
+        return { run: vi.fn().mockResolvedValue(undefined) };
+      });
+
+      await runImport();
+
+      // Verify p-graph was called with correct dependencies
+      expect(pGraph).toHaveBeenCalled();
+      expect(capturedDependencies).toContainEqual(["github-repository", "github-commits"]);
+    });
+
+    it("should skip already running scripts", async () => {
+      // Mock tenant configuration
+      (mockPrisma.tenantDataSourceConfig.findMany as any).mockResolvedValue([
+        {
+          id: "1",
+          tenantId: "tenant-1",
+          dataSource: "github",
+          key: "GITHUB_TOKEN",
+          value: "ghp_test",
+          tenant: { id: "tenant-1", name: "Test Tenant" },
+        },
+      ]);
+
+      // Mock file discovery
+      (fg as any).mockResolvedValue(["/libs/plugins/data-sources/github/repository.ts"]);
+
+      // Mock data source module with all exports
+      const mockRun = vi.fn().mockResolvedValue(undefined);
+      vi.doMock("/libs/plugins/data-sources/github/repository.ts", () => ({
+        resources: ["repository"],
+        dependencies: [],
+        importWindowDuration: 86400 * 1000,
+        run: mockRun,
+      }));
+
+      // Mock an existing RUNNING status
+      (mockPrisma.dataSourceRun.findFirst as any).mockResolvedValue(null);
+      (mockPrisma.dataSourceRun.findMany as any).mockResolvedValue([
+        {
+          id: "existing-run",
+          status: "RUNNING",
+          startedAt: new Date(Date.now() - 5 * 60 * 1000), // Started 5 minutes ago
+        },
+      ]);
+
+      // Mock p-graph execution
+      const mockGraphRun = vi.fn().mockImplementation(async () => {
+        const nodeMap = (pGraph as any).mock.calls[0][0];
+        const node = nodeMap.get("github-repository");
+        if (node) await node.run();
+      });
+      (pGraph as any).mockReturnValue({ run: mockGraphRun });
 
       const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
 
-      const startDate = new Date("2024-01-01");
-      const endDate = new Date("2024-01-31");
+      await runImport();
 
-      await runImport(startDate, endDate);
+      // Verify the script was skipped
+      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining("is already running for tenant tenant-1, skipping"));
 
-      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining("Import range: 2024-01-01T00:00:00.000Z to 2024-01-31T00:00:00.000Z"));
+      // Verify run function was not called
+      expect(mockRun).not.toHaveBeenCalled();
 
       consoleSpy.mockRestore();
     });
