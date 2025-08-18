@@ -41,7 +41,7 @@ async function getTenantConfigurations(db: PrismaClient): Promise<TenantEnvironm
   // Build environment objects
   const environments: TenantEnvironment[] = [];
 
-  for (const [key, configGroup] of grouped.entries()) {
+  grouped.forEach((configGroup, key) => {
     const [tenantId, dataSource] = key.split(":");
     const env: Record<string, string> = {};
 
@@ -50,7 +50,7 @@ async function getTenantConfigurations(db: PrismaClient): Promise<TenantEnvironm
     }
 
     environments.push({ tenantId, dataSource, env });
-  }
+  });
 
   return environments;
 }
@@ -61,7 +61,7 @@ async function getTenantConfigurations(db: PrismaClient): Promise<TenantEnvironm
 async function loadDataSourceScripts(configuredDataSources: Set<string>): Promise<DataSourceScript[]> {
   const scripts: DataSourceScript[] = [];
 
-  for (const dataSource of configuredDataSources) {
+  for (const dataSource of Array.from(configuredDataSources)) {
     const scriptPaths = await fg([`../../libs/plugins/data-sources/${dataSource}/*.ts`, `!../../libs/plugins/data-sources/${dataSource}/*.test.ts`], {
       absolute: true,
       cwd: __dirname,
@@ -350,7 +350,7 @@ export async function runImport(): Promise<void> {
     }
 
     // Execute for each tenant
-    for (const [tenantId, tenantEnvs] of tenantGroups.entries()) {
+    tenantGroups.forEach((tenantEnvs, tenantId) => {
       // Collect all scripts for this tenant
       const tenantScripts: DataSourceScript[] = [];
       const mergedEnv: Record<string, string> = {};
@@ -370,7 +370,7 @@ export async function runImport(): Promise<void> {
           console.error(`Failed to execute scripts for tenant ${tenantId}:`, error);
         }),
       );
-    }
+    });
 
     // Wait for all tenant executions to complete
     await Promise.all(tenantExecutions);
