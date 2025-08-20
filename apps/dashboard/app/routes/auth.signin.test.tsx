@@ -117,9 +117,18 @@ describe("auth.signin", () => {
     };
 
     const createRequest = (formData: FormData) => {
+      // Convert FormData to URLSearchParams for testing compatibility
+      const params = new URLSearchParams();
+      for (const [key, value] of formData.entries()) {
+        params.set(key, value as string);
+      }
+
       return new Request("http://localhost:3000/auth/signin", {
         method: "POST",
-        body: formData,
+        body: params,
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
       });
     };
 

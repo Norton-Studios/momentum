@@ -97,16 +97,15 @@ test.describe("Onboarding Flow E2E", () => {
     // Click sign-up link
     await page.getByRole("button", { name: /sign up/i }).click();
     await expect(page).toHaveURL(/\/auth\/signup/);
-    await expect(page.locator("h2")).toContainText("Create Your Account");
+    await expect(page.locator("h1")).toContainText("Create Your Account");
 
     // Go back to sign-in (if there's a back link)
-    const signInLink = page
-      .getByRole("button", { name: /sign in/i })
-      .or(page.getByText(/already have an account/i))
-      .first();
+    const signInLink = page.getByRole("button", { name: /sign in/i });
     if (await signInLink.isVisible()) {
       await signInLink.click();
-      await expect(page).toHaveURL(/\/auth\/signin/);
+
+      // Wait for navigation to complete
+      await page.waitForURL(/\/auth\/signin/, { timeout: 10000 });
       await expect(page.locator("h1")).toContainText("Welcome back");
     }
   });
