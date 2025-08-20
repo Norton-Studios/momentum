@@ -125,7 +125,7 @@ describe("auth.signin", () => {
 
       return new Request("http://localhost:3000/auth/signin", {
         method: "POST",
-        body: params,
+        body: params.toString(),
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
         },

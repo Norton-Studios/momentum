@@ -73,7 +73,7 @@ describe("auth.signup", () => {
 
       return new Request("http://localhost:3000/auth/signup", {
         method: "POST",
-        body: params,
+        body: params.toString(),
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
         },

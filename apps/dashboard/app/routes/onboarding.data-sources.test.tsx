@@ -197,7 +197,7 @@ describe("DataSourcesPage action", () => {
 
       const request = new Request("http://localhost:3000/onboarding/data-sources", {
         method: "POST",
-        body: params,
+        body: params.toString(),
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
         },
@@ -232,7 +232,7 @@ describe("DataSourcesPage action", () => {
 
       const request = new Request("http://localhost:3000/onboarding/data-sources", {
         method: "POST",
-        body: params,
+        body: params.toString(),
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
         },
@@ -267,7 +267,7 @@ describe("DataSourcesPage action", () => {
 
       const request = new Request("http://localhost:3000/onboarding/data-sources", {
         method: "POST",
-        body: params,
+        body: params.toString(),
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
         },
@@ -295,7 +295,7 @@ describe("DataSourcesPage action", () => {
 
       const request = new Request("http://localhost:3000/onboarding/data-sources", {
         method: "POST",
-        body: params,
+        body: params.toString(),
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
         },
@@ -330,7 +330,7 @@ describe("DataSourcesPage action", () => {
 
       const request = new Request("http://localhost:3000/onboarding/data-sources", {
         method: "POST",
-        body: params,
+        body: params.toString(),
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
         },
@@ -365,7 +365,7 @@ describe("DataSourcesPage action", () => {
 
       const request = new Request("http://localhost:3000/onboarding/data-sources", {
         method: "POST",
-        body: params,
+        body: params.toString(),
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
         },
@@ -393,7 +393,7 @@ describe("DataSourcesPage action", () => {
 
       const request = new Request("http://localhost:3000/onboarding/data-sources", {
         method: "POST",
-        body: params,
+        body: params.toString(),
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
         },
@@ -418,7 +418,7 @@ describe("DataSourcesPage action", () => {
 
       const request = new Request("http://localhost:3000/onboarding/data-sources", {
         method: "POST",
-        body: params,
+        body: params.toString(),
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
         },
@@ -447,7 +447,7 @@ describe("DataSourcesPage action", () => {
 
       const request = new Request("http://localhost:3000/onboarding/data-sources", {
         method: "POST",
-        body: params,
+        body: params.toString(),
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
         },
@@ -475,7 +475,7 @@ describe("DataSourcesPage action", () => {
 
       const request = new Request("http://localhost:3000/onboarding/data-sources", {
         method: "POST",
-        body: params,
+        body: params.toString(),
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
         },
@@ -503,7 +503,7 @@ describe("DataSourcesPage action", () => {
 
       const request = new Request("http://localhost:3000/onboarding/data-sources", {
         method: "POST",
-        body: params,
+        body: params.toString(),
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
         },
