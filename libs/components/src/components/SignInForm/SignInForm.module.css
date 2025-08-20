@@ -81,7 +81,7 @@
 .form {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1rem;
 }
 
 .errorAlert {
@@ -91,11 +91,11 @@
 .formFields {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 1rem;
 }
 
 .actions {
-  margin-top: 0.5rem;
+  margin-top: var(--spacing-md);
 }
 
 .submitButton {
@@ -130,7 +130,7 @@
 
 .links {
   text-align: center;
-  margin-top: 1rem;
+  /* Remove margin-top as gap handles spacing */
 }
 
 .forgotPasswordLink {

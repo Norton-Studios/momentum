@@ -7,13 +7,10 @@ function getAbsolutePath(value: string): string {
 
 const config: StorybookConfig = {
   stories: ["../src/**/*.stories.@(js|jsx|ts|tsx|mdx)"],
-  addons: [getAbsolutePath("@storybook/addon-links"), getAbsolutePath("@storybook/addon-essentials"), getAbsolutePath("@storybook/addon-interactions")],
+  addons: [getAbsolutePath("@storybook/addon-links")],
   framework: {
     name: getAbsolutePath("@storybook/react-vite"),
     options: {},
-  },
-  docs: {
-    autodocs: "tag",
   },
   viteFinal: async (config) => {
     // Customize the Vite config here

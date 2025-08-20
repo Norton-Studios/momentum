@@ -1,6 +1,5 @@
 import type React from "react";
 import { useState } from "react";
-import { Button } from "../Button/Button";
 import { FormInput } from "../FormInput/FormInput";
 import { Alert } from "../Alert/Alert";
 import styles from "./SignInForm.module.css";
@@ -66,15 +65,15 @@ export function SignInForm({ onSubmit, isSubmitting = false, error, onForgotPass
   };
 
   return (
-    <div className={styles.container}>
-      <div className={styles.formWrapper}>
-        <div className={styles.header}>
-          <div className={styles.logo}>
-            <div className={styles.logoIcon}></div>
-            <span className={styles.logoText}>Momentum</span>
-          </div>
-          <h1 className={styles.title}>Welcome back</h1>
-          <p className={styles.subtitle}>Sign in to your account to continue</p>
+    <div className="auth-container">
+      <div className="auth-card">
+        <div className="auth-logo">
+          <div className="auth-logo-icon" />
+          <span className="auth-logo-text">Momentum</span>
+        </div>
+        <div className="auth-header">
+          <h1 className="auth-title">Welcome back</h1>
+          <p className="auth-subtitle">Sign in to your account to continue</p>
         </div>
 
         <form onSubmit={handleSubmit} className={styles.form} noValidate>
@@ -113,23 +112,23 @@ export function SignInForm({ onSubmit, isSubmitting = false, error, onForgotPass
           </div>
 
           <div className={styles.actions}>
-            <Button type="submit" variant="primary" size="lg" disabled={isSubmitting} className={styles.submitButton}>
+            <button type="submit" disabled={isSubmitting} className="auth-submit-button">
               {isSubmitting ? "Signing in..." : "Sign in"}
-            </Button>
+            </button>
           </div>
 
           <div className={styles.links}>
             {onForgotPassword && (
-              <button type="button" onClick={onForgotPassword} className={styles.forgotPasswordLink} disabled={isSubmitting}>
+              <button type="button" onClick={onForgotPassword} className="auth-link-button" disabled={isSubmitting}>
                 Forgot your password?
               </button>
             )}
           </div>
 
           {onSignUp && (
-            <div className={styles.signUpPrompt}>
-              <span className={styles.signUpText}>Don't have an account?</span>{" "}
-              <button type="button" onClick={onSignUp} className={styles.signUpLink} disabled={isSubmitting}>
+            <div className="auth-prompt">
+              <span className="auth-prompt-text">Don't have an account?</span>{" "}
+              <button type="button" onClick={onSignUp} className="auth-link-button" disabled={isSubmitting}>
                 Sign up
               </button>
             </div>

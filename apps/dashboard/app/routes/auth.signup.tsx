@@ -1,6 +1,6 @@
 import type { ActionFunctionArgs, MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { useActionData, useNavigation } from "@remix-run/react";
+import { useActionData, useNavigation, useNavigate } from "@remix-run/react";
 import { useState, useCallback } from "react";
 import { SignupForm, type SignupFormData } from "@mmtm/components";
 import { validateOrganizationName, createUserAccount, createUserSession } from "@mmtm/resource-tenant";
@@ -81,6 +81,7 @@ export async function action({ request }: ActionFunctionArgs) {
 export default function SignupPage() {
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
+  const navigate = useNavigate();
   const [organizationNameError, setOrganizationNameError] = useState<string>();
 
   const isSubmitting = navigation.state === "submitting";
@@ -142,6 +143,10 @@ export default function SignupPage() {
     form.submit();
   };
 
+  const handleSignIn = () => {
+    navigate("/auth/signin");
+  };
+
   return (
     <SignupForm
       onSubmit={handleSubmit}
@@ -149,6 +154,7 @@ export default function SignupPage() {
       error={actionData && "error" in actionData ? actionData.error : undefined}
       organizationNameError={organizationNameError}
       onOrganizationNameChange={handleOrganizationNameChange}
+      onSignIn={handleSignIn}
     />
   );
 }

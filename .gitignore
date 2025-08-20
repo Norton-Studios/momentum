@@ -27,6 +27,7 @@ playwright-report/
 coverage/
 .nyc_output/
 lcov.info
+.playwright-mcp/
 
 # Turborepo
 .turbo/

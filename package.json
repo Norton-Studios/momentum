@@ -23,6 +23,7 @@
     "start:api": "yarn workspace @mmtm/api run dev",
     "start:dashboard": "yarn workspace @mmtm/dashboard run dev",
     "start:db": "yarn workspace @mmtm/database run dev",
+    "start:storybook": "yarn workspace @mmtm/storybook run dev",
     "dev": "yarn workspace @mmtm/database run generate && concurrently \"yarn:start:*\""
   },
   "keywords": [],

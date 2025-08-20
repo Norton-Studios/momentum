@@ -1,6 +1,5 @@
 import type React from "react";
 import { useState } from "react";
-import { Button } from "../Button/Button";
 import { FormInput } from "../FormInput/FormInput";
 import { Alert } from "../Alert/Alert";
 import styles from "./SignupForm.module.css";
@@ -19,9 +18,10 @@ export interface SignupFormProps {
   error?: string;
   organizationNameError?: string;
   onOrganizationNameChange?: (name: string) => void;
+  onSignIn?: () => void;
 }
 
-export function SignupForm({ onSubmit, isSubmitting = false, error, organizationNameError, onOrganizationNameChange }: SignupFormProps) {
+export function SignupForm({ onSubmit, isSubmitting = false, error, organizationNameError, onOrganizationNameChange, onSignIn }: SignupFormProps) {
   const [formData, setFormData] = useState<SignupFormData>({
     organizationName: "",
     fullName: "",
@@ -137,107 +137,122 @@ export function SignupForm({ onSubmit, isSubmitting = false, error, organization
     !organizationNameError;
 
   return (
-    <div className={styles.signupForm}>
-      <div className={styles.header}>
-        <h2 className={styles.title}>Create Your Account</h2>
-        <p className={styles.subtitle}>Start measuring your team's productivity</p>
-      </div>
+    <div className="auth-container">
+      <div className="auth-card auth-card-wide">
+        <div className="auth-logo">
+          <div className="auth-logo-icon" />
+          <span className="auth-logo-text">Momentum</span>
+        </div>
+        <div className="auth-header">
+          <h1 className="auth-title">Create Your Account</h1>
+          <p className="auth-subtitle">Start measuring your team's productivity</p>
+        </div>
 
-      {error && <Alert variant="error">{error}</Alert>}
+        {error && <Alert variant="error">{error}</Alert>}
 
-      <form onSubmit={handleSubmit} className={styles.form}>
-        <FormInput
-          id="organizationName"
-          label="Organization Name"
-          type="text"
-          value={formData.organizationName}
-          onChange={(value) => handleInputChange("organizationName", value)}
-          error={formErrors.organizationName || organizationNameError}
-          placeholder="acme-corp"
-          required
-          disabled={isSubmitting}
-          helperText="This will be your organization's unique identifier"
-        />
-
-        <FormInput
-          id="fullName"
-          label="Full Name"
-          type="text"
-          value={formData.fullName}
-          onChange={(value) => handleInputChange("fullName", value)}
-          error={formErrors.fullName}
-          placeholder="John Doe"
-          required
-          disabled={isSubmitting}
-        />
-
-        <FormInput
-          id="email"
-          label="Email Address"
-          type="email"
-          value={formData.email}
-          onChange={(value) => handleInputChange("email", value)}
-          error={formErrors.email}
-          placeholder="john@acme-corp.com"
-          required
-          disabled={isSubmitting}
-        />
-
-        <div className={styles.passwordField}>
+        <form onSubmit={handleSubmit} className={styles.form}>
           <FormInput
-            id="password"
-            label="Password"
-            type={showPassword ? "text" : "password"}
-            value={formData.password}
-            onChange={(value) => handleInputChange("password", value)}
-            error={formErrors.password}
-            placeholder="Create a strong password"
+            id="organizationName"
+            label="Organization Name"
+            type="text"
+            value={formData.organizationName}
+            onChange={(value) => handleInputChange("organizationName", value)}
+            error={formErrors.organizationName || organizationNameError}
+            placeholder="acme-corp"
+            required
+            disabled={isSubmitting}
+            helperText="This will be your organization's unique identifier"
+          />
+
+          <FormInput
+            id="fullName"
+            label="Full Name"
+            type="text"
+            value={formData.fullName}
+            onChange={(value) => handleInputChange("fullName", value)}
+            error={formErrors.fullName}
+            placeholder="John Doe"
             required
             disabled={isSubmitting}
           />
 
-          <button type="button" className={styles.togglePassword} onClick={() => setShowPassword(!showPassword)} disabled={isSubmitting}>
-            {showPassword ? "Hide" : "Show"}
+          <FormInput
+            id="email"
+            label="Email Address"
+            type="email"
+            value={formData.email}
+            onChange={(value) => handleInputChange("email", value)}
+            error={formErrors.email}
+            placeholder="john@acme-corp.com"
+            required
+            disabled={isSubmitting}
+          />
+
+          <div className={styles.passwordField}>
+            <FormInput
+              id="password"
+              label="Password"
+              type={showPassword ? "text" : "password"}
+              value={formData.password}
+              onChange={(value) => handleInputChange("password", value)}
+              error={formErrors.password}
+              placeholder="Create a strong password"
+              required
+              disabled={isSubmitting}
+            />
+
+            <button type="button" className={styles.togglePassword} onClick={() => setShowPassword(!showPassword)} disabled={isSubmitting}>
+              {showPassword ? "Hide" : "Show"}
+            </button>
+
+            {formData.password && (
+              <div className={styles.passwordStrength}>
+                <div className={styles.strengthBar}>
+                  <div
+                    className={styles.strengthFill}
+                    style={{
+                      width: `${(Object.values(passwordStrength).filter(Boolean).length / 5) * 100}%`,
+                      backgroundColor: getPasswordStrengthColor(),
+                    }}
+                  />
+                </div>
+                <div className={styles.requirements}>
+                  <div className={`${styles.requirement} ${passwordStrength.hasLength ? styles.met : ""}`}>✓ At least 12 characters</div>
+                  <div className={`${styles.requirement} ${passwordStrength.hasUppercase ? styles.met : ""}`}>✓ One uppercase letter</div>
+                  <div className={`${styles.requirement} ${passwordStrength.hasLowercase ? styles.met : ""}`}>✓ One lowercase letter</div>
+                  <div className={`${styles.requirement} ${passwordStrength.hasNumber ? styles.met : ""}`}>✓ One number</div>
+                  <div className={`${styles.requirement} ${passwordStrength.hasSpecial ? styles.met : ""}`}>✓ One special character</div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <FormInput
+            id="confirmPassword"
+            label="Confirm Password"
+            type={showPassword ? "text" : "password"}
+            value={formData.confirmPassword}
+            onChange={(value) => handleInputChange("confirmPassword", value)}
+            error={formErrors.confirmPassword}
+            placeholder="Confirm your password"
+            required
+            disabled={isSubmitting}
+          />
+
+          <button type="submit" disabled={!isFormValid || isSubmitting} className="auth-submit-button">
+            {isSubmitting ? "Creating Account..." : "Create Account"}
           </button>
+        </form>
 
-          {formData.password && (
-            <div className={styles.passwordStrength}>
-              <div className={styles.strengthBar}>
-                <div
-                  className={styles.strengthFill}
-                  style={{
-                    width: `${(Object.values(passwordStrength).filter(Boolean).length / 5) * 100}%`,
-                    backgroundColor: getPasswordStrengthColor(),
-                  }}
-                />
-              </div>
-              <div className={styles.requirements}>
-                <div className={`${styles.requirement} ${passwordStrength.hasLength ? styles.met : ""}`}>✓ At least 12 characters</div>
-                <div className={`${styles.requirement} ${passwordStrength.hasUppercase ? styles.met : ""}`}>✓ One uppercase letter</div>
-                <div className={`${styles.requirement} ${passwordStrength.hasLowercase ? styles.met : ""}`}>✓ One lowercase letter</div>
-                <div className={`${styles.requirement} ${passwordStrength.hasNumber ? styles.met : ""}`}>✓ One number</div>
-                <div className={`${styles.requirement} ${passwordStrength.hasSpecial ? styles.met : ""}`}>✓ One special character</div>
-              </div>
-            </div>
-          )}
-        </div>
-
-        <FormInput
-          id="confirmPassword"
-          label="Confirm Password"
-          type={showPassword ? "text" : "password"}
-          value={formData.confirmPassword}
-          onChange={(value) => handleInputChange("confirmPassword", value)}
-          error={formErrors.confirmPassword}
-          placeholder="Confirm your password"
-          required
-          disabled={isSubmitting}
-        />
-
-        <Button type="submit" variant="primary" size="lg" disabled={!isFormValid || isSubmitting} className={styles.submitButton}>
-          {isSubmitting ? "Creating Account..." : "Create Account"}
-        </Button>
-      </form>
+        {onSignIn && (
+          <div className="auth-prompt">
+            <span className="auth-prompt-text">Already have an account?</span>{" "}
+            <button type="button" onClick={onSignIn} className="auth-link-button" disabled={isSubmitting}>
+              Sign in
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
