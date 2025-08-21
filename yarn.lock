@@ -1535,7 +1535,7 @@ __metadata:
     fast-glob: "npm:3.3.3"
     node-cron: "npm:4.2.1"
     nodemon: "npm:3.1.10"
-    p-graph: "npm:1.1.2"
+    p-graph: "npm:1.2.0"
   languageName: unknown
   linkType: soft
 
@@ -8779,10 +8779,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"p-graph@npm:1.1.2":
-  version: 1.1.2
-  resolution: "p-graph@npm:1.1.2"
-  checksum: 10c0/8a78883c2d315a91e9187d1dd6595ca9dfdad62239fcdeafbbaa949baa375ae236a96ebd27f76b86d45eb678d70ec8cda02f1840c0dc9369243e53ec3d628049
+"p-graph@npm:1.2.0":
+  version: 1.2.0
+  resolution: "p-graph@npm:1.2.0"
+  checksum: 10c0/89119c22ffa2c82856dfde2689c224214d8484741c2ab138bc37be2daccbe6a1778247dc2711b36a88b8e9b75ca522d6dd7de104dfc2800a93aadbf9523124a7
   languageName: node
   linkType: hard
 
