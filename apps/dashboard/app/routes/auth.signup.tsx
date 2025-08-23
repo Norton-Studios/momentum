@@ -67,8 +67,8 @@ export async function action({ request }: ActionFunctionArgs) {
       // Create user session
       const userSession = await createUserSession(tenant.users[0].id, { onboarding: true }, 30, db);
 
-      // Redirect to dashboard with session
-      return createUserSessionAndRedirect(userSession.sessionToken, "/dashboard");
+      // Redirect to onboarding flow with session
+      return createUserSessionAndRedirect(userSession.sessionToken, "/onboarding/data-sources");
     }
 
     return json({ error: "Invalid action" }, { status: 400 });

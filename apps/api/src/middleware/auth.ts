@@ -18,6 +18,11 @@ export function createAuthMiddleware(db: PrismaClient) {
       return next();
     }
 
+    // Skip auth for signup endpoint
+    if (req.path === "/auth/signup" && req.method === "POST") {
+      return next();
+    }
+
     // Skip auth for health check endpoint
     if (req.path === "/" && req.method === "GET") {
       return next();

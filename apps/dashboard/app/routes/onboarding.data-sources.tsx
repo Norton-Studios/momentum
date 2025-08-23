@@ -2,138 +2,357 @@ import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useLoaderData, useActionData, useNavigation, useSearchParams } from "@remix-run/react";
 import { useState } from "react";
-import { OnboardingWizard, type WizardStep, DataSourceConfigForm, type DataSourceProvider, type DataSourceConfig, Button } from "@mmtm/components";
+import { type DataSourceProvider, type DataSourceConfig, Button } from "@mmtm/components";
 import { getOnboardingProgress, updateOnboardingProgress } from "@mmtm/resource-tenant";
 import { prisma as db } from "@mmtm/database";
 import { requireUser } from "~/utils/session.server";
 
-// Define available data source providers
-const DATA_SOURCE_PROVIDERS: DataSourceProvider[] = [
+// Define data source categories and providers
+const DATA_SOURCE_CATEGORIES = [
   {
-    id: "github",
-    name: "GitHub",
-    description: "Connect your GitHub repositories and pull requests",
-    icon: "🐙",
+    id: "vcs",
+    name: "Version Control Systems",
+    description: "Connect your code repositories and pull requests",
     required: true,
-    fields: [
+    providers: [
       {
-        key: "token",
-        label: "Personal Access Token",
-        type: "password",
-        placeholder: "ghp_...",
-        required: true,
-        help: "Generate a token with repo and read:org permissions at https://github.com/settings/tokens",
+        id: "github",
+        name: "GitHub",
+        description: "Connect your GitHub repositories and pull requests",
+        icon: "🐙",
+        required: false,
+        features: ["Repositories", "Pull Requests", "Issues", "Actions"],
+        fields: [
+          {
+            key: "token",
+            label: "Personal Access Token",
+            type: "password",
+            placeholder: "ghp_...",
+            required: true,
+            help: "Generate a token with repo and read:org permissions at https://github.com/settings/tokens",
+          },
+          {
+            key: "org",
+            label: "Organization",
+            type: "text",
+            placeholder: "your-org",
+            required: true,
+            help: "GitHub organization or username",
+          },
+        ],
       },
       {
-        key: "org",
-        label: "Organization",
-        type: "text",
-        placeholder: "your-org",
-        required: true,
-        help: "GitHub organization or username",
+        id: "gitlab",
+        name: "GitLab",
+        description: "Connect your GitLab projects and merge requests",
+        icon: "🦊",
+        required: false,
+        features: ["Projects", "Merge Requests", "Issues", "Pipelines"],
+        fields: [
+          {
+            key: "token",
+            label: "Personal Access Token",
+            type: "password",
+            placeholder: "glpat-...",
+            required: true,
+            help: "Generate a token with api and read_repository permissions",
+          },
+          {
+            key: "url",
+            label: "GitLab URL",
+            type: "url",
+            placeholder: "https://gitlab.com",
+            required: true,
+            help: "Your GitLab instance URL",
+          },
+          {
+            key: "group",
+            label: "Group",
+            type: "text",
+            placeholder: "your-group",
+            required: true,
+            help: "GitLab group or username",
+          },
+        ],
+      },
+      {
+        id: "bitbucket",
+        name: "Bitbucket",
+        description: "Connect your Bitbucket repositories and pull requests",
+        icon: "🪣",
+        required: false,
+        features: ["Repositories", "Pull Requests", "Issues", "Pipelines"],
+        fields: [
+          {
+            key: "username",
+            label: "Username",
+            type: "text",
+            placeholder: "your-username",
+            required: true,
+            help: "Your Bitbucket username",
+          },
+          {
+            key: "token",
+            label: "App Password",
+            type: "password",
+            placeholder: "App password",
+            required: true,
+            help: "Generate an app password in your Bitbucket settings",
+          },
+          {
+            key: "workspace",
+            label: "Workspace",
+            type: "text",
+            placeholder: "your-workspace",
+            required: true,
+            help: "Your Bitbucket workspace",
+          },
+        ],
       },
     ],
   },
   {
-    id: "gitlab",
-    name: "GitLab",
-    description: "Connect your GitLab projects and merge requests",
-    icon: "🦊",
+    id: "cicd",
+    name: "CI/CD & Build Tools",
+    description: "Connect your continuous integration and deployment pipelines",
     required: false,
-    fields: [
+    providers: [
       {
-        key: "token",
-        label: "Personal Access Token",
-        type: "password",
-        placeholder: "glpat-...",
-        required: true,
-        help: "Generate a token with api and read_repository permissions",
+        id: "jenkins",
+        name: "Jenkins",
+        description: "Connect your Jenkins builds and pipelines",
+        icon: "🔧",
+        required: false,
+        features: ["Builds", "Pipelines", "Test Results", "Deployments"],
+        fields: [
+          {
+            key: "url",
+            label: "Jenkins URL",
+            type: "url",
+            placeholder: "https://jenkins.company.com",
+            required: true,
+            help: "Your Jenkins instance URL",
+          },
+          {
+            key: "username",
+            label: "Username",
+            type: "text",
+            placeholder: "jenkins-user",
+            required: true,
+            help: "Your Jenkins username",
+          },
+          {
+            key: "token",
+            label: "API Token",
+            type: "password",
+            placeholder: "API token",
+            required: true,
+            help: "Generate an API token in your Jenkins user settings",
+          },
+        ],
       },
       {
-        key: "url",
-        label: "GitLab URL",
-        type: "url",
-        placeholder: "https://gitlab.com",
-        required: true,
-        help: "Your GitLab instance URL",
+        id: "circleci",
+        name: "CircleCI",
+        description: "Connect your CircleCI builds and workflows",
+        icon: "⚪",
+        required: false,
+        features: ["Workflows", "Jobs", "Test Results", "Artifacts"],
+        fields: [
+          {
+            key: "token",
+            label: "Personal API Token",
+            type: "password",
+            placeholder: "CircleCI token",
+            required: true,
+            help: "Generate a token in your CircleCI user settings",
+          },
+          {
+            key: "organization",
+            label: "Organization",
+            type: "text",
+            placeholder: "your-org",
+            required: true,
+            help: "Your CircleCI organization",
+          },
+        ],
       },
       {
-        key: "group",
-        label: "Group",
-        type: "text",
-        placeholder: "your-group",
-        required: true,
-        help: "GitLab group or username",
+        id: "github-actions",
+        name: "GitHub Actions",
+        description: "Connect your GitHub Actions workflows",
+        icon: "⚡",
+        required: false,
+        features: ["Workflows", "Jobs", "Artifacts", "Deployments"],
+        fields: [
+          {
+            key: "token",
+            label: "GitHub Token",
+            type: "password",
+            placeholder: "ghp_...",
+            required: true,
+            help: "Use the same token from your GitHub VCS configuration",
+          },
+        ],
       },
     ],
   },
   {
-    id: "jira",
-    name: "JIRA",
-    description: "Connect your JIRA projects and issues",
-    icon: "📋",
+    id: "project",
+    name: "Project Management",
+    description: "Connect your project management and issue tracking tools",
     required: false,
-    fields: [
+    providers: [
       {
-        key: "url",
-        label: "JIRA URL",
-        type: "url",
-        placeholder: "https://your-domain.atlassian.net",
-        required: true,
-        help: "Your JIRA instance URL",
+        id: "jira",
+        name: "JIRA",
+        description: "Connect your JIRA projects and issues",
+        icon: "📋",
+        required: false,
+        features: ["Issues", "Projects", "Sprints", "Epics"],
+        fields: [
+          {
+            key: "url",
+            label: "JIRA URL",
+            type: "url",
+            placeholder: "https://your-domain.atlassian.net",
+            required: true,
+            help: "Your JIRA instance URL",
+          },
+          {
+            key: "email",
+            label: "Email",
+            type: "email",
+            placeholder: "you@company.com",
+            required: true,
+            help: "Your JIRA account email",
+          },
+          {
+            key: "token",
+            label: "API Token",
+            type: "password",
+            placeholder: "API token",
+            required: true,
+            help: "Generate an API token at https://id.atlassian.com/manage-profile/security/api-tokens",
+          },
+        ],
       },
       {
-        key: "email",
-        label: "Email",
-        type: "email",
-        placeholder: "you@company.com",
-        required: true,
-        help: "Your JIRA account email",
+        id: "linear",
+        name: "Linear",
+        description: "Connect your Linear issues and projects",
+        icon: "📐",
+        required: false,
+        features: ["Issues", "Projects", "Cycles", "Teams"],
+        fields: [
+          {
+            key: "token",
+            label: "API Key",
+            type: "password",
+            placeholder: "Linear API key",
+            required: true,
+            help: "Generate an API key in your Linear settings",
+          },
+          {
+            key: "organization",
+            label: "Organization",
+            type: "text",
+            placeholder: "your-org",
+            required: true,
+            help: "Your Linear organization",
+          },
+        ],
       },
       {
-        key: "token",
-        label: "API Token",
-        type: "password",
-        placeholder: "API token",
-        required: true,
-        help: "Generate an API token at https://id.atlassian.com/manage-profile/security/api-tokens",
+        id: "asana",
+        name: "Asana",
+        description: "Connect your Asana projects and tasks",
+        icon: "🎯",
+        required: false,
+        features: ["Tasks", "Projects", "Teams", "Goals"],
+        fields: [
+          {
+            key: "token",
+            label: "Personal Access Token",
+            type: "password",
+            placeholder: "Asana token",
+            required: true,
+            help: "Generate a token in your Asana developer console",
+          },
+          {
+            key: "workspace",
+            label: "Workspace",
+            type: "text",
+            placeholder: "your-workspace",
+            required: true,
+            help: "Your Asana workspace",
+          },
+        ],
       },
     ],
   },
   {
-    id: "jenkins",
-    name: "Jenkins",
-    description: "Connect your Jenkins builds and pipelines",
-    icon: "🔧",
+    id: "quality",
+    name: "Code Quality & Security",
+    description: "Connect your code quality and security analysis tools",
     required: false,
-    fields: [
+    providers: [
       {
-        key: "url",
-        label: "Jenkins URL",
-        type: "url",
-        placeholder: "https://jenkins.company.com",
-        required: true,
-        help: "Your Jenkins instance URL",
+        id: "sonarqube",
+        name: "SonarQube",
+        description: "Connect your SonarQube code quality analysis",
+        icon: "🔍",
+        required: false,
+        features: ["Code Quality", "Security", "Coverage", "Duplications"],
+        fields: [
+          {
+            key: "url",
+            label: "SonarQube URL",
+            type: "url",
+            placeholder: "https://sonarqube.company.com",
+            required: true,
+            help: "Your SonarQube instance URL",
+          },
+          {
+            key: "token",
+            label: "User Token",
+            type: "password",
+            placeholder: "SonarQube token",
+            required: true,
+            help: "Generate a token in your SonarQube user settings",
+          },
+        ],
       },
       {
-        key: "username",
-        label: "Username",
-        type: "text",
-        placeholder: "jenkins-user",
-        required: true,
-        help: "Your Jenkins username",
-      },
-      {
-        key: "token",
-        label: "API Token",
-        type: "password",
-        placeholder: "API token",
-        required: true,
-        help: "Generate an API token in your Jenkins user settings",
+        id: "codeql",
+        name: "CodeQL",
+        description: "Connect your CodeQL security analysis",
+        icon: "🛡️",
+        required: false,
+        features: ["Security", "Vulnerabilities", "Code Scanning", "Alerts"],
+        fields: [
+          {
+            key: "token",
+            label: "GitHub Token",
+            type: "password",
+            placeholder: "ghp_...",
+            required: true,
+            help: "Use the same token from your GitHub VCS configuration",
+          },
+        ],
       },
     ],
   },
 ];
+
+// Legacy flat array for backward compatibility with DataSourceConfigForm
+const DATA_SOURCE_PROVIDERS: DataSourceProvider[] = DATA_SOURCE_CATEGORIES.flatMap((category) =>
+  category.providers.map((provider) => ({
+    ...provider,
+    category: category.id,
+    categoryName: category.name,
+  })),
+);
 
 export async function loader({ request }: LoaderFunctionArgs) {
   // Require user authentication via session
@@ -213,22 +432,16 @@ export async function action({ request }: ActionFunctionArgs) {
 
 export default function DataSourcesPage() {
   const { tenantId, providers, existingConfigurations } = useLoaderData<typeof loader>();
-  const actionData = useActionData<typeof action>();
+  const _actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const [_searchParams] = useSearchParams();
 
-  const [configurations, setConfigurations] = useState<DataSourceConfig[]>(existingConfigurations);
+  const [configurations, _setConfigurations] = useState<DataSourceConfig[]>(existingConfigurations);
+  const [expandedProviders, setExpandedProviders] = useState<string[]>([]);
 
   const isSubmitting = navigation.state === "submitting";
 
-  const steps: WizardStep[] = [
-    { id: "signup", title: "Create Account", completed: true, current: false },
-    { id: "data-sources", title: "Connect Data Sources", completed: false, current: true },
-    { id: "teams", title: "Organize Teams", completed: false, current: false },
-    { id: "review", title: "Review & Complete", completed: false, current: false },
-  ];
-
-  const handleTestConnection = async (config: DataSourceConfig) => {
+  const _handleTestConnection = async (config: DataSourceConfig) => {
     const formData = new FormData();
     formData.append("_action", "test-connection");
     formData.append("tenantId", tenantId);
@@ -263,25 +476,217 @@ export default function DataSourcesPage() {
     form.submit();
   };
 
+  const toggleProvider = (providerId: string) => {
+    setExpandedProviders((prev) => (prev.includes(providerId) ? prev.filter((id) => id !== providerId) : [...prev, providerId]));
+  };
+
   const hasRequiredVCS = configurations.some((config) => {
     const provider = providers.find((p) => p.id === config.dataSource);
-    return provider?.required && config.connected;
+    return provider?.category === "vcs" && config.connected;
   });
 
   const canProceed = hasRequiredVCS;
 
-  return (
-    <OnboardingWizard steps={steps}>
-      <div style={{ maxWidth: "1000px", margin: "0 auto" }}>
-        <DataSourceConfigForm
-          providers={providers}
-          configurations={configurations}
-          onConfigurationChange={setConfigurations}
-          onTestConnection={handleTestConnection}
-          isSubmitting={isSubmitting}
-          error={actionData && "error" in actionData ? actionData.error : undefined}
-        />
+  const getConnectionStatus = (providerId: string) => {
+    const config = configurations.find((c) => c.dataSource === providerId);
+    return config?.connected ? "connected" : config ? "configured" : "not-configured";
+  };
 
+  return (
+    <div style={{ minHeight: "100vh", backgroundColor: "#f9fafb" }}>
+      {/* Header */}
+      <header style={{ backgroundColor: "white", borderBottom: "1px solid #e5e7eb", padding: "1rem 2rem" }}>
+        <div style={{ maxWidth: "1280px", margin: "0 auto", position: "relative" }}>
+          <div style={{ position: "absolute", left: 0, top: "50%", transform: "translateY(-50%)" }}>
+            <h1 style={{ fontSize: "1.5rem", fontWeight: "bold", color: "#1e40af", margin: 0 }}>Momentum</h1>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "2rem" }}>
+            {[
+              { step: 1, label: "Account", completed: true, current: false },
+              { step: 2, label: "Data Sources", completed: false, current: true },
+              { step: 3, label: "Teams", completed: false, current: false },
+              { step: 4, label: "Review", completed: false, current: false },
+            ].map(({ step, label, completed, current }) => (
+              <div key={step} style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                <div
+                  style={{
+                    width: "2rem",
+                    height: "2rem",
+                    borderRadius: "50%",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: "0.875rem",
+                    fontWeight: "600",
+                    backgroundColor: completed ? "#22c55e" : current ? "#1e40af" : "#e5e7eb",
+                    color: completed || current ? "white" : "#6b7280",
+                  }}
+                >
+                  {completed ? "✓" : step}
+                </div>
+                <span
+                  style={{
+                    fontSize: "0.875rem",
+                    fontWeight: "500",
+                    color: completed || current ? "#1f2937" : "#6b7280",
+                  }}
+                >
+                  {label}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main style={{ maxWidth: "1000px", margin: "0 auto", padding: "2rem" }}>
+        <div style={{ marginBottom: "2rem" }}>
+          <h2 style={{ fontSize: "1.875rem", fontWeight: "bold", color: "#1f2937", margin: "0 0 0.5rem 0" }}>Connect Your Data Sources</h2>
+          <p style={{ color: "#6b7280", margin: 0 }}>Set up integrations to automatically collect productivity metrics from your development tools.</p>
+        </div>
+
+        {/* Categories */}
+        {DATA_SOURCE_CATEGORIES.map((category) => (
+          <div key={category.id} style={{ marginBottom: "3rem" }}>
+            {/* Category Header */}
+            <div style={{ marginBottom: "1.5rem" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "0.5rem" }}>
+                <h3 style={{ fontSize: "1.25rem", fontWeight: "600", color: "#1f2937", margin: 0 }}>{category.name}</h3>
+                {category.required && (
+                  <span
+                    style={{
+                      backgroundColor: "#fef3c7",
+                      color: "#d97706",
+                      fontSize: "0.75rem",
+                      fontWeight: "600",
+                      padding: "0.25rem 0.5rem",
+                      borderRadius: "0.375rem",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.05em",
+                    }}
+                  >
+                    Required
+                  </span>
+                )}
+              </div>
+              <p style={{ color: "#6b7280", margin: 0, fontSize: "0.875rem" }}>{category.description}</p>
+            </div>
+
+            {/* Providers Grid */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: "1rem" }}>
+              {category.providers.map((provider) => {
+                const status = getConnectionStatus(provider.id);
+                const isExpanded = expandedProviders.includes(provider.id);
+
+                return (
+                  <button
+                    key={provider.id}
+                    type="button"
+                    style={{
+                      backgroundColor: "white",
+                      border: `2px solid ${status === "connected" ? "#22c55e" : status === "configured" ? "#f59e0b" : "#e5e7eb"}`,
+                      borderRadius: "0.5rem",
+                      padding: "1.5rem",
+                      transition: "all 0.2s",
+                      cursor: "pointer",
+                      width: "100%",
+                      textAlign: "left",
+                    }}
+                    onClick={() => toggleProvider(provider.id)}
+                  >
+                    {/* Provider Header */}
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1rem" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                        <span style={{ fontSize: "1.5rem" }}>{provider.icon}</span>
+                        <div>
+                          <h4 style={{ fontSize: "1rem", fontWeight: "600", color: "#1f2937", margin: 0 }}>{provider.name}</h4>
+                          {provider.required && <span style={{ fontSize: "0.75rem", color: "#d97706", fontWeight: "500" }}>Required</span>}
+                        </div>
+                      </div>
+
+                      {/* Connection Status */}
+                      <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                        {status === "connected" && (
+                          <div
+                            style={{
+                              backgroundColor: "#22c55e",
+                              color: "white",
+                              fontSize: "0.75rem",
+                              fontWeight: "600",
+                              padding: "0.25rem 0.5rem",
+                              borderRadius: "0.25rem",
+                            }}
+                          >
+                            Connected
+                          </div>
+                        )}
+                        {status === "configured" && (
+                          <div
+                            style={{
+                              backgroundColor: "#f59e0b",
+                              color: "white",
+                              fontSize: "0.75rem",
+                              fontWeight: "600",
+                              padding: "0.25rem 0.5rem",
+                              borderRadius: "0.25rem",
+                            }}
+                          >
+                            Configured
+                          </div>
+                        )}
+                        <span style={{ fontSize: "1.25rem", color: "#6b7280" }}>{isExpanded ? "▼" : "▶"}</span>
+                      </div>
+                    </div>
+
+                    <p style={{ color: "#6b7280", fontSize: "0.875rem", margin: "0 0 1rem 0" }}>{provider.description}</p>
+
+                    {/* Feature Tags */}
+                    {provider.features && (
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", marginBottom: "1rem" }}>
+                        {provider.features.map((feature) => (
+                          <span
+                            key={feature}
+                            style={{
+                              backgroundColor: "#f3f4f6",
+                              color: "#374151",
+                              fontSize: "0.75rem",
+                              padding: "0.25rem 0.5rem",
+                              borderRadius: "0.25rem",
+                              fontWeight: "500",
+                            }}
+                          >
+                            {feature}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Configuration Form (when expanded) */}
+                    {isExpanded && (
+                      <div style={{ borderTop: "1px solid #e5e7eb", paddingTop: "1rem" }}>
+                        {/* This would contain the configuration form fields */}
+                        <div
+                          style={{
+                            backgroundColor: "#f9fafb",
+                            padding: "1rem",
+                            borderRadius: "0.375rem",
+                            fontSize: "0.875rem",
+                            color: "#6b7280",
+                          }}
+                        >
+                          Configuration form would go here for {provider.name}
+                        </div>
+                      </div>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+
+        {/* Continue Button */}
         <div
           style={{
             display: "flex",
@@ -299,7 +704,7 @@ export default function DataSourcesPage() {
             {isSubmitting ? "Saving..." : "Continue to Team Setup"}
           </Button>
         </div>
-      </div>
-    </OnboardingWizard>
+      </main>
+    </div>
   );
 }
