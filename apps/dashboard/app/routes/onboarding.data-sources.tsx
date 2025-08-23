@@ -354,6 +354,158 @@ const DATA_SOURCE_PROVIDERS: DataSourceProvider[] = DATA_SOURCE_CATEGORIES.flatM
   })),
 );
 
+// Provider Configuration Form Component
+function ProviderConfigForm({
+  provider,
+  existingConfig,
+  onSave,
+  onTest,
+  isSubmitting,
+}: {
+  provider: any;
+  existingConfig?: DataSourceConfig;
+  onSave: (config: DataSourceConfig) => void;
+  onTest: (config: DataSourceConfig) => Promise<any>;
+  isSubmitting: boolean;
+}) {
+  const [formData, setFormData] = useState(() => {
+    const initialData: Record<string, string> = {};
+    provider.fields.forEach((field: any) => {
+      initialData[field.key] = existingConfig?.fields?.[field.key] || "";
+    });
+    return initialData;
+  });
+
+  const [isTestingConnection, setIsTestingConnection] = useState(false);
+  const [connectionResult, setConnectionResult] = useState<{ success: boolean; error?: string } | null>(null);
+
+  const handleInputChange = (key: string, value: string) => {
+    setFormData((prev) => ({ ...prev, [key]: value }));
+    setConnectionResult(null); // Clear previous test results when form changes
+  };
+
+  const handleTestConnection = async () => {
+    setIsTestingConnection(true);
+    setConnectionResult(null);
+
+    const config: DataSourceConfig = {
+      dataSource: provider.id,
+      fields: formData,
+      connected: false,
+    };
+
+    try {
+      const result = await onTest(config);
+      setConnectionResult(result);
+      if (result.success) {
+        // Auto-save successful configuration
+        onSave({ ...config, connected: true });
+      }
+    } catch (_error) {
+      setConnectionResult({ success: false, error: "Connection test failed" });
+    } finally {
+      setIsTestingConnection(false);
+    }
+  };
+
+  const handleSave = () => {
+    const config: DataSourceConfig = {
+      dataSource: provider.id,
+      fields: formData,
+      connected: connectionResult?.success || false,
+    };
+    onSave(config);
+  };
+
+  const isFormValid = provider.fields.every((field: any) => !field.required || (formData[field.key] && formData[field.key].trim()));
+
+  return (
+    <div style={{ backgroundColor: "#f9fafb", padding: "1.5rem", borderRadius: "0.375rem" }}>
+      <div style={{ marginBottom: "1.5rem" }}>
+        <h4 style={{ fontSize: "1rem", fontWeight: "600", color: "#1f2937", margin: "0 0 0.5rem 0" }}>Configure {provider.name}</h4>
+        <p style={{ fontSize: "0.875rem", color: "#6b7280", margin: 0 }}>{provider.description}</p>
+      </div>
+
+      <div style={{ display: "grid", gap: "1rem", marginBottom: "1.5rem" }}>
+        {provider.fields.map((field: any) => {
+          const inputId = `${provider.id}-${field.key}`;
+          return (
+            <div key={field.key}>
+              <label
+                htmlFor={inputId}
+                style={{
+                  display: "block",
+                  fontSize: "0.875rem",
+                  fontWeight: "500",
+                  color: "#374151",
+                  marginBottom: "0.5rem",
+                }}
+              >
+                {field.label}
+                {field.required && <span style={{ color: "#dc2626", marginLeft: "0.25rem" }}>*</span>}
+              </label>
+              <input
+                id={inputId}
+                type={field.type}
+                placeholder={field.placeholder}
+                value={formData[field.key] || ""}
+                onChange={(e) => handleInputChange(field.key, e.target.value)}
+                style={{
+                  width: "100%",
+                  padding: "0.75rem",
+                  border: "1px solid #d1d5db",
+                  borderRadius: "0.375rem",
+                  fontSize: "0.875rem",
+                  backgroundColor: "white",
+                  boxSizing: "border-box",
+                }}
+                disabled={isSubmitting || isTestingConnection}
+              />
+              {field.help && <p style={{ fontSize: "0.75rem", color: "#6b7280", margin: "0.25rem 0 0 0" }}>{field.help}</p>}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Connection Status */}
+      {connectionResult && (
+        <div
+          style={{
+            padding: "0.75rem",
+            borderRadius: "0.375rem",
+            marginBottom: "1rem",
+            backgroundColor: connectionResult.success ? "#d1fae5" : "#fee2e2",
+            border: `1px solid ${connectionResult.success ? "#a7f3d0" : "#fecaca"}`,
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+            <span style={{ fontSize: "1rem" }}>{connectionResult.success ? "✅" : "❌"}</span>
+            <span
+              style={{
+                fontSize: "0.875rem",
+                fontWeight: "500",
+                color: connectionResult.success ? "#065f46" : "#dc2626",
+              }}
+            >
+              {connectionResult.success ? "Connection successful!" : `Connection failed: ${connectionResult.error}`}
+            </span>
+          </div>
+        </div>
+      )}
+
+      {/* Action Buttons */}
+      <div style={{ display: "flex", gap: "0.75rem", justifyContent: "flex-end" }}>
+        <Button variant="outline" onClick={handleTestConnection} disabled={!isFormValid || isTestingConnection || isSubmitting}>
+          {isTestingConnection ? "Testing..." : "Test Connection"}
+        </Button>
+        <Button variant="primary" onClick={handleSave} disabled={!isFormValid || isSubmitting}>
+          Save Configuration
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 export async function loader({ request }: LoaderFunctionArgs) {
   // Require user authentication via session
   const user = await requireUser(request);
@@ -436,12 +588,12 @@ export default function DataSourcesPage() {
   const navigation = useNavigation();
   const [_searchParams] = useSearchParams();
 
-  const [configurations, _setConfigurations] = useState<DataSourceConfig[]>(existingConfigurations);
+  const [configurations, setConfigurations] = useState<DataSourceConfig[]>(existingConfigurations);
   const [expandedProviders, setExpandedProviders] = useState<string[]>([]);
 
   const isSubmitting = navigation.state === "submitting";
 
-  const _handleTestConnection = async (config: DataSourceConfig) => {
+  const handleTestConnection = async (config: DataSourceConfig) => {
     const formData = new FormData();
     formData.append("_action", "test-connection");
     formData.append("tenantId", tenantId);
@@ -580,106 +732,118 @@ export default function DataSourcesPage() {
                 const isExpanded = expandedProviders.includes(provider.id);
 
                 return (
-                  <button
+                  <div
                     key={provider.id}
-                    type="button"
                     style={{
                       backgroundColor: "white",
                       border: `2px solid ${status === "connected" ? "#22c55e" : status === "configured" ? "#f59e0b" : "#e5e7eb"}`,
                       borderRadius: "0.5rem",
-                      padding: "1.5rem",
                       transition: "all 0.2s",
-                      cursor: "pointer",
-                      width: "100%",
-                      textAlign: "left",
                     }}
-                    onClick={() => toggleProvider(provider.id)}
                   >
-                    {/* Provider Header */}
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1rem" }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-                        <span style={{ fontSize: "1.5rem" }}>{provider.icon}</span>
-                        <div>
-                          <h4 style={{ fontSize: "1rem", fontWeight: "600", color: "#1f2937", margin: 0 }}>{provider.name}</h4>
-                          {provider.required && <span style={{ fontSize: "0.75rem", color: "#d97706", fontWeight: "500" }}>Required</span>}
+                    {/* Clickable Header */}
+                    <button
+                      type="button"
+                      style={{
+                        width: "100%",
+                        padding: "1.5rem",
+                        background: "none",
+                        border: "none",
+                        cursor: "pointer",
+                        textAlign: "left",
+                        borderRadius: "0.5rem",
+                      }}
+                      onClick={() => toggleProvider(provider.id)}
+                    >
+                      {/* Provider Header */}
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1rem" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                          <span style={{ fontSize: "1.5rem" }}>{provider.icon}</span>
+                          <div>
+                            <h4 style={{ fontSize: "1rem", fontWeight: "600", color: "#1f2937", margin: 0 }}>{provider.name}</h4>
+                            {provider.required && <span style={{ fontSize: "0.75rem", color: "#d97706", fontWeight: "500" }}>Required</span>}
+                          </div>
+                        </div>
+
+                        {/* Connection Status */}
+                        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                          {status === "connected" && (
+                            <div
+                              style={{
+                                backgroundColor: "#22c55e",
+                                color: "white",
+                                fontSize: "0.75rem",
+                                fontWeight: "600",
+                                padding: "0.25rem 0.5rem",
+                                borderRadius: "0.25rem",
+                              }}
+                            >
+                              Connected
+                            </div>
+                          )}
+                          {status === "configured" && (
+                            <div
+                              style={{
+                                backgroundColor: "#f59e0b",
+                                color: "white",
+                                fontSize: "0.75rem",
+                                fontWeight: "600",
+                                padding: "0.25rem 0.5rem",
+                                borderRadius: "0.25rem",
+                              }}
+                            >
+                              Configured
+                            </div>
+                          )}
+                          <span style={{ fontSize: "1.25rem", color: "#6b7280" }}>{isExpanded ? "▼" : "▶"}</span>
                         </div>
                       </div>
 
-                      {/* Connection Status */}
-                      <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                        {status === "connected" && (
-                          <div
-                            style={{
-                              backgroundColor: "#22c55e",
-                              color: "white",
-                              fontSize: "0.75rem",
-                              fontWeight: "600",
-                              padding: "0.25rem 0.5rem",
-                              borderRadius: "0.25rem",
-                            }}
-                          >
-                            Connected
-                          </div>
-                        )}
-                        {status === "configured" && (
-                          <div
-                            style={{
-                              backgroundColor: "#f59e0b",
-                              color: "white",
-                              fontSize: "0.75rem",
-                              fontWeight: "600",
-                              padding: "0.25rem 0.5rem",
-                              borderRadius: "0.25rem",
-                            }}
-                          >
-                            Configured
-                          </div>
-                        )}
-                        <span style={{ fontSize: "1.25rem", color: "#6b7280" }}>{isExpanded ? "▼" : "▶"}</span>
-                      </div>
-                    </div>
+                      <p style={{ color: "#6b7280", fontSize: "0.875rem", margin: "0 0 1rem 0" }}>{provider.description}</p>
 
-                    <p style={{ color: "#6b7280", fontSize: "0.875rem", margin: "0 0 1rem 0" }}>{provider.description}</p>
+                      {/* Feature Tags */}
+                      {provider.features && (
+                        <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", marginBottom: isExpanded ? "0" : "0" }}>
+                          {provider.features.map((feature) => (
+                            <span
+                              key={feature}
+                              style={{
+                                backgroundColor: "#f3f4f6",
+                                color: "#374151",
+                                fontSize: "0.75rem",
+                                padding: "0.25rem 0.5rem",
+                                borderRadius: "0.25rem",
+                                fontWeight: "500",
+                              }}
+                            >
+                              {feature}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </button>
 
-                    {/* Feature Tags */}
-                    {provider.features && (
-                      <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", marginBottom: "1rem" }}>
-                        {provider.features.map((feature) => (
-                          <span
-                            key={feature}
-                            style={{
-                              backgroundColor: "#f3f4f6",
-                              color: "#374151",
-                              fontSize: "0.75rem",
-                              padding: "0.25rem 0.5rem",
-                              borderRadius: "0.25rem",
-                              fontWeight: "500",
-                            }}
-                          >
-                            {feature}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-
-                    {/* Configuration Form (when expanded) */}
+                    {/* Configuration Form (when expanded) - Outside the button */}
                     {isExpanded && (
-                      <div style={{ borderTop: "1px solid #e5e7eb", paddingTop: "1rem" }}>
-                        {/* This would contain the configuration form fields */}
-                        <div
-                          style={{
-                            backgroundColor: "#f9fafb",
-                            padding: "1rem",
-                            borderRadius: "0.375rem",
-                            fontSize: "0.875rem",
-                            color: "#6b7280",
+                      <div style={{ borderTop: "1px solid #e5e7eb", padding: "0 1.5rem 1.5rem 1.5rem" }}>
+                        <ProviderConfigForm
+                          provider={provider}
+                          existingConfig={configurations.find((c) => c.dataSource === provider.id)}
+                          onSave={(config) => {
+                            setConfigurations((prev) => {
+                              const existing = prev.find((c) => c.dataSource === provider.id);
+                              if (existing) {
+                                return prev.map((c) => (c.dataSource === provider.id ? config : c));
+                              }
+                              return [...prev, config];
+                            });
                           }}
-                        >
-                          Configuration form would go here for {provider.name}
-                        </div>
+                          onTest={(config) => handleTestConnection(config)}
+                          isSubmitting={isSubmitting}
+                        />
                       </div>
                     )}
-                  </button>
+                  </div>
                 );
               })}
             </div>
