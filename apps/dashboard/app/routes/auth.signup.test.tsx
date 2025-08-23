@@ -26,6 +26,7 @@ vi.mock("bcrypt", () => ({
 
 vi.mock("~/utils/session.server", () => ({
   createUserSessionAndRedirect: vi.fn(),
+  getCurrentUser: vi.fn(),
 }));
 
 vi.mock("@mmtm/components", () => ({
@@ -35,7 +36,7 @@ vi.mock("@mmtm/components", () => ({
 const { prisma: mockDb } = await import("@mmtm/database");
 const { createUserSession, validateOrganizationName, createUserAccount } = await import("@mmtm/resource-tenant");
 const bcrypt = await import("bcrypt");
-const { createUserSessionAndRedirect } = await import("~/utils/session.server");
+const { createUserSessionAndRedirect, getCurrentUser } = await import("~/utils/session.server");
 
 const _mockUserFindUnique = vi.mocked(mockDb.user.findUnique);
 const _mockUserCreate = vi.mocked(mockDb.user.create);
@@ -45,12 +46,50 @@ const mockValidateOrganizationName = vi.mocked(validateOrganizationName);
 const mockCreateUserAccount = vi.mocked(createUserAccount);
 const _mockBcryptHash = vi.mocked(bcrypt.hash);
 const mockCreateUserSessionAndRedirect = vi.mocked(createUserSessionAndRedirect);
+const mockGetCurrentUser = vi.mocked(getCurrentUser);
 
 describe("auth.signup", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     // Mock console.error to avoid noise in test output
     vi.spyOn(console, "error").mockImplementation(() => {});
+  });
+
+  describe("loader function", () => {
+    it("should redirect to dashboard if user is already logged in", async () => {
+      const { loader } = await import("./auth.signup");
+
+      // Mock getCurrentUser to return a user
+      mockGetCurrentUser.mockResolvedValue({
+        id: "user-1",
+        email: "test@example.com",
+        tenantId: "tenant-1",
+      } as any);
+
+      const request = new Request("http://localhost:3000/auth/signup");
+
+      try {
+        await loader({ request });
+        // Should throw a redirect response
+        expect(true).toBe(false); // This should not be reached
+      } catch (response: any) {
+        expect(response.status).toBe(302);
+        expect(response.headers.get("Location")).toBe("/dashboard");
+      }
+    });
+
+    it("should return null if user is not logged in", async () => {
+      const { loader } = await import("./auth.signup");
+
+      // Mock getCurrentUser to return null (not logged in)
+      mockGetCurrentUser.mockResolvedValue(null);
+
+      const request = new Request("http://localhost:3000/auth/signup");
+      const result = await loader({ request });
+
+      expect(result).toBeNull();
+      expect(mockGetCurrentUser).toHaveBeenCalledWith(request);
+    });
   });
 
   describe("action function", () => {
@@ -262,6 +301,72 @@ describe("auth.signup", () => {
 
       expect(response.status).toBe(400);
       expect(data.error).toBe("Invalid action");
+    });
+
+    // Additional tests for edge cases
+    it("should handle empty form data", async () => {
+      const formData = new FormData();
+      const request = createRequest(formData);
+
+      const response = await action({ request, context: {}, params: {} });
+      const data = await response.json();
+
+      expect(response.status).toBe(400);
+      expect(data.error).toBe("Invalid action");
+    });
+
+    it("should handle createUserAccount failure", async () => {
+      mockValidateOrganizationName.mockResolvedValue(true);
+      mockCreateUserAccount.mockRejectedValue(new Error("Database error"));
+
+      const formData = createFormData("signup", "test@example.com", "password123", "Test User", "Test Org");
+      const request = createRequest(formData);
+
+      const response = await action({ request, context: {}, params: {} });
+      const data = await response.json();
+
+      expect(response.status).toBe(500);
+      expect(data.error).toBe("Failed to create account");
+    });
+
+    it("should handle createUserSession failure", async () => {
+      const mockTenant = {
+        id: "tenant-1",
+        name: "Test Organization",
+        users: [
+          {
+            id: "user-1",
+            email: "test@example.com",
+            fullName: "Test User",
+            tenantId: "tenant-1",
+          },
+        ],
+      };
+
+      mockValidateOrganizationName.mockResolvedValue(true);
+      mockCreateUserAccount.mockResolvedValue(mockTenant as any);
+      mockCreateUserSession.mockRejectedValue(new Error("Session creation failed"));
+
+      const formData = createFormData("signup", "test@example.com", "password123", "Test User", "Test Org");
+      const request = createRequest(formData);
+
+      const response = await action({ request, context: {}, params: {} });
+      const data = await response.json();
+
+      expect(response.status).toBe(500);
+      expect(data.error).toBe("Failed to create account");
+    });
+
+    it("should handle organization validation errors during validate-organization action", async () => {
+      mockValidateOrganizationName.mockRejectedValue(new Error("Database error"));
+
+      const formData = createFormData("validate-organization", "", "", "", "Test Org");
+      const request = createRequest(formData);
+
+      const response = await action({ request, context: {}, params: {} });
+
+      // The error handler catches this and returns a 500 error
+      expect(response.status).toBe(500);
     });
   });
 

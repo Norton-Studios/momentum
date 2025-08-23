@@ -1,23 +1,27 @@
 .sidebar {
-  width: 260px;
-  height: 100vh;
-  background: white;
-  border-right: 1px solid #e2e8f0;
+  position: fixed;
+  left: 0;
+  top: 4rem;
+  width: 16rem;
+  height: calc(100vh - 4rem);
+  background-color: white;
+  border-right: 1px solid var(--border);
+  padding: var(--spacing-lg);
+  overflow-y: auto;
+  z-index: 50;
   display: flex;
   flex-direction: column;
-  position: sticky;
-  top: 0;
 }
 
 .logo {
-  padding: var(--spacing-xl);
-  border-bottom: 1px solid #e2e8f0;
+  padding: var(--spacing-lg) 0;
+  border-bottom: 1px solid var(--border-light);
+  margin-bottom: var(--spacing-lg);
 }
 
 .nav {
   flex: 1;
   overflow-y: auto;
-  padding: var(--spacing-md) 0;
 }
 
 .navList {
@@ -33,37 +37,27 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
-  padding: var(--spacing-sm) var(--spacing-md);
+  padding: 0.5rem 0.75rem;
   background: transparent;
   border: none;
-  border-radius: 0;
+  border-radius: var(--radius-md);
   font-size: 0.875rem;
   font-weight: 500;
-  color: #4a5568;
+  color: var(--text-secondary);
   text-align: left;
   cursor: pointer;
-  transition: all var(--transition-fast);
+  transition: all var(--transition-base);
   position: relative;
 }
 
 .navButton:hover {
-  background: #f7fafc;
-  color: var(--color-primary);
+  background-color: var(--gray-50);
+  color: var(--text-primary);
 }
 
 .navButton.active {
-  background: var(--gradient-primary);
+  background-color: var(--primary-blue);
   color: white;
-}
-
-.navButton.active::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 4px;
-  background: var(--color-accent);
 }
 
 .icon {
@@ -97,7 +91,8 @@
 
 .footer {
   padding: var(--spacing-md);
-  border-top: 1px solid #e2e8f0;
+  border-top: 1px solid var(--border-light);
+  margin-top: auto;
 }
 
 /* Mobile styles */

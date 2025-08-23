@@ -3,19 +3,18 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 2rem 1rem;
+  background: linear-gradient(135deg, var(--gray-50) 0%, white 100%);
+  padding: var(--spacing-xl) var(--spacing-md);
 }
 
 .formWrapper {
-  background: linear-gradient(145deg, #ffffff 0%, #f7fafc 100%);
-  border-radius: 1.5rem;
-  box-shadow: 0 20px 50px rgba(102, 126, 234, 0.3);
-  padding: 3rem 2rem;
+  background-color: white;
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  padding: var(--spacing-2xl);
   width: 100%;
-  max-width: 420px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(10px);
+  max-width: 400px;
+  border: 1px solid var(--border);
 }
 
 .header {
@@ -34,64 +33,53 @@
 .logoIcon {
   width: 48px;
   height: 48px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 12px;
-  position: relative;
-  overflow: hidden;
+  background: var(--primary-blue);
+  border-radius: var(--radius-lg);
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .logoIcon::before {
-  content: "";
-  width: 24px;
-  height: 24px;
-  background: #ffffff;
-  clip-path: polygon(0 0, 100% 50%, 0 100%);
+  content: "M";
+  color: white;
+  font-size: 1.5rem;
+  font-weight: 700;
 }
 
 .logoText {
   font-size: 1.5rem;
   font-weight: 700;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: #667eea; /* Fallback for non-webkit browsers */
+  color: var(--primary-blue);
 }
 
 .title {
-  font-size: 1.875rem;
+  font-size: 2rem;
   font-weight: 700;
-  margin: 0 0 0.5rem 0;
-  background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: #2d3748; /* Fallback for non-webkit browsers */
+  color: var(--text-primary);
+  margin: 0 0 var(--spacing-md) 0;
 }
 
 .subtitle {
   font-size: 1rem;
-  color: #718096;
+  color: var(--text-secondary);
   margin: 0;
 }
 
 .form {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: var(--spacing-lg);
 }
 
 .errorAlert {
-  margin-bottom: 1rem;
+  margin-bottom: var(--spacing-md);
 }
 
 .formFields {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: var(--spacing-lg);
 }
 
 .actions {

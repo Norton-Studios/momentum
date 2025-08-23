@@ -5,9 +5,11 @@ test.describe("Debug Routing Issues", () => {
     const frontendUrl = process.env.E2E_FRONTEND_URL || "http://localhost:3000";
 
     // Enable console logging
-    page.on("console", (msg) => console.log("PAGE LOG:", msg.text()));
-    page.on("pageerror", (error) => console.log("PAGE ERROR:", error.message));
-    page.on("requestfailed", (request) => console.log("REQUEST FAILED:", request.url(), request.failure()?.errorText));
+    if (process.env.LOG_LEVEL === "debug") {
+      page.on("console", (msg) => console.log("PAGE LOG:", msg.text()));
+      page.on("pageerror", (error) => console.log("PAGE ERROR:", error.message));
+      page.on("requestfailed", (request) => console.log("REQUEST FAILED:", request.url(), request.failure()?.errorText));
+    }
 
     console.log(`\n=== Testing direct access to: ${frontendUrl} ===`);
 
