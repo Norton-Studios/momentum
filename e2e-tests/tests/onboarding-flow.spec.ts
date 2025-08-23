@@ -9,7 +9,6 @@ test.describe("Onboarding Flow E2E", () => {
   test.skip("Complete user onboarding flow from dashboard redirect", async () => {
     // TODO: Re-enable this test once data source configuration is fully implemented
     // This test requires complex data source setup that isn't fully implemented yet
-    console.log("Skipping complete onboarding flow test - data source configuration not fully implemented");
   });
 
   test("Sign-in page validation works correctly", async ({ page }) => {
@@ -67,7 +66,7 @@ test.describe("Onboarding Flow E2E", () => {
 
     // Fill valid email but keep weak password
     await page.fill('input[type="email"]', "test@example.com");
-    await page.fill('input[placeholder="acme-corp"]', "test-org");
+    await page.fill('input[placeholder="Acme Corporation"]', "test-org");
     await page.fill('input[placeholder="John Doe"]', "Test User");
 
     // Try with weak password - button should still be disabled
