@@ -12,8 +12,8 @@ const validFormData: SignupFormData = {
   organizationName: "test-org",
   fullName: "John Doe",
   email: "john@test.com",
-  password: "StrongPassword123!",
-  confirmPassword: "StrongPassword123!",
+  password: "StrongPassword123",
+  confirmPassword: "StrongPassword123",
 };
 
 describe("SignupForm", () => {
@@ -31,22 +31,20 @@ describe("SignupForm", () => {
     expect(screen.getByLabelText(/confirm password/i)).toBeInTheDocument();
   });
 
-  it("validates organization name format", async () => {
+  it("submit button is disabled when organization name is empty", async () => {
     render(<SignupForm {...defaultProps} />);
 
-    // Fill out all required fields with valid values except organization name
-    fireEvent.change(screen.getByLabelText(/organization name/i), { target: { value: "invalid org!" } });
+    // Fill out all required fields except organization name (leave it empty)
+    fireEvent.change(screen.getByLabelText(/organization name/i), { target: { value: "" } });
     fireEvent.change(screen.getByLabelText(/full name/i), { target: { value: "John Doe" } });
     fireEvent.change(screen.getByLabelText(/email address/i), { target: { value: "john@test.com" } });
-    fireEvent.change(screen.getByLabelText(/^password\*?$/i), { target: { value: "StrongPassword123!" } });
-    fireEvent.change(screen.getByLabelText(/confirm password/i), { target: { value: "StrongPassword123!" } });
+    fireEvent.change(screen.getByLabelText(/^password\*?$/i), { target: { value: "StrongPassword123" } });
+    fireEvent.change(screen.getByLabelText(/confirm password/i), { target: { value: "StrongPassword123" } });
 
     const submitButton = screen.getByRole("button", { name: /create account/i });
-    fireEvent.click(submitButton);
 
-    await waitFor(() => {
-      expect(screen.getByText(/must be alphanumeric with hyphens and underscores only/i)).toBeInTheDocument();
-    });
+    // Submit button should be disabled when organization name is empty
+    expect(submitButton).toBeDisabled();
   });
 
   it("validates email format", async () => {
@@ -56,8 +54,8 @@ describe("SignupForm", () => {
     fireEvent.change(screen.getByLabelText(/organization name/i), { target: { value: "test-org" } });
     fireEvent.change(screen.getByLabelText(/full name/i), { target: { value: "John Doe" } });
     fireEvent.change(screen.getByLabelText(/email address/i), { target: { value: "invalid-email" } });
-    fireEvent.change(screen.getByLabelText(/^password\*?$/i), { target: { value: "StrongPassword123!" } });
-    fireEvent.change(screen.getByLabelText(/confirm password/i), { target: { value: "StrongPassword123!" } });
+    fireEvent.change(screen.getByLabelText(/^password\*?$/i), { target: { value: "StrongPassword123" } });
+    fireEvent.change(screen.getByLabelText(/confirm password/i), { target: { value: "StrongPassword123" } });
 
     const submitButton = screen.getByRole("button", { name: /create account/i });
     fireEvent.click(submitButton);
@@ -75,11 +73,42 @@ describe("SignupForm", () => {
     const passwordInput = screen.getByLabelText(/^password\*?$/i);
     fireEvent.change(passwordInput, { target: { value: "weak" } });
 
-    expect(screen.getByText(/at least 12 characters/i)).toBeInTheDocument();
+    expect(screen.getByText(/at least 10 characters/i)).toBeInTheDocument();
     expect(screen.getByText(/one uppercase letter/i)).toBeInTheDocument();
     expect(screen.getByText(/one lowercase letter/i)).toBeInTheDocument();
-    expect(screen.getByText(/one number/i)).toBeInTheDocument();
-    expect(screen.getByText(/one special character/i)).toBeInTheDocument();
+    expect(screen.getByText(/one number or special character/i)).toBeInTheDocument();
+  });
+
+  it("accepts password with numbers but no special characters", () => {
+    render(<SignupForm {...defaultProps} />);
+
+    // Fill out all fields with a password that has numbers but no special characters
+    fireEvent.change(screen.getByLabelText(/organization name/i), { target: { value: "Test Org" } });
+    fireEvent.change(screen.getByLabelText(/full name/i), { target: { value: "John Doe" } });
+    fireEvent.change(screen.getByLabelText(/email address/i), { target: { value: "john@test.com" } });
+    fireEvent.change(screen.getByLabelText(/^password\*?$/i), { target: { value: "Password123" } });
+    fireEvent.change(screen.getByLabelText(/confirm password/i), { target: { value: "Password123" } });
+
+    const submitButton = screen.getByRole("button", { name: /create account/i });
+
+    // Submit button should be enabled with number but no special character
+    expect(submitButton).not.toBeDisabled();
+  });
+
+  it("accepts password with special characters but no numbers", () => {
+    render(<SignupForm {...defaultProps} />);
+
+    // Fill out all fields with a password that has special characters but no numbers
+    fireEvent.change(screen.getByLabelText(/organization name/i), { target: { value: "Test Org" } });
+    fireEvent.change(screen.getByLabelText(/full name/i), { target: { value: "John Doe" } });
+    fireEvent.change(screen.getByLabelText(/email address/i), { target: { value: "john@test.com" } });
+    fireEvent.change(screen.getByLabelText(/^password\*?$/i), { target: { value: "Password!@#" } });
+    fireEvent.change(screen.getByLabelText(/confirm password/i), { target: { value: "Password!@#" } });
+
+    const submitButton = screen.getByRole("button", { name: /create account/i });
+
+    // Submit button should be enabled with special character but no number
+    expect(submitButton).not.toBeDisabled();
   });
 
   it("validates password confirmation", async () => {
@@ -89,11 +118,11 @@ describe("SignupForm", () => {
     fireEvent.change(screen.getByLabelText(/organization name/i), { target: { value: "test-org" } });
     fireEvent.change(screen.getByLabelText(/full name/i), { target: { value: "John Doe" } });
     fireEvent.change(screen.getByLabelText(/email address/i), { target: { value: "john@test.com" } });
-    fireEvent.change(screen.getByLabelText(/^password\*?$/i), { target: { value: "StrongPassword123!" } });
-    fireEvent.change(screen.getByLabelText(/confirm password/i), { target: { value: "StrongPassword123!" } });
+    fireEvent.change(screen.getByLabelText(/^password\*?$/i), { target: { value: "StrongPassword123" } });
+    fireEvent.change(screen.getByLabelText(/confirm password/i), { target: { value: "StrongPassword123" } });
 
     // Now change password confirmation to not match - submit button should be disabled
-    fireEvent.change(screen.getByLabelText(/confirm password/i), { target: { value: "DifferentPassword123!" } });
+    fireEvent.change(screen.getByLabelText(/confirm password/i), { target: { value: "DifferentPassword123" } });
 
     const submitButton = screen.getByRole("button", { name: /create account/i });
 

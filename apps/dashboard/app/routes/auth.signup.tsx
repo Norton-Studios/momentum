@@ -1,6 +1,6 @@
 import type { ActionFunctionArgs, MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { useActionData, useNavigation, useNavigate } from "@remix-run/react";
+import { useActionData, useNavigation, useNavigate, useSubmit } from "@remix-run/react";
 import { useState, useCallback } from "react";
 import { SignupForm, type SignupFormData } from "@mmtm/components";
 import { validateOrganizationName, createUserAccount, createUserSession } from "@mmtm/resource-tenant";
@@ -82,7 +82,9 @@ export default function SignupPage() {
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const navigate = useNavigate();
+  const _submit = useSubmit();
   const [organizationNameError, setOrganizationNameError] = useState<string>();
+  const [_lastSubmittedData, _setLastSubmittedData] = useState<SignupFormData>();
 
   const isSubmitting = navigation.state === "submitting";
 
@@ -120,27 +122,18 @@ export default function SignupPage() {
   }, []);
 
   const handleSubmit = async (data: SignupFormData) => {
-    const form = document.createElement("form");
-    form.method = "POST";
-    form.style.display = "none";
+    // Store the form data before submission so we can restore it if there's an error
+    _setLastSubmittedData(data);
 
-    // Add form fields
+    // Use Remix's submit to preserve React state
+    const formData = new FormData();
     Object.entries(data).forEach(([key, value]) => {
       if (key === "confirmPassword") return; // Don't submit confirm password
-      const input = document.createElement("input");
-      input.name = key;
-      input.value = value;
-      form.appendChild(input);
+      formData.append(key, value);
     });
+    formData.append("_action", "signup");
 
-    // Add action
-    const actionInput = document.createElement("input");
-    actionInput.name = "_action";
-    actionInput.value = "signup";
-    form.appendChild(actionInput);
-
-    document.body.appendChild(form);
-    form.submit();
+    _submit(formData, { method: "post" });
   };
 
   const handleSignIn = () => {
@@ -155,6 +148,7 @@ export default function SignupPage() {
       organizationNameError={organizationNameError}
       onOrganizationNameChange={handleOrganizationNameChange}
       onSignIn={handleSignIn}
+      initialData={actionData && "error" in actionData && _lastSubmittedData ? _lastSubmittedData : undefined}
     />
   );
 }

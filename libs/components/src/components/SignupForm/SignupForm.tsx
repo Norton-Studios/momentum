@@ -1,5 +1,5 @@
 import type React from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FormInput } from "../FormInput/FormInput";
 import { Alert } from "../Alert/Alert";
 import styles from "./SignupForm.module.css";
@@ -19,15 +19,16 @@ export interface SignupFormProps {
   organizationNameError?: string;
   onOrganizationNameChange?: (name: string) => void;
   onSignIn?: () => void;
+  initialData?: Partial<SignupFormData>;
 }
 
-export function SignupForm({ onSubmit, isSubmitting = false, error, organizationNameError, onOrganizationNameChange, onSignIn }: SignupFormProps) {
+export function SignupForm({ onSubmit, isSubmitting = false, error, organizationNameError, onOrganizationNameChange, onSignIn, initialData }: SignupFormProps) {
   const [formData, setFormData] = useState<SignupFormData>({
-    organizationName: "",
-    fullName: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
+    organizationName: initialData?.organizationName || "",
+    fullName: initialData?.fullName || "",
+    email: initialData?.email || "",
+    password: initialData?.password || "",
+    confirmPassword: initialData?.confirmPassword || "",
   });
 
   const [passwordStrength, setPasswordStrength] = useState({
@@ -41,13 +42,39 @@ export function SignupForm({ onSubmit, isSubmitting = false, error, organization
   const [showPassword, setShowPassword] = useState(false);
   const [formErrors, setFormErrors] = useState<Partial<SignupFormData>>({});
 
+  // Update form data when initialData prop changes
+  useEffect(() => {
+    if (initialData) {
+      const newFormData = {
+        organizationName: initialData?.organizationName || "",
+        fullName: initialData?.fullName || "",
+        email: initialData?.email || "",
+        password: initialData?.password || "",
+        confirmPassword: initialData?.confirmPassword || "",
+      };
+      setFormData(newFormData);
+
+      // Re-validate password if it exists
+      if (initialData?.password) {
+        const strength = {
+          hasLowercase: /[a-z]/.test(initialData.password),
+          hasUppercase: /[A-Z]/.test(initialData.password),
+          hasNumber: /\d/.test(initialData.password),
+          hasSpecial: /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(initialData.password),
+          hasLength: initialData.password.length >= 10,
+        };
+        setPasswordStrength(strength);
+      }
+    }
+  }, [initialData]);
+
   const validatePassword = (password: string) => {
     const strength = {
       hasLowercase: /[a-z]/.test(password),
       hasUppercase: /[A-Z]/.test(password),
       hasNumber: /\d/.test(password),
       hasSpecial: /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(password),
-      hasLength: password.length >= 12,
+      hasLength: password.length >= 10,
     };
     setPasswordStrength(strength);
     return strength;
@@ -78,8 +105,6 @@ export function SignupForm({ onSubmit, isSubmitting = false, error, organization
 
     if (!formData.organizationName.trim()) {
       errors.organizationName = "Organization name is required";
-    } else if (!/^[a-zA-Z0-9-_]+$/.test(formData.organizationName)) {
-      errors.organizationName = "Organization name must be alphanumeric with hyphens and underscores only";
     }
 
     if (!formData.fullName.trim()) {
@@ -96,8 +121,10 @@ export function SignupForm({ onSubmit, isSubmitting = false, error, organization
       errors.password = "Password is required";
     } else {
       const strength = validatePassword(formData.password);
-      if (!Object.values(strength).every(Boolean)) {
-        errors.password = "Password does not meet requirements";
+      // Require length, lowercase, uppercase, and (number OR special character)
+      const requiredChecks = [strength.hasLength, strength.hasLowercase, strength.hasUppercase, strength.hasNumber || strength.hasSpecial];
+      if (!requiredChecks.every(Boolean)) {
+        errors.password = "Password must be at least 10 characters with uppercase, lowercase, and number or special character";
       }
     }
 
@@ -122,14 +149,24 @@ export function SignupForm({ onSubmit, isSubmitting = false, error, organization
   };
 
   const getPasswordStrengthColor = () => {
-    const validCount = Object.values(passwordStrength).filter(Boolean).length;
-    if (validCount < 2) return "#ef4444"; // red
-    if (validCount < 4) return "#f59e0b"; // yellow
+    // Count required criteria (length, uppercase, lowercase, number OR special)
+    const requiredCount = [
+      passwordStrength.hasLength,
+      passwordStrength.hasUppercase,
+      passwordStrength.hasLowercase,
+      passwordStrength.hasNumber || passwordStrength.hasSpecial,
+    ].filter(Boolean).length;
+
+    if (requiredCount < 2) return "#ef4444"; // red
+    if (requiredCount < 4) return "#f59e0b"; // yellow
     return "#10b981"; // green
   };
 
   const isFormValid =
-    Object.values(passwordStrength).every(Boolean) &&
+    passwordStrength.hasLength &&
+    passwordStrength.hasLowercase &&
+    passwordStrength.hasUppercase &&
+    (passwordStrength.hasNumber || passwordStrength.hasSpecial) &&
     formData.password === formData.confirmPassword &&
     formData.organizationName.trim() &&
     formData.fullName.trim() &&
@@ -158,10 +195,9 @@ export function SignupForm({ onSubmit, isSubmitting = false, error, organization
             value={formData.organizationName}
             onChange={(value) => handleInputChange("organizationName", value)}
             error={formErrors.organizationName || organizationNameError}
-            placeholder="acme-corp"
+            placeholder="Acme Corporation"
             required
             disabled={isSubmitting}
-            helperText="This will be your organization's unique identifier"
           />
 
           <FormInput
@@ -211,17 +247,18 @@ export function SignupForm({ onSubmit, isSubmitting = false, error, organization
                   <div
                     className={styles.strengthFill}
                     style={{
-                      width: `${(Object.values(passwordStrength).filter(Boolean).length / 5) * 100}%`,
+                      width: `${([passwordStrength.hasLength, passwordStrength.hasUppercase, passwordStrength.hasLowercase, passwordStrength.hasNumber || passwordStrength.hasSpecial].filter(Boolean).length / 4) * 100}%`,
                       backgroundColor: getPasswordStrengthColor(),
                     }}
                   />
                 </div>
                 <div className={styles.requirements}>
-                  <div className={`${styles.requirement} ${passwordStrength.hasLength ? styles.met : ""}`}>✓ At least 12 characters</div>
+                  <div className={`${styles.requirement} ${passwordStrength.hasLength ? styles.met : ""}`}>✓ At least 10 characters</div>
                   <div className={`${styles.requirement} ${passwordStrength.hasUppercase ? styles.met : ""}`}>✓ One uppercase letter</div>
                   <div className={`${styles.requirement} ${passwordStrength.hasLowercase ? styles.met : ""}`}>✓ One lowercase letter</div>
-                  <div className={`${styles.requirement} ${passwordStrength.hasNumber ? styles.met : ""}`}>✓ One number</div>
-                  <div className={`${styles.requirement} ${passwordStrength.hasSpecial ? styles.met : ""}`}>✓ One special character</div>
+                  <div className={`${styles.requirement} ${passwordStrength.hasNumber || passwordStrength.hasSpecial ? styles.met : ""}`}>
+                    ✓ One number or special character
+                  </div>
                 </div>
               </div>
             )}
