@@ -6,7 +6,18 @@ vi.mock("~/utils/session.server", () => ({
   requireUser: vi.fn(),
 }));
 
+// Mock tenant resource hooks
+vi.mock("@mmtm/resource-tenant", () => ({
+  getOnboardingProgress: vi.fn(),
+}));
+
+// Mock database
+vi.mock("@mmtm/database", () => ({
+  prisma: {},
+}));
+
 const mockRequireUser = vi.mocked(await import("~/utils/session.server")).requireUser;
+const _mockGetOnboardingProgress = vi.mocked(await import("@mmtm/resource-tenant")).getOnboardingProgress;
 
 describe("Dashboard Route", () => {
   beforeEach(() => {
@@ -26,8 +37,18 @@ describe("Dashboard Route", () => {
       },
     };
 
-    it("should require authentication and return user data", async () => {
+    it("should require authentication and return user data when onboarding is complete", async () => {
       mockRequireUser.mockResolvedValue(mockUser);
+      _mockGetOnboardingProgress.mockResolvedValue({
+        id: "progress-123",
+        tenantId: "tenant-123",
+        currentStep: "completed",
+        completedSteps: ["data-sources", "repositories", "team", "review"],
+        wizardData: {},
+        completed: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
 
       const mockRequest = new Request("http://localhost:3000/dashboard");
       const result = await loader({ request: mockRequest, params: {}, context: {} });
@@ -37,6 +58,39 @@ describe("Dashboard Route", () => {
       // Test the response structure instead of comparing Response objects
       const responseData = await result.json();
       expect(responseData).toEqual({ user: mockUser });
+    });
+
+    it("should redirect admin users to onboarding if not completed", async () => {
+      const adminUser = { ...mockUser, role: "ADMIN" as const };
+      mockRequireUser.mockResolvedValue(adminUser);
+      _mockGetOnboardingProgress.mockResolvedValue({
+        id: "progress-123",
+        tenantId: "tenant-123",
+        currentStep: "data-sources",
+        completedSteps: [],
+        wizardData: {},
+        completed: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+
+      const mockRequest = new Request("http://localhost:3000/dashboard");
+
+      await expect(loader({ request: mockRequest, params: {}, context: {} })).rejects.toThrow();
+    });
+
+    it("should not redirect non-admin users even if onboarding not complete", async () => {
+      const viewerUser = { ...mockUser, role: "VIEWER" as const };
+      mockRequireUser.mockResolvedValue(viewerUser);
+
+      const mockRequest = new Request("http://localhost:3000/dashboard");
+      const result = await loader({ request: mockRequest, params: {}, context: {} });
+
+      expect(mockRequireUser).toHaveBeenCalledWith(mockRequest);
+      expect(_mockGetOnboardingProgress).not.toHaveBeenCalled();
+
+      const responseData = await result.json();
+      expect(responseData).toEqual({ user: viewerUser });
     });
 
     it("should handle authentication errors", async () => {

@@ -1,10 +1,32 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
-import { useLoaderData, Link, Form } from "@remix-run/react";
+import { json, redirect } from "@remix-run/node";
+import { useLoaderData, Form } from "@remix-run/react";
 import { requireUser } from "~/utils/session.server";
+import { getOnboardingProgress } from "@mmtm/resource-tenant";
+import { prisma as db } from "@mmtm/database";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const user = await requireUser(request);
+
+  // Check onboarding progress for admin users
+  if (user.role === "ADMIN") {
+    const onboardingProgress = await getOnboardingProgress(user.tenantId, db);
+
+    // If onboarding is not completed, redirect to the current step
+    if (onboardingProgress && !onboardingProgress.completed) {
+      // Map the current step to the appropriate route
+      const stepRoutes: Record<string, string> = {
+        "data-sources": `/onboarding/data-sources?tenant=${user.tenantId}`,
+        repositories: `/onboarding/repositories?tenant=${user.tenantId}`,
+        team: `/onboarding/team?tenant=${user.tenantId}`,
+        review: `/onboarding/review?tenant=${user.tenantId}`,
+      };
+
+      const redirectUrl = stepRoutes[onboardingProgress.currentStep] || `/onboarding/data-sources?tenant=${user.tenantId}`;
+      throw redirect(redirectUrl);
+    }
+  }
+
   return json({ user });
 }
 
@@ -62,15 +84,6 @@ export default function Dashboard() {
                     <p className="mt-2 text-sm text-green-600">Active</p>
                   </div>
                 </div>
-              </div>
-
-              <div className="mt-8">
-                <Link
-                  to={`/onboarding/data-sources?tenant=${user.tenantId}`}
-                  className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition-colors"
-                >
-                  Continue Onboarding
-                </Link>
               </div>
             </div>
           </div>
