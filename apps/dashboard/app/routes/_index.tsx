@@ -10,25 +10,33 @@ export const meta: MetaFunction = () => {
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const user = await getCurrentUser(request);
+  console.log("Index loader - user:", user ? { role: user.role, tenantId: user.tenantId } : "null");
 
   if (user) {
     // Check onboarding progress for admin users
     if (user.role === "ADMIN") {
+      console.log("Index loader - checking onboarding for admin user");
       const onboardingProgress = await getOnboardingProgress(user.tenantId, db);
+      console.log("Index loader - onboardingProgress:", onboardingProgress);
 
       // If onboarding is not completed, redirect to the current step
       if (onboardingProgress && !onboardingProgress.completed) {
         // Map the current step to the appropriate route
         const stepRoutes: Record<string, string> = {
-          "data-sources": `/onboarding/data-sources?tenant=${user.tenantId}`,
-          repositories: `/onboarding/repositories?tenant=${user.tenantId}`,
-          team: `/onboarding/team?tenant=${user.tenantId}`,
-          review: `/onboarding/review?tenant=${user.tenantId}`,
+          "data-sources": "/onboarding/data-sources",
+          repositories: "/onboarding/repositories",
+          team: "/onboarding/team",
+          review: "/onboarding/review",
         };
 
-        const redirectUrl = stepRoutes[onboardingProgress.currentStep] || `/onboarding/data-sources?tenant=${user.tenantId}`;
+        const redirectUrl = stepRoutes[onboardingProgress.currentStep] || "/onboarding/data-sources";
+        console.log("Index loader - redirecting to onboarding:", redirectUrl);
         throw redirect(redirectUrl);
+      } else {
+        console.log("Index loader - onboarding complete or not found, going to dashboard");
       }
+    } else {
+      console.log("Index loader - non-admin user, going to dashboard");
     }
 
     // User is authenticated and onboarding is complete (or user is not admin), redirect to dashboard
