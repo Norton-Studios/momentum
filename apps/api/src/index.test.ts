@@ -146,7 +146,7 @@ describe("API Server", () => {
         password: await bcrypt.hash("password", 10),
         apiToken: "token123",
         tenantId: "tenant1",
-        isAdmin: false,
+        role: "VIEWER",
         createdAt: new Date(),
         updatedAt: new Date(),
         tenant: {
@@ -186,7 +186,7 @@ describe("API Server", () => {
         password: "hashedpassword",
         apiToken: "token123",
         tenantId: "tenant1",
-        isAdmin: false,
+        role: "VIEWER",
         createdAt: new Date(),
         updatedAt: new Date(),
         tenant: {
@@ -216,7 +216,7 @@ describe("API Server", () => {
         password: await bcrypt.hash("password", 10),
         apiToken: "token123",
         tenantId: "tenant1",
-        isAdmin: false,
+        role: "VIEWER",
         createdAt: new Date(),
         updatedAt: new Date(),
         tenant: {

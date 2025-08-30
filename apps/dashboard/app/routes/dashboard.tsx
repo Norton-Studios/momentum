@@ -52,7 +52,7 @@ export default function Dashboard() {
                 <div className="bg-white overflow-hidden shadow rounded-lg">
                   <div className="p-6">
                     <h3 className="text-lg font-medium text-gray-900">Role</h3>
-                    <p className="mt-2 text-sm text-gray-600">{user.isAdmin ? "Administrator" : "Member"}</p>
+                    <p className="mt-2 text-sm text-gray-600">{user.role === "ADMIN" ? "Administrator" : "Viewer"}</p>
                   </div>
                 </div>
 

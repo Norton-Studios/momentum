@@ -179,7 +179,7 @@ describe("Authentication Middleware", () => {
         password: "hashed-password",
         apiToken: "api-token-123",
         tenantId: "tenant-123",
-        isAdmin: false,
+        role: "VIEWER",
         tenant: { id: "tenant-123", name: "Test Tenant" },
       };
 
@@ -194,7 +194,7 @@ describe("Authentication Middleware", () => {
         id: "user-123",
         email: "test@example.com",
         tenantId: "tenant-123",
-        isAdmin: false,
+        role: "VIEWER",
       });
       expect(mockNext).toHaveBeenCalledWith();
       expect(mockRes.status).not.toHaveBeenCalled();
@@ -211,7 +211,7 @@ describe("Authentication Middleware", () => {
         password: "hashed-password",
         apiToken: "api-token-123",
         tenantId: "tenant-123",
-        isAdmin: true,
+        role: "ADMIN",
         tenant: { id: "tenant-123", name: "Test Tenant" },
       };
 
@@ -225,7 +225,7 @@ describe("Authentication Middleware", () => {
         id: "user-123",
         email: "test@example.com",
         tenantId: "tenant-123",
-        isAdmin: true,
+        role: "ADMIN",
       });
       expect(mockNext).toHaveBeenCalledWith();
       expect(mockRes.status).not.toHaveBeenCalled();
@@ -241,7 +241,7 @@ describe("Authentication Middleware", () => {
         password: "hashed-password",
         apiToken: "api-token-123",
         tenantId: "tenant-123",
-        isAdmin: false,
+        role: "VIEWER",
         tenant: { id: "tenant-123", name: "Test Tenant" },
       };
 
@@ -270,7 +270,7 @@ describe("Authentication Middleware", () => {
         password: "hashed-password",
         apiToken: "correct-token",
         tenantId: "tenant-123",
-        isAdmin: false,
+        role: "VIEWER",
         tenant: { id: "tenant-123", name: "Test Tenant" },
       };
 
@@ -296,7 +296,7 @@ describe("Authentication Middleware", () => {
         password: "hashed-password",
         apiToken: "api-token-123",
         tenantId: "tenant-123",
-        isAdmin: false,
+        role: "VIEWER",
         tenant: { id: "tenant-123", name: "Test Tenant" },
       };
 
@@ -342,7 +342,7 @@ describe("Authentication Middleware", () => {
         password: "hashed-password",
         apiToken: "api-token-123",
         tenantId: "tenant-123",
-        isAdmin: false,
+        role: "VIEWER",
         tenant: { id: "tenant-123", name: "Test Tenant" },
       };
 
@@ -387,7 +387,7 @@ describe("Authentication Middleware", () => {
         password: "hashed-password",
         apiToken: "api-token-123",
         tenantId: "tenant-123",
-        isAdmin: false,
+        role: "VIEWER",
         tenant: { id: "tenant-123", name: "Test Tenant" },
       };
 
@@ -402,7 +402,7 @@ describe("Authentication Middleware", () => {
         id: "user-123",
         email: "user",
         tenantId: "tenant-123",
-        isAdmin: false,
+        role: "VIEWER",
       });
       expect(mockNext).toHaveBeenCalledWith();
     });
@@ -417,7 +417,7 @@ describe("Authentication Middleware", () => {
         password: "hashed-password",
         apiToken: "api-token-123",
         tenantId: "tenant-123",
-        isAdmin: false,
+        role: "VIEWER",
         tenant: { id: "tenant-123", name: "Test Tenant" },
       };
 
@@ -454,7 +454,7 @@ describe("Authentication Middleware", () => {
         id: "user-123",
         email: "admin@example.com",
         tenantId: "tenant-123",
-        isAdmin: true,
+        role: "ADMIN",
       };
 
       requireAdmin(mockReq as AuthenticatedRequest, mockRes as Response, mockNext);
@@ -468,7 +468,7 @@ describe("Authentication Middleware", () => {
         id: "user-123",
         email: "user@example.com",
         tenantId: "tenant-123",
-        isAdmin: false,
+        role: "VIEWER",
       };
 
       requireAdmin(mockReq as AuthenticatedRequest, mockRes as Response, mockNext);
@@ -504,12 +504,12 @@ describe("Authentication Middleware", () => {
       expect(mockNext).not.toHaveBeenCalled();
     });
 
-    it("should return 403 when user.isAdmin is explicitly false", () => {
+    it("should return 403 when user role is VIEWER", () => {
       mockReq.user = {
         id: "user-123",
         email: "user@example.com",
         tenantId: "tenant-123",
-        isAdmin: false,
+        role: "VIEWER",
       };
 
       requireAdmin(mockReq as AuthenticatedRequest, mockRes as Response, mockNext);
@@ -521,12 +521,12 @@ describe("Authentication Middleware", () => {
       expect(mockNext).not.toHaveBeenCalled();
     });
 
-    it("should return 403 when user.isAdmin is undefined", () => {
+    it("should return 403 when user.role is undefined", () => {
       mockReq.user = {
         id: "user-123",
         email: "user@example.com",
         tenantId: "tenant-123",
-        isAdmin: undefined as any,
+        role: undefined as any,
       };
 
       requireAdmin(mockReq as AuthenticatedRequest, mockRes as Response, mockNext);

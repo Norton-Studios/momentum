@@ -31,7 +31,7 @@ const _CreateUserSchema = z.object({
   email: z.string().email({}),
   fullName: z.string().optional(),
   password: z.string().min(8).optional(),
-  isAdmin: z.boolean().optional().default(false),
+  role: z.enum(["ADMIN", "VIEWER"]).optional().default("VIEWER"),
   ssoProvider: z.string().optional(),
   ssoProviderId: z.string().optional(),
 });
@@ -40,7 +40,7 @@ const _UpdateUserSchema = z.object({
   email: z.string().email({}).optional(),
   fullName: z.string().optional(),
   password: z.string().min(8).optional(),
-  isAdmin: z.boolean().optional(),
+  role: z.enum(["ADMIN", "VIEWER"]).optional(),
   ssoProvider: z.string().optional(),
   ssoProviderId: z.string().optional(),
 });
@@ -104,7 +104,7 @@ router.post("/tenant", async (req: any, res: Response) => {
             email: data.adminEmail,
             password: hashedPassword,
             apiToken,
-            isAdmin: true,
+            role: "ADMIN",
           },
         },
         onboardingProgress: {
@@ -226,7 +226,7 @@ router.post("/auth/signup", async (req: any, res: Response) => {
             fullName: data.fullName,
             password: hashedPassword,
             apiToken,
-            isAdmin: true,
+            role: "ADMIN",
           },
         },
         onboardingProgress: {

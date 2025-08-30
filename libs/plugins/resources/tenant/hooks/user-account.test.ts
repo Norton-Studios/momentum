@@ -61,7 +61,7 @@ describe("user-account hooks", () => {
               fullName: "John Doe",
               password: expect.any(String), // hashed password
               apiToken: expect.any(String),
-              isAdmin: true,
+              role: "ADMIN",
             },
           },
           onboardingProgress: {
@@ -144,7 +144,7 @@ describe("user-account hooks", () => {
       const createCall = (mockDb.tenant.create as any).mock.calls[0][0];
       const userData = createCall.data.users.create;
 
-      expect(userData.isAdmin).toBe(true);
+      expect(userData.role).toBe("ADMIN");
       expect(userData.email).toBe("john@test.com");
       expect(userData.fullName).toBe("John Doe");
     });

@@ -25,7 +25,7 @@ export async function createUserAccount(data: CreateUserAccountData, db: PrismaC
           fullName: data.fullName,
           password: hashedPassword,
           apiToken,
-          isAdmin: true,
+          role: "ADMIN",
         },
       },
       onboardingProgress: {

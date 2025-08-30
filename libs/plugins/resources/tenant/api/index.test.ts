@@ -62,7 +62,7 @@ describe("Tenant API", () => {
         id: "test-user-id",
         email: "test@example.com",
         tenantId: "test-tenant-id",
-        isAdmin: false,
+        role: "VIEWER",
       };
       next();
     });
