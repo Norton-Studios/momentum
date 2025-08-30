@@ -6,7 +6,18 @@ vi.mock("~/utils/session.server", () => ({
   requireUser: vi.fn(),
 }));
 
+// Mock tenant resource hooks
+vi.mock("@mmtm/resource-tenant", () => ({
+  getOnboardingProgress: vi.fn(),
+}));
+
+// Mock database
+vi.mock("@mmtm/database", () => ({
+  prisma: {},
+}));
+
 const mockRequireUser = vi.mocked(await import("~/utils/session.server")).requireUser;
+const _mockGetOnboardingProgress = vi.mocked(await import("@mmtm/resource-tenant")).getOnboardingProgress;
 
 describe("Dashboard Route", () => {
   beforeEach(() => {
@@ -19,15 +30,25 @@ describe("Dashboard Route", () => {
       email: "test@example.com",
       fullName: "Test User",
       tenantId: "tenant-123",
-      isAdmin: true,
+      role: "ADMIN",
       tenant: {
         id: "tenant-123",
         name: "Test Organization",
       },
     };
 
-    it("should require authentication and return user data", async () => {
+    it("should require authentication and return user data when onboarding is complete", async () => {
       mockRequireUser.mockResolvedValue(mockUser);
+      _mockGetOnboardingProgress.mockResolvedValue({
+        id: "progress-123",
+        tenantId: "tenant-123",
+        currentStep: "completed",
+        completedSteps: ["data-sources", "repositories", "team", "review"],
+        wizardData: {},
+        completed: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
 
       const mockRequest = new Request("http://localhost:3000/dashboard");
       const result = await loader({ request: mockRequest, params: {}, context: {} });
@@ -37,6 +58,39 @@ describe("Dashboard Route", () => {
       // Test the response structure instead of comparing Response objects
       const responseData = await result.json();
       expect(responseData).toEqual({ user: mockUser });
+    });
+
+    it("should redirect admin users to onboarding if not completed", async () => {
+      const adminUser = { ...mockUser, role: "ADMIN" as const };
+      mockRequireUser.mockResolvedValue(adminUser);
+      _mockGetOnboardingProgress.mockResolvedValue({
+        id: "progress-123",
+        tenantId: "tenant-123",
+        currentStep: "data-sources",
+        completedSteps: [],
+        wizardData: {},
+        completed: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+
+      const mockRequest = new Request("http://localhost:3000/dashboard");
+
+      await expect(loader({ request: mockRequest, params: {}, context: {} })).rejects.toThrow();
+    });
+
+    it("should not redirect non-admin users even if onboarding not complete", async () => {
+      const viewerUser = { ...mockUser, role: "VIEWER" as const };
+      mockRequireUser.mockResolvedValue(viewerUser);
+
+      const mockRequest = new Request("http://localhost:3000/dashboard");
+      const result = await loader({ request: mockRequest, params: {}, context: {} });
+
+      expect(mockRequireUser).toHaveBeenCalledWith(mockRequest);
+      expect(_mockGetOnboardingProgress).not.toHaveBeenCalled();
+
+      const responseData = await result.json();
+      expect(responseData).toEqual({ user: viewerUser });
     });
 
     it("should handle authentication errors", async () => {
@@ -56,7 +110,7 @@ describe("Dashboard Route", () => {
       email: "test@example.com",
       fullName: "Test User",
       tenantId: "tenant-123",
-      isAdmin: true,
+      role: "ADMIN",
       tenant: {
         id: "tenant-123",
         name: "Test Organization",
@@ -69,7 +123,7 @@ describe("Dashboard Route", () => {
       expect(mockUser.email).toBe("test@example.com");
       expect(mockUser.fullName).toBe("Test User");
       expect(mockUser.tenantId).toBe("tenant-123");
-      expect(mockUser.isAdmin).toBe(true);
+      expect(mockUser.role).toBe("ADMIN");
       expect(mockUser.tenant.name).toBe("Test Organization");
     });
 
@@ -84,14 +138,14 @@ describe("Dashboard Route", () => {
 
     it("should handle user role correctly for admin", () => {
       // Test admin role logic
-      const userRole = mockUser.isAdmin ? "Administrator" : "Member";
+      const userRole = mockUser.role === "ADMIN" ? "Administrator" : "Viewer";
       expect(userRole).toBe("Administrator");
     });
 
     it("should handle user role correctly for non-admin", () => {
-      const nonAdminUser = { ...mockUser, isAdmin: false };
-      const userRole = nonAdminUser.isAdmin ? "Administrator" : "Member";
-      expect(userRole).toBe("Member");
+      const nonAdminUser = { ...mockUser, role: "VIEWER" };
+      const userRole = nonAdminUser.role === "ADMIN" ? "Administrator" : "Viewer";
+      expect(userRole).toBe("Viewer");
     });
 
     it("should handle status correctly", () => {
@@ -157,7 +211,7 @@ describe("Dashboard Route", () => {
       email: "test@example.com",
       fullName: "Test User",
       tenantId: "tenant-123",
-      isAdmin: true,
+      role: "ADMIN",
       tenant: {
         id: "tenant-123",
         name: "Test Organization",
@@ -187,13 +241,13 @@ describe("Dashboard Route", () => {
 
     it("should handle user role display logic correctly", () => {
       // Test admin role
-      let role = mockUser.isAdmin ? "Administrator" : "Member";
+      let role = mockUser.role === "ADMIN" ? "Administrator" : "Viewer";
       expect(role).toBe("Administrator");
 
       // Test member role
-      const memberUser = { ...mockUser, isAdmin: false };
-      role = memberUser.isAdmin ? "Administrator" : "Member";
-      expect(role).toBe("Member");
+      const memberUser = { ...mockUser, role: "VIEWER" };
+      role = memberUser.role === "ADMIN" ? "Administrator" : "Viewer";
+      expect(role).toBe("Viewer");
     });
 
     it("should generate correct onboarding URL", () => {
@@ -250,7 +304,7 @@ describe("Dashboard Route", () => {
       expect(mockUser.tenant).toBeDefined();
       expect(mockUser.tenant.id).toBeDefined();
       expect(mockUser.tenant.name).toBeDefined();
-      expect(typeof mockUser.isAdmin).toBe("boolean");
+      expect(typeof mockUser.role).toBe("string");
 
       // Test field types
       expect(typeof mockUser.id).toBe("string");
@@ -266,7 +320,7 @@ describe("Dashboard Route", () => {
         id: "1",
         email: "a@b.co",
         tenantId: "t",
-        isAdmin: false,
+        role: "VIEWER",
         tenant: {
           id: "t",
           name: "A",
@@ -351,7 +405,7 @@ describe("Dashboard Route", () => {
       email: "test@example.com",
       fullName: "Test User",
       tenantId: "tenant-123",
-      isAdmin: true,
+      role: "ADMIN",
       tenant: {
         id: "tenant-123",
         name: "Test Organization",
@@ -397,7 +451,7 @@ describe("Dashboard Route", () => {
       const { createRemixStub } = await import("@remix-run/testing");
       const Dashboard = (await import("./dashboard")).default;
 
-      const nonAdminUser = { ...mockUser, isAdmin: false };
+      const nonAdminUser = { ...mockUser, role: "VIEWER" };
       const RemixStub = createRemixStub([
         {
           path: "/dashboard",

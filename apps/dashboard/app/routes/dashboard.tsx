@@ -1,10 +1,40 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
-import { useLoaderData, Link, Form } from "@remix-run/react";
+import { json, redirect } from "@remix-run/node";
+import { useLoaderData, Form } from "@remix-run/react";
 import { requireUser } from "~/utils/session.server";
+import { getOnboardingProgress } from "@mmtm/resource-tenant";
+import { prisma as db } from "@mmtm/database";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const user = await requireUser(request);
+  console.log("Dashboard loader - user:", { role: user.role, tenantId: user.tenantId });
+
+  // Check onboarding progress for admin users
+  if (user.role === "ADMIN") {
+    console.log("Dashboard loader - checking onboarding for admin user");
+    const onboardingProgress = await getOnboardingProgress(user.tenantId, db);
+    console.log("Dashboard loader - onboardingProgress:", onboardingProgress);
+
+    // If onboarding is not completed, redirect to the current step
+    if (onboardingProgress && !onboardingProgress.completed) {
+      // Map the current step to the appropriate route
+      const stepRoutes: Record<string, string> = {
+        "data-sources": "/onboarding/data-sources",
+        repositories: "/onboarding/repositories",
+        team: "/onboarding/team",
+        review: "/onboarding/review",
+      };
+
+      const redirectUrl = stepRoutes[onboardingProgress.currentStep] || "/onboarding/data-sources";
+      console.log("Dashboard loader - redirecting to onboarding:", redirectUrl);
+      throw redirect(redirectUrl);
+    } else {
+      console.log("Dashboard loader - onboarding complete or not found, showing dashboard");
+    }
+  } else {
+    console.log("Dashboard loader - non-admin user, showing dashboard");
+  }
+
   return json({ user });
 }
 
@@ -52,7 +82,7 @@ export default function Dashboard() {
                 <div className="bg-white overflow-hidden shadow rounded-lg">
                   <div className="p-6">
                     <h3 className="text-lg font-medium text-gray-900">Role</h3>
-                    <p className="mt-2 text-sm text-gray-600">{user.isAdmin ? "Administrator" : "Member"}</p>
+                    <p className="mt-2 text-sm text-gray-600">{user.role === "ADMIN" ? "Administrator" : "Viewer"}</p>
                   </div>
                 </div>
 
@@ -62,15 +92,6 @@ export default function Dashboard() {
                     <p className="mt-2 text-sm text-green-600">Active</p>
                   </div>
                 </div>
-              </div>
-
-              <div className="mt-8">
-                <Link
-                  to={`/onboarding/data-sources?tenant=${user.tenantId}`}
-                  className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition-colors"
-                >
-                  Continue Onboarding
-                </Link>
               </div>
             </div>
           </div>

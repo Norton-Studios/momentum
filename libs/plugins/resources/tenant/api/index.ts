@@ -31,7 +31,7 @@ const _CreateUserSchema = z.object({
   email: z.string().email({}),
   fullName: z.string().optional(),
   password: z.string().min(8).optional(),
-  isAdmin: z.boolean().optional().default(false),
+  role: z.enum(["ADMIN", "VIEWER"]).optional().default("VIEWER"),
   ssoProvider: z.string().optional(),
   ssoProviderId: z.string().optional(),
 });
@@ -40,7 +40,7 @@ const _UpdateUserSchema = z.object({
   email: z.string().email({}).optional(),
   fullName: z.string().optional(),
   password: z.string().min(8).optional(),
-  isAdmin: z.boolean().optional(),
+  role: z.enum(["ADMIN", "VIEWER"]).optional(),
   ssoProvider: z.string().optional(),
   ssoProviderId: z.string().optional(),
 });
@@ -64,9 +64,9 @@ const _SignupSchema = z.object({
   email: z.string().email({}),
   password: z
     .string()
-    .min(12)
-    .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?])/, {
-      message: "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character",
+    .min(10)
+    .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[\d!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?])/, {
+      message: "Password must contain at least one uppercase letter, one lowercase letter, and one number or special character",
     }),
 });
 
@@ -104,7 +104,7 @@ router.post("/tenant", async (req: any, res: Response) => {
             email: data.adminEmail,
             password: hashedPassword,
             apiToken,
-            isAdmin: true,
+            role: "ADMIN",
           },
         },
         onboardingProgress: {
@@ -181,6 +181,100 @@ router.get("/tenants", async (req: AuthenticatedRequest, res: Response) => {
   } catch (error) {
     console.error("Error fetching tenants:", error);
     res.status(500).json({ error: "Failed to fetch tenants" });
+  }
+});
+
+// POST /auth/signup - Self-service signup endpoint
+router.post("/auth/signup", async (req: any, res: Response) => {
+  const db = req.app.get("db") as PrismaClient;
+
+  try {
+    console.log("Signup request received:", req.body);
+    const data = _SignupSchema.parse(req.body);
+    console.log("Parsed data:", data);
+
+    // Check if organization name already exists
+    const existingTenant = await db.tenant.findFirst({
+      where: { name: data.organizationName },
+    });
+    console.log("Existing tenant check:", existingTenant);
+
+    if (existingTenant) {
+      return res.status(409).json({ error: "Organization name already exists" });
+    }
+
+    // Check if user email already exists
+    const existingUser = await db.user.findFirst({
+      where: { email: data.email },
+    });
+    console.log("Existing user check:", existingUser);
+
+    if (existingUser) {
+      return res.status(409).json({ error: "Email address already exists" });
+    }
+
+    // Create tenant and user manually to avoid dynamic import issues
+    const hashedPassword = await hashPassword(data.password);
+    const apiToken = generateApiToken();
+
+    const tenant = await db.tenant.create({
+      data: {
+        name: data.organizationName,
+        users: {
+          create: {
+            email: data.email,
+            fullName: data.fullName,
+            password: hashedPassword,
+            apiToken,
+            role: "ADMIN",
+          },
+        },
+        onboardingProgress: {
+          create: {
+            currentStep: "data-sources",
+            completedSteps: ["signup"],
+            wizardData: {
+              organizationName: data.organizationName,
+              adminName: data.fullName,
+              adminEmail: data.email,
+            },
+          },
+        },
+      },
+      include: {
+        users: {
+          select: {
+            id: true,
+            email: true,
+            fullName: true,
+            apiToken: true,
+          },
+        },
+        onboardingProgress: true,
+      },
+    });
+
+    res.status(201).json({
+      success: true,
+      tenant: {
+        id: tenant.id,
+        name: tenant.name,
+      },
+      user: {
+        id: tenant.users[0].id,
+        email: tenant.users[0].email,
+        fullName: tenant.users[0].fullName,
+      },
+      message: "Account created successfully",
+    });
+  } catch (error) {
+    console.error("Full error details:", error);
+    if (error instanceof z.ZodError) {
+      console.error("Validation error:", error.issues);
+      return res.status(400).json({ error: "Invalid request data", details: error.issues });
+    }
+    console.error("Error creating user account:", error);
+    res.status(500).json({ error: "Failed to create account" });
   }
 });
 
