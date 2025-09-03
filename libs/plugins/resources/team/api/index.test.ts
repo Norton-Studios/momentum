@@ -33,7 +33,7 @@ app.use((req, _res, next) => {
     id: "test-user-id",
     email: "test@example.com",
     tenantId: "test-tenant-id",
-    isAdmin: false,
+    role: "VIEWER",
   };
   next();
 });

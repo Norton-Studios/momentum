@@ -25,7 +25,7 @@ model User {
   fullName      String?   @map("full_name")
   password      String?
   apiToken      String    @unique @map("api_token")
-  isAdmin       Boolean   @default(false) @map("is_admin")
+  role          UserRole  @default(VIEWER)
   // SSO fields
   ssoProvider   String?   @map("sso_provider")
   ssoProviderId String?   @map("sso_provider_id")
@@ -121,6 +121,13 @@ enum DataSourceRunStatus {
   RUNNING
   COMPLETED
   FAILED
+  
+  @@schema("core")
+}
+
+enum UserRole {
+  ADMIN
+  VIEWER
   
   @@schema("core")
 }
