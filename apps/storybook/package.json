@@ -29,7 +29,7 @@
     "@types/react-dom": "19.1.9",
     "@vitejs/plugin-react": "5.0.3",
     "storybook": "9.1.7",
-    "vite": "7.1.6"
+    "vite": "7.1.7"
   },
   "peerDependencies": {
     "react": "^18.0.0 || ^19.0.0",
