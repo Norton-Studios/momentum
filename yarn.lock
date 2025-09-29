@@ -2928,12 +2928,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testcontainers/postgresql@npm:11.6.0":
-  version: 11.6.0
-  resolution: "@testcontainers/postgresql@npm:11.6.0"
+"@testcontainers/postgresql@npm:11.7.0":
+  version: 11.7.0
+  resolution: "@testcontainers/postgresql@npm:11.7.0"
   dependencies:
-    testcontainers: "npm:^11.6.0"
-  checksum: 10c0/5d9b6ed7397ab812ab62d2cefbde5ffc9d2957430195be2616557fd81f7a2234c844cd18cc26cbfa2d64b55dc64ef3d0b348a545f3b2ad2d56370ce2061fbbde
+    testcontainers: "npm:^11.7.0"
+  checksum: 10c0/1f41f53344f3b70c50f916dc702719c0d379aebfbd688bcc06870b9956ec5ed3038df5d4876f134ee9fbb5df0be7491c1734dee72734896dafa596a07c1e8538
   languageName: node
   linkType: hard
 
@@ -3169,7 +3169,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/dockerode@npm:^3.3.43":
+"@types/dockerode@npm:^3.3.44":
   version: 3.3.44
   resolution: "@types/dockerode@npm:3.3.44"
   dependencies:
@@ -5206,7 +5206,7 @@ __metadata:
   dependencies:
     "@mmtm/database": "workspace:*"
     "@playwright/test": "npm:1.55.1"
-    "@testcontainers/postgresql": "npm:11.6.0"
+    "@testcontainers/postgresql": "npm:11.7.0"
     "@types/bcrypt": "npm:6.0.0"
     "@types/node": "npm:22.18.6"
     axios: "npm:1.12.2"
@@ -10905,9 +10905,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tar-fs@npm:^3.1.0":
-  version: 3.1.0
-  resolution: "tar-fs@npm:3.1.0"
+"tar-fs@npm:^3.1.1":
+  version: 3.1.1
+  resolution: "tar-fs@npm:3.1.1"
   dependencies:
     bare-fs: "npm:^4.0.1"
     bare-path: "npm:^3.0.0"
@@ -10918,7 +10918,7 @@ __metadata:
       optional: true
     bare-path:
       optional: true
-  checksum: 10c0/760309677543c03fbc253b5ef1ab4bb2ceafb554471b6cbe4930d1633f35662ec26a1414c66fa6754f5aa7e8c65003f73849242f624c322d3dcba7a8888a6915
+  checksum: 10c0/0c677d711c4aa41f94e1a712aa647022ba1910ff84430739e5d9e95a615e3ea1b7112dc93164fc8ce30dc715befcf9cfdc64da27d4e7958d73c59bda06aa0d8e
   languageName: node
   linkType: hard
 
@@ -10997,12 +10997,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"testcontainers@npm:^11.6.0":
-  version: 11.6.0
-  resolution: "testcontainers@npm:11.6.0"
+"testcontainers@npm:^11.7.0":
+  version: 11.7.0
+  resolution: "testcontainers@npm:11.7.0"
   dependencies:
     "@balena/dockerignore": "npm:^1.0.2"
-    "@types/dockerode": "npm:^3.3.43"
+    "@types/dockerode": "npm:^3.3.44"
     archiver: "npm:^7.0.1"
     async-lock: "npm:^1.4.1"
     byline: "npm:^5.0.0"
@@ -11013,10 +11013,10 @@ __metadata:
     proper-lockfile: "npm:^4.1.2"
     properties-reader: "npm:^2.3.0"
     ssh-remote-port-forward: "npm:^1.0.4"
-    tar-fs: "npm:^3.1.0"
+    tar-fs: "npm:^3.1.1"
     tmp: "npm:^0.2.5"
     undici: "npm:^7.16.0"
-  checksum: 10c0/285dd8658154a7bf3a9ec622a3f2ef56dcc1fa3667e2338e798b0e5bb33ae218ecb6a68a92fdcdf6574a318c9e61f7d70496c69d1012c2c01237801203a2679f
+  checksum: 10c0/320157c52de590e37fb81e0cb1e1828c240a975a7ac6ed7750f6462a3740f777e58d9be1c55a6d85d32fd3227be3e701717216e818be92ffb8f61ca33f93522d
   languageName: node
   linkType: hard
 
