@@ -1600,7 +1600,7 @@ __metadata:
     bcrypt: "npm:6.0.0"
     express: "npm:5.1.0"
     fast-glob: "npm:3.3.3"
-    vite: "npm:7.1.7"
+    vite: "npm:7.1.9"
     vite-plugin-node: "npm:7.0.0"
     vite-tsconfig-paths: "npm:5.1.4"
     zod: "npm:4.1.11"
@@ -1672,7 +1672,7 @@ __metadata:
     react: "npm:19.2.0"
     react-dom: "npm:19.2.0"
     tailwindcss: "npm:4.1.14"
-    vite: "npm:7.1.7"
+    vite: "npm:7.1.9"
     vite-tsconfig-paths: "npm:5.1.4"
   languageName: unknown
   linkType: soft
@@ -1711,7 +1711,7 @@ __metadata:
   resolution: "@mmtm/resource-commit@workspace:libs/plugins/resources/commit"
   dependencies:
     "@mmtm/database": "workspace:*"
-    vite: "npm:7.1.7"
+    vite: "npm:7.1.9"
   peerDependencies:
     "@types/express": ^5.0.3
     express: ^5.1.0
@@ -1723,7 +1723,7 @@ __metadata:
   resolution: "@mmtm/resource-contributor@workspace:libs/plugins/resources/contributor"
   dependencies:
     "@mmtm/database": "workspace:*"
-    vite: "npm:7.1.7"
+    vite: "npm:7.1.9"
   peerDependencies:
     "@types/express": ^5.0.3
     express: ^5.1.0
@@ -1795,7 +1795,7 @@ __metadata:
     react: "npm:19.2.0"
     react-dom: "npm:19.2.0"
     storybook: "npm:9.1.10"
-    vite: "npm:7.1.7"
+    vite: "npm:7.1.9"
   peerDependencies:
     react: ^18.0.0 || ^19.0.0
     react-dom: ^18.0.0 || ^19.0.0
@@ -11899,9 +11899,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vite@npm:7.1.7":
-  version: 7.1.7
-  resolution: "vite@npm:7.1.7"
+"vite@npm:7.1.9":
+  version: 7.1.9
+  resolution: "vite@npm:7.1.9"
   dependencies:
     esbuild: "npm:^0.25.0"
     fdir: "npm:^6.5.0"
@@ -11950,7 +11950,7 @@ __metadata:
       optional: true
   bin:
     vite: bin/vite.js
-  checksum: 10c0/3f6bd61a65aaa81368f4dda804f0e23b103664724218ccb5a0b1a0c7e284df498107b57ced951dc40ae4c5d472435bc8fb5c836414e729ee7e102809eaf6ff80
+  checksum: 10c0/f628f903a137c1410232558bde99c223ea00a090bda6af77752c61f912955f0050aac12d3cfe024d08a0f150ff6fab61b3d0be75d634a59b94d49f525392e1f7
   languageName: node
   linkType: hard
 
