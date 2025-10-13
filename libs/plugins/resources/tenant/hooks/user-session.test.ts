@@ -69,6 +69,10 @@ describe("user-session hooks", () => {
     };
 
     it("creates a session with default expiration", async () => {
+      vi.useFakeTimers();
+      const baseTime = new Date("2024-06-15T12:00:00.000Z"); // Use summer time to avoid DST issues
+      vi.setSystemTime(baseTime);
+
       (mockDb.userSession.create as any).mockResolvedValue(mockCreatedSession);
 
       const result = await createUserSession("user-123", { theme: "dark" }, 30, mockDb);
@@ -84,14 +88,12 @@ describe("user-session hooks", () => {
 
       const createCall = (mockDb.userSession.create as any).mock.calls[0][0];
       const expiresAt = createCall.data.expiresAt;
-      const now = new Date();
-      const expectedExpiry = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+      const expectedExpiry = new Date(baseTime.getTime() + 30 * 24 * 60 * 60 * 1000);
 
-      // Allow 1 second tolerance for execution time
-      expect(expiresAt.getTime()).toBeGreaterThanOrEqual(expectedExpiry.getTime() - 1000);
-      expect(expiresAt.getTime()).toBeLessThanOrEqual(expectedExpiry.getTime() + 1000);
-
+      expect(expiresAt.getTime()).toBe(expectedExpiry.getTime());
       expect(result).toBe(mockCreatedSession);
+
+      vi.useRealTimers();
     });
 
     it("creates a session with custom expiration days", async () => {
@@ -302,6 +304,10 @@ describe("user-session hooks", () => {
     };
 
     it("extends session with default 30 days", async () => {
+      vi.useFakeTimers();
+      const baseTime = new Date("2024-06-15T12:00:00.000Z");
+      vi.setSystemTime(baseTime);
+
       (mockDb.userSession.update as any).mockResolvedValue(mockExtendedSession);
 
       const result = await extendUserSession("abc123def456", 30, mockDb);
@@ -316,44 +322,48 @@ describe("user-session hooks", () => {
 
       const updateCall = (mockDb.userSession.update as any).mock.calls[0][0];
       const expiresAt = updateCall.data.expiresAt;
-      const now = new Date();
-      const expectedExpiry = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+      const expectedExpiry = new Date(baseTime.getTime() + 30 * 24 * 60 * 60 * 1000);
 
-      // Allow 1 second tolerance for execution time
-      expect(expiresAt.getTime()).toBeGreaterThanOrEqual(expectedExpiry.getTime() - 1000);
-      expect(expiresAt.getTime()).toBeLessThanOrEqual(expectedExpiry.getTime() + 1000);
-
+      expect(expiresAt.getTime()).toBe(expectedExpiry.getTime());
       expect(result).toBe(mockExtendedSession);
+
+      vi.useRealTimers();
     });
 
     it("extends session with custom days", async () => {
+      vi.useFakeTimers();
+      const baseTime = new Date("2024-06-15T12:00:00.000Z");
+      vi.setSystemTime(baseTime);
+
       (mockDb.userSession.update as any).mockResolvedValue(mockExtendedSession);
 
       await extendUserSession("abc123def456", 14, mockDb);
 
       const updateCall = (mockDb.userSession.update as any).mock.calls[0][0];
       const expiresAt = updateCall.data.expiresAt;
-      const now = new Date();
-      const expectedExpiry = new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000);
+      const expectedExpiry = new Date(baseTime.getTime() + 14 * 24 * 60 * 60 * 1000);
 
-      // Allow 1 second tolerance for execution time
-      expect(expiresAt.getTime()).toBeGreaterThanOrEqual(expectedExpiry.getTime() - 1000);
-      expect(expiresAt.getTime()).toBeLessThanOrEqual(expectedExpiry.getTime() + 1000);
+      expect(expiresAt.getTime()).toBe(expectedExpiry.getTime());
+
+      vi.useRealTimers();
     });
 
     it("uses default 30 days when no expiration provided", async () => {
+      vi.useFakeTimers();
+      const baseTime = new Date("2024-06-15T12:00:00.000Z");
+      vi.setSystemTime(baseTime);
+
       (mockDb.userSession.update as any).mockResolvedValue(mockExtendedSession);
 
       await extendUserSession("abc123def456", undefined, mockDb);
 
       const updateCall = (mockDb.userSession.update as any).mock.calls[0][0];
       const expiresAt = updateCall.data.expiresAt;
-      const now = new Date();
-      const expectedExpiry = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+      const expectedExpiry = new Date(baseTime.getTime() + 30 * 24 * 60 * 60 * 1000);
 
-      // Allow 1 second tolerance for execution time
-      expect(expiresAt.getTime()).toBeGreaterThanOrEqual(expectedExpiry.getTime() - 1000);
-      expect(expiresAt.getTime()).toBeLessThanOrEqual(expectedExpiry.getTime() + 1000);
+      expect(expiresAt.getTime()).toBe(expectedExpiry.getTime());
+
+      vi.useRealTimers();
     });
 
     it("updates the updatedAt timestamp", async () => {
