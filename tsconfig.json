@@ -4,7 +4,9 @@
     "paths": {
       "@mmtm/api": ["apps/api/src"],
       "@mmtm/database": ["apps/database/src"],
-      "@mmtm/dashboard": ["apps/dashboard/src"]
+      "@mmtm/dashboard": ["apps/dashboard/src"],
+      "@mmtm/components": ["libs/components/src"],
+      "@mmtm/components/styles": ["libs/components/src/styles/globals.css"]
     },
     "esModuleInterop": true /* Emit additional JavaScript to ease support for importing CommonJS modules. This enables 'allowSyntheticDefaultImports' for type compatibility. */,
     "forceConsistentCasingInFileNames": true /* Ensure that casing is correct in imports. */,
