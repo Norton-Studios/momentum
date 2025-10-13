@@ -190,4 +190,241 @@ describe("Tenant API", () => {
       expect(response.body).toHaveProperty("error", "Failed to fetch tenants");
     });
   });
+
+  describe("POST /auth/signup - Self-service Signup", () => {
+    it("should successfully create a new account", async () => {
+      const app = express();
+      app.use(express.json());
+      app.set("db", {
+        tenant: {
+          findFirst: vi.fn().mockResolvedValue(null), // No existing tenant
+          create: vi.fn().mockResolvedValue({
+            id: "new-tenant-id",
+            name: "NewOrg",
+            users: [
+              {
+                id: "new-user-id",
+                email: "user@neworg.com",
+                fullName: "Test User",
+                apiToken: "new-api-token",
+              },
+            ],
+            onboardingProgress: {
+              currentStep: "data-sources",
+              completedSteps: ["signup"],
+            },
+          }),
+        },
+        user: {
+          findFirst: vi.fn().mockResolvedValue(null), // No existing user
+        },
+      });
+      app.use(router);
+
+      const response = await request(app).post("/auth/signup").send({
+        organizationName: "NewOrg",
+        fullName: "Test User",
+        email: "user@neworg.com",
+        password: "SecurePass123!",
+      });
+
+      expect(response.status).toBe(201);
+      expect(response.body).toHaveProperty("success", true);
+      expect(response.body).toHaveProperty("tenant");
+      expect(response.body.tenant).toHaveProperty("id", "new-tenant-id");
+      expect(response.body).toHaveProperty("user");
+      expect(response.body.user).toHaveProperty("email", "user@neworg.com");
+      expect(response.body).toHaveProperty("message", "Account created successfully");
+    });
+
+    it("should return 409 when organization name already exists", async () => {
+      const app = express();
+      app.use(express.json());
+      app.set("db", {
+        tenant: {
+          findFirst: vi.fn().mockResolvedValue({
+            id: "existing-tenant",
+            name: "ExistingOrg",
+          }),
+        },
+        user: {
+          findFirst: vi.fn(),
+        },
+      });
+      app.use(router);
+
+      const response = await request(app).post("/auth/signup").send({
+        organizationName: "ExistingOrg",
+        fullName: "Test User",
+        email: "user@test.com",
+        password: "SecurePass123!",
+      });
+
+      expect(response.status).toBe(409);
+      expect(response.body).toHaveProperty("error", "Organization name already exists");
+    });
+
+    it("should return 409 when email already exists", async () => {
+      const app = express();
+      app.use(express.json());
+      app.set("db", {
+        tenant: {
+          findFirst: vi.fn().mockResolvedValue(null),
+        },
+        user: {
+          findFirst: vi.fn().mockResolvedValue({
+            id: "existing-user",
+            email: "existing@test.com",
+          }),
+        },
+      });
+      app.use(router);
+
+      const response = await request(app).post("/auth/signup").send({
+        organizationName: "NewOrg",
+        fullName: "Test User",
+        email: "existing@test.com",
+        password: "SecurePass123!",
+      });
+
+      expect(response.status).toBe(409);
+      expect(response.body).toHaveProperty("error", "Email address already exists");
+    });
+
+    it("should return 400 with invalid password", async () => {
+      const app = express();
+      app.use(express.json());
+      app.use(router);
+
+      const response = await request(app).post("/auth/signup").send({
+        organizationName: "NewOrg",
+        fullName: "Test User",
+        email: "user@test.com",
+        password: "weak", // Too short and doesn't meet requirements
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty("error", "Invalid request data");
+      expect(response.body).toHaveProperty("details");
+    });
+
+    it("should return 400 with invalid email", async () => {
+      const app = express();
+      app.use(express.json());
+      app.use(router);
+
+      const response = await request(app).post("/auth/signup").send({
+        organizationName: "NewOrg",
+        fullName: "Test User",
+        email: "invalid-email",
+        password: "SecurePass123!",
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty("error", "Invalid request data");
+    });
+
+    it("should return 400 with missing organization name", async () => {
+      const app = express();
+      app.use(express.json());
+      app.use(router);
+
+      const response = await request(app).post("/auth/signup").send({
+        fullName: "Test User",
+        email: "user@test.com",
+        password: "SecurePass123!",
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty("error", "Invalid request data");
+    });
+
+    it("should handle database errors gracefully", async () => {
+      const app = express();
+      app.use(express.json());
+      app.set("db", {
+        tenant: {
+          findFirst: vi.fn().mockRejectedValue(new Error("Database connection failed")),
+        },
+        user: {
+          findFirst: vi.fn(),
+        },
+      });
+      app.use(router);
+
+      const response = await request(app).post("/auth/signup").send({
+        organizationName: "NewOrg",
+        fullName: "Test User",
+        email: "user@test.com",
+        password: "SecurePass123!",
+      });
+
+      expect(response.status).toBe(500);
+      expect(response.body).toHaveProperty("error", "Failed to create account");
+    });
+
+    it("should create onboarding progress with signup step completed", async () => {
+      const mockCreate = vi.fn().mockResolvedValue({
+        id: "new-tenant-id",
+        name: "NewOrg",
+        users: [
+          {
+            id: "new-user-id",
+            email: "user@neworg.com",
+            fullName: "Test User",
+            apiToken: "new-api-token",
+          },
+        ],
+        onboardingProgress: {
+          currentStep: "data-sources",
+          completedSteps: ["signup"],
+          wizardData: {
+            organizationName: "NewOrg",
+            adminName: "Test User",
+            adminEmail: "user@neworg.com",
+          },
+        },
+      });
+
+      const app = express();
+      app.use(express.json());
+      app.set("db", {
+        tenant: {
+          findFirst: vi.fn().mockResolvedValue(null),
+          create: mockCreate,
+        },
+        user: {
+          findFirst: vi.fn().mockResolvedValue(null),
+        },
+      });
+      app.use(router);
+
+      const response = await request(app).post("/auth/signup").send({
+        organizationName: "NewOrg",
+        fullName: "Test User",
+        email: "user@neworg.com",
+        password: "SecurePass123!",
+      });
+
+      expect(response.status).toBe(201);
+      expect(mockCreate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            name: "NewOrg",
+            onboardingProgress: expect.objectContaining({
+              create: expect.objectContaining({
+                currentStep: "data-sources",
+                completedSteps: ["signup"],
+                wizardData: expect.objectContaining({
+                  organizationName: "NewOrg",
+                  adminName: "Test User",
+                  adminEmail: "user@neworg.com",
+                }),
+              }),
+            }),
+          }),
+        }),
+      );
+    });
+  });
 });

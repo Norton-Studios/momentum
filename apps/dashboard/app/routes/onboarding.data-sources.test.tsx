@@ -944,4 +944,127 @@ describe("Data Source Providers Configuration", () => {
         expect(jenkinsProvider.fields[2].key).toBe("token");
       });
   });
+
+  it("should define all expected provider categories", () => {
+    const request = new Request("http://localhost:3000/onboarding/data-sources");
+
+    mockRequireUser.mockResolvedValue(mockUser);
+    mockGetOnboardingProgress.mockResolvedValue(mockProgress);
+
+    return loader({ request, params: {}, context: {} })
+      .then((response) => response.json())
+      .then((data) => {
+        const categories = [...new Set(data.providers.map((p: any) => p.category))];
+        expect(categories).toContain("vcs");
+        expect(categories).toContain("cicd");
+        expect(categories).toContain("project");
+        expect(categories).toContain("quality");
+      });
+  });
+
+  it("should include Bitbucket provider", () => {
+    const request = new Request("http://localhost:3000/onboarding/data-sources");
+
+    mockRequireUser.mockResolvedValue(mockUser);
+    mockGetOnboardingProgress.mockResolvedValue(mockProgress);
+
+    return loader({ request, params: {}, context: {} })
+      .then((response) => response.json())
+      .then((data) => {
+        const bitbucketProvider = data.providers.find((p: any) => p.id === "bitbucket");
+        expect(bitbucketProvider).toBeDefined();
+        expect(bitbucketProvider.name).toBe("Bitbucket");
+        expect(bitbucketProvider.fields).toHaveLength(3);
+      });
+  });
+
+  it("should include CircleCI provider", () => {
+    const request = new Request("http://localhost:3000/onboarding/data-sources");
+
+    mockRequireUser.mockResolvedValue(mockUser);
+    mockGetOnboardingProgress.mockResolvedValue(mockProgress);
+
+    return loader({ request, params: {}, context: {} })
+      .then((response) => response.json())
+      .then((data) => {
+        const circleCIProvider = data.providers.find((p: any) => p.id === "circleci");
+        expect(circleCIProvider).toBeDefined();
+        expect(circleCIProvider.name).toBe("CircleCI");
+      });
+  });
+
+  it("should include Linear provider", () => {
+    const request = new Request("http://localhost:3000/onboarding/data-sources");
+
+    mockRequireUser.mockResolvedValue(mockUser);
+    mockGetOnboardingProgress.mockResolvedValue(mockProgress);
+
+    return loader({ request, params: {}, context: {} })
+      .then((response) => response.json())
+      .then((data) => {
+        const linearProvider = data.providers.find((p: any) => p.id === "linear");
+        expect(linearProvider).toBeDefined();
+        expect(linearProvider.name).toBe("Linear");
+      });
+  });
+
+  it("should include SonarQube provider", () => {
+    const request = new Request("http://localhost:3000/onboarding/data-sources");
+
+    mockRequireUser.mockResolvedValue(mockUser);
+    mockGetOnboardingProgress.mockResolvedValue(mockProgress);
+
+    return loader({ request, params: {}, context: {} })
+      .then((response) => response.json())
+      .then((data) => {
+        const sonarProvider = data.providers.find((p: any) => p.id === "sonarqube");
+        expect(sonarProvider).toBeDefined();
+        expect(sonarProvider.name).toBe("SonarQube");
+      });
+  });
+
+  it("should include CodeQL provider", () => {
+    const request = new Request("http://localhost:3000/onboarding/data-sources");
+
+    mockRequireUser.mockResolvedValue(mockUser);
+    mockGetOnboardingProgress.mockResolvedValue(mockProgress);
+
+    return loader({ request, params: {}, context: {} })
+      .then((response) => response.json())
+      .then((data) => {
+        const codeqlProvider = data.providers.find((p: any) => p.id === "codeql");
+        expect(codeqlProvider).toBeDefined();
+        expect(codeqlProvider.name).toBe("CodeQL");
+      });
+  });
+
+  it("should include GitHub Actions provider", () => {
+    const request = new Request("http://localhost:3000/onboarding/data-sources");
+
+    mockRequireUser.mockResolvedValue(mockUser);
+    mockGetOnboardingProgress.mockResolvedValue(mockProgress);
+
+    return loader({ request, params: {}, context: {} })
+      .then((response) => response.json())
+      .then((data) => {
+        const ghActionsProvider = data.providers.find((p: any) => p.id === "github-actions");
+        expect(ghActionsProvider).toBeDefined();
+        expect(ghActionsProvider.name).toBe("GitHub Actions");
+      });
+  });
+
+  it("should include Asana provider", () => {
+    const request = new Request("http://localhost:3000/onboarding/data-sources");
+
+    mockRequireUser.mockResolvedValue(mockUser);
+    mockGetOnboardingProgress.mockResolvedValue(mockProgress);
+
+    return loader({ request, params: {}, context: {} })
+      .then((response) => response.json())
+      .then((data) => {
+        const asanaProvider = data.providers.find((p: any) => p.id === "asana");
+        expect(asanaProvider).toBeDefined();
+        expect(asanaProvider.name).toBe("Asana");
+      });
+  });
 });
