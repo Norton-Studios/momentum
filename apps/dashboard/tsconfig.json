@@ -11,17 +11,6 @@
     "resolveJsonModule": true,
     "target": "ES2022",
     "allowJs": true,
-    "paths": {
-      "~/*": ["apps/dashboard/app/*"],
-      "@mmtm/api": ["apps/api/src"],
-      "@mmtm/database": ["apps/database/src"],
-      "@mmtm/dashboard": ["apps/dashboard/src"],
-      "@mmtm/components": ["libs/components/src"],
-      "@mmtm/components/styles": ["libs/components/src/styles/globals.css"],
-      "@mmtm/resource-*": ["libs/plugins/resources/*"],
-      "@mmtm/data-source-*": ["libs/plugins/data-sources/*"],
-      "@mmtm/report-*": ["libs/plugins/reports/*"]
-    },
 
     // Vite takes care of building everything, not tsc.
     "noEmit": true
