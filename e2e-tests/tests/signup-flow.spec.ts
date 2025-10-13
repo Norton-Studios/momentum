@@ -7,7 +7,7 @@ test.describe("Signup Flow E2E", () => {
   });
 
   test("Complete signup flow creates user and tenant", async ({ page }) => {
-    const frontendUrl = "http://localhost:3002"; // Our current dashboard running on port 3002
+    const frontendUrl = process.env.E2E_FRONTEND_URL || "http://localhost:3000";
 
     // Navigate to signup page
     await page.goto(`${frontendUrl}/auth/signup`);
@@ -58,7 +58,7 @@ test.describe("Signup Flow E2E", () => {
   });
 
   test("Signup with duplicate organization name fails gracefully", async ({ page }) => {
-    const frontendUrl = process.env.E2E_FRONTEND_URL || "http://localhost:3002";
+    const frontendUrl = process.env.E2E_FRONTEND_URL || "http://localhost:3000";
 
     // First, create a user with a specific org name
     await page.goto(`${frontendUrl}/auth/signup`);
@@ -77,8 +77,11 @@ test.describe("Signup Flow E2E", () => {
     const firstSignUpButton = page.getByRole("button", { name: /create account/i });
     await firstSignUpButton.click();
 
-    // Wait for first signup to complete
-    await page.waitForTimeout(5000);
+    // Wait for first signup to complete and redirect
+    await page.waitForURL(/\/(onboarding|dashboard)/);
+
+    // Clear session to test duplicate org signup
+    await page.context().clearCookies();
 
     // Now try to create another user with the same org name
     await page.goto(`${frontendUrl}/auth/signup`);
@@ -93,8 +96,13 @@ test.describe("Signup Flow E2E", () => {
     await page.waitForTimeout(2000);
 
     const secondSignUpButton = page.getByRole("button", { name: /create account/i });
+    await secondSignUpButton.click();
 
-    // The button should be disabled due to duplicate org validation
-    await expect(secondSignUpButton).toBeDisabled();
+    // Wait for form submission
+    await page.waitForTimeout(2000);
+
+    // Should show an error message and stay on the signup page
+    await expect(page.locator('text="Organization name already exists"')).toBeVisible();
+    expect(page.url()).toContain("/auth/signup");
   });
 });
