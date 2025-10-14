@@ -67,8 +67,8 @@ export async function action({ request }: ActionFunctionArgs) {
       // Create user session
       const userSession = await createUserSession(tenant.users[0].id, { onboarding: true }, 30, db);
 
-      // Redirect to dashboard with session
-      return createUserSessionAndRedirect(userSession.sessionToken, "/dashboard");
+      // Redirect to onboarding flow with session
+      return createUserSessionAndRedirect(userSession.sessionToken, "/onboarding/data-sources");
     }
 
     return json({ error: "Invalid action" }, { status: 400 });
@@ -88,7 +88,7 @@ export default function SignupPage() {
 
   const isSubmitting = navigation.state === "submitting";
 
-  const handleOrganizationNameChange = useCallback(async (name: string) => {
+  const handleOrganizationNameChange = useCallback((name: string) => {
     if (!name.trim()) {
       setOrganizationNameError(undefined);
       return;
@@ -97,14 +97,13 @@ export default function SignupPage() {
     // Debounce validation
     const timeoutId = setTimeout(async () => {
       try {
+        const formData = new FormData();
+        formData.append("_action", "validate-organization");
+        formData.append("organizationName", name);
+
         const response = await fetch("/auth/signup", {
           method: "POST",
-          body: new FormData(
-            Object.assign(document.createElement("form"), {
-              _action: "validate-organization",
-              organizationName: name,
-            }) as any,
-          ),
+          body: formData,
         });
 
         const result = await response.json();

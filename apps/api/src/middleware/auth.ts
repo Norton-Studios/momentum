@@ -7,7 +7,7 @@ export interface AuthenticatedRequest extends Request {
     id: string;
     email: string;
     tenantId: string;
-    isAdmin: boolean;
+    role: "ADMIN" | "VIEWER";
   };
 }
 
@@ -15,6 +15,11 @@ export function createAuthMiddleware(db: PrismaClient) {
   return async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     // Skip auth for tenant creation endpoint - it handles its own auth
     if (req.path === "/tenant" && req.method === "POST") {
+      return next();
+    }
+
+    // Skip auth for signup endpoint
+    if (req.path === "/auth/signup" && req.method === "POST") {
       return next();
     }
 
@@ -76,7 +81,7 @@ export function createAuthMiddleware(db: PrismaClient) {
         id: user.id,
         email: user.email,
         tenantId: user.tenantId,
-        isAdmin: user.isAdmin,
+        role: user.role,
       };
 
       next();
@@ -88,7 +93,7 @@ export function createAuthMiddleware(db: PrismaClient) {
 }
 
 export function requireAdmin(req: AuthenticatedRequest, res: Response, next: NextFunction) {
-  if (!req.user || !req.user.isAdmin) {
+  if (!req.user || req.user.role !== "ADMIN") {
     return res.status(403).json({ error: "Admin access required" });
   }
   next();

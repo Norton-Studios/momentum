@@ -181,7 +181,14 @@ Follow these strict naming conventions throughout the project:
    - Run `yarn workspace @mmtm/database run generate`
    - Create and run migrations if needed
 
-4. **Adding Tests to New Plugins**:
+4. **TypeScript Path Configuration**:
+   - All workspace packages are defined in `tsconfig.json` at the root with `paths` mapping using wildcards (e.g., `"@mmtm/resource-*": ["libs/plugins/resources/*"]`)
+   - **IMPORTANT**: When a child tsconfig defines `paths`, it completely overrides (doesn't merge with) the parent's `paths`
+   - Child tsconfigs (like `apps/dashboard/tsconfig.json`) must duplicate all needed paths from root if they define their own paths
+   - Use `vite-tsconfig-paths` plugin in Vite/Vitest configs to resolve these paths at build/test time
+   - Plugin paths use wildcards matching the workspace pattern, so new plugins are automatically discovered without updating tsconfig
+
+5. **Adding Tests to New Plugins**:
    - Always use `"test": "vitest run"` in package.json for non-interactive testing
    - Add `vitest.config.ts` that extends the root config
    - **Co-locate tests with the files they test** using `.test.ts` suffix (e.g., `api/index.test.ts` for `api/index.ts`)

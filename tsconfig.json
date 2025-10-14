@@ -6,7 +6,10 @@
       "@mmtm/database": ["apps/database/src"],
       "@mmtm/dashboard": ["apps/dashboard/src"],
       "@mmtm/components": ["libs/components/src"],
-      "@mmtm/components/styles": ["libs/components/src/styles/globals.css"]
+      "@mmtm/components/styles": ["libs/components/src/styles/globals.css"],
+      "@mmtm/resource-*": ["libs/plugins/resources/*"],
+      "@mmtm/data-source-*": ["libs/plugins/data-sources/*"],
+      "@mmtm/report-*": ["libs/plugins/reports/*"]
     },
     "esModuleInterop": true /* Emit additional JavaScript to ease support for importing CommonJS modules. This enables 'allowSyntheticDefaultImports' for type compatibility. */,
     "forceConsistentCasingInFileNames": true /* Ensure that casing is correct in imports. */,

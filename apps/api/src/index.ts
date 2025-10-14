@@ -12,13 +12,14 @@ async function createApp() {
   // Make database available to routes
   app.set("db", prisma);
 
-  // Load dynamic routes first (includes tenant routes with /tenant endpoint)
+  // Load dynamic routes
   const dynamicRoutes = await loadRoutes();
 
-  // Apply authentication middleware (it will skip /tenant POST)
+  // Apply authentication middleware (it will skip /tenant POST and /)
   const authMiddleware = createAuthMiddleware(prisma);
   app.use(authMiddleware);
 
+  // Register health check route
   app.get("/", async (_req, res) => {
     res.json({ message: "API is up" });
   });
