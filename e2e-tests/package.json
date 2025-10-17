@@ -22,7 +22,7 @@
   "devDependencies": {
     "@playwright/test": "1.56.1",
     "@types/bcrypt": "6.0.0",
-    "@types/node": "22.18.10",
+    "@types/node": "22.18.11",
     "tsx": "4.20.6"
   }
 }
