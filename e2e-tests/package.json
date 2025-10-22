@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@mmtm/database": "workspace:*",
-    "@testcontainers/postgresql": "11.7.1",
+    "@testcontainers/postgresql": "11.7.2",
     "axios": "1.12.2",
     "bcrypt": "6.0.0"
   },
