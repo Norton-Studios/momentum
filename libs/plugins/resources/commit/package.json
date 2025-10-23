@@ -20,6 +20,6 @@
   },
   "devDependencies": {
     "@mmtm/database": "workspace:*",
-    "vite": "7.1.11"
+    "vite": "7.1.12"
   }
 }
