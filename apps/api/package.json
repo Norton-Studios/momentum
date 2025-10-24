@@ -22,7 +22,7 @@
   },
   "devDependencies": {
     "@types/bcrypt": "6.0.0",
-    "@types/express": "5.0.3",
+    "@types/express": "5.0.4",
     "vite": "7.1.12",
     "vite-plugin-node": "7.0.0",
     "vite-tsconfig-paths": "5.1.4"
