@@ -3294,12 +3294,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:22.18.12":
-  version: 22.18.12
-  resolution: "@types/node@npm:22.18.12"
+"@types/node@npm:24.9.1":
+  version: 24.9.1
+  resolution: "@types/node@npm:24.9.1"
   dependencies:
-    undici-types: "npm:~6.21.0"
-  checksum: 10c0/13a4638f2baba3efba2b8bc369dd6f950dccbfca78f318f9c9f2c7adc11fce14fc119723c38567dada2d57a873c092b7356c024924d5974a08f3c1f93dc706c6
+    undici-types: "npm:~7.16.0"
+  checksum: 10c0/c52f8168080ef9a7c3dc23d8ac6061fab5371aad89231a0f6f4c075869bc3de7e89b075b1f3e3171d9e5143d0dda1807c3dab8e32eac6d68f02e7480e7e78576
   languageName: node
   linkType: hard
 
@@ -5217,7 +5217,7 @@ __metadata:
     "@playwright/test": "npm:1.56.1"
     "@testcontainers/postgresql": "npm:11.7.2"
     "@types/bcrypt": "npm:6.0.0"
-    "@types/node": "npm:22.18.12"
+    "@types/node": "npm:24.9.1"
     axios: "npm:1.13.0"
     bcrypt: "npm:6.0.0"
     tsx: "npm:4.20.6"
@@ -8543,7 +8543,7 @@ __metadata:
   resolution: "momentum@workspace:."
   dependencies:
     "@biomejs/biome": "npm:2.1.4"
-    "@types/node": "npm:22.18.12"
+    "@types/node": "npm:24.9.1"
     "@types/supertest": "npm:6.0.3"
     "@vitest/coverage-v8": "npm:3.2.4"
     "@vitest/ui": "npm:3.2.4"
@@ -11535,17 +11535,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"undici-types@npm:~6.21.0":
-  version: 6.21.0
-  resolution: "undici-types@npm:6.21.0"
-  checksum: 10c0/c01ed51829b10aa72fc3ce64b747f8e74ae9b60eafa19a7b46ef624403508a54c526ffab06a14a26b3120d055e1104d7abe7c9017e83ced038ea5cf52f8d5e04
-  languageName: node
-  linkType: hard
-
 "undici-types@npm:~7.10.0":
   version: 7.10.0
   resolution: "undici-types@npm:7.10.0"
   checksum: 10c0/8b00ce50e235fe3cc601307f148b5e8fb427092ee3b23e8118ec0a5d7f68eca8cee468c8fc9f15cbb2cf2a3797945ebceb1cbd9732306a1d00e0a9b6afa0f635
+  languageName: node
+  linkType: hard
+
+"undici-types@npm:~7.16.0":
+  version: 7.16.0
+  resolution: "undici-types@npm:7.16.0"
+  checksum: 10c0/3033e2f2b5c9f1504bdc5934646cb54e37ecaca0f9249c983f7b1fc2e87c6d18399ebb05dc7fd5419e02b2e915f734d872a65da2e3eeed1813951c427d33cc9a
   languageName: node
   linkType: hard
 
