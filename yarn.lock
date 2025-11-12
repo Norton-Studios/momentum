@@ -3006,12 +3006,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testcontainers/postgresql@npm:11.8.0":
-  version: 11.8.0
-  resolution: "@testcontainers/postgresql@npm:11.8.0"
+"@testcontainers/postgresql@npm:11.8.1":
+  version: 11.8.1
+  resolution: "@testcontainers/postgresql@npm:11.8.1"
   dependencies:
-    testcontainers: "npm:^11.8.0"
-  checksum: 10c0/e498b6d1af3f86ecf69e1dc019c01147f3811750d2850b56f3072393352c3ad01b789165f221276d2650fa86f10c6d0652752f621483312a2dcc115547f8337f
+    testcontainers: "npm:^11.8.1"
+  checksum: 10c0/0f20f8410b27846fbbfcdee9b4813ee48224181f66d619edaa84d6b6ef1aa3763efc7f294773a9d0951a263269d4a206be3d1e2e5969e5065edbd20cd31aa168
   languageName: node
   linkType: hard
 
@@ -5309,7 +5309,7 @@ __metadata:
   dependencies:
     "@mmtm/database": "workspace:*"
     "@playwright/test": "npm:1.56.1"
-    "@testcontainers/postgresql": "npm:11.8.0"
+    "@testcontainers/postgresql": "npm:11.8.1"
     "@types/bcrypt": "npm:6.0.0"
     "@types/node": "npm:24.10.1"
     axios: "npm:1.13.2"
@@ -11047,9 +11047,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"testcontainers@npm:^11.8.0":
-  version: 11.8.0
-  resolution: "testcontainers@npm:11.8.0"
+"testcontainers@npm:^11.8.1":
+  version: 11.8.1
+  resolution: "testcontainers@npm:11.8.1"
   dependencies:
     "@balena/dockerignore": "npm:^1.0.2"
     "@types/dockerode": "npm:^3.3.45"
@@ -11066,7 +11066,7 @@ __metadata:
     tar-fs: "npm:^3.1.1"
     tmp: "npm:^0.2.5"
     undici: "npm:^7.16.0"
-  checksum: 10c0/c240345399153486b836c15ae9493a1b546e130dab745795135c4f0d8ec2f2356da209c53d1f969481d74a4aacbef708d9643afb3f7b1f7af2c2cd42c3b2e453
+  checksum: 10c0/dfa744abcf9852db98270ef9d41c2f3ea236af4fd1ff048cb05443508d201c0cf607df9b3e14616f3830ffb78bd19ebc930bd254b0c00033b338b25b95125f56
   languageName: node
   linkType: hard
 
