@@ -1,40 +1,20 @@
-# Dependency directories
-node_modules/
-
-# Build output
-dist/
-build/
-!libs/plugins/resources/build/
-public/build/
-database/build
-storybook-static/
-
-# Logs
-*.log
-npm-debug.log*
-
-# Environment variables
+.DS_Store
 .env
-.env.*.local
-.env.local
+/node_modules/
 
-# TypeScript cache
-*.tsbuildinfo
+# React Router
+/.react-router/
+/build/
+
+# Prisma
+/prisma/migrations
 
 # Testing
-test-results/
-playwright-report/
-coverage/
-.nyc_output/
-lcov.info
-.playwright-mcp/
+/coverage/
+/test-results/
+/playwright-report/
+/playwright/.cache/
 
-# Turborepo
-.turbo/
-
-# Yarn
-.yarn/
-
-# intellij
-.idea/
-
+# Logs
+.claude/*.log
+.claude/run/*.log
