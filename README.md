@@ -2,13 +2,6 @@
 
 Momentum is a comprehensive developer productivity platform designed to provide data-driven insights into software development processes. The platform collects, aggregates, and visualizes metrics from various development tools to help organizations and individuals understand and improve their software delivery performance.
 
-## Features
-
-- **Plugin-based system** for resources, data sources, and reports
-- **Extensible integrations** with GitHub, GitLab, Jira, and more
-- **Real-time metrics** and customizable reporting
-- **Self-hosted or SaaS** deployment options
-
 ## Quick Start
 
 ```bash
@@ -37,8 +30,6 @@ The application will be available at:
 momentum/
 ├── app/                      # React Router application code
 │   ├── routes/              # Route components
-│   │   ├── home.tsx         # Route handlers
-│   │   └── home.test.tsx    # Co-located tests
 │   ├── welcome/             # Feature modules
 │   ├── root.tsx             # Root layout
 │   ├── entry.server.tsx     # Server entry point
@@ -47,7 +38,6 @@ momentum/
 │   └── db.server.ts         # Prisma client singleton
 ├── e2e/                     # Playwright E2E tests
 │   ├── journeys/            # E2E test files
-│   │   └── example.spec.ts  # Journey test examples
 │   └── playwright.config.ts # Playwright configuration
 ├── prisma/                  # Database schema and migrations
 │   └── schema.prisma        # Prisma schema definition
@@ -59,7 +49,6 @@ momentum/
 │   ├── PRODUCT.md           # Product specification
 │   ├── PIPELINES.md         # CI/CD pipelines
 │   └── USER_JOURNEYS.md     # User flows and wireframes
-├── .env                     # Environment variables (not committed)
 ├── .env.example             # Environment variables template
 ├── .gitignore               # Git ignore patterns
 ├── biome.json               # Biome linter/formatter config
