@@ -35,24 +35,133 @@ The application will be available at:
 
 ```
 momentum/
-...
+├── app/                      # React Router application code
+│   ├── routes/              # Route components
+│   │   ├── home.tsx         # Route handlers
+│   │   └── home.test.tsx    # Co-located tests
+│   ├── welcome/             # Feature modules
+│   ├── root.tsx             # Root layout
+│   ├── entry.server.tsx     # Server entry point
+│   ├── entry.client.tsx     # Client entry point
+│   ├── app.css              # Global styles
+│   └── db.server.ts         # Prisma client singleton
+├── e2e/                     # Playwright E2E tests
+│   ├── journeys/            # E2E test files
+│   │   └── example.spec.ts  # Journey test examples
+│   └── playwright.config.ts # Playwright configuration
+├── prisma/                  # Database schema and migrations
+│   └── schema.prisma        # Prisma schema definition
+├── public/                  # Static assets
+│   └── favicon.ico
+├── docs/                    # Project documentation
+│   ├── OVERVIEW.md          # Project vision and goals
+│   ├── TECHNICAL.md         # Technical architecture
+│   ├── PRODUCT.md           # Product specification
+│   ├── PIPELINES.md         # CI/CD pipelines
+│   └── USER_JOURNEYS.md     # User flows and wireframes
+├── .env                     # Environment variables (not committed)
+├── .env.example             # Environment variables template
+├── .gitignore               # Git ignore patterns
+├── biome.json               # Biome linter/formatter config
+├── docker-compose.yml       # PostgreSQL database setup
+├── package.json             # Dependencies and scripts
+├── react-router.config.ts   # React Router configuration
+├── tsconfig.json            # TypeScript configuration
+├── vite.config.ts           # Vite bundler configuration
+├── vitest.config.ts         # Vitest test configuration
+└── CLAUDE.md                # AI development guide
 ```
 
 ## Core Commands
 
+### Development
+
 ```bash
-# Development
-yarn dev              # Start all services
-yarn start            # Start app only
+# Install dependencies
+yarn install
 
-# Testing
-yarn test             # Run unit tests
-yarn test:e2e         # Run end-to-end tests
+# Start PostgreSQL database
+docker-compose up -d
 
-# Code Quality
-yarn lint             # Run linter
-yarn format           # Format code
+# Push Prisma schema to database (for development)
+yarn db:push
+
+# Run database migrations (for production)
+yarn db:migrate
+
+# Open Prisma Studio (database GUI)
+yarn db:studio
+
+# Start development server with hot reload
+yarn dev
+# App runs on http://localhost:3000
 ```
+
+### Testing
+
+```bash
+# Run unit/integration tests
+yarn test
+
+# Run tests in watch mode
+yarn test:watch
+
+# Run tests with coverage
+yarn test:coverage
+
+# Run E2E tests
+yarn test:e2e
+```
+
+### Code Quality
+
+```bash
+# Run linter
+yarn lint
+
+# Run linter with auto-fix
+yarn lint:fix
+
+# Format code
+yarn format
+
+# Check code formatting
+yarn format:check
+
+# Type check
+yarn typecheck
+```
+
+### Production
+
+```bash
+# Build for production
+yarn build
+
+# Start production server
+yarn start
+```
+
+## Technology Stack
+
+### Core Technologies
+
+- **Runtime**: Node.js 24.x with TypeScript 5.9 (strict mode, ES modules only)
+- **Package Manager**: Yarn 4.11 with workspaces
+- **Frontend**: Remix with React 19, Vite build tool
+- **Backend**: Express 5.x REST API
+- **Database**: PostgreSQL 16+ with Prisma 6.x ORM
+- **Testing**: Vitest (unit/integration), Playwright (E2E), Testcontainers
+- **Code Quality**: Biome (linting + formatting), SonarQube (static analysis)
+- **CI/CD**: GitHub Actions with caching and parallel execution
+
+### Key Conventions
+
+- **Database**: `snake_case` tables and fields with Prisma `@map` annotations
+- **TypeScript**: `camelCase` variables, `PascalCase` classes/interfaces
+- **Files**: `kebab-case` file and directory names
+- **Module System**: ES modules exclusively (`import`/`export` only)
+- **Dependencies**: All pinned to specific versions for consistency
 
 ## Contributing
 
