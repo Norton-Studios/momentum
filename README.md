@@ -1,6 +1,6 @@
 # Momentum
 
-A modular, extensible web application for measuring developer productivity with support for multi-tenant SaaS and self-hosted deployments.
+Momentum is a comprehensive developer productivity platform designed to provide data-driven insights into software development processes. The platform collects, aggregates, and visualizes metrics from various development tools to help organizations and individuals understand and improve their software delivery performance.
 
 ## Features
 
@@ -17,12 +17,10 @@ git clone https://github.com/norton-studios/momentum.git
 cd momentum
 
 # Install dependencies
+nvm install
+nvm use
+corepack enable
 yarn install
-
-# Copy environment files
-cp apps/database/.env.example apps/database/.env
-cp apps/api/.env.example apps/api/.env
-cp apps/frontend/.env.example apps/frontend/.env
 
 # Start development environment (database + API + frontend)
 yarn dev
@@ -30,26 +28,14 @@ yarn dev
 
 The application will be available at:
 - Frontend: http://localhost:3000
-- API: http://localhost:3001
+- Prisma Studio: http://localhost:5555
 - Database: PostgreSQL on localhost:5432
 
 ## Project Structure
 
 ```
 momentum/
-├── apps/                  # Core applications
-│   ├── api/               # Express API server
-│   ├── frontend/          # Remix web application
-│   ├── crons/             # Scheduled job processor
-│   └── database/          # Prisma schema management
-├── libs
-│   ├── components/        # Extensible modules
-│   ├── plugins/           # Extensible modules
-│   │   ├── resources/     # Data models (team, repository, etc.)
-│   │   ├── data-sources/  # External integrations (GitHub, etc.)
-│   │   └── reports/       # Analytics and insights
-├── docs/                  # Architecture docs and ADRs
-└── e2e-tests/             # End-to-end test suite
+...
 ```
 
 ## Core Commands
@@ -57,89 +43,16 @@ momentum/
 ```bash
 # Development
 yarn dev              # Start all services
-yarn start:db         # Start PostgreSQL only
-yarn start:api        # Start API server only
-yarn start:frontend   # Start frontend only
+yarn start            # Start app only
 
 # Testing
-yarn test             # Run all tests
-yarn test:ui          # Run tests with UI
+yarn test             # Run unit tests
+yarn test:e2e         # Run end-to-end tests
 
 # Code Quality
 yarn lint             # Run linter
 yarn format           # Format code
-
-# Database
-yarn workspace @mmtm/database run synthesise  # Combine schemas
-yarn workspace @mmtm/database run generate    # Generate client
-yarn workspace @mmtm/database run migrate     # Run migrations
 ```
-
-## Architecture Overview
-
-### Plugin System
-
-The application uses a dynamic plugin architecture:
-
-- **Resources**: Define data models and API endpoints
-- **Data Sources**: Collect data from external systems
-- **Reports**: Generate insights and analytics
-
-Plugins are automatically discovered and loaded at runtime.
-
-### Multi-Tenancy
-
-- Single database with tenant isolation via `tenant_id`
-- Automatic tenant filtering in all queries
-- Secure data isolation between organizations
-
-### Technology Stack
-
-- **Frontend**: Remix, React, TypeScript, Tailwind CSS
-- **Backend**: Express 5, TypeScript, Prisma
-- **Database**: PostgreSQL
-- **Testing**: Vitest, Playwright
-- **Tooling**: Biome, Yarn Workspaces, Turbo
-
-## Development Guide
-
-### Adding a New Resource
-
-```bash
-# Create plugin structure
-mkdir -p plugins/resources/my-resource/{api,db}
-
-# Add schema in db/schema.prisma
-# Add API routes in api/index.ts
-# Run yarn dev to regenerate
-```
-
-### Adding a Data Source
-
-```typescript
-// plugins/data-sources/my-source/index.ts
-export const provides: string[] = ["repository"];
-export const dependencies: string[] = ["team"]; // optional
-export const importWindowDuration = 86400 * 1000; // optional, defaults to 24h
-
-// Main execution function
-export async function run(
-  env: Record<string, string>,
-  db: PrismaClient,
-  tenantId: string,
-  startDate: Date,
-  endDate: Date
-): Promise<void> {
-  // Data collection logic
-}
-```
-
-### Environment Variables
-
-Key environment variables:
-
-- `DATABASE_URL`: PostgreSQL connection string
-- `GITHUB_TOKEN`: For GitHub integration (optional)
 
 ## Contributing
 
@@ -155,6 +68,6 @@ Key environment variables:
 
 ## Support
 
-- Documentation: See `/documentation` directory
+- Documentation: See `/docs` directory
 - Issues: [GitHub Issues](https://github.com/norton-studios/momentum/issues)
 - Discussions: [GitHub Discussions](https://github.com/norton-studios/momentum/discussions)

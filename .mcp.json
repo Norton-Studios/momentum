@@ -5,12 +5,6 @@
       "command": "npx",
       "args": ["@playwright/mcp@latest"],
       "env": {}
-    },
-    "context7": {
-      "type": "stdio",
-      "command": "npx",
-      "args": ["@context7/mcp-server@latest"],
-      "env": {}
     }
   }
 }
