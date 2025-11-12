@@ -15,14 +15,14 @@
   },
   "dependencies": {
     "@mmtm/database": "workspace:*",
-    "@testcontainers/postgresql": "11.7.1",
-    "axios": "1.12.2",
+    "@testcontainers/postgresql": "11.8.0",
+    "axios": "1.13.2",
     "bcrypt": "6.0.0"
   },
   "devDependencies": {
-    "@playwright/test": "1.56.0",
+    "@playwright/test": "1.56.1",
     "@types/bcrypt": "6.0.0",
-    "@types/node": "22.18.10",
+    "@types/node": "24.10.1",
     "tsx": "4.20.6"
   }
 }
