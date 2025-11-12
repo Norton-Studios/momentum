@@ -22,7 +22,7 @@ yarn dev
 
 ## Project Structure and Conventions
 
-### Monorepo Layout
+### Repository Layout
 ```
 # TODO: update
 ```

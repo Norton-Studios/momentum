@@ -1,4 +1,4 @@
-# Performance Optimization Guide for HMCTS Monorepo
+# Performance Optimization Guide
 
 ## Overview
 This comprehensive guide provides detailed checklists and best practices for optimizing performance across the Node.js/Express/Prisma/PostgreSQL stack with Yarn workspaces.
@@ -163,45 +163,6 @@ To quickly analyze code for performance issues, provide the specific file or mod
   SET statement_timeout = '30s';
   ```
 - [ ] **Optimize JOIN operations** - Ensure foreign keys are indexed
-
-## 📦 Yarn Workspaces & Monorepo Optimization
-
-### Dependency Management
-- [ ] **Hoist common dependencies** - Reduce duplication
-  ```json
-  {
-    "workspaces": {
-      "packages": ["apps/*", "libs/*"],
-      "nohoist": ["**/react-native", "**/react-native/**"]
-    }
-  }
-  ```
-- [ ] **Use workspace protocol** - For internal dependencies
-  ```json
-  {
-    "dependencies": {
-      "@hmcts/auth": "workspace:*"
-    }
-  }
-  ```
-- [ ] **Dedupe dependencies regularly** - `yarn dedupe`
-
-### Build Optimization
-- [ ] **Implement selective builds** - Only build changed packages
-  ```bash
-  yarn workspaces focus @hmcts/api --production
-  ```
-- [ ] **Use Turborepo or Nx** for build caching
-- [ ] **Parallelize builds** - Configure concurrent builds
-- [ ] **Implement incremental TypeScript builds**
-  ```json
-  {
-    "compilerOptions": {
-      "incremental": true,
-      "tsBuildInfoFile": ".tsbuildinfo"
-    }
-  }
-  ```
 
 ## 🔍 General Performance Monitoring
 
