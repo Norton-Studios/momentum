@@ -10,10 +10,10 @@ Momentum uses GitHub Actions for continuous integration and deployment. The pipe
 
 ```
 GitHub Actions Workflow
-├── Lint Job
-├── Test Job
+├── Lint Job (Parallel)
+├── Test Job (Parallel)
 │   └── Coverage Artifact Upload
-├── E2E Job
+├── E2E Job (Parallel)
 └── SonarQube Job (Depends on Test)
     └── Coverage Artifact Download
 ```
@@ -98,30 +98,11 @@ concurrency:
    ```
    The `--immutable` flag ensures lock file is not modified
 
-6. **Setup Turbo Cache**
+6. **Run Lint**
    ```yaml
-   - uses: actions/cache@v4
-     with:
-       path: .turbo
-       key: ${{ runner.os }}-turbo-lint-${{ github.sha }}
-       restore-keys: |
-         ${{ runner.os }}-turbo-lint-
+   - run: yarn lint
    ```
-   Caches Turbo's internal cache for faster runs
-
-7. **Run Lint for Changed Packages**
-   ```yaml
-   - run: |
-       if [ "${{ github.event_name }}" = "pull_request" ]; then
-         npx turbo lint --filter="...[origin/${{ github.base_ref }}]"
-       else
-         npx turbo lint --filter="...[HEAD^1]"
-       fi
-   ```
-
-   **Optimization**: Only lints packages that have changed
-   - **Pull Requests**: Compares against base branch
-   - **Push**: Compares against previous commit
+   Runs Biome linter on entire codebase
 
 **Tool Used**: Biome (fast, all-in-one linter and formatter)
 
@@ -145,47 +126,23 @@ concurrency:
 
 4. **Generate Prisma Client**
    ```yaml
-   - run: yarn workspace @mmtm/database run generate
+   - run: yarn prisma generate
    ```
    Required for tests that interact with database models
 
-5. **Setup Turbo Cache**
+5. **Run Tests with Coverage**
    ```yaml
-   - uses: actions/cache@v4
-     with:
-       path: .turbo
-       key: ${{ runner.os }}-turbo-test-${{ github.sha }}
-       restore-keys: |
-         ${{ runner.os }}-turbo-test-
+   - run: yarn test:coverage
    ```
+   Runs Vitest test suite with coverage enabled
 
-6. **Run Unit Tests for Changed Packages**
-   ```yaml
-   - run: |
-       if [ "${{ github.event_name }}" = "pull_request" ]; then
-         npx turbo test --filter="...[origin/${{ github.base_ref }}]" -- --coverage
-       else
-         npx turbo test -- --coverage
-       fi
-   ```
-
-   **Strategy Differences**:
-   - **Pull Requests**: Test only changed packages
-   - **Push to Main**: Test entire suite for complete coverage
-
-7. **Merge Coverage Reports**
-   ```yaml
-   - run: npx lcov-result-merger **/coverage/lcov.info lcov.info --prepend-source-files
-   ```
-   Combines coverage from all packages into single file
-
-8. **Upload Coverage Artifacts**
+6. **Upload Coverage Artifacts**
    ```yaml
    - uses: actions/upload-artifact@v5
      if: always()
      with:
        name: coverage-reports-${{ github.run_id }}
-       path: 'lcov.info'
+       path: 'coverage/lcov.info'
        retention-days: 1
        if-no-files-found: ignore
    ```
@@ -226,7 +183,7 @@ concurrency:
      id: playwright-cache
      with:
        path: ~/.cache/ms-playwright
-       key: ${{ runner.os }}-playwright-${{ hashFiles('e2e-tests/package.json') }}
+       key: ${{ runner.os }}-playwright-${{ hashFiles('package.json') }}
        restore-keys: |
          ${{ runner.os }}-playwright-
    ```
@@ -234,14 +191,14 @@ concurrency:
 6. **Install Playwright Browsers**
    ```yaml
    - if: steps.playwright-cache.outputs.cache-hit != 'true'
-     run: yarn workspace e2e-tests run playwright install chromium --with-deps
+     run: npx playwright install chromium --with-deps
    ```
    Only installs if cache miss
 
 7. **Install Playwright System Dependencies** (if cached)
    ```yaml
    - if: steps.playwright-cache.outputs.cache-hit == 'true'
-     run: yarn workspace e2e-tests run playwright install-deps chromium
+     run: npx playwright install-deps chromium
    ```
    System deps may be outdated even with browser cache
 
@@ -251,12 +208,12 @@ concurrency:
      uses: actions/cache/save@v4
      with:
        path: ~/.cache/ms-playwright
-       key: ${{ runner.os }}-playwright-${{ hashFiles('e2e-tests/package.json') }}
+       key: ${{ runner.os }}-playwright-${{ hashFiles('package.json') }}
    ```
 
 9. **Run E2E Tests**
    ```yaml
-   - run: yarn workspace e2e-tests run test:e2e
+   - run: yarn test:e2e
    ```
 
 10. **Upload Playwright Report** (on failure)
@@ -265,7 +222,7 @@ concurrency:
       if: failure()
       with:
         name: playwright-report
-        path: e2e-tests/test-results/
+        path: e2e/test-results/
         retention-days: 30
     ```
 
@@ -310,7 +267,17 @@ needs: test
    ```
    `continue-on-error`: Proceeds even if no coverage available
 
-3. **SonarQube Scan**
+3. **Move Coverage to Root**
+   ```yaml
+   - continue-on-error: true
+     run: |
+       if [ -f coverage/lcov.info ]; then
+         mv coverage/lcov.info lcov.info
+       fi
+   ```
+   SonarQube expects coverage file at root level
+
+4. **SonarQube Scan**
    ```yaml
    - uses: SonarSource/sonarqube-scan-action@master
      env:
@@ -345,22 +312,10 @@ needs: test
 - Shared across all jobs
 - Invalidated only when dependencies change
 
-#### 2. Turbo Build Cache
-**Path**: `.turbo`
-
-**Key per job**:
-- Lint: `${{ runner.os }}-turbo-lint-${{ github.sha }}`
-- Test: `${{ runner.os }}-turbo-test-${{ github.sha }}`
-
-**Benefits**:
-- Caches build outputs and test results
-- Enables incremental builds
-- Speeds up unchanged packages
-
-#### 3. Playwright Browsers Cache
+#### 2. Playwright Browsers Cache
 **Path**: `~/.cache/ms-playwright`
 
-**Key**: `${{ runner.os }}-playwright-${{ hashFiles('e2e-tests/package.json') }}`
+**Key**: `${{ runner.os }}-playwright-${{ hashFiles('package.json') }}`
 
 **Benefits**:
 - Avoids downloading browsers (~400MB) on every run
@@ -370,30 +325,13 @@ needs: test
 ### Cache Hit Rates
 Expected cache performance:
 - **Yarn**: 95%+ hit rate (dependencies rarely change)
-- **Turbo**: Varies by changes (30-70%)
 - **Playwright**: 90%+ hit rate (browser version stable)
 
 ---
 
 ## Optimization Techniques
 
-### 1. Smart Change Detection
-
-**Changed Packages Only**:
-```bash
-# For pull requests
-turbo lint --filter="...[origin/${{ github.base_ref }}]"
-
-# For pushes to main
-turbo lint --filter="...[HEAD^1]"
-```
-
-**Impact**:
-- Typical PR: Test 2-5 packages instead of 20+
-- 60-80% faster execution
-- Reduced CI/CD costs
-
-### 2. Parallel Job Execution
+### 1. Parallel Job Execution
 
 Three jobs run in parallel:
 - Lint
@@ -404,7 +342,7 @@ Three jobs run in parallel:
 - Without parallelization: ~10 minutes
 - With parallelization: ~5 minutes
 
-### 3. Artifact Sharing
+### 2. Artifact Sharing
 
 Coverage data flows between jobs:
 ```
@@ -416,7 +354,7 @@ Test Job (generates) → Upload Artifact → SonarQube Job (downloads)
 - Faster overall pipeline
 - Single source of truth for coverage
 
-### 4. Conditional Execution
+### 3. Conditional Execution
 
 **Coverage Upload**:
 ```yaml
@@ -502,30 +440,25 @@ jobs:
 ### Typical Execution Times
 
 **With Cache Hits**:
-- Lint Job: 40-60 seconds
+- Lint Job: 30-60 seconds
 - Test Job: 2-3 minutes
 - E2E Job: 3-4 minutes
 - SonarQube Job: 1-2 minutes
 - **Total Duration**: ~4 minutes (parallel execution)
 
 **With Cache Misses**:
-- Lint Job: 90-120 seconds
-- Test Job: 4-5 minutes
+- Lint Job: 60-90 seconds
+- Test Job: 3-5 minutes
 - E2E Job: 5-7 minutes
 - SonarQube Job: 1-2 minutes
 - **Total Duration**: ~7 minutes (parallel execution)
-
-**Full Test Suite** (push to main):
-- Test Job: 4-6 minutes (all packages)
-- Other jobs: Same as above
-- **Total Duration**: ~6 minutes
 
 ### CI/CD Cost Optimization
 
 **Monthly Minutes Usage** (estimated):
 - 50 PRs/month × 4 minutes = 200 minutes
-- 50 commits to main × 6 minutes = 300 minutes
-- **Total**: ~500 minutes/month
+- 50 commits to main × 4 minutes = 200 minutes
+- **Total**: ~400 minutes/month
 
 **GitHub Actions Free Tier**: 2,000 minutes/month (sufficient)
 

@@ -17,4 +17,4 @@
 
 # Logs
 .claude/*.log
-.claude/run/*.log
+.claude/hooks/*.log
