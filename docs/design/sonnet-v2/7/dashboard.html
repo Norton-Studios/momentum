@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ORGANIZATION DASHBOARD | MOMENTUM</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: #000000;
+            color: #FFFFFF;
+            line-height: 1.2;
+        }
+
+        /* Header */
+        header {
+            background-color: #000000;
+            border-bottom: 4px solid #00FF00;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: stretch;
+            height: 80px;
+        }
+
+        .logo {
+            font-size: 32px;
+            font-weight: 900;
+            letter-spacing: -2px;
+            background-color: #00FF00;
+            color: #000000;
+            padding: 0 32px;
+            display: flex;
+            align-items: center;
+            border-right: 4px solid #000000;
+        }
+
+        .nav {
+            display: flex;
+            align-items: stretch;
+            flex: 1;
+        }
+
+        .nav-link {
+            color: #FFFFFF;
+            text-decoration: none;
+            padding: 0 32px;
+            display: flex;
+            align-items: center;
+            text-transform: uppercase;
+            font-weight: 700;
+            font-size: 14px;
+            letter-spacing: 1px;
+            border-left: 2px solid #333333;
+            transition: all 0.1s;
+        }
+
+        .nav-link.active {
+            background-color: #00FF00;
+            color: #000000;
+        }
+
+        .nav-link:hover {
+            background-color: #00FF00;
+            color: #000000;
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            padding: 0 32px;
+            border-left: 2px solid #333333;
+            text-transform: uppercase;
+            font-weight: 700;
+            font-size: 14px;
+            letter-spacing: 1px;
+        }
+
+        /* Main Content */
+        main {
+            padding: 0;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 32px;
+        }
+
+        /* Page Header */
+        .page-header {
+            border: 4px solid #00FF00;
+            background-color: #000000;
+            padding: 32px;
+            margin-bottom: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .page-title {
+            font-size: 48px;
+            font-weight: 900;
+            letter-spacing: -2px;
+            color: #00FF00;
+        }
+
+        .date-controls {
+            display: flex;
+            gap: 4px;
+        }
+
+        .date-btn {
+            background-color: #000000;
+            color: #00FF00;
+            border: 2px solid #00FF00;
+            padding: 12px 24px;
+            font-size: 12px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            font-family: 'Courier New', Courier, monospace;
+            transition: all 0.1s;
+        }
+
+        .date-btn.active {
+            background-color: #00FF00;
+            color: #000000;
+        }
+
+        .date-btn:hover {
+            background-color: #00FF00;
+            color: #000000;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 4px;
+            margin-bottom: 4px;
+        }
+
+        .stat-card {
+            border: 4px solid #00FF00;
+            background-color: #000000;
+            padding: 24px;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 12px;
+        }
+
+        .stat-value {
+            font-size: 48px;
+            font-weight: 900;
+            color: #00FF00;
+            line-height: 1;
+            margin-bottom: 8px;
+        }
+
+        .stat-change {
+            font-size: 14px;
+            font-weight: 900;
+        }
+
+        .stat-change.positive {
+            color: #00FF00;
+        }
+
+        .stat-change.negative {
+            color: #FF0000;
+        }
+
+        /* Data Tables */
+        .section {
+            margin-bottom: 32px;
+        }
+
+        .section-header {
+            background-color: #00FF00;
+            color: #000000;
+            padding: 20px 32px;
+            font-size: 20px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 4px;
+        }
+
+        .data-table-container {
+            border: 4px solid #00FF00;
+            background-color: #000000;
+            padding: 0;
+        }
+
+        .table-header {
+            padding: 24px 32px;
+            border-bottom: 2px solid #00FF00;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table-title {
+            font-size: 18px;
+            font-weight: 900;
+            letter-spacing: -1px;
+        }
+
+        .table-action {
+            font-size: 12px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #00FF00;
+            text-decoration: none;
+            border-bottom: 2px solid #00FF00;
+        }
+
+        .table-action:hover {
+            color: #FFFFFF;
+            border-bottom-color: #FFFFFF;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th,
+        .data-table td {
+            border: 2px solid #00FF00;
+            padding: 16px;
+            text-align: left;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        .data-table th {
+            background-color: #00FF00;
+            color: #000000;
+            font-weight: 900;
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: 1px;
+        }
+
+        .data-table td {
+            font-size: 14px;
+            background-color: #000000;
+        }
+
+        .table-value-large {
+            font-size: 24px;
+            font-weight: 900;
+            color: #00FF00;
+        }
+
+        .table-trend {
+            font-weight: 900;
+            font-size: 12px;
+        }
+
+        .table-trend.up {
+            color: #00FF00;
+        }
+
+        .table-trend.down {
+            color: #FF0000;
+        }
+
+        /* Metric Grid */
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 4px;
+            margin-bottom: 4px;
+        }
+
+        .metric-card {
+            border: 4px solid #00FF00;
+            background-color: #000000;
+            padding: 32px;
+        }
+
+        .metric-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid #00FF00;
+        }
+
+        .metric-title {
+            font-size: 18px;
+            font-weight: 900;
+            letter-spacing: -1px;
+        }
+
+        .metric-primary {
+            font-size: 36px;
+            font-weight: 900;
+            color: #00FF00;
+            margin-bottom: 8px;
+        }
+
+        .metric-secondary {
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+
+        .metric-list {
+            list-style: none;
+            font-size: 13px;
+            line-height: 1.8;
+        }
+
+        .metric-list li {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #333333;
+        }
+
+        .metric-list li:last-child {
+            border-bottom: none;
+        }
+
+        .metric-list-value {
+            font-weight: 900;
+            color: #00FF00;
+        }
+
+        /* Bar Chart Simulation */
+        .bar-chart {
+            margin-top: 24px;
+        }
+
+        .bar-item {
+            margin-bottom: 16px;
+        }
+
+        .bar-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 4px;
+            font-size: 12px;
+        }
+
+        .bar-label-name {
+            font-weight: 900;
+        }
+
+        .bar-label-value {
+            color: #00FF00;
+        }
+
+        .bar-track {
+            height: 24px;
+            background-color: #000000;
+            border: 2px solid #00FF00;
+            position: relative;
+        }
+
+        .bar-fill {
+            height: 100%;
+            background-color: #00FF00;
+        }
+
+        /* Footer */
+        footer {
+            background-color: #000000;
+            border-top: 4px solid #00FF00;
+            padding: 32px;
+            text-align: center;
+        }
+
+        .footer-text {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <div class="logo">MOMENTUM</div>
+            <nav class="nav">
+                <a href="#" class="nav-link active">Organization</a>
+                <a href="#" class="nav-link">Individual</a>
+                <a href="#" class="nav-link">Settings</a>
+            </nav>
+            <div class="user-menu">ADMIN USER</div>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <!-- Page Header -->
+            <div class="page-header">
+                <h1 class="page-title">ORGANIZATION.OVERVIEW</h1>
+                <div class="date-controls">
+                    <button class="date-btn">7D</button>
+                    <button class="date-btn active">30D</button>
+                    <button class="date-btn">60D</button>
+                    <button class="date-btn">90D</button>
+                </div>
+            </div>
+
+            <!-- Summary Stats -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Repositories</div>
+                    <div class="stat-value">50</div>
+                    <div class="stat-change">ACTIVE</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Contributors</div>
+                    <div class="stat-value">23</div>
+                    <div class="stat-change positive">+2 NEW</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Commits (30D)</div>
+                    <div class="stat-value">1247</div>
+                    <div class="stat-change positive">+12%</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Pull Requests</div>
+                    <div class="stat-value">156</div>
+                    <div class="stat-change negative">-8%</div>
+                </div>
+            </div>
+
+            <!-- Delivery Metrics -->
+            <div class="section">
+                <div class="section-header">DELIVERY METRICS</div>
+
+                <div class="metric-grid">
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <div class="metric-title">DEPLOYMENT_VELOCITY</div>
+                            <a href="#" class="table-action">DETAILS</a>
+                        </div>
+                        <div class="metric-primary">12/WEEK</div>
+                        <div class="metric-secondary">DEPLOYMENTS THIS WEEK | <span class="table-trend up">+33%</span></div>
+                        <ul class="metric-list">
+                            <li>
+                                <span>AVG_CYCLE_TIME</span>
+                                <span class="metric-list-value">2.1 DAYS</span>
+                            </li>
+                            <li>
+                                <span>LEAD_TIME</span>
+                                <span class="metric-list-value">3.5 DAYS</span>
+                            </li>
+                            <li>
+                                <span>TIME_TO_MERGE</span>
+                                <span class="metric-list-value">18 HRS</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <div class="metric-title">WORK_IN_PROGRESS</div>
+                            <a href="#" class="table-action">DETAILS</a>
+                        </div>
+                        <div class="metric-primary">23 OPEN</div>
+                        <div class="metric-secondary">PULL REQUESTS</div>
+                        <div class="bar-chart">
+                            <div class="bar-item">
+                                <div class="bar-label">
+                                    <span class="bar-label-name">WAITING_REVIEW</span>
+                                    <span class="bar-label-value">12</span>
+                                </div>
+                                <div class="bar-track">
+                                    <div class="bar-fill" style="width: 52%;"></div>
+                                </div>
+                            </div>
+                            <div class="bar-item">
+                                <div class="bar-label">
+                                    <span class="bar-label-name">IN_REVIEW</span>
+                                    <span class="bar-label-value">11</span>
+                                </div>
+                                <div class="bar-track">
+                                    <div class="bar-fill" style="width: 48%;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Operational Metrics -->
+            <div class="section">
+                <div class="section-header">OPERATIONAL METRICS</div>
+
+                <div class="data-table-container">
+                    <div class="table-header">
+                        <div class="table-title">PIPELINE_STATUS</div>
+                        <a href="#" class="table-action">VIEW ALL</a>
+                    </div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>METRIC</th>
+                                <th>VALUE</th>
+                                <th>TREND</th>
+                                <th>LAST_UPDATED</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>SUCCESS_RATE_30D</td>
+                                <td class="table-value-large">94.5%</td>
+                                <td class="table-trend up">+2.3%</td>
+                                <td>2025-11-13 14:30</td>
+                            </tr>
+                            <tr>
+                                <td>AVG_DURATION</td>
+                                <td class="table-value-large">12.5MIN</td>
+                                <td class="table-trend up">-1.2MIN</td>
+                                <td>2025-11-13 14:30</td>
+                            </tr>
+                            <tr>
+                                <td>TOTAL_RUNS</td>
+                                <td class="table-value-large">1,847</td>
+                                <td class="table-trend up">+15%</td>
+                                <td>2025-11-13 14:30</td>
+                            </tr>
+                            <tr>
+                                <td>FAILED_RUNS</td>
+                                <td class="table-value-large">102</td>
+                                <td class="table-trend down">-18</td>
+                                <td>2025-11-13 14:30</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Quality Metrics -->
+            <div class="section">
+                <div class="section-header">QUALITY METRICS</div>
+
+                <div class="metric-grid">
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <div class="metric-title">CODE_COVERAGE</div>
+                            <a href="#" class="table-action">DETAILS</a>
+                        </div>
+                        <div class="metric-primary">78%</div>
+                        <div class="metric-secondary">OVERALL COVERAGE | <span class="table-trend up">+2%</span></div>
+                        <ul class="metric-list">
+                            <li>
+                                <span>NEW_CODE_COVERAGE</span>
+                                <span class="metric-list-value">85%</span>
+                            </li>
+                            <li>
+                                <span>TARGET_COVERAGE</span>
+                                <span class="metric-list-value">80%</span>
+                            </li>
+                            <li>
+                                <span>GAP_TO_TARGET</span>
+                                <span class="metric-list-value">2%</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <div class="metric-title">SECURITY_VULNERABILITIES</div>
+                            <a href="#" class="table-action">DETAILS</a>
+                        </div>
+                        <div class="metric-primary">23 CVE</div>
+                        <div class="metric-secondary">TOTAL VULNERABILITIES | <span class="table-trend up">-5</span></div>
+                        <div class="bar-chart">
+                            <div class="bar-item">
+                                <div class="bar-label">
+                                    <span class="bar-label-name">CRITICAL</span>
+                                    <span class="bar-label-value">2</span>
+                                </div>
+                                <div class="bar-track">
+                                    <div class="bar-fill" style="width: 9%;"></div>
+                                </div>
+                            </div>
+                            <div class="bar-item">
+                                <div class="bar-label">
+                                    <span class="bar-label-name">HIGH</span>
+                                    <span class="bar-label-value">8</span>
+                                </div>
+                                <div class="bar-track">
+                                    <div class="bar-fill" style="width: 35%;"></div>
+                                </div>
+                            </div>
+                            <div class="bar-item">
+                                <div class="bar-label">
+                                    <span class="bar-label-name">MEDIUM</span>
+                                    <span class="bar-label-value">10</span>
+                                </div>
+                                <div class="bar-track">
+                                    <div class="bar-fill" style="width: 43%;"></div>
+                                </div>
+                            </div>
+                            <div class="bar-item">
+                                <div class="bar-label">
+                                    <span class="bar-label-name">LOW</span>
+                                    <span class="bar-label-value">3</span>
+                                </div>
+                                <div class="bar-track">
+                                    <div class="bar-fill" style="width: 13%;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity Table -->
+            <div class="section">
+                <div class="section-header">RECENT ACTIVITY</div>
+
+                <div class="data-table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>TIMESTAMP</th>
+                                <th>EVENT_TYPE</th>
+                                <th>REPOSITORY</th>
+                                <th>CONTRIBUTOR</th>
+                                <th>STATUS</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>2025-11-13 14:28:43</td>
+                                <td>MERGE_REQUEST</td>
+                                <td>frontend-web</td>
+                                <td>alice.johnson</td>
+                                <td class="table-trend up">MERGED</td>
+                            </tr>
+                            <tr>
+                                <td>2025-11-13 14:22:15</td>
+                                <td>PIPELINE_RUN</td>
+                                <td>api-service</td>
+                                <td>bob.smith</td>
+                                <td class="table-trend up">SUCCESS</td>
+                            </tr>
+                            <tr>
+                                <td>2025-11-13 14:15:02</td>
+                                <td>COMMIT</td>
+                                <td>shared-lib</td>
+                                <td>carol.white</td>
+                                <td class="table-trend up">COMPLETE</td>
+                            </tr>
+                            <tr>
+                                <td>2025-11-13 14:05:37</td>
+                                <td>PIPELINE_RUN</td>
+                                <td>frontend-web</td>
+                                <td>alice.johnson</td>
+                                <td class="table-trend down">FAILED</td>
+                            </tr>
+                            <tr>
+                                <td>2025-11-13 13:58:21</td>
+                                <td>MERGE_REQUEST</td>
+                                <td>api-service</td>
+                                <td>dave.brown</td>
+                                <td class="table-trend up">MERGED</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-text">MOMENTUM &copy; 2025 | LAST DATA SYNC: 2025-11-13 14:30:00 UTC</div>
+    </footer>
+</body>
+</html>

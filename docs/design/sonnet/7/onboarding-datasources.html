@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connect Data Sources - Momentum</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+
+        .header {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            padding: 1.5rem 2rem;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .progress-indicator {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .progress-step {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .step-number {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .step-number.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .step-number.completed {
+            background: #4caf50;
+            color: white;
+        }
+
+        .step-number.pending {
+            background: #e0e0e0;
+            color: #999;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 3rem auto;
+            padding: 0 2rem;
+        }
+
+        .onboarding-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .onboarding-header h1 {
+            font-size: 2.5rem;
+            color: #1a1a2e;
+            margin-bottom: 1rem;
+        }
+
+        .onboarding-header p {
+            font-size: 1.2rem;
+            color: #666;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            color: #1a1a2e;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        .section-subtitle {
+            color: #666;
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+        }
+
+        .required-badge {
+            background: #ff6b6b;
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+
+        .datasource-grid {
+            display: grid;
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .datasource-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+
+        .datasource-card:hover {
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+        }
+
+        .datasource-header {
+            padding: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .datasource-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .datasource-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .datasource-details h3 {
+            font-size: 1.2rem;
+            color: #1a1a2e;
+            margin-bottom: 0.25rem;
+        }
+
+        .datasource-details p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .status-connected {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .status-not-configured {
+            background: #fff3e0;
+            color: #e65100;
+        }
+
+        .datasource-body {
+            padding: 2rem;
+            background: #fafafa;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #333;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 0.875rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .help-text {
+            margin-top: 0.5rem;
+            font-size: 0.85rem;
+            color: #666;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+
+        .help-icon {
+            color: #667eea;
+            margin-top: 0.1rem;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+            font-size: 0.95rem;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #f5f7fa;
+        }
+
+        .btn-success {
+            background: #4caf50;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #45a049;
+        }
+
+        .connection-status {
+            padding: 1rem;
+            border-radius: 10px;
+            margin-top: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .connection-success {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .connection-error {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .optional-sources {
+            margin-top: 3rem;
+        }
+
+        .optional-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .optional-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .optional-card:hover {
+            border-color: #667eea;
+            transform: translateY(-4px);
+        }
+
+        .optional-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .optional-card h4 {
+            font-size: 1rem;
+            color: #1a1a2e;
+            margin-bottom: 0.25rem;
+        }
+
+        .optional-card p {
+            font-size: 0.8rem;
+            color: #999;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .skip-link {
+            color: #666;
+            text-decoration: none;
+            font-size: 0.95rem;
+        }
+
+        .skip-link:hover {
+            color: #333;
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 2rem auto;
+                padding: 0 1rem;
+            }
+
+            .onboarding-header h1 {
+                font-size: 2rem;
+            }
+
+            .optional-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">⚡ Momentum</div>
+            <div class="progress-indicator">
+                <div class="progress-step">
+                    <span class="step-number completed">1</span>
+                    <span>Account</span>
+                </div>
+                <span>→</span>
+                <div class="progress-step">
+                    <span class="step-number active">2</span>
+                    <span>Data Sources</span>
+                </div>
+                <span>→</span>
+                <div class="progress-step">
+                    <span class="step-number pending">3</span>
+                    <span>Import</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="onboarding-header">
+            <h1>Connect Your Data Sources</h1>
+            <p>Start by connecting at least one version control system to begin tracking metrics</p>
+        </div>
+
+        <div class="section-title">
+            Required Integrations
+            <span class="required-badge">REQUIRED</span>
+        </div>
+        <p class="section-subtitle">Connect at least one VCS to continue</p>
+
+        <div class="datasource-grid">
+            <!-- GitHub Card -->
+            <div class="datasource-card">
+                <div class="datasource-header">
+                    <div class="datasource-info">
+                        <div class="datasource-icon">🔷</div>
+                        <div class="datasource-details">
+                            <h3>GitHub</h3>
+                            <p>Connect repositories, commits, and pull requests</p>
+                        </div>
+                    </div>
+                    <div class="status-badge status-not-configured">
+                        ⚠ Not Configured
+                    </div>
+                </div>
+                <div class="datasource-body">
+                    <form>
+                        <div class="form-group">
+                            <label for="github-token">Personal Access Token *</label>
+                            <input type="password" id="github-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" required>
+                            <div class="help-text">
+                                <span class="help-icon">ℹ️</span>
+                                <span>Generate token at <strong>github.com/settings/tokens</strong><br>
+                                Required scopes: <code>repo</code>, <code>read:org</code>, <code>read:user</code></span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="github-org">Organization Name(s) *</label>
+                            <input type="text" id="github-org" placeholder="my-organization" required>
+                            <div class="help-text">
+                                <span class="help-icon">ℹ️</span>
+                                <span>Comma-separated for multiple organizations</span>
+                            </div>
+                        </div>
+
+                        <div class="button-group">
+                            <button type="button" class="btn btn-secondary">Test Connection</button>
+                            <button type="button" class="btn btn-primary">Save Configuration</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- GitLab Card -->
+            <div class="datasource-card">
+                <div class="datasource-header">
+                    <div class="datasource-info">
+                        <div class="datasource-icon">🔶</div>
+                        <div class="datasource-details">
+                            <h3>GitLab</h3>
+                            <p>Connect projects, commits, and merge requests</p>
+                        </div>
+                    </div>
+                    <div class="status-badge status-not-configured">
+                        ⚠ Not Configured
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bitbucket Card -->
+            <div class="datasource-card">
+                <div class="datasource-header">
+                    <div class="datasource-info">
+                        <div class="datasource-icon">🔹</div>
+                        <div class="datasource-details">
+                            <h3>Bitbucket</h3>
+                            <p>Connect repositories and pull requests</p>
+                        </div>
+                    </div>
+                    <div class="status-badge status-not-configured">
+                        ⚠ Not Configured
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="optional-sources">
+            <div class="section-title">Optional Integrations</div>
+            <p class="section-subtitle">Add these now or configure later from settings</p>
+
+            <div class="optional-grid">
+                <div class="optional-card">
+                    <div class="optional-icon">🔧</div>
+                    <h4>Jenkins</h4>
+                    <p>CI/CD Pipeline</p>
+                </div>
+
+                <div class="optional-card">
+                    <div class="optional-icon">🎯</div>
+                    <h4>JIRA</h4>
+                    <p>Project Management</p>
+                </div>
+
+                <div class="optional-card">
+                    <div class="optional-icon">🛡️</div>
+                    <h4>SonarQube</h4>
+                    <p>Code Quality</p>
+                </div>
+
+                <div class="optional-card">
+                    <div class="optional-icon">🔄</div>
+                    <h4>CircleCI</h4>
+                    <p>CI/CD Platform</p>
+                </div>
+
+                <div class="optional-card">
+                    <div class="optional-icon">☁️</div>
+                    <h4>AWS</h4>
+                    <p>Cloud Platform</p>
+                </div>
+
+                <div class="optional-card">
+                    <div class="optional-icon">💬</div>
+                    <h4>Slack</h4>
+                    <p>Communication</p>
+                </div>
+
+                <div class="optional-card">
+                    <div class="optional-icon">📊</div>
+                    <h4>CodeClimate</h4>
+                    <p>Code Quality</p>
+                </div>
+
+                <div class="optional-card">
+                    <div class="optional-icon">🔷</div>
+                    <h4>Azure</h4>
+                    <p>Cloud Platform</p>
+                </div>
+            </div>
+        </div>
+
+        <nav class="navigation">
+            <a href="#" class="skip-link">← Back</a>
+            <a href="dashboard.html" class="btn btn-primary">Continue to Dashboard →</a>
+        </nav>
+    </div>
+</body>
+</html>

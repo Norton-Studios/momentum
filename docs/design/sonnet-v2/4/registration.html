@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - Momentum</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
+            background-color: #0d1117;
+            color: #c9d1d9;
+            line-height: 1.5;
+            font-size: 14px;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Navigation */
+        nav {
+            background-color: #161b22;
+            border-bottom: 1px solid #21262d;
+            padding: 16px 0;
+        }
+
+        .nav-content {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 16px;
+            font-weight: 600;
+            color: #f0f6fc;
+            text-decoration: none;
+            font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+        }
+
+        .nav-links a {
+            color: #7d8590;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .nav-links a:hover {
+            color: #58a6ff;
+        }
+
+        /* Main Content */
+        .container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 48px 16px;
+        }
+
+        .registration-box {
+            width: 100%;
+            max-width: 440px;
+        }
+
+        .registration-header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .registration-header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #f0f6fc;
+            margin-bottom: 8px;
+        }
+
+        .registration-header p {
+            font-size: 14px;
+            color: #7d8590;
+        }
+
+        /* Form Container */
+        .form-container {
+            background-color: #161b22;
+            border: 1px solid #21262d;
+            border-radius: 6px;
+            padding: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #c9d1d9;
+            margin-bottom: 6px;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        input[type="url"] {
+            width: 100%;
+            padding: 8px 12px;
+            font-size: 14px;
+            background-color: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            color: #c9d1d9;
+            transition: border-color 0.2s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #58a6ff;
+        }
+
+        input::placeholder {
+            color: #484f58;
+        }
+
+        .hint {
+            font-size: 12px;
+            color: #7d8590;
+            margin-top: 4px;
+            display: block;
+        }
+
+        .error {
+            font-size: 12px;
+            color: #f85149;
+            margin-top: 4px;
+            display: none;
+        }
+
+        input.invalid {
+            border-color: #f85149;
+        }
+
+        input.invalid + .error {
+            display: block;
+        }
+
+        /* Checkbox */
+        .checkbox-group {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        input[type="checkbox"] {
+            margin-top: 2px;
+            cursor: pointer;
+        }
+
+        .checkbox-group label {
+            margin: 0;
+            font-weight: 400;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .checkbox-group a {
+            color: #58a6ff;
+            text-decoration: none;
+        }
+
+        .checkbox-group a:hover {
+            text-decoration: underline;
+        }
+
+        /* Buttons */
+        .btn {
+            width: 100%;
+            padding: 10px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            border: 1px solid;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background-color: #238636;
+            color: #ffffff;
+            border-color: #2ea043;
+        }
+
+        .btn-primary:hover {
+            background-color: #2ea043;
+        }
+
+        .btn-primary:disabled {
+            background-color: #21262d;
+            border-color: #30363d;
+            color: #484f58;
+            cursor: not-allowed;
+        }
+
+        /* Divider */
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 24px 0;
+            color: #7d8590;
+            font-size: 12px;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background-color: #21262d;
+        }
+
+        .divider span {
+            padding: 0 12px;
+        }
+
+        /* Footer Link */
+        .form-footer {
+            margin-top: 24px;
+            text-align: center;
+            padding-top: 24px;
+            border-top: 1px solid #21262d;
+        }
+
+        .form-footer p {
+            font-size: 13px;
+            color: #7d8590;
+        }
+
+        .form-footer a {
+            color: #58a6ff;
+            text-decoration: none;
+        }
+
+        .form-footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Deployment Type Selection */
+        .deployment-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .deployment-option {
+            padding: 12px;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .deployment-option:hover {
+            border-color: #58a6ff;
+        }
+
+        .deployment-option input[type="radio"] {
+            display: none;
+        }
+
+        .option-content {
+            border: 2px solid transparent;
+            border-radius: 4px;
+            padding: 8px;
+            transition: border-color 0.2s;
+        }
+
+        input[type="radio"]:checked + .option-content {
+            border-color: #58a6ff;
+            background-color: rgba(88, 166, 255, 0.1);
+        }
+
+        .deployment-option input[type="radio"]:checked + .option-content {
+            border-color: #58a6ff;
+        }
+
+        .option-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #f0f6fc;
+            margin-bottom: 4px;
+        }
+
+        .option-desc {
+            font-size: 12px;
+            color: #7d8590;
+        }
+
+        /* Password Strength */
+        .password-strength {
+            margin-top: 8px;
+            height: 4px;
+            background-color: #21262d;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .password-strength-bar {
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s, background-color 0.3s;
+        }
+
+        .password-strength-bar.weak {
+            width: 33%;
+            background-color: #f85149;
+        }
+
+        .password-strength-bar.medium {
+            width: 66%;
+            background-color: #d29922;
+        }
+
+        .password-strength-bar.strong {
+            width: 100%;
+            background-color: #238636;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-content">
+            <a href="/" class="logo">momentum</a>
+            <div class="nav-links">
+                <a href="/login">Sign In</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="registration-box">
+            <div class="registration-header">
+                <h1>Create your account</h1>
+                <p>Start tracking developer productivity metrics</p>
+            </div>
+
+            <div class="form-container">
+                <form id="registrationForm">
+                    <div class="form-group">
+                        <label for="deploymentType">Deployment Type</label>
+                        <div class="deployment-options">
+                            <label class="deployment-option">
+                                <input type="radio" name="deploymentType" value="saas" checked>
+                                <div class="option-content">
+                                    <div class="option-title">SaaS</div>
+                                    <div class="option-desc">Cloud hosted</div>
+                                </div>
+                            </label>
+                            <label class="deployment-option">
+                                <input type="radio" name="deploymentType" value="self-hosted">
+                                <div class="option-content">
+                                    <div class="option-title">Self-Hosted</div>
+                                    <div class="option-desc">Your infrastructure</div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="organizationName">Organization Name</label>
+                        <input
+                            type="text"
+                            id="organizationName"
+                            name="organizationName"
+                            placeholder="your-org"
+                            required
+                        >
+                        <span class="hint">This will be your workspace identifier</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="fullName">Full Name</label>
+                        <input
+                            type="text"
+                            id="fullName"
+                            name="fullName"
+                            placeholder="Jane Doe"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            placeholder="jane@example.com"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            placeholder="Create a strong password"
+                            required
+                        >
+                        <div class="password-strength">
+                            <div class="password-strength-bar" id="strengthBar"></div>
+                        </div>
+                        <span class="hint">At least 12 characters with mixed case, numbers, and symbols</span>
+                    </div>
+
+                    <div id="selfHostedFields" style="display: none;">
+                        <div class="form-group">
+                            <label for="instanceUrl">Instance URL</label>
+                            <input
+                                type="url"
+                                id="instanceUrl"
+                                name="instanceUrl"
+                                placeholder="https://momentum.yourcompany.com"
+                            >
+                            <span class="hint">URL where Momentum is deployed</span>
+                        </div>
+                    </div>
+
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="terms" name="terms" required>
+                        <label for="terms">
+                            I agree to the <a href="/terms">Terms of Service</a> and <a href="/privacy">Privacy Policy</a>
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Create Account</button>
+                </form>
+
+                <div class="divider">
+                    <span>OR</span>
+                </div>
+
+                <button class="btn btn-primary" style="background-color: #21262d; border-color: #30363d; color: #c9d1d9;">
+                    Sign up with GitHub
+                </button>
+
+                <div class="form-footer">
+                    <p>Already have an account? <a href="/login">Sign in</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Toggle self-hosted fields
+        document.querySelectorAll('input[name="deploymentType"]').forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                const selfHostedFields = document.getElementById('selfHostedFields');
+                if (e.target.value === 'self-hosted') {
+                    selfHostedFields.style.display = 'block';
+                } else {
+                    selfHostedFields.style.display = 'none';
+                }
+            });
+        });
+
+        // Password strength indicator
+        const passwordInput = document.getElementById('password');
+        const strengthBar = document.getElementById('strengthBar');
+
+        passwordInput.addEventListener('input', (e) => {
+            const password = e.target.value;
+            let strength = 0;
+
+            if (password.length >= 8) strength += 1;
+            if (password.length >= 12) strength += 1;
+            if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength += 1;
+            if (/\d/.test(password)) strength += 1;
+            if (/[^a-zA-Z\d]/.test(password)) strength += 1;
+
+            strengthBar.className = 'password-strength-bar';
+
+            if (strength <= 2) {
+                strengthBar.classList.add('weak');
+            } else if (strength <= 4) {
+                strengthBar.classList.add('medium');
+            } else {
+                strengthBar.classList.add('strong');
+            }
+        });
+
+        // Form submission
+        document.getElementById('registrationForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            // Redirect to onboarding
+            window.location.href = '/onboarding-datasources.html';
+        });
+    </script>
+</body>
+</html>

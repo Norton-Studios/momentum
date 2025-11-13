@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connect Data Sources - Momentum</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #F5F3EF;
+            color: #3E3A35;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        header {
+            background: #FFFFFF;
+            border-bottom: 1px solid #D9D4CC;
+            padding: 0 48px;
+            box-shadow: 0 1px 2px rgba(62, 58, 53, 0.05);
+        }
+
+        .header-content {
+            max-width: 1280px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 72px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 24px;
+            font-weight: 700;
+            color: #7B5E3F;
+        }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #A87A4E 0%, #8B6B45 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #FFF;
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        /* Progress Steps */
+        .progress-container {
+            background: #FFFFFF;
+            border-bottom: 1px solid #D9D4CC;
+            padding: 24px 48px;
+        }
+
+        .progress-steps {
+            max-width: 1280px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+        }
+
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .step-number {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #E8E3DB;
+            color: #5A5246;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 15px;
+        }
+
+        .step.active .step-number {
+            background: #A87A4E;
+            color: #FFF;
+        }
+
+        .step.completed .step-number {
+            background: #6B8E5E;
+            color: #FFF;
+        }
+
+        .step-label {
+            font-size: 15px;
+            font-weight: 600;
+            color: #A89D92;
+        }
+
+        .step.active .step-label {
+            color: #3E3A35;
+        }
+
+        .step-separator {
+            width: 48px;
+            height: 2px;
+            background: #E8E3DB;
+        }
+
+        /* Main Content */
+        main {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 48px;
+        }
+
+        .onboarding-header {
+            text-align: center;
+            margin-bottom: 48px;
+        }
+
+        .onboarding-header h1 {
+            font-size: 36px;
+            font-weight: 700;
+            color: #3E3A35;
+            margin-bottom: 12px;
+        }
+
+        .onboarding-header p {
+            font-size: 16px;
+            color: #5A5246;
+            max-width: 720px;
+            margin: 0 auto;
+        }
+
+        /* Data Source Categories */
+        .category {
+            margin-bottom: 48px;
+        }
+
+        .category-header {
+            margin-bottom: 24px;
+        }
+
+        .category-header h2 {
+            font-size: 24px;
+            font-weight: 700;
+            color: #3E3A35;
+            margin-bottom: 8px;
+        }
+
+        .category-header p {
+            font-size: 15px;
+            color: #5A5246;
+        }
+
+        .category-required {
+            display: inline-block;
+            background: #E8C9A0;
+            color: #7B5E3F;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-left: 12px;
+        }
+
+        /* Data Source Cards */
+        .datasource-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+            gap: 24px;
+        }
+
+        .datasource-card {
+            background: #FFFFFF;
+            border: 2px solid #D9D4CC;
+            border-radius: 12px;
+            padding: 24px;
+            transition: all 0.2s;
+        }
+
+        .datasource-card:hover {
+            border-color: #A87A4E;
+            box-shadow: 0 4px 12px rgba(62, 58, 53, 0.08);
+        }
+
+        .datasource-card.connected {
+            border-color: #6B8E5E;
+            background: #F9F7F4;
+        }
+
+        .datasource-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .datasource-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .datasource-icon {
+            width: 48px;
+            height: 48px;
+            background: #F9F7F4;
+            border: 2px solid #E8E3DB;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .datasource-name h3 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #3E3A35;
+            margin-bottom: 4px;
+        }
+
+        .datasource-status {
+            font-size: 13px;
+            color: #5A5246;
+        }
+
+        .datasource-status.connected {
+            color: #6B8E5E;
+            font-weight: 600;
+        }
+
+        .datasource-description {
+            font-size: 14px;
+            color: #5A5246;
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+
+        /* Form */
+        .datasource-form {
+            display: none;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #E8E3DB;
+        }
+
+        .datasource-form.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #3E3A35;
+            margin-bottom: 6px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid #D9D4CC;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+            color: #3E3A35;
+            background: #FFFFFF;
+            transition: all 0.2s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #A87A4E;
+            box-shadow: 0 0 0 3px rgba(168, 122, 78, 0.1);
+        }
+
+        .form-hint {
+            font-size: 12px;
+            color: #5A5246;
+            margin-top: 4px;
+        }
+
+        .form-hint a {
+            color: #A87A4E;
+            text-decoration: none;
+        }
+
+        .form-hint a:hover {
+            text-decoration: underline;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            font-family: inherit;
+        }
+
+        .btn-primary {
+            background: #A87A4E;
+            color: #FFF;
+        }
+
+        .btn-primary:hover {
+            background: #8B6B45;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #7B5E3F;
+            border: 2px solid #D9D4CC;
+        }
+
+        .btn-secondary:hover {
+            border-color: #A87A4E;
+            background: #F9F7F4;
+        }
+
+        .btn-configure {
+            background: #A87A4E;
+            color: #FFF;
+        }
+
+        .btn-configure:hover {
+            background: #8B6B45;
+        }
+
+        .btn-disconnect {
+            background: transparent;
+            color: #C85A2E;
+            border: 2px solid #D9D4CC;
+        }
+
+        .btn-disconnect:hover {
+            border-color: #C85A2E;
+            background: #FFF5F2;
+        }
+
+        .datasource-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+        }
+
+        .datasource-actions .btn {
+            flex: 1;
+        }
+
+        /* Status Badge */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .status-badge.success {
+            background: #E8F3E5;
+            color: #6B8E5E;
+        }
+
+        .status-badge.warning {
+            background: #FFF5E8;
+            color: #CC9954;
+        }
+
+        /* Test Result */
+        .test-result {
+            margin-top: 12px;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+
+        .test-result.success {
+            background: #E8F3E5;
+            color: #6B8E5E;
+            border: 1px solid #C8E2C0;
+        }
+
+        .test-result.error {
+            background: #FFF5F2;
+            color: #C85A2E;
+            border: 1px solid #F5D4C8;
+        }
+
+        .test-result.testing {
+            background: #FFF5E8;
+            color: #CC9954;
+            border: 1px solid #F5E8C8;
+        }
+
+        /* Footer Actions */
+        .footer-actions {
+            background: #FFFFFF;
+            border-top: 1px solid #D9D4CC;
+            padding: 24px 48px;
+            position: sticky;
+            bottom: 0;
+        }
+
+        .footer-content {
+            max-width: 1280px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .footer-info {
+            font-size: 14px;
+            color: #5A5246;
+        }
+
+        .footer-info strong {
+            color: #3E3A35;
+            font-weight: 700;
+        }
+
+        .footer-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn-large {
+            padding: 12px 32px;
+            font-size: 15px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <div class="logo">
+                <div class="logo-icon">M</div>
+                <span>Momentum</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="progress-container">
+        <div class="progress-steps">
+            <div class="step completed">
+                <div class="step-number">1</div>
+                <div class="step-label">Welcome</div>
+            </div>
+            <div class="step-separator"></div>
+            <div class="step active">
+                <div class="step-number">2</div>
+                <div class="step-label">Data Sources</div>
+            </div>
+            <div class="step-separator"></div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-label">Repositories</div>
+            </div>
+            <div class="step-separator"></div>
+            <div class="step">
+                <div class="step-number">4</div>
+                <div class="step-label">Complete</div>
+            </div>
+        </div>
+    </div>
+
+    <main>
+        <div class="onboarding-header">
+            <h1>Connect Your Development Tools</h1>
+            <p>Configure at least one version control system to start collecting metrics. Additional integrations can be added now or later.</p>
+        </div>
+
+        <!-- Version Control Systems (Required) -->
+        <div class="category">
+            <div class="category-header">
+                <h2>
+                    Version Control Systems
+                    <span class="category-required">Required</span>
+                </h2>
+                <p>Connect to your source code repository to track commits, pull requests, and contributors.</p>
+            </div>
+            <div class="datasource-grid">
+                <!-- GitHub -->
+                <div class="datasource-card" id="githubCard">
+                    <div class="datasource-header">
+                        <div class="datasource-info">
+                            <div class="datasource-icon">🐙</div>
+                            <div class="datasource-name">
+                                <h3>GitHub</h3>
+                                <div class="datasource-status">Not connected</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="datasource-description">
+                        Connect to GitHub to track repositories, commits, pull requests, and code reviews.
+                    </div>
+                    <button class="btn btn-configure" onclick="toggleForm('github')">Configure GitHub</button>
+
+                    <div class="datasource-form" id="githubForm">
+                        <div class="form-group">
+                            <label>Personal Access Token</label>
+                            <input type="password" placeholder="ghp_xxxxxxxxxxxx">
+                            <div class="form-hint">
+                                <a href="https://github.com/settings/tokens" target="_blank">Generate token</a> with repo, read:org, and read:user scopes
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Organization Name(s)</label>
+                            <input type="text" placeholder="my-organization">
+                            <div class="form-hint">Comma-separated for multiple organizations</div>
+                        </div>
+                        <div class="datasource-actions">
+                            <button class="btn btn-secondary" onclick="testConnection('github')">Test Connection</button>
+                            <button class="btn btn-primary" onclick="saveConnection('github')">Save</button>
+                        </div>
+                        <div id="githubTestResult"></div>
+                    </div>
+                </div>
+
+                <!-- GitLab -->
+                <div class="datasource-card" id="gitlabCard">
+                    <div class="datasource-header">
+                        <div class="datasource-info">
+                            <div class="datasource-icon">🦊</div>
+                            <div class="datasource-name">
+                                <h3>GitLab</h3>
+                                <div class="datasource-status">Not connected</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="datasource-description">
+                        Connect to GitLab to track projects, commits, merge requests, and pipelines.
+                    </div>
+                    <button class="btn btn-configure" onclick="toggleForm('gitlab')">Configure GitLab</button>
+
+                    <div class="datasource-form" id="gitlabForm">
+                        <div class="form-group">
+                            <label>Private Token</label>
+                            <input type="password" placeholder="glpat-xxxxxxxxxxxx">
+                            <div class="form-hint">
+                                <a href="https://gitlab.com/-/profile/personal_access_tokens" target="_blank">Generate token</a> with api scope
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>GitLab URL</label>
+                            <input type="text" placeholder="https://gitlab.com">
+                        </div>
+                        <div class="form-group">
+                            <label>Group ID(s)</label>
+                            <input type="text" placeholder="12345">
+                            <div class="form-hint">Comma-separated for multiple groups</div>
+                        </div>
+                        <div class="datasource-actions">
+                            <button class="btn btn-secondary" onclick="testConnection('gitlab')">Test Connection</button>
+                            <button class="btn btn-primary" onclick="saveConnection('gitlab')">Save</button>
+                        </div>
+                        <div id="gitlabTestResult"></div>
+                    </div>
+                </div>
+
+                <!-- Bitbucket -->
+                <div class="datasource-card" id="bitbucketCard">
+                    <div class="datasource-header">
+                        <div class="datasource-info">
+                            <div class="datasource-icon">🪣</div>
+                            <div class="datasource-name">
+                                <h3>Bitbucket</h3>
+                                <div class="datasource-status">Not connected</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="datasource-description">
+                        Connect to Bitbucket to track repositories, commits, and pull requests.
+                    </div>
+                    <button class="btn btn-configure" onclick="toggleForm('bitbucket')">Configure Bitbucket</button>
+
+                    <div class="datasource-form" id="bitbucketForm">
+                        <div class="form-group">
+                            <label>App Password</label>
+                            <input type="password" placeholder="xxxxxxxxxxxx">
+                            <div class="form-hint">
+                                <a href="https://bitbucket.org/account/settings/app-passwords/" target="_blank">Generate app password</a>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Workspace</label>
+                            <input type="text" placeholder="my-workspace">
+                        </div>
+                        <div class="datasource-actions">
+                            <button class="btn btn-secondary" onclick="testConnection('bitbucket')">Test Connection</button>
+                            <button class="btn btn-primary" onclick="saveConnection('bitbucket')">Save</button>
+                        </div>
+                        <div id="bitbucketTestResult"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CI/CD Platforms (Optional) -->
+        <div class="category">
+            <div class="category-header">
+                <h2>CI/CD Platforms</h2>
+                <p>Connect to your continuous integration and deployment systems to track pipeline success and build times.</p>
+            </div>
+            <div class="datasource-grid">
+                <!-- Jenkins -->
+                <div class="datasource-card" id="jenkinsCard">
+                    <div class="datasource-header">
+                        <div class="datasource-info">
+                            <div class="datasource-icon">⚙️</div>
+                            <div class="datasource-name">
+                                <h3>Jenkins</h3>
+                                <div class="datasource-status">Not connected</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="datasource-description">
+                        Track pipeline executions, build success rates, and deployment metrics.
+                    </div>
+                    <button class="btn btn-configure" onclick="toggleForm('jenkins')">Configure Jenkins</button>
+
+                    <div class="datasource-form" id="jenkinsForm">
+                        <div class="form-group">
+                            <label>Jenkins URL</label>
+                            <input type="text" placeholder="https://jenkins.company.com">
+                        </div>
+                        <div class="form-group">
+                            <label>API Token</label>
+                            <input type="password" placeholder="xxxxxxxxxxxx">
+                        </div>
+                        <div class="datasource-actions">
+                            <button class="btn btn-secondary" onclick="testConnection('jenkins')">Test Connection</button>
+                            <button class="btn btn-primary" onclick="saveConnection('jenkins')">Save</button>
+                        </div>
+                        <div id="jenkinsTestResult"></div>
+                    </div>
+                </div>
+
+                <!-- CircleCI -->
+                <div class="datasource-card" id="circleCICard">
+                    <div class="datasource-header">
+                        <div class="datasource-info">
+                            <div class="datasource-icon">🔄</div>
+                            <div class="datasource-name">
+                                <h3>CircleCI</h3>
+                                <div class="datasource-status">Not connected</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="datasource-description">
+                        Monitor pipeline workflows, job execution, and build performance.
+                    </div>
+                    <button class="btn btn-configure" onclick="toggleForm('circleCI')">Configure CircleCI</button>
+
+                    <div class="datasource-form" id="circleCIForm">
+                        <div class="form-group">
+                            <label>API Token</label>
+                            <input type="password" placeholder="xxxxxxxxxxxx">
+                        </div>
+                        <div class="datasource-actions">
+                            <button class="btn btn-secondary" onclick="testConnection('circleCI')">Test Connection</button>
+                            <button class="btn btn-primary" onclick="saveConnection('circleCI')">Save</button>
+                        </div>
+                        <div id="circleCITestResult"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Project Management (Optional) -->
+        <div class="category">
+            <div class="category-header">
+                <h2>Project Management</h2>
+                <p>Connect to your project management tools to track issues, sprints, and delivery cycles.</p>
+            </div>
+            <div class="datasource-grid">
+                <!-- JIRA -->
+                <div class="datasource-card" id="jiraCard">
+                    <div class="datasource-header">
+                        <div class="datasource-info">
+                            <div class="datasource-icon">📋</div>
+                            <div class="datasource-name">
+                                <h3>JIRA</h3>
+                                <div class="datasource-status">Not connected</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="datasource-description">
+                        Track issues, sprints, and project workflow to measure delivery velocity.
+                    </div>
+                    <button class="btn btn-configure" onclick="toggleForm('jira')">Configure JIRA</button>
+
+                    <div class="datasource-form" id="jiraForm">
+                        <div class="form-group">
+                            <label>JIRA URL</label>
+                            <input type="text" placeholder="https://company.atlassian.net">
+                        </div>
+                        <div class="form-group">
+                            <label>API Token</label>
+                            <input type="password" placeholder="xxxxxxxxxxxx">
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" placeholder="you@company.com">
+                        </div>
+                        <div class="datasource-actions">
+                            <button class="btn btn-secondary" onclick="testConnection('jira')">Test Connection</button>
+                            <button class="btn btn-primary" onclick="saveConnection('jira')">Save</button>
+                        </div>
+                        <div id="jiraTestResult"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div class="footer-actions">
+        <div class="footer-content">
+            <div class="footer-info">
+                <strong>0</strong> data sources configured
+            </div>
+            <div class="footer-buttons">
+                <button class="btn btn-secondary btn-large">Skip for Now</button>
+                <button class="btn btn-primary btn-large" disabled>Continue</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleForm(source) {
+            const form = document.getElementById(`${source}Form`);
+            form.classList.toggle('active');
+        }
+
+        function _testConnection(source) {
+            const card = document.getElementById(`${source}Card`);
+            const statusArea = card.querySelector('.datasource-form');
+
+            // Show testing message
+            let resultDiv = document.getElementById(`${source}TestResult`);
+            if (!resultDiv) {
+                resultDiv = document.createElement('div');
+                resultDiv.id = `${source}TestResult`;
+                statusArea.appendChild(resultDiv);
+            }
+
+            resultDiv.className = 'test-result testing';
+            resultDiv.textContent = 'Testing connection...';
+
+            // Simulate API call
+            setTimeout(() => {
+                resultDiv.className = 'test-result success';
+                resultDiv.textContent = `✓ Connection successful! Found repositories and can access data.`;
+            }, 1500);
+        }
+
+        function _saveConnection(source) {
+            const card = document.getElementById(`${source}Card`);
+
+            // Update card appearance
+            card.classList.add('connected');
+            card.querySelector('.datasource-status').textContent = 'Connected';
+            card.querySelector('.datasource-status').classList.add('connected');
+
+            // Hide form
+            const form = document.getElementById(`${source}Form`);
+            form.classList.remove('active');
+
+            // Update button
+            const btn = card.querySelector('.btn-configure');
+            btn.textContent = 'Disconnect';
+            btn.className = 'btn btn-disconnect';
+            btn.onclick = () => disconnectSource(source);
+
+            // Update footer count
+            updateFooterCount();
+        }
+
+        function disconnectSource(source) {
+            const card = document.getElementById(`${source}Card`);
+            card.classList.remove('connected');
+            card.querySelector('.datasource-status').textContent = 'Not connected';
+            card.querySelector('.datasource-status').classList.remove('connected');
+
+            const configBtn = card.querySelector('.btn-disconnect');
+            configBtn.textContent = `Configure ${source.charAt(0).toUpperCase()}${source.slice(1)}`;
+            configBtn.className = 'btn btn-configure';
+            configBtn.onclick = () => toggleForm(source);
+
+            updateFooterCount();
+        }
+
+        function updateFooterCount() {
+            const connectedCount = document.querySelectorAll('.datasource-card.connected').length;
+            document.querySelector('.footer-info strong').textContent = connectedCount;
+
+            const continueBtn = document.querySelector('.footer-buttons .btn-primary');
+            if (connectedCount > 0) {
+                continueBtn.disabled = false;
+            } else {
+                continueBtn.disabled = true;
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Momentum - Developer Productivity Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #FFF8F0 0%, #FFEFD5 50%, #FFF5E6 100%);
+            color: #3E3835;
+            line-height: 1.6;
+        }
+
+        /* Navigation */
+        nav {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 2px solid #F5E6D3;
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #3E3835;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: #5C5653;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #E85D75;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            font-size: 0.95rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #E85D75 0%, #D84663 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(232, 93, 117, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(232, 93, 117, 0.4);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #3E3835;
+            border: 2px solid #E5D9C9;
+        }
+
+        .btn-secondary:hover {
+            background: #FFF8F0;
+            border-color: #D8C8B4;
+        }
+
+        /* Hero Section */
+        .hero {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 6rem 2rem;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            color: #3E3835;
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+        }
+
+        .hero .emoji-large {
+            font-size: 4rem;
+            display: block;
+            margin-bottom: 1rem;
+        }
+
+        .hero p {
+            font-size: 1.4rem;
+            color: #6B6662;
+            margin-bottom: 2.5rem;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        /* Feature Cards */
+        .features {
+            max-width: 1200px;
+            margin: 4rem auto;
+            padding: 0 2rem;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #3E3835;
+            margin-bottom: 3rem;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 2px solid #F5E6D3;
+            transition: all 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #3E3835;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card p {
+            color: #6B6662;
+            line-height: 1.8;
+        }
+
+        /* Color Coded Features */
+        .feature-card.delivery {
+            border-left: 5px solid #6B7FFF;
+            background: linear-gradient(135deg, white 0%, #F0F2FF 100%);
+        }
+
+        .feature-card.quality {
+            border-left: 5px solid #5FB876;
+            background: linear-gradient(135deg, white 0%, #F0FFF4 100%);
+        }
+
+        .feature-card.collaboration {
+            border-left: 5px solid #FFA940;
+            background: linear-gradient(135deg, white 0%, #FFF7ED 100%);
+        }
+
+        .feature-card.security {
+            border-left: 5px solid #E85D75;
+            background: linear-gradient(135deg, white 0%, #FFF0F3 100%);
+        }
+
+        .feature-card.patterns {
+            border-left: 5px solid #9B5DE5;
+            background: linear-gradient(135deg, white 0%, #F8F0FF 100%);
+        }
+
+        .feature-card.extensible {
+            border-left: 5px solid #00BBD3;
+            background: linear-gradient(135deg, white 0%, #E8F9FB 100%);
+        }
+
+        /* How It Works */
+        .how-it-works {
+            max-width: 1200px;
+            margin: 6rem auto;
+            padding: 4rem 2rem;
+            background: white;
+            border-radius: 30px;
+            border: 2px solid #F5E6D3;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+        }
+
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .step {
+            text-align: center;
+            padding: 2rem;
+            border-radius: 16px;
+            background: #FFFBF5;
+            border: 2px dashed #E5D9C9;
+        }
+
+        .step-number {
+            background: linear-gradient(135deg, #E85D75 0%, #D84663 100%);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.3rem;
+            margin: 0 auto 1rem;
+        }
+
+        .step h3 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #3E3835;
+            margin-bottom: 0.75rem;
+        }
+
+        .step p {
+            color: #6B6662;
+        }
+
+        /* Social Proof */
+        .social-proof {
+            max-width: 1200px;
+            margin: 6rem auto;
+            padding: 0 2rem;
+            text-align: center;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 4rem;
+            flex-wrap: wrap;
+            margin-top: 3rem;
+        }
+
+        .stat {
+            padding: 2rem;
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #E85D75 0%, #6B7FFF 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            font-size: 1.1rem;
+            color: #6B6662;
+            margin-top: 0.5rem;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            max-width: 900px;
+            margin: 6rem auto;
+            padding: 4rem 2rem;
+            text-align: center;
+            background: linear-gradient(135deg, #6B7FFF 0%, #9B5DE5 100%);
+            border-radius: 30px;
+            color: white;
+            box-shadow: 0 12px 40px rgba(107, 127, 255, 0.3);
+        }
+
+        .cta-section h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .cta-section p {
+            font-size: 1.3rem;
+            margin-bottom: 2rem;
+            opacity: 0.95;
+        }
+
+        .btn-white {
+            background: white;
+            color: #6B7FFF;
+            font-weight: 700;
+        }
+
+        .btn-white:hover {
+            background: #FFF8F0;
+            transform: translateY(-2px);
+        }
+
+        /* Footer */
+        footer {
+            background: #3E3835;
+            color: #E5D9C9;
+            padding: 3rem 2rem 2rem;
+            margin-top: 6rem;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+        }
+
+        .footer-section h4 {
+            color: #FFF8F0;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .footer-section ul {
+            list-style: none;
+        }
+
+        .footer-section ul li {
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-section a {
+            color: #D8C8B4;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-section a:hover {
+            color: #FFF8F0;
+        }
+
+        .footer-bottom {
+            max-width: 1200px;
+            margin: 2rem auto 0;
+            padding-top: 2rem;
+            border-top: 1px solid #5C5653;
+            text-align: center;
+            color: #A39B93;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero p {
+                font-size: 1.1rem;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+            }
+
+            .stats {
+                gap: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <div class="logo">
+                📊 Momentum
+            </div>
+            <ul class="nav-links">
+                <li><a href="#features">Features</a></li>
+                <li><a href="#how-it-works">How It Works</a></li>
+                <li><a href="#pricing">Pricing</a></li>
+                <li><a href="#docs">Docs</a></li>
+                <li><a href="registration.html" class="btn btn-primary">Get Started</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <span class="emoji-large">🚀</span>
+        <h1>Understand Your Team's<br>Developer Productivity</h1>
+        <p>Momentum collects data from your development tools and provides actionable insights to help your team deliver better software, faster.</p>
+        <div class="cta-buttons">
+            <a href="registration.html" class="btn btn-primary">Start Free Trial</a>
+            <a href="#" class="btn btn-secondary">Watch Demo 🎬</a>
+        </div>
+    </section>
+
+    <section class="features" id="features">
+        <h2 class="section-title">✨ Everything you need to measure productivity</h2>
+        <div class="feature-grid">
+            <div class="feature-card delivery">
+                <span class="feature-icon">⚡</span>
+                <h3>Delivery Metrics</h3>
+                <p>Track deployment velocity, cycle times, and lead time for changes. Understand how quickly your team ships code.</p>
+            </div>
+
+            <div class="feature-card quality">
+                <span class="feature-icon">🎯</span>
+                <h3>Code Quality</h3>
+                <p>Monitor test coverage, code complexity, and technical debt. Keep your codebase healthy and maintainable.</p>
+            </div>
+
+            <div class="feature-card collaboration">
+                <span class="feature-icon">🤝</span>
+                <h3>Collaboration Insights</h3>
+                <p>Analyze code review efficiency, PR throughput, and team collaboration patterns to improve teamwork.</p>
+            </div>
+
+            <div class="feature-card security">
+                <span class="feature-icon">🔒</span>
+                <h3>Security Tracking</h3>
+                <p>Stay on top of CVEs and vulnerabilities. Track security issues from detection to resolution.</p>
+            </div>
+
+            <div class="feature-card patterns">
+                <span class="feature-icon">📈</span>
+                <h3>Productivity Patterns</h3>
+                <p>Discover when your team is most productive and identify opportunities to optimize workflows.</p>
+            </div>
+
+            <div class="feature-card extensible">
+                <span class="feature-icon">🔌</span>
+                <h3>Extensible Platform</h3>
+                <p>Connect to GitHub, GitLab, Jenkins, JIRA, and more. Add new data sources as your needs grow.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="how-it-works" id="how-it-works">
+        <h2 class="section-title">🎨 How It Works</h2>
+        <div class="steps">
+            <div class="step">
+                <div class="step-number">1</div>
+                <h3>Connect Your Tools</h3>
+                <p>Link your GitHub, GitLab, Jenkins, JIRA, and other development tools in minutes.</p>
+            </div>
+
+            <div class="step">
+                <div class="step-number">2</div>
+                <h3>Automatic Data Collection</h3>
+                <p>Momentum collects metrics automatically in the background. No manual work required.</p>
+            </div>
+
+            <div class="step">
+                <div class="step-number">3</div>
+                <h3>Gain Insights</h3>
+                <p>View beautiful dashboards with actionable insights about your team's productivity.</p>
+            </div>
+
+            <div class="step">
+                <div class="step-number">4</div>
+                <h3>Improve Continuously</h3>
+                <p>Use data-driven insights to identify bottlenecks and optimize your development process.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="social-proof">
+        <h2 class="section-title">🌟 Trusted by Development Teams</h2>
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-number">10K+</div>
+                <div class="stat-label">Repositories Tracked</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number">500+</div>
+                <div class="stat-label">Teams Using Momentum</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number">2M+</div>
+                <div class="stat-label">Commits Analyzed</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta-section">
+        <span class="emoji-large">🎉</span>
+        <h2>Ready to boost your team's productivity?</h2>
+        <p>Start your free 14-day trial. No credit card required.</p>
+        <a href="registration.html" class="btn btn-white btn">Get Started Now →</a>
+    </section>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>📊 Momentum</h4>
+                <p>Developer productivity insights for modern teams.</p>
+            </div>
+            <div class="footer-section">
+                <h4>Product</h4>
+                <ul>
+                    <li><a href="#">Features</a></li>
+                    <li><a href="#">Integrations</a></li>
+                    <li><a href="#">Pricing</a></li>
+                    <li><a href="#">Roadmap</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Resources</h4>
+                <ul>
+                    <li><a href="#">Documentation</a></li>
+                    <li><a href="#">API Reference</a></li>
+                    <li><a href="#">Blog</a></li>
+                    <li><a href="#">Community</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Company</h4>
+                <ul>
+                    <li><a href="#">About</a></li>
+                    <li><a href="#">Careers</a></li>
+                    <li><a href="#">Privacy</a></li>
+                    <li><a href="#">Terms</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>Made with 💜 by the Momentum team • 2025 Momentum</p>
+        </div>
+    </footer>
+</body>
+</html>

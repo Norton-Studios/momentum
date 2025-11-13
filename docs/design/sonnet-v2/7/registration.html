@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>REGISTER | MOMENTUM</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: #000000;
+            color: #FFFFFF;
+            line-height: 1.2;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        header {
+            background-color: #000000;
+            border-bottom: 4px solid #00FF00;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 80px;
+            padding: 0 32px;
+        }
+
+        .logo {
+            font-size: 32px;
+            font-weight: 900;
+            letter-spacing: -2px;
+            color: #00FF00;
+        }
+
+        .header-link {
+            color: #FFFFFF;
+            text-decoration: none;
+            text-transform: uppercase;
+            font-weight: 700;
+            font-size: 14px;
+            letter-spacing: 1px;
+            padding: 12px 24px;
+            border: 2px solid #00FF00;
+            transition: all 0.1s;
+        }
+
+        .header-link:hover {
+            background-color: #00FF00;
+            color: #000000;
+        }
+
+        /* Main Content */
+        main {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 48px 32px;
+        }
+
+        .registration-container {
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .registration-header {
+            border: 4px solid #00FF00;
+            background-color: #000000;
+            padding: 32px;
+            margin-bottom: 4px;
+        }
+
+        .registration-title {
+            font-size: 48px;
+            font-weight: 900;
+            letter-spacing: -2px;
+            color: #00FF00;
+            margin-bottom: 8px;
+        }
+
+        .registration-subtitle {
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .registration-form {
+            border: 4px solid #00FF00;
+            background-color: #000000;
+            padding: 48px;
+        }
+
+        .form-section {
+            margin-bottom: 32px;
+        }
+
+        .form-section-title {
+            font-size: 12px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #00FF00;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #00FF00;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        .form-grid-full {
+            grid-column: 1 / -1;
+        }
+
+        .form-field {
+            margin-bottom: 24px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            color: #FFFFFF;
+        }
+
+        .form-label-required::after {
+            content: " *";
+            color: #00FF00;
+        }
+
+        .form-input {
+            width: 100%;
+            background-color: #000000;
+            border: 2px solid #00FF00;
+            color: #FFFFFF;
+            padding: 16px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.1s;
+        }
+
+        .form-input:focus {
+            border-color: #FFFFFF;
+            background-color: #111111;
+        }
+
+        .form-input::placeholder {
+            color: #666666;
+        }
+
+        .form-help {
+            font-size: 11px;
+            color: #999999;
+            margin-top: 4px;
+            font-family: monospace;
+        }
+
+        .form-checkbox-group {
+            margin-bottom: 24px;
+        }
+
+        .checkbox-container {
+            display: flex;
+            align-items: flex-start;
+            cursor: pointer;
+            margin-bottom: 16px;
+        }
+
+        .checkbox-input {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #00FF00;
+            background-color: #000000;
+            margin-right: 12px;
+            cursor: pointer;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .checkbox-label {
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .checkbox-label a {
+            color: #00FF00;
+            text-decoration: none;
+            border-bottom: 1px solid #00FF00;
+        }
+
+        .checkbox-label a:hover {
+            color: #FFFFFF;
+            border-bottom-color: #FFFFFF;
+        }
+
+        .form-actions {
+            margin-top: 48px;
+            padding-top: 32px;
+            border-top: 2px solid #00FF00;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .btn-submit {
+            background-color: #00FF00;
+            color: #000000;
+            border: none;
+            padding: 20px 48px;
+            font-size: 16px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            font-family: 'Courier New', Courier, monospace;
+            transition: all 0.1s;
+        }
+
+        .btn-submit:hover {
+            background-color: #FFFFFF;
+        }
+
+        .login-link {
+            font-size: 14px;
+        }
+
+        .login-link a {
+            color: #00FF00;
+            text-decoration: none;
+            border-bottom: 2px solid #00FF00;
+            padding-bottom: 2px;
+        }
+
+        .login-link a:hover {
+            color: #FFFFFF;
+            border-bottom-color: #FFFFFF;
+        }
+
+        /* Info Panel */
+        .info-panel {
+            border: 4px solid #00FF00;
+            background-color: #000000;
+            padding: 24px;
+            margin-top: 4px;
+        }
+
+        .info-title {
+            font-size: 12px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #00FF00;
+            margin-bottom: 16px;
+        }
+
+        .info-list {
+            list-style: none;
+            font-size: 13px;
+            line-height: 1.8;
+        }
+
+        .info-list li::before {
+            content: ">";
+            color: #00FF00;
+            font-weight: 900;
+            margin-right: 8px;
+        }
+
+        /* Footer */
+        footer {
+            background-color: #000000;
+            border-top: 4px solid #00FF00;
+            padding: 32px;
+            text-align: center;
+        }
+
+        .footer-text {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-actions {
+                flex-direction: column;
+                gap: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <div class="logo">MOMENTUM</div>
+            <a href="homepage.html" class="header-link">Back to Home</a>
+        </div>
+    </header>
+
+    <main>
+        <div class="registration-container">
+            <div class="registration-header">
+                <h1 class="registration-title">CREATE ACCOUNT</h1>
+                <p class="registration-subtitle">Register for Momentum Platform Access</p>
+            </div>
+
+            <form class="registration-form">
+                <div class="form-section">
+                    <div class="form-section-title">User Information</div>
+                    <div class="form-grid">
+                        <div class="form-field">
+                            <label class="form-label form-label-required" for="first-name">First Name</label>
+                            <input type="text" id="first-name" class="form-input" required>
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label form-label-required" for="last-name">Last Name</label>
+                            <input type="text" id="last-name" class="form-input" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <div class="form-section-title">Account Credentials</div>
+                    <div class="form-field">
+                        <label class="form-label form-label-required" for="email">Email Address</label>
+                        <input type="email" id="email" class="form-input" placeholder="user@company.com" required>
+                        <div class="form-help">MUST BE VALID CORPORATE EMAIL</div>
+                    </div>
+                    <div class="form-grid">
+                        <div class="form-field">
+                            <label class="form-label form-label-required" for="password">Password</label>
+                            <input type="password" id="password" class="form-input" required>
+                            <div class="form-help">MIN 12 CHARS | UPPERCASE | LOWERCASE | NUMBER | SYMBOL</div>
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label form-label-required" for="confirm-password">Confirm Password</label>
+                            <input type="password" id="confirm-password" class="form-input" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <div class="form-section-title">Organization Details</div>
+                    <div class="form-field">
+                        <label class="form-label form-label-required" for="org-name">Organization Name</label>
+                        <input type="text" id="org-name" class="form-input" required>
+                    </div>
+                    <div class="form-grid">
+                        <div class="form-field">
+                            <label class="form-label form-label-required" for="org-size">Organization Size</label>
+                            <select id="org-size" class="form-input" required>
+                                <option value="">SELECT SIZE</option>
+                                <option value="1-10">1-10 DEVELOPERS</option>
+                                <option value="11-50">11-50 DEVELOPERS</option>
+                                <option value="51-200">51-200 DEVELOPERS</option>
+                                <option value="201-500">201-500 DEVELOPERS</option>
+                                <option value="501+">501+ DEVELOPERS</option>
+                            </select>
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label" for="role">Your Role</label>
+                            <input type="text" id="role" class="form-input" placeholder="e.g., Engineering Manager">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <div class="form-section-title">Deployment Configuration</div>
+                    <div class="form-field">
+                        <label class="form-label form-label-required" for="deployment-type">Deployment Type</label>
+                        <select id="deployment-type" class="form-input" required>
+                            <option value="">SELECT DEPLOYMENT</option>
+                            <option value="self-hosted">SELF-HOSTED</option>
+                            <option value="cloud">CLOUD (MANAGED)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-checkbox-group">
+                    <div class="checkbox-container">
+                        <input type="checkbox" id="terms" class="checkbox-input" required>
+                        <label for="terms" class="checkbox-label">
+                            I AGREE TO THE <a href="#">TERMS OF SERVICE</a> AND <a href="#">PRIVACY POLICY</a>
+                        </label>
+                    </div>
+                    <div class="checkbox-container">
+                        <input type="checkbox" id="updates" class="checkbox-input">
+                        <label for="updates" class="checkbox-label">
+                            SEND ME PRODUCT UPDATES AND TECHNICAL DOCUMENTATION
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <div class="login-link">
+                        ALREADY REGISTERED? <a href="#">LOGIN HERE</a>
+                    </div>
+                    <button type="submit" class="btn-submit">CREATE ACCOUNT</button>
+                </div>
+            </form>
+
+            <div class="info-panel">
+                <div class="info-title">What Happens Next</div>
+                <ul class="info-list">
+                    <li>EMAIL VERIFICATION SENT TO YOUR INBOX</li>
+                    <li>CONFIRM EMAIL ADDRESS WITHIN 24 HOURS</li>
+                    <li>ACCESS ONBOARDING WIZARD</li>
+                    <li>CONNECT YOUR DATA SOURCES</li>
+                    <li>START TRACKING METRICS IMMEDIATELY</li>
+                </ul>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-text">MOMENTUM &copy; 2025 | SECURE. SELF-HOSTED. STRAIGHTFORWARD.</div>
+    </footer>
+</body>
+</html>

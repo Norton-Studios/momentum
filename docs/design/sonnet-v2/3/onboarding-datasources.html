@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connect Data Sources - Momentum Onboarding</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #FFF8F0 0%, #FFEFD5 50%, #FFF5E6 100%);
+            color: #3E3835;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            background: white;
+            border-bottom: 2px solid #F5E6D3;
+            padding: 1.5rem 2rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .header-content {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #3E3835;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            background: white;
+            padding: 1rem 2rem;
+            border-bottom: 2px solid #F5E6D3;
+        }
+
+        .progress-wrapper {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .progress-steps {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            margin-bottom: 1rem;
+        }
+
+        .progress-line {
+            position: absolute;
+            top: 20px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: #E5D9C9;
+            z-index: 0;
+        }
+
+        .progress-line-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #E85D75, #6B7FFF);
+            width: 33%;
+            border-radius: 3px;
+            transition: width 0.5s;
+        }
+
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .step-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.1rem;
+            background: white;
+            border: 3px solid #E5D9C9;
+            transition: all 0.3s;
+        }
+
+        .step.active .step-circle {
+            background: linear-gradient(135deg, #E85D75, #D84663);
+            color: white;
+            border-color: #E85D75;
+        }
+
+        .step.completed .step-circle {
+            background: #5FB876;
+            color: white;
+            border-color: #5FB876;
+        }
+
+        .step-label {
+            font-size: 0.85rem;
+            color: #6B6662;
+            font-weight: 500;
+        }
+
+        .step.active .step-label {
+            color: #3E3835;
+            font-weight: 600;
+        }
+
+        /* Main Content */
+        .main-content {
+            max-width: 1000px;
+            margin: 3rem auto;
+            padding: 0 2rem 3rem;
+        }
+
+        .welcome-section {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .emoji-large {
+            font-size: 3.5rem;
+            display: block;
+            margin-bottom: 1rem;
+        }
+
+        .welcome-section h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #3E3835;
+            margin-bottom: 0.75rem;
+        }
+
+        .welcome-section p {
+            font-size: 1.2rem;
+            color: #6B6662;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        /* Data Source Cards */
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #3E3835;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .required-badge {
+            background: #FFE5E5;
+            color: #E85D75;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .optional-badge {
+            background: #E8F5FF;
+            color: #6B7FFF;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .data-sources {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .data-source-card {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            border: 2px solid #E5D9C9;
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .data-source-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+            border-color: #D8C8B4;
+        }
+
+        .data-source-card.connected {
+            border-color: #5FB876;
+            background: linear-gradient(135deg, white, #F0FFF4);
+        }
+
+        .source-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .source-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .source-icon {
+            font-size: 2rem;
+        }
+
+        .source-name {
+            font-weight: 700;
+            color: #3E3835;
+            font-size: 1.2rem;
+        }
+
+        .status-badge {
+            padding: 0.35rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        .status-badge.connected {
+            background: #E8F9F0;
+            color: #5FB876;
+        }
+
+        .status-badge.not-connected {
+            background: #FFF8E6;
+            color: #FFA940;
+        }
+
+        .source-description {
+            color: #6B6662;
+            font-size: 0.95rem;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+            font-size: 0.95rem;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-connect {
+            background: linear-gradient(135deg, #E85D75, #D84663);
+            color: white;
+            width: 100%;
+        }
+
+        .btn-connect:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(232, 93, 117, 0.3);
+        }
+
+        .btn-configure {
+            background: #6B7FFF;
+            color: white;
+            width: 100%;
+        }
+
+        .btn-configure:hover {
+            background: #5A6EEE;
+            transform: translateY(-2px);
+        }
+
+        .btn-connected {
+            background: #5FB876;
+            color: white;
+            width: 100%;
+            cursor: default;
+        }
+
+        /* Color-coded sections */
+        .data-source-card.vcs {
+            border-left: 5px solid #6B7FFF;
+        }
+
+        .data-source-card.cicd {
+            border-left: 5px solid #FFA940;
+        }
+
+        .data-source-card.quality {
+            border-left: 5px solid #5FB876;
+        }
+
+        .data-source-card.project {
+            border-left: 5px solid #9B5DE5;
+        }
+
+        /* Navigation Buttons */
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 2px solid #F5E6D3;
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #3E3835;
+            border: 2px solid #E5D9C9;
+            padding: 0.9rem 2rem;
+        }
+
+        .btn-secondary:hover {
+            background: #FFFBF5;
+            border-color: #D8C8B4;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #E85D75, #D84663);
+            color: white;
+            padding: 0.9rem 2.5rem;
+            box-shadow: 0 4px 12px rgba(232, 93, 117, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(232, 93, 117, 0.4);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .help-text {
+            text-align: center;
+            color: #6B6662;
+            font-size: 0.9rem;
+            margin-top: 1rem;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 2.5rem;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-header {
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #3E3835;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .modal-description {
+            color: #6B6662;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            color: #3E3835;
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 0.9rem;
+            border: 2px solid #E5D9C9;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-family: inherit;
+            background: #FFFBF5;
+            transition: all 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #E85D75;
+            background: white;
+            box-shadow: 0 0 0 4px rgba(232, 93, 117, 0.1);
+        }
+
+        .input-hint {
+            font-size: 0.85rem;
+            color: #6B6662;
+            margin-top: 0.4rem;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .modal-actions button {
+            flex: 1;
+        }
+
+        @media (max-width: 768px) {
+            .welcome-section h1 {
+                font-size: 2rem;
+            }
+
+            .data-sources {
+                grid-template-columns: 1fr;
+            }
+
+            .progress-steps {
+                font-size: 0.75rem;
+            }
+
+            .step-label {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div class="logo">
+                📊 Momentum
+            </div>
+        </div>
+    </div>
+
+    <div class="progress-container">
+        <div class="progress-wrapper">
+            <div class="progress-steps">
+                <div class="progress-line">
+                    <div class="progress-line-fill"></div>
+                </div>
+                <div class="step active">
+                    <div class="step-circle">1</div>
+                    <div class="step-label">Connect Sources</div>
+                </div>
+                <div class="step">
+                    <div class="step-circle">2</div>
+                    <div class="step-label">Select Repos</div>
+                </div>
+                <div class="step">
+                    <div class="step-circle">3</div>
+                    <div class="step-label">Import Data</div>
+                </div>
+                <div class="step">
+                    <div class="step-circle">4</div>
+                    <div class="step-label">Ready!</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="welcome-section">
+            <span class="emoji-large">🔌</span>
+            <h1>Connect Your Development Tools</h1>
+            <p>Let's connect your existing tools so Momentum can start tracking your team's productivity. You'll need at least one version control system to get started.</p>
+        </div>
+
+        <div class="section-title">
+            Version Control Systems
+            <span class="required-badge">Required</span>
+        </div>
+
+        <div class="data-sources">
+            <div class="data-source-card vcs" onclick="openModal('github')">
+                <div class="source-header">
+                    <div class="source-info">
+                        <span class="source-icon">🐙</span>
+                        <span class="source-name">GitHub</span>
+                    </div>
+                    <span class="status-badge not-connected">Not Connected</span>
+                </div>
+                <p class="source-description">
+                    Connect your GitHub repositories to track commits, pull requests, and code reviews.
+                </p>
+                <button class="btn btn-connect">Connect GitHub</button>
+            </div>
+
+            <div class="data-source-card vcs" onclick="openModal('gitlab')">
+                <div class="source-header">
+                    <div class="source-info">
+                        <span class="source-icon">🦊</span>
+                        <span class="source-name">GitLab</span>
+                    </div>
+                    <span class="status-badge not-connected">Not Connected</span>
+                </div>
+                <p class="source-description">
+                    Track merge requests, pipelines, and contributors from GitLab projects.
+                </p>
+                <button class="btn btn-connect">Connect GitLab</button>
+            </div>
+
+            <div class="data-source-card vcs" onclick="openModal('bitbucket')">
+                <div class="source-header">
+                    <div class="source-info">
+                        <span class="source-icon">🪣</span>
+                        <span class="source-name">Bitbucket</span>
+                    </div>
+                    <span class="status-badge not-connected">Not Connected</span>
+                </div>
+                <p class="source-description">
+                    Monitor Bitbucket repositories, pull requests, and team activity.
+                </p>
+                <button class="btn btn-connect">Connect Bitbucket</button>
+            </div>
+        </div>
+
+        <div class="section-title">
+            CI/CD Platforms
+            <span class="optional-badge">Optional</span>
+        </div>
+
+        <div class="data-sources">
+            <div class="data-source-card cicd" onclick="openModal('jenkins')">
+                <div class="source-header">
+                    <div class="source-info">
+                        <span class="source-icon">⚙️</span>
+                        <span class="source-name">Jenkins</span>
+                    </div>
+                    <span class="status-badge not-connected">Not Connected</span>
+                </div>
+                <p class="source-description">
+                    Track build success rates, pipeline duration, and deployment metrics.
+                </p>
+                <button class="btn btn-connect">Connect Jenkins</button>
+            </div>
+
+            <div class="data-source-card cicd" onclick="openModal('circleci')">
+                <div class="source-header">
+                    <div class="source-info">
+                        <span class="source-icon">⭕</span>
+                        <span class="source-name">CircleCI</span>
+                    </div>
+                    <span class="status-badge not-connected">Not Connected</span>
+                </div>
+                <p class="source-description">
+                    Monitor CircleCI pipelines, workflows, and job performance.
+                </p>
+                <button class="btn btn-connect">Connect CircleCI</button>
+            </div>
+        </div>
+
+        <div class="section-title">
+            Project Management
+            <span class="optional-badge">Optional</span>
+        </div>
+
+        <div class="data-sources">
+            <div class="data-source-card project" onclick="openModal('jira')">
+                <div class="source-header">
+                    <div class="source-info">
+                        <span class="source-icon">📋</span>
+                        <span class="source-name">JIRA</span>
+                    </div>
+                    <span class="status-badge not-connected">Not Connected</span>
+                </div>
+                <p class="source-description">
+                    Link commits and PRs to JIRA tickets for full project visibility.
+                </p>
+                <button class="btn btn-connect">Connect JIRA</button>
+            </div>
+
+            <div class="data-source-card project" onclick="openModal('trello')">
+                <div class="source-header">
+                    <div class="source-info">
+                        <span class="source-icon">📌</span>
+                        <span class="source-name">Trello</span>
+                    </div>
+                    <span class="status-badge not-connected">Not Connected</span>
+                </div>
+                <p class="source-description">
+                    Track task progress and team workflow from your Trello boards.
+                </p>
+                <button class="btn btn-connect">Connect Trello</button>
+            </div>
+        </div>
+
+        <div class="section-title">
+            Code Quality Tools
+            <span class="optional-badge">Optional</span>
+        </div>
+
+        <div class="data-sources">
+            <div class="data-source-card quality" onclick="openModal('sonarqube')">
+                <div class="source-header">
+                    <div class="source-info">
+                        <span class="source-icon">🔍</span>
+                        <span class="source-name">SonarQube</span>
+                    </div>
+                    <span class="status-badge not-connected">Not Connected</span>
+                </div>
+                <p class="source-description">
+                    Monitor code coverage, technical debt, and security vulnerabilities.
+                </p>
+                <button class="btn btn-connect">Connect SonarQube</button>
+            </div>
+        </div>
+
+        <div class="navigation">
+            <button class="btn btn-secondary" onclick="history.back()">
+                ← Back
+            </button>
+            <div>
+                <button class="btn btn-primary" id="continueBtn" disabled>
+                    Continue to Repository Selection →
+                </button>
+                <div class="help-text">
+                    Connect at least one version control system to continue
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal" id="connectionModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle">
+                    <span id="modalIcon"></span>
+                    <span id="modalName"></span>
+                </h2>
+                <p class="modal-description" id="modalDescription"></p>
+            </div>
+
+            <form id="connectionForm">
+                <div id="formFields"></div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">
+                        Cancel
+                    </button>
+                    <button type="submit" class="btn btn-connect">
+                        Test & Connect
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const dataSourceConfigs = {
+            github: {
+                icon: '🐙',
+                name: 'GitHub',
+                description: 'Enter your GitHub credentials to start tracking repositories.',
+                fields: [
+                    { label: 'Personal Access Token', type: 'password', name: 'token', hint: 'Generate at github.com/settings/tokens with repo, read:org, read:user scopes' },
+                    { label: 'Organization Name(s)', type: 'text', name: 'orgs', hint: 'Comma-separated for multiple organizations' }
+                ]
+            },
+            gitlab: {
+                icon: '🦊',
+                name: 'GitLab',
+                description: 'Connect to your GitLab instance.',
+                fields: [
+                    { label: 'Private Token', type: 'password', name: 'token', hint: 'Generate at gitlab.com/-/profile/personal_access_tokens' },
+                    { label: 'GitLab URL', type: 'text', name: 'url', hint: 'e.g., https://gitlab.com or your self-hosted instance' },
+                    { label: 'Group/Project IDs', type: 'text', name: 'groups', hint: 'Comma-separated group or project IDs' }
+                ]
+            },
+            bitbucket: {
+                icon: '🪣',
+                name: 'Bitbucket',
+                description: 'Link your Bitbucket workspace.',
+                fields: [
+                    { label: 'App Password', type: 'password', name: 'password', hint: 'Generate at bitbucket.org/account/settings/app-passwords' },
+                    { label: 'Workspace Slug', type: 'text', name: 'workspace', hint: 'Your Bitbucket workspace identifier' }
+                ]
+            },
+            jenkins: {
+                icon: '⚙️',
+                name: 'Jenkins',
+                description: 'Connect to your Jenkins instance.',
+                fields: [
+                    { label: 'Jenkins URL', type: 'text', name: 'url', hint: 'e.g., https://jenkins.company.com' },
+                    { label: 'API Token', type: 'password', name: 'token', hint: 'Generate in Jenkins user configuration' }
+                ]
+            },
+            circleci: {
+                icon: '⭕',
+                name: 'CircleCI',
+                description: 'Track CircleCI pipelines.',
+                fields: [
+                    { label: 'API Token', type: 'password', name: 'token', hint: 'Generate at app.circleci.com/settings/user/tokens' }
+                ]
+            },
+            jira: {
+                icon: '📋',
+                name: 'JIRA',
+                description: 'Connect your JIRA projects.',
+                fields: [
+                    { label: 'JIRA URL', type: 'text', name: 'url', hint: 'e.g., https://company.atlassian.net' },
+                    { label: 'API Token', type: 'password', name: 'token', hint: 'Generate at id.atlassian.com/manage/api-tokens' },
+                    { label: 'Project Keys', type: 'text', name: 'projects', hint: 'Comma-separated project keys (e.g., PROJ, DEV)' }
+                ]
+            },
+            trello: {
+                icon: '📌',
+                name: 'Trello',
+                description: 'Link your Trello boards.',
+                fields: [
+                    { label: 'API Key', type: 'text', name: 'key', hint: 'Get from trello.com/app-key' },
+                    { label: 'Token', type: 'password', name: 'token', hint: 'Generate token using API key' }
+                ]
+            },
+            sonarqube: {
+                icon: '🔍',
+                name: 'SonarQube',
+                description: 'Connect SonarQube for code quality metrics.',
+                fields: [
+                    { label: 'SonarQube URL', type: 'text', name: 'url', hint: 'e.g., https://sonarqube.company.com' },
+                    { label: 'Authentication Token', type: 'password', name: 'token', hint: 'Generate in SonarQube user security settings' }
+                ]
+            }
+        };
+
+        const connectedSources = new Set();
+
+        function _openModal(source) {
+            const config = dataSourceConfigs[source];
+            const modal = document.getElementById('connectionModal');
+
+            document.getElementById('modalIcon').textContent = config.icon;
+            document.getElementById('modalName').textContent = config.name;
+            document.getElementById('modalDescription').textContent = config.description;
+
+            const formFields = document.getElementById('formFields');
+            formFields.innerHTML = config.fields.map(field => `
+                <div class="form-group">
+                    <label for="${field.name}">${field.label}</label>
+                    <input type="${field.type}" id="${field.name}" name="${field.name}" required>
+                    <div class="input-hint">${field.hint}</div>
+                </div>
+            `).join('');
+
+            modal.classList.add('active');
+
+            document.getElementById('connectionForm').onsubmit = (e) => {
+                e.preventDefault();
+                connectSource(source);
+            };
+        }
+
+        function closeModal() {
+            document.getElementById('connectionModal').classList.remove('active');
+        }
+
+        function connectSource(source) {
+            // Simulate connection
+            connectedSources.add(source);
+            closeModal();
+
+            // Update UI
+            const cards = document.querySelectorAll('.data-source-card');
+            cards.forEach(card => {
+                const cardSource = card.querySelector('.source-name').textContent.toLowerCase().replace(' ', '');
+                if (cardSource === source) {
+                    card.classList.add('connected');
+                    card.querySelector('.status-badge').textContent = 'Connected';
+                    card.querySelector('.status-badge').classList.remove('not-connected');
+                    card.querySelector('.status-badge').classList.add('connected');
+                    card.querySelector('.btn').textContent = 'Configure';
+                    card.querySelector('.btn').classList.remove('btn-connect');
+                    card.querySelector('.btn').classList.add('btn-configure');
+                }
+            });
+
+            updateContinueButton();
+        }
+
+        function updateContinueButton() {
+            const vcsConnected = ['github', 'gitlab', 'bitbucket'].some(vcs => connectedSources.has(vcs));
+            const continueBtn = document.getElementById('continueBtn');
+
+            if (vcsConnected) {
+                continueBtn.disabled = false;
+                continueBtn.onclick = () => {
+                    window.location.href = 'dashboard.html';
+                };
+            }
+        }
+
+        // Close modal on outside click
+        document.getElementById('connectionModal').addEventListener('click', (e) => {
+            if (e.target.id === 'connectionModal') {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>

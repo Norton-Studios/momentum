@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connect Data Sources - Momentum</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f7fafc;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: white;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 1.25rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .progress-steps {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .step-number {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #e2e8f0;
+            color: #718096;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.85rem;
+        }
+
+        .step.active .step-number {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .step.completed .step-number {
+            background: #48bb78;
+            color: white;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+
+        .onboarding-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            padding: 3rem;
+        }
+
+        .onboarding-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .onboarding-header h1 {
+            font-size: 2.25rem;
+            color: #2d3748;
+            margin-bottom: 1rem;
+        }
+
+        .onboarding-header p {
+            color: #718096;
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .alert-info {
+            background: #ebf8ff;
+            border-left: 4px solid #4299e1;
+            padding: 1.25rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            color: #2c5282;
+        }
+
+        .alert-info strong {
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .data-source-section {
+            margin-bottom: 2.5rem;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            color: #2d3748;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .required-badge {
+            background: #fc8181;
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .optional-badge {
+            background: #a0aec0;
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .section-description {
+            color: #718096;
+            margin-bottom: 1.5rem;
+        }
+
+        .source-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .source-card {
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .source-card:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+            transform: translateY(-2px);
+        }
+
+        .source-card.connected {
+            border-color: #48bb78;
+            background: #f0fff4;
+        }
+
+        .source-card.expanded {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .source-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .source-info h3 {
+            color: #2d3748;
+            font-size: 1.15rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .source-info p {
+            color: #718096;
+            font-size: 0.85rem;
+        }
+
+        .status-badge {
+            padding: 0.35rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .status-connected {
+            background: #48bb78;
+            color: white;
+        }
+
+        .status-configure {
+            background: #cbd5e0;
+            color: #2d3748;
+        }
+
+        .source-form {
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #2d3748;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .help-text {
+            font-size: 0.85rem;
+            color: #718096;
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+
+        .help-text::before {
+            content: 'ℹ️';
+            flex-shrink: 0;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #4a5568;
+            border: 2px solid #e2e8f0;
+        }
+
+        .btn-secondary:hover {
+            border-color: #cbd5e0;
+        }
+
+        .btn-test {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-test:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .connection-status {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.9rem;
+        }
+
+        .status-success {
+            background: #f0fff4;
+            border: 1px solid #48bb78;
+            color: #22543d;
+        }
+
+        .status-error {
+            background: #fff5f5;
+            border: 1px solid #fc8181;
+            color: #742a2a;
+        }
+
+        .status-testing {
+            background: #faf089;
+            border: 1px solid #ecc94b;
+            color: #744210;
+        }
+
+        .bottom-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 2px solid #e2e8f0;
+        }
+
+        .skip-link {
+            color: #718096;
+            text-decoration: none;
+            font-size: 0.95rem;
+        }
+
+        .skip-link:hover {
+            color: #667eea;
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .source-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .progress-steps {
+                display: none;
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">Momentum</div>
+        <div class="progress-steps">
+            <div class="step completed">
+                <div class="step-number">✓</div>
+                <span>Account</span>
+            </div>
+            <div class="step active">
+                <div class="step-number">2</div>
+                <span>Data Sources</span>
+            </div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <span>Repositories</span>
+            </div>
+            <div class="step">
+                <div class="step-number">4</div>
+                <span>Import</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="onboarding-card">
+            <div class="onboarding-header">
+                <h1>Connect Your Data Sources</h1>
+                <p>Link your development tools to start collecting productivity metrics. At least one version control system is required.</p>
+            </div>
+
+            <div class="alert-info">
+                <strong>Quick Setup</strong>
+                You can configure additional data sources later from Settings. For now, let's connect your essential tools.
+            </div>
+
+            <div class="data-source-section">
+                <h2 class="section-title">
+                    Version Control
+                    <span class="required-badge">REQUIRED</span>
+                </h2>
+                <p class="section-description">Connect at least one VCS to track commits, pull requests, and code changes.</p>
+
+                <div class="source-grid">
+                    <div class="source-card connected">
+                        <div class="source-header">
+                            <div class="source-info">
+                                <h3>GitHub</h3>
+                                <p>Connected to 'acme-org'</p>
+                            </div>
+                            <span class="status-badge status-connected">Connected</span>
+                        </div>
+                        <div class="connection-status status-success">
+                            ✓ Successfully connected. Found 50 repositories.
+                        </div>
+                    </div>
+
+                    <div class="source-card">
+                        <div class="source-header">
+                            <div class="source-info">
+                                <h3>GitLab</h3>
+                                <p>Self-hosted or cloud</p>
+                            </div>
+                            <span class="status-badge status-configure">Configure</span>
+                        </div>
+                    </div>
+
+                    <div class="source-card">
+                        <div class="source-header">
+                            <div class="source-info">
+                                <h3>Bitbucket</h3>
+                                <p>Cloud or data center</p>
+                            </div>
+                            <span class="status-badge status-configure">Configure</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="data-source-section">
+                <h2 class="section-title">
+                    CI/CD Platforms
+                    <span class="optional-badge">OPTIONAL</span>
+                </h2>
+                <p class="section-description">Track pipeline success rates, build times, and deployment metrics.</p>
+
+                <div class="source-grid">
+                    <div class="source-card expanded">
+                        <div class="source-header">
+                            <div class="source-info">
+                                <h3>Jenkins</h3>
+                                <p>Self-hosted CI/CD</p>
+                            </div>
+                            <span class="status-badge status-configure">Configure</span>
+                        </div>
+
+                        <div class="source-form">
+                            <div class="form-group">
+                                <label for="jenkins-url">Jenkins URL</label>
+                                <input type="text" id="jenkins-url" placeholder="https://jenkins.company.com" value="https://jenkins.acme.com">
+                                <div class="help-text">Your Jenkins server URL</div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="jenkins-token">API Token</label>
+                                <input type="password" id="jenkins-token" placeholder="Enter your API token">
+                                <div class="help-text">Generate from Jenkins > User > Configure > API Token</div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="jenkins-jobs">Job Pattern (Optional)</label>
+                                <input type="text" id="jenkins-jobs" placeholder="*" value="*">
+                                <div class="help-text">Use * for all jobs or specify pattern like 'production-*'</div>
+                            </div>
+
+                            <div class="connection-status status-testing">
+                                ⏳ Testing connection...
+                            </div>
+
+                            <div class="form-actions">
+                                <button class="btn btn-test">Test Connection</button>
+                                <button class="btn btn-primary">Save Configuration</button>
+                                <button class="btn btn-secondary">Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="source-card connected">
+                        <div class="source-header">
+                            <div class="source-info">
+                                <h3>GitHub Actions</h3>
+                                <p>Auto-configured</p>
+                            </div>
+                            <span class="status-badge status-connected">Connected</span>
+                        </div>
+                        <div class="connection-status status-success">
+                            ✓ Automatically configured with GitHub integration
+                        </div>
+                    </div>
+
+                    <div class="source-card">
+                        <div class="source-header">
+                            <div class="source-info">
+                                <h3>CircleCI</h3>
+                                <p>Cloud CI/CD</p>
+                            </div>
+                            <span class="status-badge status-configure">Configure</span>
+                        </div>
+                    </div>
+
+                    <div class="source-card">
+                        <div class="source-header">
+                            <div class="source-info">
+                                <h3>GitLab CI</h3>
+                                <p>Built-in CI/CD</p>
+                            </div>
+                            <span class="status-badge status-configure">Configure</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="data-source-section">
+                <h2 class="section-title">
+                    Code Quality & Security
+                    <span class="optional-badge">OPTIONAL</span>
+                </h2>
+                <p class="section-description">Monitor code quality metrics, technical debt, and security vulnerabilities.</p>
+
+                <div class="source-grid">
+                    <div class="source-card">
+                        <div class="source-header">
+                            <div class="source-info">
+                                <h3>SonarQube</h3>
+                                <p>Code quality analysis</p>
+                            </div>
+                            <span class="status-badge status-configure">Configure</span>
+                        </div>
+                    </div>
+
+                    <div class="source-card">
+                        <div class="source-header">
+                            <div class="source-info">
+                                <h3>CodeClimate</h3>
+                                <p>Automated code review</p>
+                            </div>
+                            <span class="status-badge status-configure">Configure</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="data-source-section">
+                <h2 class="section-title">
+                    Project Management
+                    <span class="optional-badge">OPTIONAL</span>
+                </h2>
+                <p class="section-description">Track issues, sprints, and project workflow metrics.</p>
+
+                <div class="source-grid">
+                    <div class="source-card">
+                        <div class="source-header">
+                            <div class="source-info">
+                                <h3>JIRA</h3>
+                                <p>Issue & project tracking</p>
+                            </div>
+                            <span class="status-badge status-configure">Configure</span>
+                        </div>
+                    </div>
+
+                    <div class="source-card">
+                        <div class="source-header">
+                            <div class="source-info">
+                                <h3>Trello</h3>
+                                <p>Visual project boards</p>
+                            </div>
+                            <span class="status-badge status-configure">Configure</span>
+                        </div>
+                    </div>
+
+                    <div class="source-card">
+                        <div class="source-header">
+                            <div class="source-info">
+                                <h3>Asana</h3>
+                                <p>Work management</p>
+                            </div>
+                            <span class="status-badge status-configure">Configure</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bottom-actions">
+                <a href="#" class="skip-link">Skip optional sources for now</a>
+                <button class="btn btn-primary" style="padding: 1rem 3rem;">Continue to Repository Selection</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

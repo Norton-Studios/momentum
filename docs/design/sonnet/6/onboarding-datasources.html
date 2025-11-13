@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connect Data Sources - Momentum</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #f5f7fa;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 1.5rem 2rem;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.6rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .progress-steps {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            color: #6b7280;
+        }
+
+        .step-number {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .step.active .step-number {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .step.active {
+            color: #1a1a2e;
+            font-weight: 600;
+        }
+
+        .step.completed .step-number {
+            background: #10b981;
+            color: white;
+        }
+
+        /* Main Content */
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .page-header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #1a1a2e;
+            margin-bottom: 1rem;
+        }
+
+        .page-header p {
+            font-size: 1.2rem;
+            color: #6b7280;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .required-section {
+            background: white;
+            border-radius: 16px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .required-badge {
+            background: #ef4444;
+            color: white;
+            font-size: 0.7rem;
+            padding: 0.25rem 0.6rem;
+            border-radius: 4px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .section-description {
+            color: #6b7280;
+            margin-bottom: 2rem;
+        }
+
+        .datasource-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .datasource-card {
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 1.8rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: white;
+            position: relative;
+        }
+
+        .datasource-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .datasource-card.selected {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .datasource-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .datasource-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .status-badge {
+            font-size: 0.75rem;
+            padding: 0.3rem 0.7rem;
+            border-radius: 12px;
+            font-weight: 600;
+        }
+
+        .status-badge.connected {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .datasource-card h3 {
+            font-size: 1.2rem;
+            color: #1a1a2e;
+            margin-bottom: 0.5rem;
+        }
+
+        .datasource-card p {
+            color: #6b7280;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        /* Configuration Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            padding: 2rem;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            font-size: 1.5rem;
+            color: #1a1a2e;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #6b7280;
+            padding: 0.5rem;
+            line-height: 1;
+        }
+
+        .close-modal:hover {
+            color: #1a1a2e;
+        }
+
+        .modal-body {
+            padding: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #1a1a2e;
+            font-size: 0.95rem;
+        }
+
+        .required {
+            color: #ef4444;
+        }
+
+        input[type="text"],
+        input[type="password"],
+        select {
+            width: 100%;
+            padding: 0.9rem 1.2rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .input-hint {
+            font-size: 0.85rem;
+            color: #6b7280;
+            margin-top: 0.4rem;
+            line-height: 1.4;
+        }
+
+        .input-hint a {
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .input-hint a:hover {
+            text-decoration: underline;
+        }
+
+        .modal-footer {
+            padding: 1.5rem 2rem;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+
+        .btn {
+            padding: 0.8rem 1.8rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #6b7280;
+            border: 2px solid #e5e7eb;
+        }
+
+        .btn-secondary:hover {
+            border-color: #667eea;
+            color: #667eea;
+        }
+
+        .btn-test {
+            background: #f8f9fa;
+            color: #1a1a2e;
+            border: 2px solid #e5e7eb;
+        }
+
+        .btn-test:hover {
+            border-color: #10b981;
+            color: #10b981;
+        }
+
+        .test-result {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .test-result.success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #10b981;
+        }
+
+        .test-result.error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #ef4444;
+        }
+
+        /* Optional Section */
+        .optional-section {
+            background: white;
+            border-radius: 16px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .optional-badge {
+            background: #e5e7eb;
+            color: #4b5563;
+            font-size: 0.7rem;
+            padding: 0.25rem 0.6rem;
+            border-radius: 4px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            background: white;
+            border-top: 1px solid #e5e7eb;
+            padding: 1.5rem 2rem;
+            position: sticky;
+            bottom: 0;
+        }
+
+        .bottom-nav-content {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-info {
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .skip-link {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            padding: 0.8rem 1.8rem;
+        }
+
+        .skip-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div class="logo">Momentum</div>
+            <div class="progress-steps">
+                <div class="step completed">
+                    <div class="step-number">✓</div>
+                    <span>Account</span>
+                </div>
+                <div class="step active">
+                    <div class="step-number">2</div>
+                    <span>Data Sources</span>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <span>Repositories</span>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <span>Import</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>Connect Your Development Tools</h1>
+            <p>Connect at least one version control system to start tracking your development metrics</p>
+        </div>
+
+        <div class="required-section">
+            <h2 class="section-title">
+                Version Control Systems
+                <span class="required-badge">Required</span>
+            </h2>
+            <p class="section-description">
+                Connect at least one VCS to import repositories, commits, and pull requests
+            </p>
+
+            <div class="datasource-grid">
+                <div class="datasource-card" onclick="openModal('github')">
+                    <div class="datasource-header">
+                        <div class="datasource-icon">🔗</div>
+                    </div>
+                    <h3>GitHub</h3>
+                    <p>Connect your GitHub organization to track repositories, commits, and pull requests.</p>
+                </div>
+
+                <div class="datasource-card" onclick="openModal('gitlab')">
+                    <div class="datasource-header">
+                        <div class="datasource-icon">🔷</div>
+                    </div>
+                    <h3>GitLab</h3>
+                    <p>Import projects, merge requests, and CI/CD data from GitLab.</p>
+                </div>
+
+                <div class="datasource-card" onclick="openModal('bitbucket')">
+                    <div class="datasource-header">
+                        <div class="datasource-icon">🔵</div>
+                    </div>
+                    <h3>Bitbucket</h3>
+                    <p>Connect Bitbucket to track your team's code contributions.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="optional-section">
+            <h2 class="section-title">
+                CI/CD Platforms
+                <span class="optional-badge">Optional</span>
+            </h2>
+            <p class="section-description">
+                Add CI/CD integrations to track pipeline stability and deployment velocity
+            </p>
+
+            <div class="datasource-grid">
+                <div class="datasource-card" onclick="openModal('jenkins')">
+                    <div class="datasource-icon">⚙️</div>
+                    <h3>Jenkins</h3>
+                    <p>Monitor build pipelines and deployment status.</p>
+                </div>
+
+                <div class="datasource-card" onclick="openModal('circleci')">
+                    <div class="datasource-icon">⭕</div>
+                    <h3>CircleCI</h3>
+                    <p>Track CI/CD workflow performance and success rates.</p>
+                </div>
+
+                <div class="datasource-card">
+                    <div class="datasource-header">
+                        <div class="datasource-icon">✓</div>
+                        <span class="status-badge connected">Auto-configured</span>
+                    </div>
+                    <h3>GitHub Actions</h3>
+                    <p>Automatically configured with your GitHub connection.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="optional-section">
+            <h2 class="section-title">
+                Code Quality & Security
+                <span class="optional-badge">Optional</span>
+            </h2>
+            <p class="section-description">
+                Connect quality tools to track code coverage, technical debt, and vulnerabilities
+            </p>
+
+            <div class="datasource-grid">
+                <div class="datasource-card" onclick="openModal('sonarqube')">
+                    <div class="datasource-icon">📊</div>
+                    <h3>SonarQube</h3>
+                    <p>Import code quality metrics and security vulnerabilities.</p>
+                </div>
+
+                <div class="datasource-card" onclick="openModal('jira')">
+                    <div class="datasource-icon">📋</div>
+                    <h3>JIRA</h3>
+                    <p>Track issue lifecycle and sprint metrics.</p>
+                </div>
+
+                <div class="datasource-card" onclick="openModal('aws')">
+                    <div class="datasource-icon">☁️</div>
+                    <h3>AWS</h3>
+                    <p>Monitor infrastructure costs and deployment events.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- GitHub Configuration Modal -->
+    <div class="modal" id="githubModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>
+                    <span style="font-size: 2rem;">🔗</span>
+                    Configure GitHub
+                </h2>
+                <button class="close-modal" onclick="closeModal('github')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="githubToken">Personal Access Token <span class="required">*</span></label>
+                    <input type="password" id="githubToken" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
+                    <div class="input-hint">
+                        Generate at <a href="https://github.com/settings/tokens" target="_blank">github.com/settings/tokens</a><br>
+                        Required scopes: <code>repo</code>, <code>read:org</code>, <code>read:user</code>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="githubOrg">Organization Name(s) <span class="required">*</span></label>
+                    <input type="text" id="githubOrg" placeholder="acme-corp">
+                    <div class="input-hint">
+                        Comma-separated for multiple organizations
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="githubVisibility">Repository Visibility</label>
+                    <select id="githubVisibility">
+                        <option value="all">All repositories</option>
+                        <option value="public">Public only</option>
+                        <option value="private">Private only</option>
+                    </select>
+                </div>
+
+                <button class="btn btn-test" onclick="testConnection('github')">Test Connection</button>
+                <div id="githubTestResult"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('github')">Cancel</button>
+                <button class="btn btn-primary" onclick="saveConfig('github')">Save Configuration</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Similar modals for other services would be created -->
+
+    <div class="bottom-nav">
+        <div class="bottom-nav-content">
+            <div class="nav-info">
+                Step 2 of 4
+            </div>
+            <div class="nav-buttons">
+                <a href="#" class="skip-link">Skip for now</a>
+                <button class="btn btn-primary" onclick="continueToRepositories()">Continue to Repositories</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function _openModal(service) {
+            document.getElementById(`${service}Modal`).classList.add('active');
+        }
+
+        function closeModal(service) {
+            document.getElementById(`${service}Modal`).classList.remove('active');
+        }
+
+        function _testConnection(service) {
+            const resultDiv = document.getElementById(`${service}TestResult`);
+            resultDiv.innerHTML = '<div class="test-result">Testing connection...</div>';
+
+            // Simulate API call
+            setTimeout(() => {
+                resultDiv.innerHTML = '<div class="test-result success">✓ Connected successfully. Found 47 repositories.</div>';
+            }, 1500);
+        }
+
+        function _saveConfig(service) {
+            closeModal(service);
+            const _card = event.target.closest('.modal-content');
+            // Mark the card as selected
+            alert(`Configuration saved for ${service}`);
+        }
+
+        function _continueToRepositories() {
+            window.location.href = '/dashboard.html';
+        }
+
+        // Close modal on background click
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.remove('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

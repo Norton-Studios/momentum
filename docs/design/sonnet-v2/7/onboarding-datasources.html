@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CONNECT DATA SOURCES | MOMENTUM</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: #000000;
+            color: #FFFFFF;
+            line-height: 1.2;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        header {
+            background-color: #000000;
+            border-bottom: 4px solid #00FF00;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 80px;
+            padding: 0 32px;
+        }
+
+        .logo {
+            font-size: 32px;
+            font-weight: 900;
+            letter-spacing: -2px;
+            color: #00FF00;
+        }
+
+        .progress-bar {
+            display: flex;
+            gap: 2px;
+        }
+
+        .progress-step {
+            width: 100px;
+            height: 8px;
+            background-color: #333333;
+        }
+
+        .progress-step.active {
+            background-color: #00FF00;
+        }
+
+        /* Main Content */
+        main {
+            flex: 1;
+            padding: 48px 32px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .page-header {
+            border: 4px solid #00FF00;
+            background-color: #000000;
+            padding: 32px;
+            margin-bottom: 4px;
+        }
+
+        .page-title {
+            font-size: 48px;
+            font-weight: 900;
+            letter-spacing: -2px;
+            color: #00FF00;
+            margin-bottom: 8px;
+        }
+
+        .page-subtitle {
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .page-instruction {
+            border: 4px solid #00FF00;
+            background-color: #000000;
+            padding: 24px 32px;
+            margin-bottom: 32px;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .instruction-required {
+            color: #00FF00;
+            font-weight: 900;
+            text-transform: uppercase;
+        }
+
+        /* Data Source Grid */
+        .source-section {
+            margin-bottom: 32px;
+        }
+
+        .section-header {
+            background-color: #00FF00;
+            color: #000000;
+            padding: 16px 32px;
+            font-size: 16px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 4px;
+        }
+
+        .source-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 4px;
+        }
+
+        .source-card {
+            border: 4px solid #00FF00;
+            background-color: #000000;
+            padding: 0;
+            position: relative;
+        }
+
+        .source-card-header {
+            padding: 24px 32px;
+            border-bottom: 2px solid #00FF00;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .source-name {
+            font-size: 24px;
+            font-weight: 900;
+            letter-spacing: -1px;
+        }
+
+        .status-badge {
+            padding: 8px 16px;
+            font-size: 11px;
+            font-weight: 900;
+            letter-spacing: 1px;
+            border: 2px solid #666666;
+            color: #666666;
+        }
+
+        .status-badge.connected {
+            border-color: #00FF00;
+            color: #00FF00;
+        }
+
+        .source-card-body {
+            padding: 32px;
+        }
+
+        .config-form {
+            margin-bottom: 24px;
+        }
+
+        .form-field {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 11px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            color: #00FF00;
+        }
+
+        .form-input {
+            width: 100%;
+            background-color: #000000;
+            border: 2px solid #00FF00;
+            color: #FFFFFF;
+            padding: 12px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 13px;
+            outline: none;
+        }
+
+        .form-input:focus {
+            border-color: #FFFFFF;
+        }
+
+        .form-help {
+            font-size: 11px;
+            color: #999999;
+            margin-top: 4px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 8px;
+            margin-top: 24px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            font-size: 12px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            font-family: 'Courier New', Courier, monospace;
+            border: none;
+            transition: all 0.1s;
+        }
+
+        .btn-test {
+            background-color: #000000;
+            color: #00FF00;
+            border: 2px solid #00FF00;
+        }
+
+        .btn-test:hover {
+            background-color: #00FF00;
+            color: #000000;
+        }
+
+        .btn-save {
+            background-color: #00FF00;
+            color: #000000;
+        }
+
+        .btn-save:hover {
+            background-color: #FFFFFF;
+        }
+
+        .test-result {
+            margin-top: 16px;
+            padding: 12px;
+            border: 2px solid #00FF00;
+            font-size: 12px;
+            font-family: monospace;
+        }
+
+        .test-result.success {
+            border-color: #00FF00;
+            color: #00FF00;
+        }
+
+        .test-result.error {
+            border-color: #FF0000;
+            color: #FF0000;
+        }
+
+        /* Navigation */
+        .navigation {
+            border: 4px solid #00FF00;
+            background-color: #000000;
+            padding: 32px;
+            margin-top: 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-info {
+            font-size: 13px;
+        }
+
+        .nav-info-count {
+            color: #00FF00;
+            font-weight: 900;
+        }
+
+        .btn-continue {
+            background-color: #00FF00;
+            color: #000000;
+            border: none;
+            padding: 20px 48px;
+            font-size: 16px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            font-family: 'Courier New', Courier, monospace;
+            transition: all 0.1s;
+        }
+
+        .btn-continue:hover {
+            background-color: #FFFFFF;
+        }
+
+        .btn-continue:disabled {
+            background-color: #333333;
+            color: #666666;
+            cursor: not-allowed;
+        }
+
+        /* Footer */
+        footer {
+            background-color: #000000;
+            border-top: 4px solid #00FF00;
+            padding: 32px;
+            text-align: center;
+        }
+
+        .footer-text {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <div class="logo">MOMENTUM</div>
+            <div class="progress-bar">
+                <div class="progress-step active"></div>
+                <div class="progress-step active"></div>
+                <div class="progress-step"></div>
+                <div class="progress-step"></div>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <div class="page-header">
+                <h1 class="page-title">CONNECT DATA SOURCES</h1>
+                <p class="page-subtitle">Step 2 of 4: Configure External System Integrations</p>
+            </div>
+
+            <div class="page-instruction">
+                <span class="instruction-required">REQUIRED:</span> AT LEAST ONE VERSION CONTROL SYSTEM (VCS) MUST BE CONFIGURED.
+                OPTIONAL DATA SOURCES CAN BE ADDED NOW OR LATER FROM SETTINGS.
+            </div>
+
+            <!-- Required: Version Control Systems -->
+            <div class="source-section">
+                <div class="section-header">REQUIRED: VERSION CONTROL SYSTEMS</div>
+                <div class="source-grid">
+                    <!-- GitHub Card -->
+                    <div class="source-card">
+                        <div class="source-card-header">
+                            <div class="source-name">GITHUB</div>
+                            <div class="status-badge">NOT CONNECTED</div>
+                        </div>
+                        <div class="source-card-body">
+                            <div class="config-form">
+                                <div class="form-field">
+                                    <label class="form-label" for="github-token">Personal Access Token</label>
+                                    <input type="password" id="github-token" class="form-input" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
+                                    <div class="form-help">REQUIRED SCOPES: repo, read:org, read:user</div>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label" for="github-org">Organization Name(s)</label>
+                                    <input type="text" id="github-org" class="form-input" placeholder="my-organization">
+                                    <div class="form-help">COMMA-SEPARATED FOR MULTIPLE ORGS</div>
+                                </div>
+                            </div>
+                            <div class="button-group">
+                                <button class="btn btn-test">TEST CONNECTION</button>
+                                <button class="btn btn-save">SAVE</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- GitLab Card -->
+                    <div class="source-card">
+                        <div class="source-card-header">
+                            <div class="source-name">GITLAB</div>
+                            <div class="status-badge">NOT CONNECTED</div>
+                        </div>
+                        <div class="source-card-body">
+                            <div class="config-form">
+                                <div class="form-field">
+                                    <label class="form-label" for="gitlab-token">Private Token</label>
+                                    <input type="password" id="gitlab-token" class="form-input" placeholder="glpat-xxxxxxxxxxxxxxxxxxxx">
+                                    <div class="form-help">REQUIRED SCOPES: api, read_api, read_repository</div>
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label" for="gitlab-url">GitLab Instance URL</label>
+                                    <input type="text" id="gitlab-url" class="form-input" placeholder="https://gitlab.com">
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label" for="gitlab-group">Group ID(s)</label>
+                                    <input type="text" id="gitlab-group" class="form-input" placeholder="1234">
+                                    <div class="form-help">COMMA-SEPARATED FOR MULTIPLE GROUPS</div>
+                                </div>
+                            </div>
+                            <div class="button-group">
+                                <button class="btn btn-test">TEST CONNECTION</button>
+                                <button class="btn btn-save">SAVE</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Optional: CI/CD Platforms -->
+            <div class="source-section">
+                <div class="section-header">OPTIONAL: CI/CD PLATFORMS</div>
+                <div class="source-grid">
+                    <!-- Jenkins Card -->
+                    <div class="source-card">
+                        <div class="source-card-header">
+                            <div class="source-name">JENKINS</div>
+                            <div class="status-badge">NOT CONNECTED</div>
+                        </div>
+                        <div class="source-card-body">
+                            <div class="config-form">
+                                <div class="form-field">
+                                    <label class="form-label" for="jenkins-url">Jenkins URL</label>
+                                    <input type="text" id="jenkins-url" class="form-input" placeholder="https://jenkins.company.com">
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label" for="jenkins-user">Username</label>
+                                    <input type="text" id="jenkins-user" class="form-input">
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label" for="jenkins-token">API Token</label>
+                                    <input type="password" id="jenkins-token" class="form-input">
+                                </div>
+                            </div>
+                            <div class="button-group">
+                                <button class="btn btn-test">TEST CONNECTION</button>
+                                <button class="btn btn-save">SAVE</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CircleCI Card -->
+                    <div class="source-card">
+                        <div class="source-card-header">
+                            <div class="source-name">CIRCLECI</div>
+                            <div class="status-badge">NOT CONNECTED</div>
+                        </div>
+                        <div class="source-card-body">
+                            <div class="config-form">
+                                <div class="form-field">
+                                    <label class="form-label" for="circle-token">Personal API Token</label>
+                                    <input type="password" id="circle-token" class="form-input">
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label" for="circle-org">Organization Slug</label>
+                                    <input type="text" id="circle-org" class="form-input" placeholder="gh/my-org">
+                                </div>
+                            </div>
+                            <div class="button-group">
+                                <button class="btn btn-test">TEST CONNECTION</button>
+                                <button class="btn btn-save">SAVE</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Optional: Code Quality -->
+            <div class="source-section">
+                <div class="section-header">OPTIONAL: CODE QUALITY TOOLS</div>
+                <div class="source-grid">
+                    <!-- SonarQube Card -->
+                    <div class="source-card">
+                        <div class="source-card-header">
+                            <div class="source-name">SONARQUBE</div>
+                            <div class="status-badge">NOT CONNECTED</div>
+                        </div>
+                        <div class="source-card-body">
+                            <div class="config-form">
+                                <div class="form-field">
+                                    <label class="form-label" for="sonar-url">SonarQube URL</label>
+                                    <input type="text" id="sonar-url" class="form-input" placeholder="https://sonarqube.company.com">
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label" for="sonar-token">Authentication Token</label>
+                                    <input type="password" id="sonar-token" class="form-input">
+                                </div>
+                            </div>
+                            <div class="button-group">
+                                <button class="btn btn-test">TEST CONNECTION</button>
+                                <button class="btn btn-save">SAVE</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- JIRA Card -->
+                    <div class="source-card">
+                        <div class="source-card-header">
+                            <div class="source-name">JIRA</div>
+                            <div class="status-badge">NOT CONNECTED</div>
+                        </div>
+                        <div class="source-card-body">
+                            <div class="config-form">
+                                <div class="form-field">
+                                    <label class="form-label" for="jira-url">JIRA URL</label>
+                                    <input type="text" id="jira-url" class="form-input" placeholder="https://company.atlassian.net">
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label" for="jira-email">Email</label>
+                                    <input type="email" id="jira-email" class="form-input">
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label" for="jira-token">API Token</label>
+                                    <input type="password" id="jira-token" class="form-input">
+                                </div>
+                            </div>
+                            <div class="button-group">
+                                <button class="btn btn-test">TEST CONNECTION</button>
+                                <button class="btn btn-save">SAVE</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <div class="navigation">
+                <div class="nav-info">
+                    CONNECTED DATA SOURCES: <span class="nav-info-count">0</span> |
+                    REQUIRED VCS: <span class="nav-info-count">0/1</span>
+                </div>
+                <button class="btn-continue" disabled>CONTINUE TO REPOSITORIES</button>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-text">MOMENTUM &copy; 2025 | STEP 2/4: DATA SOURCE CONFIGURATION</div>
+    </footer>
+</body>
+</html>

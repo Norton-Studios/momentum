@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connect Data Sources - Momentum</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #1a1a1a;
+            background: #f5f7fa;
+        }
+
+        /* Header */
+        .header {
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 1.5rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .progress-indicator {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            color: #9ca3af;
+        }
+
+        .step.active {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .step.completed {
+            color: #10b981;
+        }
+
+        .step-number {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .step.active .step-number {
+            background: #667eea;
+            color: white;
+        }
+
+        .step.completed .step-number {
+            background: #10b981;
+            color: white;
+        }
+
+        /* Main Content */
+        .container {
+            max-width: 900px;
+            margin: 3rem auto;
+            padding: 0 2rem;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .page-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: #1a1a1a;
+        }
+
+        .page-header p {
+            font-size: 1.1rem;
+            color: #666;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Data Source Cards */
+        .section {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #1a1a1a;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .required-badge {
+            background: #fef3c7;
+            color: #92400e;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .optional-badge {
+            background: #e0e7ff;
+            color: #3730a3;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .section-description {
+            color: #666;
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+        }
+
+        .source-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .source-card {
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .source-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
+        }
+
+        .source-card.connected {
+            border-color: #10b981;
+            background: #f0fdf4;
+        }
+
+        .source-card.expanded {
+            grid-column: 1 / -1;
+            border-color: #667eea;
+        }
+
+        .source-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .source-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+        }
+
+        .source-card.connected .source-icon {
+            background: #10b981;
+        }
+
+        .source-info h3 {
+            font-size: 1.1rem;
+            color: #1a1a1a;
+        }
+
+        .source-status {
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .source-card.connected .source-status {
+            color: #10b981;
+            font-weight: 600;
+        }
+
+        .status-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: #10b981;
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        /* Configuration Form */
+        .config-form {
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 2px solid #e5e7eb;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #1a1a1a;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .required {
+            color: #ef4444;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .input-hint {
+            font-size: 0.85rem;
+            color: #6b7280;
+            margin-top: 0.4rem;
+        }
+
+        .info-box {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .info-box-title {
+            font-weight: 600;
+            color: #1e40af;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .info-box ul {
+            margin-left: 1.5rem;
+            color: #1e40af;
+            font-size: 0.85rem;
+        }
+
+        .info-box a {
+            color: #1e40af;
+            text-decoration: underline;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: white;
+            border: 2px solid #e5e7eb;
+            color: #1a1a1a;
+        }
+
+        .btn-secondary:hover {
+            border-color: #667eea;
+            background: #f9fafb;
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+        }
+
+        /* Navigation */
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .nav-info {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .source-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .progress-indicator {
+                display: none;
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div class="logo">Momentum</div>
+            <div class="progress-indicator">
+                <div class="step completed">
+                    <div class="step-number">✓</div>
+                    <span>Account</span>
+                </div>
+                <span style="color: #e5e7eb;">→</span>
+                <div class="step active">
+                    <div class="step-number">2</div>
+                    <span>Data Sources</span>
+                </div>
+                <span style="color: #e5e7eb;">→</span>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <span>Repositories</span>
+                </div>
+                <span style="color: #e5e7eb;">→</span>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <span>Import</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>Connect Your Data Sources</h1>
+            <p>Connect to your development tools to start collecting productivity metrics. You'll need at least one version control system to continue.</p>
+        </div>
+
+        <!-- Version Control Systems (Required) -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-title">
+                    Version Control Systems
+                    <span class="required-badge">REQUIRED</span>
+                </div>
+            </div>
+            <div class="section-description">
+                Connect to GitHub, GitLab, or Bitbucket to track commits, pull requests, and code contributions.
+            </div>
+
+            <div class="source-grid">
+                <div class="source-card connected expanded">
+                    <span class="status-badge">✓ Connected</span>
+                    <div class="source-header">
+                        <div class="source-icon">🔷</div>
+                        <div class="source-info">
+                            <h3>GitHub</h3>
+                            <div class="source-status">Connected to acme-corp</div>
+                        </div>
+                    </div>
+
+                    <div class="config-form">
+                        <div class="info-box">
+                            <div class="info-box-title">Setup Instructions:</div>
+                            <ul>
+                                <li>Generate a personal access token at <a href="#">github.com/settings/tokens</a></li>
+                                <li>Required scopes: <code>repo</code>, <code>read:org</code>, <code>read:user</code></li>
+                            </ul>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="github-token">Personal Access Token <span class="required">*</span></label>
+                            <input
+                                type="password"
+                                id="github-token"
+                                value="ghp_••••••••••••••••••••••••"
+                                placeholder="ghp_xxxxxxxxxxxxxxxxxxxxx"
+                            >
+                            <div class="input-hint">Your token is stored securely and encrypted</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="github-org">Organization Name(s) <span class="required">*</span></label>
+                            <input
+                                type="text"
+                                id="github-org"
+                                value="acme-corp"
+                                placeholder="your-organization"
+                            >
+                            <div class="input-hint">Comma-separated for multiple organizations</div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button class="btn btn-success">✓ Test Connection</button>
+                            <button class="btn btn-secondary">Update Configuration</button>
+                            <button class="btn btn-secondary">Disconnect</button>
+                        </div>
+
+                        <div style="margin-top: 1rem; padding: 1rem; background: #f0fdf4; border-radius: 8px; color: #166534; font-size: 0.9rem;">
+                            ✓ Connection successful. Found 47 repositories in acme-corp.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="source-card">
+                    <div class="source-header">
+                        <div class="source-icon">🟧</div>
+                        <div class="source-info">
+                            <h3>GitLab</h3>
+                            <div class="source-status">Not connected</div>
+                        </div>
+                    </div>
+                    <p style="color: #666; font-size: 0.9rem;">Connect to GitLab for comprehensive project tracking</p>
+                </div>
+
+                <div class="source-card">
+                    <div class="source-header">
+                        <div class="source-icon">🔵</div>
+                        <div class="source-info">
+                            <h3>Bitbucket</h3>
+                            <div class="source-status">Not connected</div>
+                        </div>
+                    </div>
+                    <p style="color: #666; font-size: 0.9rem;">Track repositories hosted on Bitbucket</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- CI/CD Platforms (Optional) -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-title">
+                    CI/CD Platforms
+                    <span class="optional-badge">OPTIONAL</span>
+                </div>
+            </div>
+            <div class="section-description">
+                Monitor build pipelines, deployment frequency, and pipeline success rates.
+            </div>
+
+            <div class="source-grid">
+                <div class="source-card">
+                    <div class="source-header">
+                        <div class="source-icon">⚙️</div>
+                        <div class="source-info">
+                            <h3>GitHub Actions</h3>
+                            <div class="source-status">Auto-configured</div>
+                        </div>
+                    </div>
+                    <p style="color: #666; font-size: 0.9rem;">Automatically available with GitHub integration</p>
+                </div>
+
+                <div class="source-card">
+                    <div class="source-header">
+                        <div class="source-icon">🔨</div>
+                        <div class="source-info">
+                            <h3>Jenkins</h3>
+                            <div class="source-status">Not connected</div>
+                        </div>
+                    </div>
+                    <p style="color: #666; font-size: 0.9rem;">Connect to your Jenkins instance</p>
+                </div>
+
+                <div class="source-card">
+                    <div class="source-header">
+                        <div class="source-icon">🟢</div>
+                        <div class="source-info">
+                            <h3>CircleCI</h3>
+                            <div class="source-status">Not connected</div>
+                        </div>
+                    </div>
+                    <p style="color: #666; font-size: 0.9rem;">Monitor CircleCI pipelines</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Project Management (Optional) -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-title">
+                    Project Management
+                    <span class="optional-badge">OPTIONAL</span>
+                </div>
+            </div>
+            <div class="section-description">
+                Track sprint velocity, issue lifecycle, and project progress.
+            </div>
+
+            <div class="source-grid">
+                <div class="source-card">
+                    <div class="source-header">
+                        <div class="source-icon">📋</div>
+                        <div class="source-info">
+                            <h3>JIRA</h3>
+                            <div class="source-status">Not connected</div>
+                        </div>
+                    </div>
+                    <p style="color: #666; font-size: 0.9rem;">Import issues, sprints, and boards</p>
+                </div>
+
+                <div class="source-card">
+                    <div class="source-header">
+                        <div class="source-icon">📊</div>
+                        <div class="source-info">
+                            <h3>Trello</h3>
+                            <div class="source-status">Not connected</div>
+                        </div>
+                    </div>
+                    <p style="color: #666; font-size: 0.9rem;">Track cards and board activity</p>
+                </div>
+
+                <div class="source-card">
+                    <div class="source-header">
+                        <div class="source-icon">✓</div>
+                        <div class="source-info">
+                            <h3>Asana</h3>
+                            <div class="source-status">Not connected</div>
+                        </div>
+                    </div>
+                    <p style="color: #666; font-size: 0.9rem;">Import tasks and projects</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Code Quality (Optional) -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-title">
+                    Code Quality & Security
+                    <span class="optional-badge">OPTIONAL</span>
+                </div>
+            </div>
+            <div class="section-description">
+                Track code coverage, security vulnerabilities, and technical debt.
+            </div>
+
+            <div class="source-grid">
+                <div class="source-card">
+                    <div class="source-header">
+                        <div class="source-icon">🛡️</div>
+                        <div class="source-info">
+                            <h3>SonarQube</h3>
+                            <div class="source-status">Not connected</div>
+                        </div>
+                    </div>
+                    <p style="color: #666; font-size: 0.9rem;">Quality metrics and security scanning</p>
+                </div>
+
+                <div class="source-card">
+                    <div class="source-header">
+                        <div class="source-icon">☁️</div>
+                        <div class="source-info">
+                            <h3>CodeClimate</h3>
+                            <div class="source-status">Not connected</div>
+                        </div>
+                    </div>
+                    <p style="color: #666; font-size: 0.9rem;">Maintainability and test coverage</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="navigation">
+            <div class="nav-info">
+                You can add more data sources later in Settings
+            </div>
+            <div>
+                <button class="btn btn-primary" onclick="location.href='dashboard.html'">Continue to Repository Selection →</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

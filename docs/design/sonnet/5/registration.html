@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - Momentum</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #5B47FB;
+            --primary-dark: #4433CC;
+            --primary-light: #7B67FF;
+            --secondary: #00D9B8;
+            --secondary-dark: #00B89A;
+            --accent: #FF6B9D;
+            --text-dark: #1A1A2E;
+            --text-medium: #4A4A5E;
+            --text-light: #8E8EA0;
+            --bg-white: #FFFFFF;
+            --bg-light: #F8F9FE;
+            --bg-gradient: linear-gradient(135deg, #5B47FB 0%, #00D9B8 100%);
+            --shadow-sm: 0 2px 8px rgba(91, 71, 251, 0.08);
+            --shadow-md: 0 4px 16px rgba(91, 71, 251, 0.12);
+            --shadow-lg: 0 12px 32px rgba(91, 71, 251, 0.16);
+            --error: #FF4757;
+            --success: #2ED573;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            color: var(--text-dark);
+            line-height: 1.6;
+            background: var(--bg-light);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .registration-container {
+            max-width: 1200px;
+            width: 100%;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            background: white;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* Left Side - Branding */
+        .branding-section {
+            background: var(--bg-gradient);
+            padding: 4rem;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .branding-section::before {
+            content: '';
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            top: -200px;
+            right: -200px;
+            border-radius: 50%;
+        }
+
+        .branding-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 2rem;
+            color: white;
+        }
+
+        .branding-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+        }
+
+        .branding-description {
+            font-size: 1.1rem;
+            opacity: 0.95;
+            margin-bottom: 3rem;
+            line-height: 1.7;
+        }
+
+        .benefits-list {
+            list-style: none;
+        }
+
+        .benefit-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            font-size: 1.05rem;
+        }
+
+        .benefit-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        /* Right Side - Form */
+        .form-section {
+            padding: 4rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .form-header {
+            margin-bottom: 3rem;
+        }
+
+        .form-header h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            color: var(--text-dark);
+        }
+
+        .form-header p {
+            color: var(--text-medium);
+            font-size: 1rem;
+        }
+
+        .form-header p a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .form-header p a:hover {
+            text-decoration: underline;
+        }
+
+        .registration-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: var(--text-dark);
+            font-size: 0.9rem;
+        }
+
+        .form-group input,
+        .form-group select {
+            padding: 0.875rem 1rem;
+            border: 2px solid #E8E8F0;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: all 0.3s ease;
+            background: var(--bg-white);
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(91, 71, 251, 0.1);
+        }
+
+        .form-group input::placeholder {
+            color: var(--text-light);
+        }
+
+        .password-strength {
+            height: 4px;
+            background: #E8E8F0;
+            border-radius: 2px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+
+        .password-strength-bar {
+            height: 100%;
+            background: var(--bg-gradient);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .password-strength.weak .password-strength-bar {
+            width: 33%;
+            background: var(--error);
+        }
+
+        .password-strength.medium .password-strength-bar {
+            width: 66%;
+            background: #FFA502;
+        }
+
+        .password-strength.strong .password-strength-bar {
+            width: 100%;
+            background: var(--success);
+        }
+
+        .password-requirements {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            margin-top: 0.5rem;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            accent-color: var(--primary);
+            margin-top: 2px;
+            cursor: pointer;
+        }
+
+        .checkbox-group label {
+            font-size: 0.9rem;
+            color: var(--text-medium);
+            line-height: 1.5;
+            cursor: pointer;
+        }
+
+        .checkbox-group label a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .checkbox-group label a:hover {
+            text-decoration: underline;
+        }
+
+        .btn-submit {
+            padding: 1rem;
+            background: var(--bg-gradient);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-sm);
+            margin-top: 1rem;
+        }
+
+        .btn-submit:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .btn-submit:active {
+            transform: translateY(0);
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 1.5rem 0;
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #E8E8F0;
+        }
+
+        .social-login {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .social-btn {
+            padding: 0.875rem;
+            border: 2px solid #E8E8F0;
+            border-radius: 10px;
+            background: white;
+            font-weight: 600;
+            color: var(--text-dark);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .social-btn:hover {
+            border-color: var(--primary);
+            background: var(--bg-light);
+        }
+
+        .form-footer {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid #E8E8F0;
+            color: var(--text-medium);
+            font-size: 0.9rem;
+        }
+
+        .input-icon {
+            position: relative;
+        }
+
+        .input-icon input {
+            padding-left: 2.75rem;
+        }
+
+        .input-icon::before {
+            content: attr(data-icon);
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.2rem;
+        }
+
+        .error-message {
+            color: var(--error);
+            font-size: 0.85rem;
+            margin-top: 0.25rem;
+        }
+
+        .success-message {
+            color: var(--success);
+            font-size: 0.85rem;
+            margin-top: 0.25rem;
+        }
+
+        @media (max-width: 968px) {
+            .registration-container {
+                grid-template-columns: 1fr;
+            }
+
+            .branding-section {
+                display: none;
+            }
+
+            .form-section {
+                padding: 3rem 2rem;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .social-login {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="registration-container">
+        <!-- Left Side - Branding -->
+        <div class="branding-section">
+            <div class="branding-content">
+                <div class="logo">Momentum</div>
+                <h2 class="branding-title">Start Optimizing Your Development Process Today</h2>
+                <p class="branding-description">
+                    Join teams that use data-driven insights to improve their delivery pipeline,
+                    track productivity metrics, and make informed decisions.
+                </p>
+                <ul class="benefits-list">
+                    <li class="benefit-item">
+                        <div class="benefit-icon">⚡</div>
+                        <span>Connect to GitHub, GitLab, Jenkins, and more</span>
+                    </li>
+                    <li class="benefit-item">
+                        <div class="benefit-icon">📊</div>
+                        <span>Real-time metrics and interactive dashboards</span>
+                    </li>
+                    <li class="benefit-item">
+                        <div class="benefit-icon">🔒</div>
+                        <span>Enterprise-grade security and privacy</span>
+                    </li>
+                    <li class="benefit-item">
+                        <div class="benefit-icon">🚀</div>
+                        <span>Setup complete in under 15 minutes</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Right Side - Registration Form -->
+        <div class="form-section">
+            <div class="form-header">
+                <h1>Create Your Account</h1>
+                <p>Already have an account? <a href="/login">Sign in</a></p>
+            </div>
+
+            <form class="registration-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="firstName">First Name</label>
+                        <input type="text" id="firstName" placeholder="John" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="lastName">Last Name</label>
+                        <input type="text" id="lastName" placeholder="Doe" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Work Email</label>
+                    <div class="input-icon" data-icon="📧">
+                        <input type="email" id="email" placeholder="john.doe@company.com" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="organization">Organization Name</label>
+                    <input type="text" id="organization" placeholder="Your Company" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="teamSize">Team Size</label>
+                    <select id="teamSize" required>
+                        <option value="">Select team size</option>
+                        <option value="1-5">1-5 developers</option>
+                        <option value="6-20">6-20 developers</option>
+                        <option value="21-50">21-50 developers</option>
+                        <option value="51-100">51-100 developers</option>
+                        <option value="100+">100+ developers</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" placeholder="Create a strong password" required>
+                    <div class="password-strength">
+                        <div class="password-strength-bar"></div>
+                    </div>
+                    <div class="password-requirements">
+                        Minimum 8 characters, including uppercase, lowercase, and numbers
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmPassword">Confirm Password</label>
+                    <input type="password" id="confirmPassword" placeholder="Re-enter your password" required>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="terms" required>
+                    <label for="terms">
+                        I agree to the <a href="/terms">Terms of Service</a> and
+                        <a href="/privacy">Privacy Policy</a>
+                    </label>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="newsletter">
+                    <label for="newsletter">
+                        Send me product updates and best practices for developer productivity
+                    </label>
+                </div>
+
+                <button type="submit" class="btn-submit">Create Account</button>
+
+                <div class="divider">or continue with</div>
+
+                <div class="social-login">
+                    <button type="button" class="social-btn">
+                        <span>🔷</span> GitHub
+                    </button>
+                    <button type="button" class="social-btn">
+                        <span>🟠</span> GitLab
+                    </button>
+                </div>
+            </form>
+
+            <div class="form-footer">
+                Protected by industry-standard encryption. We'll never share your data.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Password strength indicator
+        const passwordInput = document.getElementById('password');
+        const strengthIndicator = document.querySelector('.password-strength');
+
+        passwordInput.addEventListener('input', function() {
+            const password = this.value;
+            strengthIndicator.classList.remove('weak', 'medium', 'strong');
+
+            if (password.length === 0) {
+                return;
+            }
+
+            let strength = 0;
+            if (password.length >= 8) strength++;
+            if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength++;
+            if (/\d/.test(password)) strength++;
+            if (/[^a-zA-Z0-9]/.test(password)) strength++;
+
+            if (strength <= 1) {
+                strengthIndicator.classList.add('weak');
+            } else if (strength <= 3) {
+                strengthIndicator.classList.add('medium');
+            } else {
+                strengthIndicator.classList.add('strong');
+            }
+        });
+
+        // Form validation
+        const form = document.querySelector('.registration-form');
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            if (password !== confirmPassword) {
+                alert('Passwords do not match!');
+                return;
+            }
+
+            // Here you would typically send the form data to your server
+            console.log('Form submitted successfully');
+            window.location.href = '/onboarding';
+        });
+    </script>
+</body>
+</html>

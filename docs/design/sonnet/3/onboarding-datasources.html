@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connect Data Sources - Momentum</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #1a1a2e;
+            background: linear-gradient(135deg, #f8f9ff 0%, #e6e8f0 100%);
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: white;
+            padding: 1rem 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .navbar-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #667eea;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            transform: rotate(-5deg);
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 0.875rem;
+        }
+
+        .progress-bar-container {
+            background: white;
+            border-bottom: 1px solid #e6e8f0;
+        }
+
+        .progress-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .progress-steps {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+        }
+
+        .progress-line {
+            position: absolute;
+            top: 16px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #e6e8f0;
+            z-index: 0;
+        }
+
+        .progress-line-fill {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            width: 33%;
+            transition: width 0.5s;
+        }
+
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .step-circle {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: white;
+            border: 2px solid #e6e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: #718096;
+            font-size: 0.875rem;
+        }
+
+        .step.active .step-circle {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-color: #667eea;
+            color: white;
+        }
+
+        .step.completed .step-circle {
+            background: #4ade80;
+            border-color: #4ade80;
+            color: white;
+        }
+
+        .step-label {
+            font-size: 0.875rem;
+            color: #718096;
+            font-weight: 500;
+        }
+
+        .step.active .step-label {
+            color: #667eea;
+            font-weight: 700;
+        }
+
+        .main-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .page-header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #1a1a2e;
+            margin-bottom: 0.75rem;
+        }
+
+        .page-header p {
+            font-size: 1.125rem;
+            color: #4a5568;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .required-badge {
+            font-size: 0.75rem;
+            background: #fecaca;
+            color: #b91c1c;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .datasource-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .datasource-card {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: 2px solid #e6e8f0;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .datasource-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.15);
+        }
+
+        .datasource-card.connected {
+            border-color: #4ade80;
+            background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%);
+        }
+
+        .datasource-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .datasource-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .datasource-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .datasource-icon.github {
+            background: #24292e;
+        }
+
+        .datasource-icon.gitlab {
+            background: #fc6d26;
+        }
+
+        .datasource-icon.jenkins {
+            background: #d24939;
+        }
+
+        .datasource-icon.jira {
+            background: #0052cc;
+        }
+
+        .datasource-name {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: #1a1a2e;
+        }
+
+        .status-badge {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-weight: 600;
+        }
+
+        .status-badge.connected {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-badge.not-connected {
+            background: #f3f4f6;
+            color: #6b7280;
+        }
+
+        .datasource-description {
+            color: #4a5568;
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+        }
+
+        .datasource-config {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e6e8f0;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #1a1a2e;
+            font-size: 0.875rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e6e8f0;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-hint {
+            font-size: 0.75rem;
+            color: #718096;
+            margin-top: 0.25rem;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .btn {
+            padding: 0.625rem 1rem;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #4a5568;
+            border: 1px solid #e6e8f0;
+        }
+
+        .btn-secondary:hover {
+            background: #f8f9ff;
+            border-color: #667eea;
+        }
+
+        .btn-test {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-test:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .connection-result {
+            margin-top: 1rem;
+            padding: 0.75rem;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .connection-result.success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .connection-result.error {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 2px solid #e6e8f0;
+        }
+
+        .btn-large {
+            padding: 1rem 2rem;
+            font-size: 1rem;
+        }
+
+        .help-text {
+            background: #fef3c7;
+            border: 1px solid #fbbf24;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: start;
+            gap: 0.75rem;
+        }
+
+        .help-icon {
+            font-size: 1.25rem;
+        }
+
+        .help-content p {
+            color: #78350f;
+            font-size: 0.875rem;
+        }
+
+        @media (max-width: 768px) {
+            .progress-steps {
+                flex-direction: column;
+                align-items: start;
+                gap: 1rem;
+            }
+
+            .progress-line {
+                display: none;
+            }
+
+            .datasource-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .btn-large {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-content">
+            <div class="logo">
+                <div class="logo-icon">M</div>
+                <span>Momentum</span>
+            </div>
+            <div class="user-menu">
+                <div class="user-avatar">JD</div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="progress-bar-container">
+        <div class="progress-content">
+            <div class="progress-steps">
+                <div class="progress-line">
+                    <div class="progress-line-fill"></div>
+                </div>
+                <div class="step completed">
+                    <div class="step-circle">✓</div>
+                    <span class="step-label">Welcome</span>
+                </div>
+                <div class="step active">
+                    <div class="step-circle">2</div>
+                    <span class="step-label">Data Sources</span>
+                </div>
+                <div class="step">
+                    <div class="step-circle">3</div>
+                    <span class="step-label">Repositories</span>
+                </div>
+                <div class="step">
+                    <div class="step-circle">4</div>
+                    <span class="step-label">Import Data</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <main class="main-content">
+        <div class="page-header">
+            <h1>Connect Your Development Tools</h1>
+            <p>Link your version control system and other tools to start tracking metrics</p>
+        </div>
+
+        <div class="help-text">
+            <span class="help-icon">💡</span>
+            <div class="help-content">
+                <p><strong>Required:</strong> At least one version control system (GitHub, GitLab, or Bitbucket) must be connected to continue. Additional integrations can be added later.</p>
+            </div>
+        </div>
+
+        <h2 class="section-title">
+            Version Control Systems
+            <span class="required-badge">REQUIRED</span>
+        </h2>
+
+        <div class="datasource-grid">
+            <div class="datasource-card connected">
+                <div class="datasource-header">
+                    <div class="datasource-info">
+                        <div class="datasource-icon github">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
+                                <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                            </svg>
+                        </div>
+                        <span class="datasource-name">GitHub</span>
+                    </div>
+                    <span class="status-badge connected">✓ Connected</span>
+                </div>
+                <p class="datasource-description">
+                    Track commits, pull requests, and repository activity from GitHub
+                </p>
+                <div class="connection-result success">
+                    <span>✓</span>
+                    <span>Connected successfully. Found 50 repositories.</span>
+                </div>
+                <div class="btn-group">
+                    <button class="btn btn-secondary">Reconfigure</button>
+                </div>
+            </div>
+
+            <div class="datasource-card">
+                <div class="datasource-header">
+                    <div class="datasource-info">
+                        <div class="datasource-icon gitlab">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
+                                <path d="M23.546 10.93L13.067.452c-.604-.603-1.582-.603-2.188 0L.452 10.93c-.6.605-.6 1.584 0 2.188l10.427 10.426c.603.602 1.582.602 2.188 0l10.479-10.426c.6-.604.6-1.583 0-2.188"/>
+                            </svg>
+                        </div>
+                        <span class="datasource-name">GitLab</span>
+                    </div>
+                    <span class="status-badge not-connected">Not connected</span>
+                </div>
+                <p class="datasource-description">
+                    Track merge requests, pipelines, and projects from GitLab
+                </p>
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="document.getElementById('gitlab-config').style.display='block'; this.style.display='none'">Configure</button>
+                </div>
+                <div id="gitlab-config" class="datasource-config" style="display: none;">
+                    <div class="form-group">
+                        <label class="form-label" for="gitlab-token">Private Token</label>
+                        <input type="password" id="gitlab-token" class="form-input" placeholder="glpat-xxxxxxxxxxxx">
+                        <div class="form-hint">Generate at: Settings → Access Tokens</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="gitlab-url">GitLab Instance URL</label>
+                        <input type="text" id="gitlab-url" class="form-input" placeholder="https://gitlab.com" value="https://gitlab.com">
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn btn-test">Test Connection</button>
+                        <button class="btn btn-primary">Save</button>
+                        <button class="btn btn-secondary">Cancel</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="datasource-card">
+                <div class="datasource-header">
+                    <div class="datasource-info">
+                        <div class="datasource-icon" style="background: #2684ff;">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
+                                <path d="M2.133 7.2l9.867-7.2 9.867 7.2-9.867 7.2L2.133 7.2zM12 16.8l-9.867-7.2v7.2l9.867 7.2 9.867-7.2v-7.2L12 16.8z"/>
+                            </svg>
+                        </div>
+                        <span class="datasource-name">Bitbucket</span>
+                    </div>
+                    <span class="status-badge not-connected">Not connected</span>
+                </div>
+                <p class="datasource-description">
+                    Track repositories, commits, and pull requests from Bitbucket
+                </p>
+                <div class="btn-group">
+                    <button class="btn btn-primary">Configure</button>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="section-title">CI/CD Platforms</h2>
+
+        <div class="datasource-grid">
+            <div class="datasource-card">
+                <div class="datasource-header">
+                    <div class="datasource-info">
+                        <div class="datasource-icon jenkins">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
+                                <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm0 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2z"/>
+                            </svg>
+                        </div>
+                        <span class="datasource-name">Jenkins</span>
+                    </div>
+                    <span class="status-badge not-connected">Not connected</span>
+                </div>
+                <p class="datasource-description">
+                    Monitor build pipelines, job executions, and deployment metrics
+                </p>
+                <div class="btn-group">
+                    <button class="btn btn-primary">Configure</button>
+                </div>
+            </div>
+
+            <div class="datasource-card">
+                <div class="datasource-header">
+                    <div class="datasource-info">
+                        <div class="datasource-icon github">
+                            <span style="font-size: 1.25rem;">⚙️</span>
+                        </div>
+                        <span class="datasource-name">GitHub Actions</span>
+                    </div>
+                    <span class="status-badge not-connected">Auto-configured</span>
+                </div>
+                <p class="datasource-description">
+                    Automatically tracks workflows from your connected GitHub account
+                </p>
+            </div>
+
+            <div class="datasource-card">
+                <div class="datasource-header">
+                    <div class="datasource-info">
+                        <div class="datasource-icon" style="background: #343434;">
+                            <span style="font-size: 1.25rem;">⭕</span>
+                        </div>
+                        <span class="datasource-name">CircleCI</span>
+                    </div>
+                    <span class="status-badge not-connected">Not connected</span>
+                </div>
+                <p class="datasource-description">
+                    Track pipelines, workflows, and job executions from CircleCI
+                </p>
+                <div class="btn-group">
+                    <button class="btn btn-primary">Configure</button>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="section-title">Project Management</h2>
+
+        <div class="datasource-grid">
+            <div class="datasource-card">
+                <div class="datasource-header">
+                    <div class="datasource-info">
+                        <div class="datasource-icon jira">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
+                                <path d="M11.571 11.513H0a5.218 5.218 0 0 0 5.232 5.215h2.13v2.057A5.215 5.215 0 0 0 12.575 24V12.518a1.005 1.005 0 0 0-1.005-1.005zm5.723-5.756H5.736a5.215 5.215 0 0 0 5.215 5.214h2.129v2.058a5.218 5.218 0 0 0 5.215 5.214V6.758a1.001 1.001 0 0 0-1.001-1.001zM23.013 0H11.455a5.215 5.215 0 0 0 5.215 5.215h2.129v2.057A5.215 5.215 0 0 0 24 12.483V1.005A1.001 1.001 0 0 0 23.013 0z"/>
+                            </svg>
+                        </div>
+                        <span class="datasource-name">JIRA</span>
+                    </div>
+                    <span class="status-badge not-connected">Not connected</span>
+                </div>
+                <p class="datasource-description">
+                    Track issues, sprints, and project boards from JIRA
+                </p>
+                <div class="btn-group">
+                    <button class="btn btn-primary">Configure</button>
+                </div>
+            </div>
+
+            <div class="datasource-card">
+                <div class="datasource-header">
+                    <div class="datasource-info">
+                        <div class="datasource-icon" style="background: #0079bf;">
+                            <span style="font-size: 1.25rem;">📋</span>
+                        </div>
+                        <span class="datasource-name">Trello</span>
+                    </div>
+                    <span class="status-badge not-connected">Not connected</span>
+                </div>
+                <p class="datasource-description">
+                    Sync boards, lists, and cards from Trello
+                </p>
+                <div class="btn-group">
+                    <button class="btn btn-primary">Configure</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <a href="#" class="btn btn-secondary btn-large">← Back</a>
+            <a href="dashboard.html" class="btn btn-primary btn-large">Continue to Repositories →</a>
+        </div>
+    </main>
+</body>
+</html>

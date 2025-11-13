@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connect Data Sources - Momentum</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+            background: #0A0D1F;
+            color: #E2E8F0;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            background: #0F1629;
+            border-bottom: 1px solid #1E2943;
+            padding: 24px 48px;
+        }
+
+        .header-container {
+            max-width: 1440px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 26px;
+            font-weight: 700;
+            color: #FFFFFF;
+            letter-spacing: -0.02em;
+        }
+
+        .progress-bar {
+            flex: 1;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .progress-steps {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+        }
+
+        .progress-line {
+            position: absolute;
+            top: 12px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #1E2943;
+            z-index: 0;
+        }
+
+        .progress-line-fill {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 33%;
+            background: #84FF00;
+            transition: width 0.3s;
+        }
+
+        .progress-step {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 1;
+        }
+
+        .step-circle {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #0F1629;
+            border: 2px solid #1E2943;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .progress-step.active .step-circle {
+            border-color: #84FF00;
+            background: #84FF00;
+            color: #0A0D1F;
+        }
+
+        .progress-step.completed .step-circle {
+            border-color: #84FF00;
+            background: #84FF00;
+            color: #0A0D1F;
+        }
+
+        .step-label {
+            font-size: 12px;
+            color: #64748B;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+        }
+
+        .progress-step.active .step-label {
+            color: #84FF00;
+        }
+
+        /* Main Content */
+        .main-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 64px 48px;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 64px;
+        }
+
+        .page-title {
+            font-size: 48px;
+            font-weight: 800;
+            color: #FFFFFF;
+            letter-spacing: -0.03em;
+            margin-bottom: 16px;
+        }
+
+        .page-subtitle {
+            font-size: 18px;
+            color: #64748B;
+            letter-spacing: -0.01em;
+        }
+
+        .required-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: rgba(132, 255, 0, 0.1);
+            border: 1px solid rgba(132, 255, 0, 0.3);
+            border-radius: 12px;
+            color: #84FF00;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-top: 8px;
+        }
+
+        /* Data Source Cards */
+        .datasource-section {
+            margin-bottom: 48px;
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #94A3B8;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 24px;
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 24px;
+        }
+
+        .datasource-card {
+            background: #0F1629;
+            border: 2px solid #1E2943;
+            border-radius: 12px;
+            padding: 32px;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .datasource-card:hover {
+            border-color: #334155;
+            transform: translateY(-2px);
+        }
+
+        .datasource-card.connected {
+            border-color: #84FF00;
+            background: rgba(132, 255, 0, 0.03);
+        }
+
+        .datasource-icon {
+            width: 56px;
+            height: 56px;
+            background: #0A0D1F;
+            border: 1px solid #1E2943;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+
+        .datasource-card.connected .datasource-icon {
+            border-color: #84FF00;
+            background: rgba(132, 255, 0, 0.1);
+        }
+
+        .datasource-name {
+            font-size: 20px;
+            font-weight: 700;
+            color: #FFFFFF;
+            margin-bottom: 8px;
+            letter-spacing: -0.02em;
+        }
+
+        .datasource-description {
+            font-size: 14px;
+            color: #64748B;
+            line-height: 1.5;
+            letter-spacing: -0.01em;
+        }
+
+        .connection-status {
+            margin-top: 20px;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            text-align: center;
+            letter-spacing: -0.01em;
+        }
+
+        .status-not-connected {
+            background: rgba(100, 116, 139, 0.1);
+            color: #64748B;
+            border: 1px solid #1E2943;
+        }
+
+        .status-connected {
+            background: rgba(132, 255, 0, 0.1);
+            color: #84FF00;
+            border: 1px solid rgba(132, 255, 0, 0.3);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(10, 13, 31, 0.9);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #0F1629;
+            border: 1px solid #1E2943;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 560px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .modal-header {
+            padding: 32px 32px 24px;
+            border-bottom: 1px solid #1E2943;
+        }
+
+        .modal-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #FFFFFF;
+            letter-spacing: -0.02em;
+            margin-bottom: 8px;
+        }
+
+        .modal-subtitle {
+            font-size: 14px;
+            color: #64748B;
+            letter-spacing: -0.01em;
+        }
+
+        .modal-body {
+            padding: 32px;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #E2E8F0;
+            margin-bottom: 8px;
+            letter-spacing: -0.01em;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            background: #0A0D1F;
+            border: 1px solid #1E2943;
+            border-radius: 8px;
+            color: #E2E8F0;
+            font-size: 15px;
+            font-family: inherit;
+            transition: all 0.2s;
+            letter-spacing: -0.01em;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #84FF00;
+            box-shadow: 0 0 0 3px rgba(132, 255, 0, 0.1);
+        }
+
+        .form-input::placeholder {
+            color: #475569;
+        }
+
+        .form-hint {
+            font-size: 13px;
+            color: #64748B;
+            margin-top: 6px;
+            letter-spacing: -0.01em;
+        }
+
+        .form-hint a {
+            color: #84FF00;
+            text-decoration: none;
+        }
+
+        .form-hint a:hover {
+            text-decoration: underline;
+        }
+
+        .modal-footer {
+            padding: 24px 32px;
+            border-top: 1px solid #1E2943;
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            letter-spacing: -0.01em;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 1px solid #1E2943;
+            color: #E2E8F0;
+        }
+
+        .btn-secondary:hover {
+            border-color: #334155;
+            background: #1E2943;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #84FF00 0%, #5EDD00 100%);
+            color: #0A0D1F;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #9FFF33 0%, #6FEE11 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 8px 24px rgba(132, 255, 0, 0.3);
+        }
+
+        .btn-test {
+            background: #0A0D1F;
+            border: 1px solid #1E2943;
+            color: #E2E8F0;
+        }
+
+        .btn-test:hover {
+            border-color: #84FF00;
+        }
+
+        .test-result {
+            margin-top: 16px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+        }
+
+        .test-result.success {
+            background: rgba(132, 255, 0, 0.1);
+            color: #84FF00;
+            border: 1px solid rgba(132, 255, 0, 0.3);
+        }
+
+        .test-result.error {
+            background: rgba(255, 107, 107, 0.1);
+            color: #FF6B6B;
+            border: 1px solid rgba(255, 107, 107, 0.3);
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #0F1629;
+            border-top: 1px solid #1E2943;
+            padding: 24px 48px;
+            z-index: 100;
+        }
+
+        .bottom-nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-info {
+            font-size: 14px;
+            color: #64748B;
+            letter-spacing: -0.01em;
+        }
+
+        .nav-info strong {
+            color: #84FF00;
+            font-weight: 700;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn-skip {
+            color: #64748B;
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 600;
+            padding: 12px 24px;
+            letter-spacing: -0.01em;
+        }
+
+        .btn-skip:hover {
+            color: #84FF00;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 24px;
+            right: 24px;
+            width: 32px;
+            height: 32px;
+            background: transparent;
+            border: none;
+            color: #64748B;
+            font-size: 24px;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .close-modal:hover {
+            color: #FFFFFF;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-container">
+            <div class="logo">Momentum</div>
+            <div class="progress-bar">
+                <div class="progress-steps">
+                    <div class="progress-line">
+                        <div class="progress-line-fill"></div>
+                    </div>
+                    <div class="progress-step completed">
+                        <div class="step-circle">✓</div>
+                        <div class="step-label">Welcome</div>
+                    </div>
+                    <div class="progress-step active">
+                        <div class="step-circle">2</div>
+                        <div class="step-label">Data Sources</div>
+                    </div>
+                    <div class="progress-step">
+                        <div class="step-circle">3</div>
+                        <div class="step-label">Complete</div>
+                    </div>
+                </div>
+            </div>
+            <div style="width: 120px;"></div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="page-header">
+            <h1 class="page-title">Connect Your Data Sources</h1>
+            <p class="page-subtitle">Connect at least one version control system to get started</p>
+            <div class="required-badge">Required</div>
+        </div>
+
+        <div class="datasource-section">
+            <h2 class="section-title">Version Control Systems</h2>
+            <div class="cards-grid">
+                <div class="datasource-card" onclick="openModal('github')">
+                    <div class="datasource-icon">
+                        <svg width="32" height="32" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M10 0C4.477 0 0 4.477 0 10c0 4.42 2.865 8.17 6.839 9.49.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.463-1.11-1.463-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0110 4.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C17.137 18.165 20 14.418 20 10c0-5.523-4.477-10-10-10z"/>
+                        </svg>
+                    </div>
+                    <h3 class="datasource-name">GitHub</h3>
+                    <p class="datasource-description">Connect your GitHub repositories and track commits, PRs, and reviews.</p>
+                    <div class="connection-status status-not-connected">Not Connected</div>
+                </div>
+
+                <div class="datasource-card" onclick="openModal('gitlab')">
+                    <div class="datasource-icon">🦊</div>
+                    <h3 class="datasource-name">GitLab</h3>
+                    <p class="datasource-description">Integrate GitLab projects for comprehensive merge request metrics.</p>
+                    <div class="connection-status status-not-connected">Not Connected</div>
+                </div>
+
+                <div class="datasource-card" onclick="openModal('bitbucket')">
+                    <div class="datasource-icon">🪣</div>
+                    <h3 class="datasource-name">Bitbucket</h3>
+                    <p class="datasource-description">Track Bitbucket repositories and pull request activity.</p>
+                    <div class="connection-status status-not-connected">Not Connected</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="datasource-section">
+            <h2 class="section-title">CI/CD Platforms (Optional)</h2>
+            <div class="cards-grid">
+                <div class="datasource-card" onclick="openModal('jenkins')">
+                    <div class="datasource-icon">⚙️</div>
+                    <h3 class="datasource-name">Jenkins</h3>
+                    <p class="datasource-description">Monitor pipeline stability and build performance.</p>
+                    <div class="connection-status status-not-connected">Not Connected</div>
+                </div>
+
+                <div class="datasource-card" onclick="openModal('circleci')">
+                    <div class="datasource-icon">⭕</div>
+                    <h3 class="datasource-name">CircleCI</h3>
+                    <p class="datasource-description">Track CircleCI pipelines and workflow execution.</p>
+                    <div class="connection-status status-not-connected">Not Connected</div>
+                </div>
+
+                <div class="datasource-card">
+                    <div class="datasource-icon">✓</div>
+                    <h3 class="datasource-name">GitHub Actions</h3>
+                    <p class="datasource-description">Automatically configured when GitHub is connected.</p>
+                    <div class="connection-status status-not-connected">Not Connected</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="datasource-section">
+            <h2 class="section-title">Code Quality (Optional)</h2>
+            <div class="cards-grid">
+                <div class="datasource-card" onclick="openModal('sonarqube')">
+                    <div class="datasource-icon">📊</div>
+                    <h3 class="datasource-name">SonarQube</h3>
+                    <p class="datasource-description">Track code quality, coverage, and security vulnerabilities.</p>
+                    <div class="connection-status status-not-connected">Not Connected</div>
+                </div>
+
+                <div class="datasource-card" onclick="openModal('codecov')">
+                    <div class="datasource-icon">☂️</div>
+                    <h3 class="datasource-name">Codecov</h3>
+                    <p class="datasource-description">Monitor test coverage across your codebase.</p>
+                    <div class="connection-status status-not-connected">Not Connected</div>
+                </div>
+            </div>
+        </div>
+
+        <div style="height: 120px;"></div>
+    </div>
+
+    <!-- GitHub Modal -->
+    <div class="modal" id="githubModal">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closeModal('github')">×</button>
+            <div class="modal-header">
+                <h3 class="modal-title">Connect GitHub</h3>
+                <p class="modal-subtitle">Configure your GitHub integration</p>
+            </div>
+            <div class="modal-body">
+                <form id="githubForm">
+                    <div class="form-group">
+                        <label class="form-label" for="githubToken">Personal Access Token *</label>
+                        <input class="form-input" type="password" id="githubToken" placeholder="ghp_xxxxxxxxxxxx" required>
+                        <div class="form-hint">
+                            Generate a token at <a href="https://github.com/settings/tokens" target="_blank">github.com/settings/tokens</a><br>
+                            Required scopes: repo, read:org, read:user
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="githubOrg">Organization Name(s) *</label>
+                        <input class="form-input" type="text" id="githubOrg" placeholder="my-organization" required>
+                        <div class="form-hint">Comma-separated for multiple organizations</div>
+                    </div>
+                </form>
+                <div id="githubTestResult"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('github')">Cancel</button>
+                <button class="btn btn-test" onclick="testConnection('github')">Test Connection</button>
+                <button class="btn btn-primary" onclick="saveConnection('github')">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Generic Modal Template (for other services) -->
+    <div class="modal" id="gitlabModal">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closeModal('gitlab')">×</button>
+            <div class="modal-header">
+                <h3 class="modal-title">Connect GitLab</h3>
+                <p class="modal-subtitle">Configure your GitLab integration</p>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="form-group">
+                        <label class="form-label">Private Token *</label>
+                        <input class="form-input" type="password" placeholder="glpat-xxxxxxxxxxxx" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">GitLab Instance URL *</label>
+                        <input class="form-input" type="url" placeholder="https://gitlab.com" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('gitlab')">Cancel</button>
+                <button class="btn btn-test">Test Connection</button>
+                <button class="btn btn-primary">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="bottom-nav">
+        <div class="bottom-nav-container">
+            <div class="nav-info">
+                <strong>0</strong> data sources connected
+            </div>
+            <div class="nav-buttons">
+                <a href="#" class="btn-skip">Skip for now</a>
+                <button class="btn btn-primary" disabled>Continue</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const modals = {
+            github: document.getElementById('githubModal'),
+            gitlab: document.getElementById('gitlabModal')
+        };
+
+        function _openModal(source) {
+            const modal = modals[source];
+            if (modal) {
+                modal.classList.add('active');
+            }
+        }
+
+        function closeModal(source) {
+            const modal = modals[source];
+            if (modal) {
+                modal.classList.remove('active');
+            }
+        }
+
+        function _testConnection(source) {
+            const resultDiv = document.getElementById(`${source}TestResult`);
+            resultDiv.innerHTML = '<div class="test-result">Testing connection...</div>';
+
+            setTimeout(() => {
+                resultDiv.innerHTML = '<div class="test-result success">✓ Connection successful! Found 50 repositories.</div>';
+            }, 1500);
+        }
+
+        function _saveConnection(source) {
+            closeModal(source);
+            const continueBtn = document.querySelector('.bottom-nav .btn-primary');
+            continueBtn.disabled = false;
+
+            const navInfo = document.querySelector('.nav-info');
+            navInfo.innerHTML = '<strong>1</strong> data source connected';
+        }
+
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('modal')) {
+                e.target.classList.remove('active');
+            }
+        });
+    </script>
+</body>
+</html>

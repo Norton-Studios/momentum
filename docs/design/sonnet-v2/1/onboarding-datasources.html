@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connect Data Sources - Momentum</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f7;
+            color: #1d1d1f;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            background: white;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+            padding: 24px 40px;
+        }
+
+        .progress-content {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .progress-steps {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+        }
+
+        .progress-line {
+            position: absolute;
+            top: 16px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #d2d2d7;
+            z-index: 0;
+        }
+
+        .progress-line-fill {
+            height: 100%;
+            background: #06c;
+            width: 33%;
+            transition: width 0.3s ease;
+        }
+
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            z-index: 1;
+            background: #f5f5f7;
+            padding: 0 12px;
+        }
+
+        .step-number {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: white;
+            border: 2px solid #d2d2d7;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 600;
+            color: #6e6e73;
+        }
+
+        .step.active .step-number {
+            background: #06c;
+            border-color: #06c;
+            color: white;
+        }
+
+        .step.completed .step-number {
+            background: #06c;
+            border-color: #06c;
+            color: white;
+        }
+
+        .step-label {
+            font-size: 13px;
+            color: #6e6e73;
+            white-space: nowrap;
+        }
+
+        .step.active .step-label {
+            color: #1d1d1f;
+            font-weight: 500;
+        }
+
+        /* Main Content */
+        .container {
+            max-width: 1000px;
+            margin: 60px auto;
+            padding: 0 40px;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 64px;
+        }
+
+        .page-header h1 {
+            font-size: 40px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-bottom: 12px;
+            color: #1d1d1f;
+        }
+
+        .page-header p {
+            font-size: 17px;
+            font-weight: 300;
+            color: #6e6e73;
+        }
+
+        /* Data Source Cards */
+        .source-section {
+            margin-bottom: 48px;
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #1d1d1f;
+        }
+
+        .source-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .source-card {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 2px solid transparent;
+        }
+
+        .source-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .source-card.connected {
+            border-color: #06c;
+            background: rgba(0, 102, 204, 0.02);
+        }
+
+        .source-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .source-icon {
+            width: 40px;
+            height: 40px;
+            background: #f5f5f7;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .connection-status {
+            font-size: 13px;
+            font-weight: 500;
+            color: #06c;
+        }
+
+        .source-card h3 {
+            font-size: 19px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #1d1d1f;
+        }
+
+        .source-card p {
+            font-size: 14px;
+            font-weight: 300;
+            color: #6e6e73;
+            line-height: 1.5;
+        }
+
+        /* Configuration Form */
+        .config-form {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .config-form.active {
+            display: block;
+        }
+
+        .form-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 32px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid #d2d2d7;
+        }
+
+        .form-header h3 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1d1d1f;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #1d1d1f;
+            margin-bottom: 8px;
+        }
+
+        .label-required {
+            color: #d70015;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 12px 14px;
+            font-size: 15px;
+            font-family: inherit;
+            border: 1px solid #d2d2d7;
+            border-radius: 10px;
+            background: white;
+            color: #1d1d1f;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        input[type="text"]:focus,
+        input[type="password"]:focus {
+            outline: none;
+            border-color: #06c;
+            box-shadow: 0 0 0 4px rgba(0, 102, 204, 0.1);
+        }
+
+        .help-text {
+            font-size: 13px;
+            color: #6e6e73;
+            margin-top: 6px;
+        }
+
+        .help-text a {
+            color: #06c;
+            text-decoration: none;
+        }
+
+        .help-text a:hover {
+            text-decoration: underline;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 32px;
+        }
+
+        .button {
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 400;
+            font-family: inherit;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s ease;
+        }
+
+        .button-primary {
+            background: #06c;
+            color: white;
+        }
+
+        .button-primary:hover {
+            background: #0077ed;
+        }
+
+        .button-secondary {
+            background: white;
+            color: #1d1d1f;
+            border: 1px solid #d2d2d7;
+        }
+
+        .button-secondary:hover {
+            background: #f5f5f7;
+        }
+
+        .button-test {
+            background: #f5f5f7;
+            color: #1d1d1f;
+        }
+
+        .button-test:hover {
+            background: #e8e8ed;
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid rgba(0, 0, 0, 0.06);
+            padding: 20px 40px;
+        }
+
+        .bottom-nav-content {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .skip-link {
+            color: #6e6e73;
+            text-decoration: none;
+            font-size: 15px;
+        }
+
+        .skip-link:hover {
+            color: #1d1d1f;
+        }
+
+        @media (max-width: 768px) {
+            .source-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .progress-steps {
+                flex-direction: column;
+                gap: 16px;
+            }
+
+            .progress-line {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Progress Bar -->
+    <div class="progress-container">
+        <div class="progress-content">
+            <div class="progress-steps">
+                <div class="progress-line">
+                    <div class="progress-line-fill"></div>
+                </div>
+                <div class="step completed">
+                    <div class="step-number">✓</div>
+                    <div class="step-label">Create Account</div>
+                </div>
+                <div class="step active">
+                    <div class="step-number">2</div>
+                    <div class="step-label">Connect Sources</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-label">Import Data</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div class="page-header">
+            <h1>Connect your tools</h1>
+            <p>Connect at least one version control system to get started</p>
+        </div>
+
+        <!-- Required Sources -->
+        <div class="source-section">
+            <h2 class="section-title">Version Control (Required)</h2>
+            <div class="source-grid">
+                <div class="source-card" onclick="showConfig('github')">
+                    <div class="source-header">
+                        <div class="source-icon">🐙</div>
+                    </div>
+                    <h3>GitHub</h3>
+                    <p>Connect your GitHub repositories and track commits, PRs, and reviews</p>
+                </div>
+
+                <div class="source-card">
+                    <div class="source-header">
+                        <div class="source-icon">🦊</div>
+                    </div>
+                    <h3>GitLab</h3>
+                    <p>Import merge requests, pipelines, and project data from GitLab</p>
+                </div>
+
+                <div class="source-card">
+                    <div class="source-header">
+                        <div class="source-icon">🪣</div>
+                    </div>
+                    <h3>Bitbucket</h3>
+                    <p>Sync repositories and pull requests from Bitbucket Cloud or Server</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- GitHub Configuration Form -->
+        <div class="config-form" id="github-config">
+            <div class="form-header">
+                <div class="source-icon">🐙</div>
+                <h3>Connect GitHub</h3>
+            </div>
+
+            <form>
+                <div class="form-group">
+                    <label for="github-token">Personal Access Token <span class="label-required">*</span></label>
+                    <input type="password" id="github-token" placeholder="ghp_xxxxxxxxxxxxxxxx" required>
+                    <div class="help-text">
+                        <a href="https://github.com/settings/tokens" target="_blank">Generate a token</a> with repo, read:org, and read:user scopes
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="github-org">Organization Name <span class="label-required">*</span></label>
+                    <input type="text" id="github-org" placeholder="your-organization" required>
+                    <div class="help-text">Comma-separated for multiple organizations</div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="button button-test">Test Connection</button>
+                    <button type="button" class="button button-secondary" onclick="hideConfig()">Cancel</button>
+                    <button type="submit" class="button button-primary">Save Configuration</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Optional Sources -->
+        <div class="source-section">
+            <h2 class="section-title">CI/CD (Optional)</h2>
+            <div class="source-grid">
+                <div class="source-card">
+                    <div class="source-header">
+                        <div class="source-icon">⚙️</div>
+                    </div>
+                    <h3>Jenkins</h3>
+                    <p>Track build pipelines, success rates, and deployment metrics</p>
+                </div>
+
+                <div class="source-card">
+                    <div class="source-header">
+                        <div class="source-icon">⭕</div>
+                    </div>
+                    <h3>CircleCI</h3>
+                    <p>Monitor workflows, jobs, and pipeline performance</p>
+                </div>
+
+                <div class="source-card">
+                    <div class="source-header">
+                        <div class="source-icon">▲</div>
+                    </div>
+                    <h3>GitHub Actions</h3>
+                    <p>Automatically configured when you connect GitHub</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="source-section">
+            <h2 class="section-title">Code Quality (Optional)</h2>
+            <div class="source-grid">
+                <div class="source-card">
+                    <div class="source-header">
+                        <div class="source-icon">📊</div>
+                    </div>
+                    <h3>SonarQube</h3>
+                    <p>Import code quality metrics, technical debt, and coverage</p>
+                </div>
+
+                <div class="source-card">
+                    <div class="source-header">
+                        <div class="source-icon">🌤️</div>
+                    </div>
+                    <h3>CodeClimate</h3>
+                    <p>Track maintainability ratings and test coverage trends</p>
+                </div>
+
+                <div class="source-card">
+                    <div class="source-header">
+                        <div class="source-icon">🔒</div>
+                    </div>
+                    <h3>Snyk</h3>
+                    <p>Monitor security vulnerabilities and dependency risks</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav">
+        <div class="bottom-nav-content">
+            <a href="#" class="skip-link">Skip for now</a>
+            <button class="button button-primary">Continue to Import</button>
+        </div>
+    </div>
+
+    <script>
+        function _showConfig(source) {
+            const form = document.getElementById(`${source}-config`);
+            if (form) {
+                form.classList.add('active');
+                form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+
+        function _hideConfig() {
+            const forms = document.querySelectorAll('.config-form');
+            forms.forEach(form => {
+                form.classList.remove('active');
+            });
+        }
+    </script>
+</body>
+</html>

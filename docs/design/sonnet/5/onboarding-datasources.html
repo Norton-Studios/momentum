@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connect Data Sources - Momentum</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #5B47FB;
+            --primary-dark: #4433CC;
+            --primary-light: #7B67FF;
+            --secondary: #00D9B8;
+            --secondary-dark: #00B89A;
+            --accent: #FF6B9D;
+            --text-dark: #1A1A2E;
+            --text-medium: #4A4A5E;
+            --text-light: #8E8EA0;
+            --bg-white: #FFFFFF;
+            --bg-light: #F8F9FE;
+            --bg-gradient: linear-gradient(135deg, #5B47FB 0%, #00D9B8 100%);
+            --shadow-sm: 0 2px 8px rgba(91, 71, 251, 0.08);
+            --shadow-md: 0 4px 16px rgba(91, 71, 251, 0.12);
+            --shadow-lg: 0 12px 32px rgba(91, 71, 251, 0.16);
+            --error: #FF4757;
+            --success: #2ED573;
+            --warning: #FFA502;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            color: var(--text-dark);
+            line-height: 1.6;
+            background: var(--bg-light);
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            background: white;
+            padding: 1.5rem 2rem;
+            box-shadow: var(--shadow-sm);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: var(--bg-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 0.625rem 1.25rem;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+            font-size: 0.9rem;
+        }
+
+        .btn-secondary {
+            background: var(--bg-light);
+            color: var(--text-medium);
+        }
+
+        .btn-secondary:hover {
+            background: #E8E8F0;
+        }
+
+        /* Progress Indicator */
+        .progress-section {
+            background: white;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .progress-content {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .progress-steps {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            margin-bottom: 1rem;
+        }
+
+        .progress-steps::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #E8E8F0;
+            z-index: 0;
+        }
+
+        .progress-bar {
+            position: absolute;
+            top: 20px;
+            left: 0;
+            height: 2px;
+            background: var(--bg-gradient);
+            width: 33%;
+            z-index: 1;
+            transition: width 0.5s ease;
+        }
+
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .step-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: white;
+            border: 3px solid #E8E8F0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            transition: all 0.3s ease;
+        }
+
+        .step.active .step-circle {
+            border-color: var(--primary);
+            background: var(--primary);
+            color: white;
+        }
+
+        .step.completed .step-circle {
+            border-color: var(--success);
+            background: var(--success);
+            color: white;
+        }
+
+        .step-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-light);
+        }
+
+        .step.active .step-label {
+            color: var(--primary);
+        }
+
+        /* Main Content */
+        .main-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem 4rem;
+        }
+
+        .page-header {
+            margin-bottom: 3rem;
+        }
+
+        .page-header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 0.75rem;
+            color: var(--text-dark);
+        }
+
+        .page-header p {
+            font-size: 1.1rem;
+            color: var(--text-medium);
+        }
+
+        /* Data Source Categories */
+        .category-section {
+            margin-bottom: 3rem;
+        }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+        }
+
+        .category-title {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .category-title h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .required-badge {
+            background: var(--error);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .optional-badge {
+            background: var(--text-light);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .category-description {
+            color: var(--text-medium);
+            margin-bottom: 1.5rem;
+        }
+
+        .sources-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+
+        /* Source Card */
+        .source-card {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            cursor: pointer;
+        }
+
+        .source-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-4px);
+        }
+
+        .source-card.connected {
+            border-color: var(--success);
+            background: linear-gradient(to bottom, rgba(46, 213, 115, 0.05), white);
+        }
+
+        .source-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .source-icon {
+            width: 60px;
+            height: 60px;
+            background: var(--bg-light);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            flex-shrink: 0;
+        }
+
+        .source-info h3 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 0.25rem;
+        }
+
+        .source-status {
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .source-status.not-connected .status-indicator {
+            background: var(--text-light);
+        }
+
+        .source-status.connected .status-indicator {
+            background: var(--success);
+            animation: pulse-glow 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .source-description {
+            color: var(--text-medium);
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .source-details {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+            color: var(--text-medium);
+        }
+
+        .detail-icon {
+            color: var(--primary);
+        }
+
+        .source-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .btn-connect {
+            flex: 1;
+            padding: 0.75rem;
+            background: var(--bg-gradient);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-connect:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .btn-configure {
+            flex: 1;
+            padding: 0.75rem;
+            background: var(--bg-light);
+            color: var(--primary);
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-configure:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-disconnect {
+            padding: 0.75rem;
+            background: white;
+            color: var(--error);
+            border: 2px solid var(--error);
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-disconnect:hover {
+            background: var(--error);
+            color: white;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(26, 26, 46, 0.7);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            max-width: 600px;
+            width: 100%;
+            padding: 2.5rem;
+            box-shadow: var(--shadow-lg);
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .modal-icon {
+            width: 60px;
+            height: 60px;
+            background: var(--bg-gradient);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: white;
+        }
+
+        .modal-header h2 {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: var(--text-dark);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-dark);
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: 2px solid #E8E8F0;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(91, 71, 251, 0.1);
+        }
+
+        .help-text {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+
+        .help-link {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .help-link:hover {
+            text-decoration: underline;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .btn-cancel {
+            flex: 1;
+            padding: 0.875rem;
+            background: var(--bg-light);
+            color: var(--text-dark);
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-test {
+            padding: 0.875rem 1.5rem;
+            background: white;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-save {
+            flex: 1;
+            padding: 0.875rem;
+            background: var(--bg-gradient);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .test-result {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .test-result.success {
+            background: rgba(46, 213, 115, 0.1);
+            border: 1px solid var(--success);
+            color: var(--success);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .test-result.error {
+            background: rgba(255, 71, 87, 0.1);
+            border: 1px solid var(--error);
+            color: var(--error);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        /* Footer Navigation */
+        .footer-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            padding: 1.5rem 2rem;
+            box-shadow: 0 -4px 16px rgba(91, 71, 251, 0.08);
+            z-index: 50;
+        }
+
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .connection-status {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            color: var(--text-medium);
+        }
+
+        .status-count {
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .footer-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn-large {
+            padding: 0.875rem 2rem;
+            font-size: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .sources-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">Momentum</div>
+            <div class="header-actions">
+                <button class="btn btn-secondary">Save & Exit</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Progress Section -->
+    <section class="progress-section">
+        <div class="progress-content">
+            <div class="progress-steps">
+                <div class="progress-bar"></div>
+                <div class="step completed">
+                    <div class="step-circle">✓</div>
+                    <div class="step-label">Welcome</div>
+                </div>
+                <div class="step active">
+                    <div class="step-circle">2</div>
+                    <div class="step-label">Data Sources</div>
+                </div>
+                <div class="step">
+                    <div class="step-circle">3</div>
+                    <div class="step-label">Repositories</div>
+                </div>
+                <div class="step">
+                    <div class="step-circle">4</div>
+                    <div class="step-label">Import</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="main-content" style="padding-bottom: 120px;">
+        <div class="page-header">
+            <h1>Connect Your Data Sources</h1>
+            <p>Connect at least one version control system to start tracking metrics. Additional integrations can be added later.</p>
+        </div>
+
+        <!-- Version Control (Required) -->
+        <div class="category-section">
+            <div class="category-header">
+                <div class="category-title">
+                    <h2>Version Control</h2>
+                    <span class="required-badge">Required</span>
+                </div>
+            </div>
+            <div class="category-description">
+                Connect to your Git repositories to track commits, pull requests, and contributor activity.
+            </div>
+            <div class="sources-grid">
+                <div class="source-card connected" data-source="github">
+                    <div class="source-header">
+                        <div class="source-icon">🔷</div>
+                        <div class="source-info">
+                            <h3>GitHub</h3>
+                            <div class="source-status connected">
+                                <span class="status-indicator"></span>
+                                Connected
+                            </div>
+                        </div>
+                    </div>
+                    <p class="source-description">
+                        Connect to GitHub to import repositories, commits, pull requests, and contributor data.
+                    </p>
+                    <div class="source-details">
+                        <div class="detail-item">
+                            <span class="detail-icon">✓</span>
+                            <span>Organization: acme-corp</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-icon">✓</span>
+                            <span>50 repositories found</span>
+                        </div>
+                    </div>
+                    <div class="source-actions">
+                        <button class="btn-configure">Configure</button>
+                        <button class="btn-disconnect">Disconnect</button>
+                    </div>
+                </div>
+
+                <div class="source-card" data-source="gitlab">
+                    <div class="source-header">
+                        <div class="source-icon">🟠</div>
+                        <div class="source-info">
+                            <h3>GitLab</h3>
+                            <div class="source-status not-connected">
+                                <span class="status-indicator"></span>
+                                Not Connected
+                            </div>
+                        </div>
+                    </div>
+                    <p class="source-description">
+                        Connect to GitLab for project data, merge requests, and pipeline information.
+                    </p>
+                    <div class="source-details">
+                        <div class="detail-item">
+                            <span class="detail-icon">•</span>
+                            <span>Self-hosted & GitLab.com</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-icon">•</span>
+                            <span>Projects, commits, MRs</span>
+                        </div>
+                    </div>
+                    <div class="source-actions">
+                        <button class="btn-connect">Connect GitLab</button>
+                    </div>
+                </div>
+
+                <div class="source-card" data-source="bitbucket">
+                    <div class="source-header">
+                        <div class="source-icon">🔵</div>
+                        <div class="source-info">
+                            <h3>Bitbucket</h3>
+                            <div class="source-status not-connected">
+                                <span class="status-indicator"></span>
+                                Not Connected
+                            </div>
+                        </div>
+                    </div>
+                    <p class="source-description">
+                        Connect to Bitbucket for repository and pull request tracking.
+                    </p>
+                    <div class="source-details">
+                        <div class="detail-item">
+                            <span class="detail-icon">•</span>
+                            <span>Cloud & Server editions</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-icon">•</span>
+                            <span>Repositories, commits, PRs</span>
+                        </div>
+                    </div>
+                    <div class="source-actions">
+                        <button class="btn-connect">Connect Bitbucket</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CI/CD (Optional) -->
+        <div class="category-section">
+            <div class="category-header">
+                <div class="category-title">
+                    <h2>CI/CD Platforms</h2>
+                    <span class="optional-badge">Optional</span>
+                </div>
+            </div>
+            <div class="category-description">
+                Track build and deployment metrics from your CI/CD pipeline.
+            </div>
+            <div class="sources-grid">
+                <div class="source-card" data-source="jenkins">
+                    <div class="source-header">
+                        <div class="source-icon">⚙️</div>
+                        <div class="source-info">
+                            <h3>Jenkins</h3>
+                            <div class="source-status not-connected">
+                                <span class="status-indicator"></span>
+                                Not Connected
+                            </div>
+                        </div>
+                    </div>
+                    <p class="source-description">
+                        Monitor Jenkins builds, job success rates, and pipeline performance.
+                    </p>
+                    <div class="source-details">
+                        <div class="detail-item">
+                            <span class="detail-icon">•</span>
+                            <span>Build metrics & duration</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-icon">•</span>
+                            <span>Success rates & failures</span>
+                        </div>
+                    </div>
+                    <div class="source-actions">
+                        <button class="btn-connect">Connect Jenkins</button>
+                    </div>
+                </div>
+
+                <div class="source-card" data-source="circleci">
+                    <div class="source-header">
+                        <div class="source-icon">🔵</div>
+                        <div class="source-info">
+                            <h3>CircleCI</h3>
+                            <div class="source-status not-connected">
+                                <span class="status-indicator"></span>
+                                Not Connected
+                            </div>
+                        </div>
+                    </div>
+                    <p class="source-description">
+                        Import CircleCI pipeline data, workflows, and job metrics.
+                    </p>
+                    <div class="source-details">
+                        <div class="detail-item">
+                            <span class="detail-icon">•</span>
+                            <span>Pipeline & workflow data</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-icon">•</span>
+                            <span>Job execution metrics</span>
+                        </div>
+                    </div>
+                    <div class="source-actions">
+                        <button class="btn-connect">Connect CircleCI</button>
+                    </div>
+                </div>
+
+                <div class="source-card" data-source="github-actions">
+                    <div class="source-header">
+                        <div class="source-icon">⚡</div>
+                        <div class="source-info">
+                            <h3>GitHub Actions</h3>
+                            <div class="source-status not-connected">
+                                <span class="status-indicator"></span>
+                                Auto-configured
+                            </div>
+                        </div>
+                    </div>
+                    <p class="source-description">
+                        Automatically available with GitHub connection. Track workflow runs and actions.
+                    </p>
+                    <div class="source-details">
+                        <div class="detail-item">
+                            <span class="detail-icon">•</span>
+                            <span>Workflow runs & jobs</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-icon">•</span>
+                            <span>No additional setup</span>
+                        </div>
+                    </div>
+                    <div class="source-actions">
+                        <button class="btn-connect" disabled style="opacity: 0.5;">Auto-configured</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Project Management (Optional) -->
+        <div class="category-section">
+            <div class="category-header">
+                <div class="category-title">
+                    <h2>Project Management</h2>
+                    <span class="optional-badge">Optional</span>
+                </div>
+            </div>
+            <div class="category-description">
+                Link project management tools to correlate tasks with code changes.
+            </div>
+            <div class="sources-grid">
+                <div class="source-card" data-source="jira">
+                    <div class="source-header">
+                        <div class="source-icon">🔷</div>
+                        <div class="source-info">
+                            <h3>JIRA</h3>
+                            <div class="source-status not-connected">
+                                <span class="status-indicator"></span>
+                                Not Connected
+                            </div>
+                        </div>
+                    </div>
+                    <p class="source-description">
+                        Connect JIRA to track issues, sprints, and project progress.
+                    </p>
+                    <div class="source-details">
+                        <div class="detail-item">
+                            <span class="detail-icon">•</span>
+                            <span>Issues & sprint data</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-icon">•</span>
+                            <span>Status transitions</span>
+                        </div>
+                    </div>
+                    <div class="source-actions">
+                        <button class="btn-connect">Connect JIRA</button>
+                    </div>
+                </div>
+
+                <div class="source-card" data-source="trello">
+                    <div class="source-header">
+                        <div class="source-icon">📋</div>
+                        <div class="source-info">
+                            <h3>Trello</h3>
+                            <div class="source-status not-connected">
+                                <span class="status-indicator"></span>
+                                Not Connected
+                            </div>
+                        </div>
+                    </div>
+                    <p class="source-description">
+                        Import Trello boards, lists, and cards for project tracking.
+                    </p>
+                    <div class="source-details">
+                        <div class="detail-item">
+                            <span class="detail-icon">•</span>
+                            <span>Boards, lists & cards</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-icon">•</span>
+                            <span>Activity tracking</span>
+                        </div>
+                    </div>
+                    <div class="source-actions">
+                        <button class="btn-connect">Connect Trello</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Configuration Modal -->
+    <div class="modal" id="configModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-icon">🔷</div>
+                <h2>Configure GitHub</h2>
+            </div>
+            <form>
+                <div class="form-group">
+                    <label for="token">Personal Access Token</label>
+                    <input type="password" id="token" placeholder="ghp_xxxxxxxxxxxxxxxx" required>
+                    <div class="help-text">
+                        <span>ℹ️</span>
+                        <span>
+                            Generate a token at
+                            <a href="https://github.com/settings/tokens" target="_blank" class="help-link">github.com/settings/tokens</a>
+                            with scopes: repo, read:org, read:user
+                        </span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="organization">Organization Name(s)</label>
+                    <input type="text" id="organization" placeholder="acme-corp, acme-labs" required>
+                    <div class="help-text">
+                        <span>ℹ️</span>
+                        <span>Comma-separated for multiple organizations</span>
+                    </div>
+                </div>
+                <div class="test-result success">
+                    <span>✓</span>
+                    <span>Connection successful! Found 50 repositories.</span>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-cancel">Cancel</button>
+                    <button type="button" class="btn-test">Test Connection</button>
+                    <button type="submit" class="btn-save">Save Configuration</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer Navigation -->
+    <footer class="footer-nav">
+        <div class="footer-content">
+            <div class="connection-status">
+                <span class="status-count">1</span> data source connected
+            </div>
+            <div class="footer-actions">
+                <button class="btn btn-secondary btn-large">Skip for Now</button>
+                <button class="btn btn-connect btn-large">Continue to Repositories</button>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Modal functionality
+        const modal = document.getElementById('configModal');
+        const connectButtons = document.querySelectorAll('.btn-connect:not([disabled])');
+        const configureButtons = document.querySelectorAll('.btn-configure');
+        const cancelButton = document.querySelector('.btn-cancel');
+
+        connectButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                modal.classList.add('active');
+            });
+        });
+
+        configureButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                modal.classList.add('active');
+            });
+        });
+
+        cancelButton.addEventListener('click', () => {
+            modal.classList.remove('active');
+        });
+
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.classList.remove('active');
+            }
+        });
+
+        // Test connection
+        document.querySelector('.btn-test').addEventListener('click', () => {
+            document.querySelector('.test-result').style.display = 'flex';
+        });
+
+        // Form submission
+        document.querySelector('.modal-content form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            modal.classList.remove('active');
+            // Here you would save the configuration
+        });
+    </script>
+</body>
+</html>

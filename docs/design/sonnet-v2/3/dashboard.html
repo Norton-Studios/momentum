@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Organization Dashboard - Momentum</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #FFF8F0 0%, #FFEFD5 50%, #FFF5E6 100%);
+            color: #3E3835;
+            min-height: 100vh;
+        }
+
+        /* Navigation */
+        nav {
+            background: white;
+            border-bottom: 2px solid #F5E6D3;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #3E3835;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: #5C5653;
+            text-decoration: none;
+            font-weight: 600;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-link:hover {
+            background: #FFFBF5;
+            color: #3E3835;
+        }
+
+        .nav-link.active {
+            background: linear-gradient(135deg, #E85D75 0%, #D84663 100%);
+            color: white;
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6B7FFF, #9B5DE5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        /* Page Header */
+        .page-header {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem 2rem 1rem;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .page-title {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .page-title h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #3E3835;
+        }
+
+        .emoji-title {
+            font-size: 2.5rem;
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .date-selector {
+            display: flex;
+            gap: 0.5rem;
+            background: white;
+            padding: 0.5rem;
+            border-radius: 12px;
+            border: 2px solid #F5E6D3;
+        }
+
+        .date-btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            font-weight: 600;
+            color: #5C5653;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .date-btn.active {
+            background: linear-gradient(135deg, #E85D75, #D84663);
+            color: white;
+        }
+
+        .date-btn:hover:not(.active) {
+            background: #FFFBF5;
+        }
+
+        .btn-export {
+            padding: 0.65rem 1.25rem;
+            background: white;
+            border: 2px solid #E5D9C9;
+            border-radius: 10px;
+            font-weight: 600;
+            color: #3E3835;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .btn-export:hover {
+            background: #FFFBF5;
+            border-color: #D8C8B4;
+        }
+
+        /* Stats Overview */
+        .stats-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 16px;
+            border: 2px solid #F5E6D3;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .stat-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .stat-icon {
+            font-size: 1.5rem;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #6B6662;
+            font-weight: 600;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #3E3835;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-change {
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .stat-change.positive {
+            color: #5FB876;
+        }
+
+        .stat-change.negative {
+            color: #E85D75;
+        }
+
+        /* Main Content */
+        .main-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem 3rem;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #3E3835;
+            margin: 2rem 0 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .metric-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            border: 2px solid #F5E6D3;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+            transition: all 0.3s;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+        }
+
+        .metric-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .metric-title {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #3E3835;
+        }
+
+        .metric-emoji {
+            font-size: 1.5rem;
+        }
+
+        .view-all-link {
+            color: #6B7FFF;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: color 0.3s;
+        }
+
+        .view-all-link:hover {
+            color: #5A6EEE;
+        }
+
+        .metric-value-large {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #3E3835;
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-trend {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+        }
+
+        .metric-trend.up {
+            color: #5FB876;
+        }
+
+        .metric-trend.down {
+            color: #E85D75;
+        }
+
+        /* Chart Placeholder */
+        .chart-placeholder {
+            background: linear-gradient(135deg, #FFFBF5 0%, #FFF5E6 100%);
+            border-radius: 12px;
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            border: 2px dashed #E5D9C9;
+        }
+
+        .chart-placeholder-text {
+            color: #A39B93;
+            font-weight: 600;
+        }
+
+        .metric-details {
+            display: flex;
+            justify-content: space-between;
+            padding: 1rem;
+            background: #FFFBF5;
+            border-radius: 12px;
+            margin-top: 1rem;
+        }
+
+        .detail-item {
+            text-align: center;
+        }
+
+        .detail-label {
+            font-size: 0.85rem;
+            color: #6B6662;
+            margin-bottom: 0.25rem;
+        }
+
+        .detail-value {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #3E3835;
+        }
+
+        /* Color-coded metric cards */
+        .metric-card.delivery {
+            border-left: 5px solid #6B7FFF;
+            background: linear-gradient(135deg, white 0%, #F0F2FF 100%);
+        }
+
+        .metric-card.operational {
+            border-left: 5px solid #FFA940;
+            background: linear-gradient(135deg, white 0%, #FFF7ED 100%);
+        }
+
+        .metric-card.quality {
+            border-left: 5px solid #5FB876;
+            background: linear-gradient(135deg, white 0%, #F0FFF4 100%);
+        }
+
+        .metric-card.security {
+            border-left: 5px solid #E85D75;
+            background: linear-gradient(135deg, white 0%, #FFF0F3 100%);
+        }
+
+        /* Recent Activity */
+        .activity-list {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: 2px solid #F5E6D3;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            border-radius: 12px;
+            transition: background 0.3s;
+        }
+
+        .activity-item:hover {
+            background: #FFFBF5;
+        }
+
+        .activity-icon {
+            font-size: 1.5rem;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            background: #F5E6D3;
+        }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-title {
+            font-weight: 600;
+            color: #3E3835;
+            margin-bottom: 0.25rem;
+        }
+
+        .activity-time {
+            font-size: 0.85rem;
+            color: #A39B93;
+        }
+
+        /* Severity Badges */
+        .severity-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+        }
+
+        .severity-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem 1rem;
+            border-radius: 10px;
+            background: white;
+            border: 2px solid #F5E6D3;
+        }
+
+        .severity-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+        }
+
+        .severity-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .severity-dot.critical {
+            background: #E85D75;
+        }
+
+        .severity-dot.high {
+            background: #FFA940;
+        }
+
+        .severity-dot.medium {
+            background: #FFD666;
+        }
+
+        .severity-dot.low {
+            background: #5FB876;
+        }
+
+        .severity-count {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #3E3835;
+        }
+
+        /* Progress Bar */
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #F5E6D3;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #5FB876, #3DA55F);
+            border-radius: 4px;
+            transition: width 0.5s;
+        }
+
+        @media (max-width: 1024px) {
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-overview {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .stats-overview {
+                grid-template-columns: 1fr;
+            }
+
+            .header-top {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            .controls {
+                width: 100%;
+                flex-direction: column;
+            }
+
+            .date-selector {
+                width: 100%;
+                justify-content: space-between;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <div class="logo">
+                📊 Momentum
+            </div>
+            <div class="nav-links">
+                <a href="#" class="nav-link active">
+                    <span>🏢</span>
+                    Organization
+                </a>
+                <a href="#" class="nav-link">
+                    <span>👤</span>
+                    Individual
+                </a>
+                <a href="onboarding-datasources.html" class="nav-link">
+                    <span>⚙️</span>
+                    Settings
+                </a>
+            </div>
+            <div class="user-menu">
+                <div class="user-avatar">AJ</div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="page-header">
+        <div class="header-top">
+            <div class="page-title">
+                <span class="emoji-title">🏢</span>
+                <h1>Organization Overview</h1>
+            </div>
+            <div class="controls">
+                <div class="date-selector">
+                    <button class="date-btn">7d</button>
+                    <button class="date-btn active">30d</button>
+                    <button class="date-btn">60d</button>
+                    <button class="date-btn">90d</button>
+                </div>
+                <button class="btn-export">
+                    📥 Export
+                </button>
+            </div>
+        </div>
+
+        <div class="stats-overview">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-icon">📦</span>
+                    <span class="stat-label">Repositories</span>
+                </div>
+                <div class="stat-value">50</div>
+                <div class="stat-change">Active projects</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-icon">👥</span>
+                    <span class="stat-label">Contributors</span>
+                </div>
+                <div class="stat-value">23</div>
+                <div class="stat-change positive">↑ 3 new this month</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-icon">💻</span>
+                    <span class="stat-label">Commits</span>
+                </div>
+                <div class="stat-value">1,247</div>
+                <div class="stat-change positive">↑ 12% from last month</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-icon">🔀</span>
+                    <span class="stat-label">Pull Requests</span>
+                </div>
+                <div class="stat-value">156</div>
+                <div class="stat-change negative">↓ 8% from last month</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <h2 class="section-title">⚡ Delivery Metrics</h2>
+
+        <div class="metrics-grid">
+            <div class="metric-card delivery">
+                <div class="metric-header">
+                    <div class="metric-title">
+                        <span class="metric-emoji">🚀</span>
+                        Deployment Velocity
+                    </div>
+                    <a href="#" class="view-all-link">View All →</a>
+                </div>
+                <div>
+                    <div class="metric-value-large">12</div>
+                    <div class="metric-trend up">↑ 33% from last week</div>
+                </div>
+                <div class="chart-placeholder">
+                    <span class="chart-placeholder-text">📊 Deployment frequency chart</span>
+                </div>
+                <div class="metric-details">
+                    <div class="detail-item">
+                        <div class="detail-label">Lead Time</div>
+                        <div class="detail-value">3.5 days</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Cycle Time</div>
+                        <div class="detail-value">2.1 days</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Time to Merge</div>
+                        <div class="detail-value">18 hrs</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="metric-card delivery">
+                <div class="metric-header">
+                    <div class="metric-title">
+                        <span class="metric-emoji">📝</span>
+                        Commit & PR Activity
+                    </div>
+                    <a href="#" class="view-all-link">View All →</a>
+                </div>
+                <div>
+                    <div class="metric-value-large">287</div>
+                    <div class="metric-trend up">↑ 12% commits this week</div>
+                </div>
+                <div class="chart-placeholder">
+                    <span class="chart-placeholder-text">📈 Activity trend chart</span>
+                </div>
+                <div class="metric-details">
+                    <div class="detail-item">
+                        <div class="detail-label">PRs Merged</div>
+                        <div class="detail-value">45</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Avg PR Size</div>
+                        <div class="detail-value">156 lines</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Merge Time</div>
+                        <div class="detail-value">18.2 hrs</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="section-title">⚙️ Operational Metrics</h2>
+
+        <div class="metrics-grid">
+            <div class="metric-card operational">
+                <div class="metric-header">
+                    <div class="metric-title">
+                        <span class="metric-emoji">✅</span>
+                        Pipeline Success Rate
+                    </div>
+                    <a href="#" class="view-all-link">View All →</a>
+                </div>
+                <div>
+                    <div class="metric-value-large">94.5%</div>
+                    <div class="metric-trend up">↑ 2.3% improvement</div>
+                </div>
+                <div class="chart-placeholder">
+                    <span class="chart-placeholder-text">📊 Success rate over time</span>
+                </div>
+                <div class="activity-list">
+                    <div class="activity-item">
+                        <div class="activity-icon">❌</div>
+                        <div class="activity-content">
+                            <div class="activity-title">api-service: Unit tests failed</div>
+                            <div class="activity-time">2 hours ago</div>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-icon">⏱️</div>
+                        <div class="activity-content">
+                            <div class="activity-title">frontend-web: Build timeout</div>
+                            <div class="activity-time">5 hours ago</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="metric-card operational">
+                <div class="metric-header">
+                    <div class="metric-title">
+                        <span class="metric-emoji">⏱️</span>
+                        Pipeline Duration
+                    </div>
+                    <a href="#" class="view-all-link">View All →</a>
+                </div>
+                <div>
+                    <div class="metric-value-large">12.5 min</div>
+                    <div class="metric-trend up">↓ 1.2 min faster</div>
+                </div>
+                <div class="chart-placeholder">
+                    <span class="chart-placeholder-text">⏱️ Duration breakdown chart</span>
+                </div>
+                <div class="metric-details">
+                    <div class="detail-item">
+                        <div class="detail-label">Build</div>
+                        <div class="detail-value">8 min</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Test</div>
+                        <div class="detail-value">3 min</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Deploy</div>
+                        <div class="detail-value">1.5 min</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="section-title">🎯 Quality Metrics</h2>
+
+        <div class="metrics-grid">
+            <div class="metric-card quality">
+                <div class="metric-header">
+                    <div class="metric-title">
+                        <span class="metric-emoji">📊</span>
+                        Code Coverage
+                    </div>
+                    <a href="#" class="view-all-link">View All →</a>
+                </div>
+                <div>
+                    <div class="metric-value-large">78%</div>
+                    <div class="metric-trend up">↑ 2% improvement</div>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 78%"></div>
+                </div>
+                <div class="chart-placeholder">
+                    <span class="chart-placeholder-text">📈 Coverage trend chart</span>
+                </div>
+                <div class="metric-details">
+                    <div class="detail-item">
+                        <div class="detail-label">Target</div>
+                        <div class="detail-value">80%</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">New Code</div>
+                        <div class="detail-value">85%</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Gap</div>
+                        <div class="detail-value">2%</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="metric-card quality">
+                <div class="metric-header">
+                    <div class="metric-title">
+                        <span class="metric-emoji">🔧</span>
+                        Technical Debt
+                    </div>
+                    <a href="#" class="view-all-link">View All →</a>
+                </div>
+                <div>
+                    <div class="metric-value-large">12.5 days</div>
+                    <div class="metric-trend up">↓ 2 days reduced</div>
+                </div>
+                <div class="chart-placeholder">
+                    <span class="chart-placeholder-text">📉 Technical debt trend</span>
+                </div>
+                <div class="metric-details">
+                    <div class="detail-item">
+                        <div class="detail-label">Code Smells</div>
+                        <div class="detail-value">127</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Rating</div>
+                        <div class="detail-value">A</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Duplication</div>
+                        <div class="detail-value">3.2%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="section-title">🔒 Security Metrics</h2>
+
+        <div class="metrics-grid">
+            <div class="metric-card security">
+                <div class="metric-header">
+                    <div class="metric-title">
+                        <span class="metric-emoji">🛡️</span>
+                        Security Vulnerabilities
+                    </div>
+                    <a href="#" class="view-all-link">View All →</a>
+                </div>
+                <div>
+                    <div class="metric-value-large">23</div>
+                    <div class="metric-trend up">↓ 5 resolved this week</div>
+                </div>
+                <div class="severity-list">
+                    <div class="severity-item">
+                        <div class="severity-label">
+                            <span class="severity-dot critical"></span>
+                            Critical
+                        </div>
+                        <div class="severity-count">2</div>
+                    </div>
+                    <div class="severity-item">
+                        <div class="severity-label">
+                            <span class="severity-dot high"></span>
+                            High
+                        </div>
+                        <div class="severity-count">8</div>
+                    </div>
+                    <div class="severity-item">
+                        <div class="severity-label">
+                            <span class="severity-dot medium"></span>
+                            Medium
+                        </div>
+                        <div class="severity-count">10</div>
+                    </div>
+                    <div class="severity-item">
+                        <div class="severity-label">
+                            <span class="severity-dot low"></span>
+                            Low
+                        </div>
+                        <div class="severity-count">3</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="metric-card delivery">
+                <div class="metric-header">
+                    <div class="metric-title">
+                        <span class="metric-emoji">🕐</span>
+                        Work In Progress
+                    </div>
+                    <a href="#" class="view-all-link">View All →</a>
+                </div>
+                <div>
+                    <div class="metric-value-large">23</div>
+                    <div class="metric-trend">Open PRs</div>
+                </div>
+                <div class="chart-placeholder">
+                    <span class="chart-placeholder-text">📊 WIP distribution chart</span>
+                </div>
+                <div class="metric-details">
+                    <div class="detail-item">
+                        <div class="detail-label">Waiting Review</div>
+                        <div class="detail-value">12</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">In Review</div>
+                        <div class="detail-value">11</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Avg Age</div>
+                        <div class="detail-value">1.8 days</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

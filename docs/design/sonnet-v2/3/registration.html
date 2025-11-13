@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Get Started - Momentum</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #FFF8F0 0%, #FFEFD5 50%, #FFF5E6 100%);
+            color: #3E3835;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #5C5653;
+            text-decoration: none;
+            margin-bottom: 2rem;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .back-link:hover {
+            color: #3E3835;
+        }
+
+        .registration-card {
+            background: white;
+            border-radius: 24px;
+            padding: 3rem;
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.12);
+            border: 2px solid #F5E6D3;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .emoji-hero {
+            font-size: 3rem;
+            display: block;
+            margin-bottom: 1rem;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #3E3835;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            color: #6B6662;
+            font-size: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            color: #3E3835;
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .label-emoji {
+            margin-right: 0.25rem;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            padding: 0.9rem 1rem;
+            border: 2px solid #E5D9C9;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-family: inherit;
+            background: #FFFBF5;
+            color: #3E3835;
+            transition: all 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #E85D75;
+            background: white;
+            box-shadow: 0 0 0 4px rgba(232, 93, 117, 0.1);
+        }
+
+        input::placeholder {
+            color: #A39B93;
+        }
+
+        .password-hint {
+            font-size: 0.85rem;
+            color: #6B6662;
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            margin-bottom: 2rem;
+        }
+
+        input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            margin-top: 0.15rem;
+            accent-color: #E85D75;
+            cursor: pointer;
+        }
+
+        .checkbox-label {
+            font-size: 0.9rem;
+            color: #5C5653;
+            line-height: 1.5;
+        }
+
+        .checkbox-label a {
+            color: #E85D75;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .checkbox-label a:hover {
+            text-decoration: underline;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 1rem;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1.05rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #E85D75 0%, #D84663 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(232, 93, 117, 0.3);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(232, 93, 117, 0.4);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 2rem 0;
+            color: #A39B93;
+            font-size: 0.9rem;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: #E5D9C9;
+        }
+
+        .social-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .btn-social {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            padding: 0.9rem;
+            border: 2px solid #E5D9C9;
+            background: white;
+            color: #3E3835;
+            border-radius: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .btn-social:hover {
+            background: #FFFBF5;
+            border-color: #D8C8B4;
+            transform: translateY(-1px);
+        }
+
+        .social-icon {
+            font-size: 1.3rem;
+        }
+
+        .footer-text {
+            text-align: center;
+            margin-top: 2rem;
+            color: #6B6662;
+            font-size: 0.95rem;
+        }
+
+        .footer-text a {
+            color: #E85D75;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .footer-text a:hover {
+            text-decoration: underline;
+        }
+
+        .benefits {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, #F0F2FF 0%, #FFF0F3 100%);
+            border-radius: 16px;
+            border: 2px solid #E5D9C9;
+        }
+
+        .benefits h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #3E3835;
+            margin-bottom: 1rem;
+        }
+
+        .benefits ul {
+            list-style: none;
+        }
+
+        .benefits li {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #5C5653;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .benefits li::before {
+            content: "✓";
+            color: #5FB876;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        @media (max-width: 600px) {
+            .registration-card {
+                padding: 2rem 1.5rem;
+            }
+
+            .header h1 {
+                font-size: 1.75rem;
+            }
+
+            body {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="homepage.html" class="back-link">
+            ← Back to home
+        </a>
+
+        <div class="registration-card">
+            <div class="header">
+                <span class="emoji-hero">👋</span>
+                <h1>Create your account</h1>
+                <p>Start measuring your team's productivity in minutes</p>
+            </div>
+
+            <form id="registrationForm">
+                <div class="form-group">
+                    <label for="fullName">
+                        <span class="label-emoji">👤</span>
+                        Full Name
+                    </label>
+                    <input
+                        type="text"
+                        id="fullName"
+                        name="fullName"
+                        placeholder="Jane Smith"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="email">
+                        <span class="label-emoji">✉️</span>
+                        Work Email
+                    </label>
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        placeholder="jane@company.com"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="organization">
+                        <span class="label-emoji">🏢</span>
+                        Organization Name
+                    </label>
+                    <input
+                        type="text"
+                        id="organization"
+                        name="organization"
+                        placeholder="Acme Corp"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="password">
+                        <span class="label-emoji">🔒</span>
+                        Password
+                    </label>
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        placeholder="Create a strong password"
+                        required
+                    >
+                    <div class="password-hint">
+                        💡 At least 8 characters with letters and numbers
+                    </div>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="terms" name="terms" required>
+                    <label for="terms" class="checkbox-label">
+                        I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>
+                    </label>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    Create Account 🚀
+                </button>
+            </form>
+
+            <div class="divider">or continue with</div>
+
+            <div class="social-buttons">
+                <a href="#" class="btn-social">
+                    <span class="social-icon">🐙</span>
+                    Continue with GitHub
+                </a>
+                <a href="#" class="btn-social">
+                    <span class="social-icon">🦊</span>
+                    Continue with GitLab
+                </a>
+            </div>
+
+            <div class="benefits">
+                <h3>✨ What you'll get:</h3>
+                <ul>
+                    <li>14-day free trial, no credit card required</li>
+                    <li>Connect unlimited data sources</li>
+                    <li>Track up to 50 repositories</li>
+                    <li>Access to all features and insights</li>
+                    <li>Email support within 24 hours</li>
+                </ul>
+            </div>
+
+            <div class="footer-text">
+                Already have an account? <a href="#">Sign in</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('registrationForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            // Simulate form submission and redirect to onboarding
+            window.location.href = 'onboarding-datasources.html';
+        });
+    </script>
+</body>
+</html>

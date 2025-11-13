@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configure Data Sources - Momentum</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
+            background-color: #0d1117;
+            color: #c9d1d9;
+            line-height: 1.5;
+            font-size: 14px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 32px 16px;
+        }
+
+        /* Header */
+        .header {
+            margin-bottom: 32px;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            font-weight: 600;
+            color: #f0f6fc;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            font-size: 16px;
+            color: #7d8590;
+        }
+
+        /* Progress Steps */
+        .progress-steps {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 48px;
+            padding: 24px;
+            background-color: #161b22;
+            border: 1px solid #21262d;
+            border-radius: 6px;
+        }
+
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .step-number {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #21262d;
+            color: #7d8590;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+            font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+        }
+
+        .step.active .step-number {
+            background-color: #1f6feb;
+            color: #ffffff;
+        }
+
+        .step.completed .step-number {
+            background-color: #238636;
+            color: #ffffff;
+        }
+
+        .step-label {
+            color: #7d8590;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .step.active .step-label {
+            color: #c9d1d9;
+        }
+
+        .step-divider {
+            width: 48px;
+            height: 2px;
+            background-color: #21262d;
+            margin: 0 16px;
+        }
+
+        /* Required Section */
+        .section {
+            margin-bottom: 48px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #f0f6fc;
+        }
+
+        .required-badge {
+            background-color: #da3633;
+            color: #ffffff;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .optional-badge {
+            background-color: #21262d;
+            color: #7d8590;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        /* Data Source Grid */
+        .datasource-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 16px;
+        }
+
+        .datasource-card {
+            background-color: #161b22;
+            border: 1px solid #21262d;
+            border-radius: 6px;
+            padding: 16px;
+            transition: border-color 0.2s;
+            position: relative;
+        }
+
+        .datasource-card:hover {
+            border-color: #30363d;
+        }
+
+        .datasource-card.connected {
+            border-color: #238636;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #f0f6fc;
+            font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+        }
+
+        .status-badge {
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-badge.connected {
+            background-color: rgba(35, 134, 54, 0.2);
+            color: #3fb950;
+        }
+
+        .status-badge.not-configured {
+            background-color: #21262d;
+            color: #7d8590;
+        }
+
+        .card-description {
+            font-size: 13px;
+            color: #7d8590;
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }
+
+        .card-form {
+            display: none;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #21262d;
+        }
+
+        .card-form.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: #c9d1d9;
+            margin-bottom: 4px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 6px 10px;
+            font-size: 13px;
+            background-color: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            color: #c9d1d9;
+            font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #58a6ff;
+        }
+
+        .form-hint {
+            font-size: 11px;
+            color: #7d8590;
+            margin-top: 4px;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .btn {
+            padding: 6px 12px;
+            font-size: 13px;
+            font-weight: 500;
+            border: 1px solid;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex: 1;
+        }
+
+        .btn-configure {
+            background-color: transparent;
+            border-color: #30363d;
+            color: #58a6ff;
+        }
+
+        .btn-configure:hover {
+            background-color: #1f6feb;
+            border-color: #1f6feb;
+            color: #ffffff;
+        }
+
+        .btn-test {
+            background-color: transparent;
+            border-color: #30363d;
+            color: #c9d1d9;
+        }
+
+        .btn-test:hover {
+            background-color: #21262d;
+            border-color: #30363d;
+        }
+
+        .btn-save {
+            background-color: #238636;
+            border-color: #2ea043;
+            color: #ffffff;
+        }
+
+        .btn-save:hover {
+            background-color: #2ea043;
+        }
+
+        .btn-connected {
+            background-color: rgba(35, 134, 54, 0.2);
+            border-color: #238636;
+            color: #3fb950;
+            cursor: default;
+        }
+
+        .test-result {
+            margin-top: 12px;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            display: none;
+        }
+
+        .test-result.success {
+            display: block;
+            background-color: rgba(35, 134, 54, 0.15);
+            border: 1px solid #238636;
+            color: #3fb950;
+        }
+
+        .test-result.error {
+            display: block;
+            background-color: rgba(248, 81, 73, 0.15);
+            border: 1px solid #f85149;
+            color: #f85149;
+        }
+
+        /* Bottom Actions */
+        .bottom-actions {
+            position: sticky;
+            bottom: 0;
+            background-color: #0d1117;
+            border-top: 1px solid #21262d;
+            padding: 24px 0;
+            margin-top: 48px;
+        }
+
+        .action-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 16px;
+        }
+
+        .connection-status {
+            font-size: 14px;
+            color: #7d8590;
+        }
+
+        .connection-status strong {
+            color: #58a6ff;
+            font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+        }
+
+        .btn-continue {
+            padding: 10px 24px;
+            font-size: 14px;
+            font-weight: 600;
+            background-color: #238636;
+            color: #ffffff;
+            border: 1px solid #2ea043;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-continue:hover {
+            background-color: #2ea043;
+        }
+
+        .btn-continue:disabled {
+            background-color: #21262d;
+            border-color: #30363d;
+            color: #484f58;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Configure Data Sources</h1>
+            <p>Connect at least one version control system to begin tracking productivity metrics</p>
+        </div>
+
+        <div class="progress-steps">
+            <div class="step completed">
+                <div class="step-number">1</div>
+                <div class="step-label">Account</div>
+            </div>
+            <div class="step-divider"></div>
+            <div class="step active">
+                <div class="step-number">2</div>
+                <div class="step-label">Data Sources</div>
+            </div>
+            <div class="step-divider"></div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-label">Repositories</div>
+            </div>
+            <div class="step-divider"></div>
+            <div class="step">
+                <div class="step-number">4</div>
+                <div class="step-label">Import</div>
+            </div>
+        </div>
+
+        <!-- Required VCS Section -->
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">Version Control Systems</h2>
+                <span class="required-badge">REQUIRED</span>
+            </div>
+
+            <div class="datasource-grid">
+                <!-- GitHub Card -->
+                <div class="datasource-card" id="githubCard">
+                    <div class="card-header">
+                        <h3 class="card-title">GitHub</h3>
+                        <span class="status-badge not-configured" id="githubStatus">Not Configured</span>
+                    </div>
+                    <p class="card-description">Connect GitHub repositories for commit tracking, pull requests, and contributor analytics.</p>
+
+                    <div class="card-form" id="githubForm">
+                        <div class="form-group">
+                            <label>Personal Access Token</label>
+                            <input type="password" placeholder="ghp_xxxxxxxxxxxx" id="githubToken">
+                            <div class="form-hint">Required scopes: repo, read:org, read:user</div>
+                        </div>
+                        <div class="form-group">
+                            <label>Organization(s)</label>
+                            <input type="text" placeholder="your-org, another-org" id="githubOrg">
+                            <div class="form-hint">Comma-separated for multiple organizations</div>
+                        </div>
+                        <div class="test-result" id="githubResult"></div>
+                    </div>
+
+                    <div class="card-actions" id="githubActions">
+                        <button class="btn btn-configure" onclick="window.toggleGithubForm()">Configure</button>
+                    </div>
+                </div>
+
+                <!-- GitLab Card -->
+                <div class="datasource-card">
+                    <div class="card-header">
+                        <h3 class="card-title">GitLab</h3>
+                        <span class="status-badge not-configured">Not Configured</span>
+                    </div>
+                    <p class="card-description">Integrate GitLab projects for merge requests, pipeline data, and issue tracking.</p>
+                    <div class="card-actions">
+                        <button class="btn btn-configure">Configure</button>
+                    </div>
+                </div>
+
+                <!-- Bitbucket Card -->
+                <div class="datasource-card">
+                    <div class="card-header">
+                        <h3 class="card-title">Bitbucket</h3>
+                        <span class="status-badge not-configured">Not Configured</span>
+                    </div>
+                    <p class="card-description">Connect Bitbucket repositories for commit history and pull request metrics.</p>
+                    <div class="card-actions">
+                        <button class="btn btn-configure">Configure</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CI/CD Section -->
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">CI/CD Platforms</h2>
+                <span class="optional-badge">OPTIONAL</span>
+            </div>
+
+            <div class="datasource-grid">
+                <!-- Jenkins Card -->
+                <div class="datasource-card">
+                    <div class="card-header">
+                        <h3 class="card-title">Jenkins</h3>
+                        <span class="status-badge not-configured">Not Configured</span>
+                    </div>
+                    <p class="card-description">Track pipeline success rates, build durations, and deployment frequency.</p>
+                    <div class="card-actions">
+                        <button class="btn btn-configure">Configure</button>
+                    </div>
+                </div>
+
+                <!-- GitHub Actions Card -->
+                <div class="datasource-card">
+                    <div class="card-header">
+                        <h3 class="card-title">GitHub Actions</h3>
+                        <span class="status-badge not-configured">Not Configured</span>
+                    </div>
+                    <p class="card-description">Auto-configured with GitHub. Tracks workflow runs and job execution.</p>
+                    <div class="card-actions">
+                        <button class="btn btn-configure">Configure</button>
+                    </div>
+                </div>
+
+                <!-- CircleCI Card -->
+                <div class="datasource-card">
+                    <div class="card-header">
+                        <h3 class="card-title">CircleCI</h3>
+                        <span class="status-badge not-configured">Not Configured</span>
+                    </div>
+                    <p class="card-description">Import pipeline data, workflow execution, and job performance metrics.</p>
+                    <div class="card-actions">
+                        <button class="btn btn-configure">Configure</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Project Management Section -->
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">Project Management</h2>
+                <span class="optional-badge">OPTIONAL</span>
+            </div>
+
+            <div class="datasource-grid">
+                <!-- JIRA Card -->
+                <div class="datasource-card">
+                    <div class="card-header">
+                        <h3 class="card-title">JIRA</h3>
+                        <span class="status-badge not-configured">Not Configured</span>
+                    </div>
+                    <p class="card-description">Connect issues, sprints, and status transitions for delivery metrics.</p>
+                    <div class="card-actions">
+                        <button class="btn btn-configure">Configure</button>
+                    </div>
+                </div>
+
+                <!-- Trello Card -->
+                <div class="datasource-card">
+                    <div class="card-header">
+                        <h3 class="card-title">Trello</h3>
+                        <span class="status-badge not-configured">Not Configured</span>
+                    </div>
+                    <p class="card-description">Track board activity, card movement, and team collaboration patterns.</p>
+                    <div class="card-actions">
+                        <button class="btn btn-configure">Configure</button>
+                    </div>
+                </div>
+
+                <!-- Asana Card -->
+                <div class="datasource-card">
+                    <div class="card-header">
+                        <h3 class="card-title">Asana</h3>
+                        <span class="status-badge not-configured">Not Configured</span>
+                    </div>
+                    <p class="card-description">Import tasks, projects, and team member activity for workflow analysis.</p>
+                    <div class="card-actions">
+                        <button class="btn btn-configure">Configure</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Code Quality Section -->
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">Code Quality Tools</h2>
+                <span class="optional-badge">OPTIONAL</span>
+            </div>
+
+            <div class="datasource-grid">
+                <!-- SonarQube Card -->
+                <div class="datasource-card">
+                    <div class="card-header">
+                        <h3 class="card-title">SonarQube</h3>
+                        <span class="status-badge not-configured">Not Configured</span>
+                    </div>
+                    <p class="card-description">Track code coverage, technical debt, security vulnerabilities, and code smells.</p>
+                    <div class="card-actions">
+                        <button class="btn btn-configure">Configure</button>
+                    </div>
+                </div>
+
+                <!-- CodeClimate Card -->
+                <div class="datasource-card">
+                    <div class="card-header">
+                        <h3 class="card-title">CodeClimate</h3>
+                        <span class="status-badge not-configured">Not Configured</span>
+                    </div>
+                    <p class="card-description">Monitor maintainability ratings and test coverage across repositories.</p>
+                    <div class="card-actions">
+                        <button class="btn btn-configure">Configure</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bottom-actions">
+        <div class="action-bar">
+            <div class="connection-status">
+                <strong id="connectedCount">0</strong> data sources connected
+            </div>
+            <button class="btn-continue" id="continueBtn" disabled>Continue to Repositories</button>
+        </div>
+    </div>
+
+    <script>
+        let connectedCount = 0;
+
+        window.toggleGithubForm = () => {
+            const form = document.getElementById('githubForm');
+            const actions = document.getElementById('githubActions');
+
+            form.classList.add('active');
+            actions.innerHTML = `
+                <button class="btn btn-test" onclick="window.testGithubConnection()">Test Connection</button>
+                <button class="btn btn-save" onclick="window.saveGithubConnection()">Save</button>
+            `;
+        };
+
+        window.testGithubConnection = () => {
+            const resultDiv = document.getElementById('githubResult');
+            resultDiv.className = 'test-result';
+            resultDiv.textContent = 'Testing connection...';
+            resultDiv.style.display = 'block';
+
+            setTimeout(() => {
+                resultDiv.className = 'test-result success';
+                resultDiv.textContent = '✓ Connected successfully. Found 50 repositories.';
+            }, 1500);
+        };
+
+        window.saveGithubConnection = () => {
+            const card = document.getElementById('githubCard');
+            const status = document.getElementById('githubStatus');
+            const actions = document.getElementById('githubActions');
+
+            card.classList.add('connected');
+            status.className = 'status-badge connected';
+            status.textContent = 'Connected';
+
+            actions.innerHTML = '<button class="btn btn-connected">✓ Connected</button>';
+
+            connectedCount++;
+            document.getElementById('connectedCount').textContent = connectedCount;
+            document.getElementById('continueBtn').disabled = false;
+        };
+
+        document.getElementById('continueBtn').addEventListener('click', () => {
+            window.location.href = '/dashboard.html';
+        });
+    </script>
+</body>
+</html>

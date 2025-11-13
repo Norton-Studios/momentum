@@ -1,0 +1,16 @@
+<!DOCTYPE html><html lang='en'><head><meta charset='UTF-8'><meta name='viewport' content='width=device-width,initial-scale=1.0'><title>Helix Thread · Data Sources</title><link rel='stylesheet' href='styles.css'></head><body class='page onboarding'><nav><span class='brand'>Helix Thread</span><ul><li><a href='homepage.html'>Homepage</a></li><li><a href='onboarding-registration.html'>Registration</a></li><li><a aria-current='page' href='onboarding-data-sources.html'>Data Sources</a></li><li><a href='dashboard.html'>Dashboard</a></li></ul></nav><header class='hero'><p class='badge'>Onboarding · Step 2</p><h1>Connect GitHub & beyond</h1><p>Bring in at least one version-control system, then layer CI, planning, and quality feeds when you are ready.</p></header><main><section class='section split'><div><h2>GitHub Configuration</h2>
+    <form>
+      <label>Personal Access Token<input type='password' placeholder='ghp_***'></label>
+      <label>Organizations<input type='text' placeholder='org-one, org-two'></label>
+      <label>Repository filters<input type='text' placeholder='api-*, mobile-app'></label>
+      <label>Import cadence<select><option>Hourly</option><option>Every 4 hours</option><option>Daily</option></select></label>
+      <button type='button'>Test connection</button>
+    </form>
+    </div><div><h2>Status Console</h2>
+    <div class='notice'>
+      <p>[12:00] Authenticating token … ✅</p>
+      <p>[12:00] Validating scopes … ✅</p>
+      <p>[12:01] Discovering repositories … 52 found</p>
+      <p>[12:02] Scheduling incremental import window</p>
+    </div>
+    </div></section><section class='section'><h2>Best Practices</h2><ul class='list'><li>Collapsible panels separate credentials, scope, validation, and schedule.</li><li>Historical slider lets ops choose how far back to backfill.</li><li>Notification schedule controls summaries by email or Slack.</li></ul><div class='notice'>Optional integrations: <span class='badge'>Jenkins</span><span class='badge'>CircleCI</span><span class='badge'>JIRA</span><span class='badge'>SonarQube</span></div></section></main></body></html>

@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Momentum - Developer Productivity Platform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
+            background-color: #0d1117;
+            color: #c9d1d9;
+            line-height: 1.5;
+            font-size: 14px;
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 16px;
+        }
+
+        /* Navigation */
+        nav {
+            background-color: #161b22;
+            border-bottom: 1px solid #21262d;
+            padding: 16px 0;
+        }
+
+        .nav-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 16px;
+            font-weight: 600;
+            color: #f0f6fc;
+            text-decoration: none;
+            font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 24px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: #7d8590;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: #c9d1d9;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: inline-block;
+            border: 1px solid;
+        }
+
+        .btn-primary {
+            background-color: #238636;
+            color: #ffffff;
+            border-color: #2ea043;
+        }
+
+        .btn-primary:hover {
+            background-color: #2ea043;
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            color: #58a6ff;
+            border-color: #1f6feb;
+        }
+
+        .btn-secondary:hover {
+            background-color: #1f6feb;
+            color: #ffffff;
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 80px 0 120px;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 48px;
+            font-weight: 600;
+            color: #f0f6fc;
+            margin-bottom: 16px;
+            line-height: 1.2;
+        }
+
+        .hero p {
+            font-size: 20px;
+            color: #7d8590;
+            margin-bottom: 32px;
+            max-width: 720px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero-cta {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Feature Grid */
+        .features {
+            padding: 80px 0;
+            border-top: 1px solid #21262d;
+        }
+
+        .section-title {
+            font-size: 32px;
+            font-weight: 600;
+            color: #f0f6fc;
+            margin-bottom: 48px;
+            text-align: center;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 24px;
+            margin-bottom: 80px;
+        }
+
+        .feature-card {
+            background-color: #161b22;
+            border: 1px solid #21262d;
+            border-radius: 6px;
+            padding: 24px;
+            transition: border-color 0.2s;
+        }
+
+        .feature-card:hover {
+            border-color: #30363d;
+        }
+
+        .feature-icon {
+            width: 48px;
+            height: 48px;
+            background-color: #1f6feb;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+            font-size: 24px;
+        }
+
+        .feature-card h3 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #f0f6fc;
+            margin-bottom: 8px;
+        }
+
+        .feature-card p {
+            color: #7d8590;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        /* Code Block */
+        .code-section {
+            padding: 80px 0;
+            border-top: 1px solid #21262d;
+        }
+
+        .code-container {
+            background-color: #161b22;
+            border: 1px solid #21262d;
+            border-radius: 6px;
+            overflow: hidden;
+            max-width: 960px;
+            margin: 0 auto;
+        }
+
+        .code-header {
+            background-color: #0d1117;
+            padding: 12px 16px;
+            border-bottom: 1px solid #21262d;
+            font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+            font-size: 12px;
+            color: #7d8590;
+        }
+
+        .code-content {
+            padding: 24px;
+            font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            color: #c9d1d9;
+            overflow-x: auto;
+        }
+
+        .code-line {
+            display: block;
+        }
+
+        .code-comment {
+            color: #8b949e;
+        }
+
+        .code-keyword {
+            color: #ff7b72;
+        }
+
+        .code-string {
+            color: #a5d6ff;
+        }
+
+        .code-function {
+            color: #d2a8ff;
+        }
+
+        /* Stats Section */
+        .stats {
+            padding: 80px 0;
+            border-top: 1px solid #21262d;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 32px;
+            text-align: center;
+        }
+
+        .stat-item h3 {
+            font-size: 48px;
+            font-weight: 600;
+            color: #58a6ff;
+            margin-bottom: 8px;
+            font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+        }
+
+        .stat-item p {
+            color: #7d8590;
+            font-size: 16px;
+        }
+
+        /* Footer */
+        footer {
+            padding: 48px 0;
+            border-top: 1px solid #21262d;
+            margin-top: 80px;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 24px;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 24px;
+        }
+
+        .footer-links a {
+            color: #7d8590;
+            text-decoration: none;
+            font-size: 12px;
+        }
+
+        .footer-links a:hover {
+            color: #58a6ff;
+        }
+
+        .copyright {
+            color: #484f58;
+            font-size: 12px;
+        }
+
+        /* Data Source Icons */
+        .data-sources {
+            padding: 80px 0;
+            border-top: 1px solid #21262d;
+            background-color: #0d1117;
+        }
+
+        .source-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 16px;
+            margin-top: 32px;
+        }
+
+        .source-item {
+            background-color: #161b22;
+            border: 1px solid #21262d;
+            border-radius: 6px;
+            padding: 16px;
+            text-align: center;
+            transition: border-color 0.2s;
+        }
+
+        .source-item:hover {
+            border-color: #30363d;
+        }
+
+        .source-item span {
+            color: #7d8590;
+            font-size: 13px;
+            font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="container">
+            <div class="nav-content">
+                <a href="/" class="logo">momentum</a>
+                <div class="nav-links">
+                    <a href="#features">Features</a>
+                    <a href="#integrations">Integrations</a>
+                    <a href="#docs">Docs</a>
+                    <a href="#pricing">Pricing</a>
+                    <a href="/login" class="btn btn-secondary">Sign In</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <section class="hero">
+            <h1>Developer Productivity,<br>Measured and Understood</h1>
+            <p>Comprehensive metrics for software delivery. Self-hosted platform to track performance across all your development tools.</p>
+            <div class="hero-cta">
+                <a href="/register" class="btn btn-primary">Get Started</a>
+                <a href="#features" class="btn btn-secondary">Learn More</a>
+            </div>
+        </section>
+
+        <section class="features" id="features">
+            <h2 class="section-title">Built for Engineering Teams</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3>Data-Driven Insights</h3>
+                    <p>Aggregate metrics from version control, CI/CD, project management, and code quality tools to understand delivery performance.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔌</div>
+                    <h3>Extensible Architecture</h3>
+                    <p>Plugin-based system supporting GitHub, GitLab, Jenkins, JIRA, SonarQube, and more. Add custom data sources easily.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔒</div>
+                    <h3>Self-Hosted Control</h3>
+                    <p>Deploy on your infrastructure. Your data stays within your organization. Complete control over privacy and security.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h3>Automated Collection</h3>
+                    <p>Incremental data collection with dependency management. Scheduled imports run reliably with concurrency control.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📈</div>
+                    <h3>Organization Metrics</h3>
+                    <p>Track delivery velocity, pipeline stability, code quality, and security vulnerabilities across all repositories.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">👤</div>
+                    <h3>Individual Analytics</h3>
+                    <p>Personal productivity patterns, contribution metrics, and collaboration effectiveness for each team member.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="code-section">
+            <h2 class="section-title">Simple Deployment</h2>
+            <div class="code-container">
+                <div class="code-header">docker-compose.yml</div>
+                <div class="code-content">
+                    <span class="code-line"><span class="code-keyword">version:</span> <span class="code-string">'3.8'</span></span>
+                    <span class="code-line"><span class="code-keyword">services:</span></span>
+                    <span class="code-line">  <span class="code-function">momentum:</span></span>
+                    <span class="code-line">    <span class="code-keyword">image:</span> momentum/app:latest</span>
+                    <span class="code-line">    <span class="code-keyword">ports:</span></span>
+                    <span class="code-line">      - <span class="code-string">"3000:3000"</span></span>
+                    <span class="code-line">    <span class="code-keyword">environment:</span></span>
+                    <span class="code-line">      - DATABASE_URL=postgresql://...</span>
+                    <span class="code-line">  <span class="code-function">postgres:</span></span>
+                    <span class="code-line">    <span class="code-keyword">image:</span> postgres:15</span>
+                    <span class="code-line">    <span class="code-keyword">volumes:</span></span>
+                    <span class="code-line">      - postgres-data:/var/lib/postgresql/data</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="data-sources" id="integrations">
+            <h2 class="section-title">Integrates With Your Stack</h2>
+            <div class="source-grid">
+                <div class="source-item"><span>GitHub</span></div>
+                <div class="source-item"><span>GitLab</span></div>
+                <div class="source-item"><span>Bitbucket</span></div>
+                <div class="source-item"><span>Jenkins</span></div>
+                <div class="source-item"><span>CircleCI</span></div>
+                <div class="source-item"><span>GitHub Actions</span></div>
+                <div class="source-item"><span>JIRA</span></div>
+                <div class="source-item"><span>Trello</span></div>
+                <div class="source-item"><span>Asana</span></div>
+                <div class="source-item"><span>SonarQube</span></div>
+                <div class="source-item"><span>CodeClimate</span></div>
+                <div class="source-item"><span>AWS</span></div>
+                <div class="source-item"><span>Azure</span></div>
+                <div class="source-item"><span>GCP</span></div>
+                <div class="source-item"><span>Slack</span></div>
+                <div class="source-item"><span>Teams</span></div>
+            </div>
+        </section>
+
+        <section class="stats">
+            <h2 class="section-title">Track What Matters</h2>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <h3>94.5%</h3>
+                    <p>Pipeline Success Rate</p>
+                </div>
+                <div class="stat-item">
+                    <h3>2.1d</h3>
+                    <p>Average Cycle Time</p>
+                </div>
+                <div class="stat-item">
+                    <h3>18h</h3>
+                    <p>Time to Merge</p>
+                </div>
+                <div class="stat-item">
+                    <h3>78%</h3>
+                    <p>Code Coverage</p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-links">
+                    <a href="/docs">Documentation</a>
+                    <a href="/api">API Reference</a>
+                    <a href="/github">GitHub</a>
+                    <a href="/status">Status</a>
+                </div>
+                <div class="copyright">© 2025 Momentum. Open source developer productivity platform.</div>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

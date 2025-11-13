@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Momentum</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f7fa;
+            color: #1a1a2e;
+        }
+
+        .header {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-tab {
+            padding: 0.75rem 1rem;
+            color: #666;
+            text-decoration: none;
+            font-weight: 600;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .nav-tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .nav-tab:hover {
+            color: #667eea;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .icon-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #f5f7fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+            font-size: 1.2rem;
+        }
+
+        .icon-btn:hover {
+            background: #e0e7ef;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .page-header {
+            margin-bottom: 2rem;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .breadcrumb {
+            color: #666;
+            font-size: 0.95rem;
+        }
+
+        .breadcrumb a {
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .controls-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .date-selector {
+            display: flex;
+            gap: 0.5rem;
+            background: white;
+            padding: 0.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .date-btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.3s;
+        }
+
+        .date-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .date-btn:hover {
+            background: #f5f7fa;
+        }
+
+        .export-btn {
+            padding: 0.75rem 1.5rem;
+            background: white;
+            border: 2px solid #667eea;
+            color: #667eea;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .export-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .overview-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .overview-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+            transition: all 0.3s;
+        }
+
+        .overview-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-label {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .card-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #1a1a2e;
+            margin-bottom: 0.5rem;
+        }
+
+        .card-trend {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .trend-up {
+            color: #4caf50;
+        }
+
+        .trend-down {
+            color: #f44336;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: #1a1a2e;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .metric-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+            overflow: hidden;
+        }
+
+        .metric-header {
+            padding: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .metric-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #1a1a2e;
+        }
+
+        .view-all-link {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .view-all-link:hover {
+            text-decoration: underline;
+        }
+
+        .metric-body {
+            padding: 1.5rem;
+        }
+
+        .metric-value-large {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #1a1a2e;
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-change {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .metric-change.positive {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .metric-change.negative {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .chart-placeholder {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e0e7ef 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 1.5rem 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chart-bars {
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+            height: 100%;
+            padding: 20px;
+        }
+
+        .chart-bar {
+            flex: 1;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 4px 4px 0 0;
+            opacity: 0.8;
+            transition: opacity 0.3s;
+        }
+
+        .chart-bar:hover {
+            opacity: 1;
+        }
+
+        .chart-line {
+            position: absolute;
+            width: 90%;
+            height: 80%;
+            top: 10%;
+            left: 5%;
+        }
+
+        .line-path {
+            stroke: #667eea;
+            stroke-width: 3;
+            fill: none;
+        }
+
+        .metric-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #666;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-value {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #1a1a2e;
+        }
+
+        .severity-bar {
+            display: flex;
+            height: 40px;
+            border-radius: 8px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+
+        .severity-segment {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .severity-critical {
+            background: #d32f2f;
+        }
+
+        .severity-high {
+            background: #f57c00;
+        }
+
+        .severity-medium {
+            background: #fbc02d;
+        }
+
+        .severity-low {
+            background: #7cb342;
+        }
+
+        .recent-items {
+            list-style: none;
+            margin-top: 1rem;
+        }
+
+        .recent-item {
+            padding: 0.75rem;
+            border-left: 3px solid #667eea;
+            background: #f5f7fa;
+            margin-bottom: 0.75rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        .recent-item strong {
+            color: #1a1a2e;
+        }
+
+        .recent-item .time {
+            color: #999;
+            font-size: 0.8rem;
+        }
+
+        .full-width-card {
+            grid-column: 1 / -1;
+        }
+
+        @media (max-width: 1024px) {
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-tabs {
+                gap: 1rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .page-title {
+                font-size: 1.5rem;
+            }
+
+            .controls-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .date-selector {
+                flex-wrap: wrap;
+            }
+
+            .overview-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">⚡ Momentum</div>
+            <nav class="nav-tabs">
+                <a href="#" class="nav-tab active">Organization</a>
+                <a href="#" class="nav-tab">Individual</a>
+            </nav>
+            <div class="header-actions">
+                <button class="icon-btn">🔔</button>
+                <button class="icon-btn">⚙️</button>
+                <div class="user-avatar">AJ</div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="page-header">
+            <h1 class="page-title">Organization Dashboard</h1>
+            <div class="breadcrumb">
+                <a href="#">Organization</a> / Overview
+            </div>
+        </div>
+
+        <div class="controls-bar">
+            <div class="date-selector">
+                <button class="date-btn">7d</button>
+                <button class="date-btn active">30d</button>
+                <button class="date-btn">60d</button>
+                <button class="date-btn">90d</button>
+                <button class="date-btn">Custom ▼</button>
+            </div>
+            <button class="export-btn">
+                <span>📥</span>
+                <span>Export</span>
+            </button>
+        </div>
+
+        <div class="overview-cards">
+            <div class="overview-card">
+                <div class="card-label">Repositories</div>
+                <div class="card-value">50</div>
+                <div class="card-trend">
+                    <span style="color: #666;">Active repositories tracked</span>
+                </div>
+            </div>
+
+            <div class="overview-card">
+                <div class="card-label">Contributors</div>
+                <div class="card-value">23</div>
+                <div class="card-trend">
+                    <span style="color: #666;">Active developers</span>
+                </div>
+            </div>
+
+            <div class="overview-card">
+                <div class="card-label">Commits</div>
+                <div class="card-value">1,247</div>
+                <div class="card-trend trend-up">
+                    <span>↑ 12%</span>
+                    <span>vs last period</span>
+                </div>
+            </div>
+
+            <div class="overview-card">
+                <div class="card-label">Pull Requests</div>
+                <div class="card-value">156</div>
+                <div class="card-trend trend-down">
+                    <span>↓ 8%</span>
+                    <span>vs last period</span>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="section-title">🚀 Delivery Metrics</h2>
+
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-header">
+                    <h3 class="metric-title">Deployment Velocity</h3>
+                    <a href="#" class="view-all-link">View All</a>
+                </div>
+                <div class="metric-body">
+                    <div class="metric-value-large">12 deployments</div>
+                    <span class="metric-change positive">↑ 33% increase</span>
+
+                    <div class="chart-placeholder">
+                        <div class="chart-bars">
+                            <div class="chart-bar" style="height: 45%;"></div>
+                            <div class="chart-bar" style="height: 60%;"></div>
+                            <div class="chart-bar" style="height: 55%;"></div>
+                            <div class="chart-bar" style="height: 70%;"></div>
+                            <div class="chart-bar" style="height: 65%;"></div>
+                            <div class="chart-bar" style="height: 85%;"></div>
+                            <div class="chart-bar" style="height: 100%;"></div>
+                        </div>
+                    </div>
+
+                    <div class="metric-stats">
+                        <div class="stat-item">
+                            <div class="stat-label">Lead Time</div>
+                            <div class="stat-value">3.5 days</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Cycle Time</div>
+                            <div class="stat-value">2.1 days</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Time to Merge</div>
+                            <div class="stat-value">18 hours</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-header">
+                    <h3 class="metric-title">Work In Progress</h3>
+                    <a href="#" class="view-all-link">View All</a>
+                </div>
+                <div class="metric-body">
+                    <div class="metric-value-large">23 open PRs</div>
+                    <span class="metric-change negative">↑ 15% increase</span>
+
+                    <div class="chart-placeholder">
+                        <div class="chart-bars">
+                            <div class="chart-bar" style="height: 80%; background: #fbc02d;"></div>
+                            <div class="chart-bar" style="height: 60%; background: #f57c00;"></div>
+                            <div class="chart-bar" style="height: 50%; background: #4caf50;"></div>
+                        </div>
+                    </div>
+
+                    <div class="metric-stats">
+                        <div class="stat-item">
+                            <div class="stat-label">Waiting Review</div>
+                            <div class="stat-value">12</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">In Review</div>
+                            <div class="stat-value">11</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Avg Age</div>
+                            <div class="stat-value">1.8 days</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="section-title">⚙️ Operational Metrics</h2>
+
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-header">
+                    <h3 class="metric-title">Pipeline Success Rate</h3>
+                    <a href="#" class="view-all-link">View All</a>
+                </div>
+                <div class="metric-body">
+                    <div class="metric-value-large">94.5%</div>
+                    <span class="metric-change positive">↑ 2.3% improvement</span>
+
+                    <div class="chart-placeholder">
+                        <svg class="chart-line" viewBox="0 0 100 100" preserveAspectRatio="none">
+                            <path class="line-path" d="M 0,50 L 15,45 L 30,48 L 45,40 L 60,35 L 75,30 L 90,25 L 100,20" />
+                        </svg>
+                    </div>
+
+                    <ul class="recent-items">
+                        <li class="recent-item">
+                            <strong>api-service:</strong> Unit tests failed
+                            <div class="time">2 hours ago</div>
+                        </li>
+                        <li class="recent-item">
+                            <strong>frontend-web:</strong> Build timeout
+                            <div class="time">5 hours ago</div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-header">
+                    <h3 class="metric-title">Pipeline Duration</h3>
+                    <a href="#" class="view-all-link">View All</a>
+                </div>
+                <div class="metric-body">
+                    <div class="metric-value-large">12.5 min</div>
+                    <span class="metric-change positive">↓ 1.2 min faster</span>
+
+                    <div class="chart-placeholder">
+                        <div class="chart-bars">
+                            <div class="chart-bar" style="height: 90%;"></div>
+                            <div class="chart-bar" style="height: 85%;"></div>
+                            <div class="chart-bar" style="height: 75%;"></div>
+                            <div class="chart-bar" style="height: 70%;"></div>
+                            <div class="chart-bar" style="height: 65%;"></div>
+                            <div class="chart-bar" style="height: 60%;"></div>
+                            <div class="chart-bar" style="height: 55%;"></div>
+                        </div>
+                    </div>
+
+                    <div class="metric-stats">
+                        <div class="stat-item">
+                            <div class="stat-label">Build</div>
+                            <div class="stat-value">8 min</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Test</div>
+                            <div class="stat-value">3 min</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Deploy</div>
+                            <div class="stat-value">1.5 min</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="section-title">🛡️ Quality & Security</h2>
+
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-header">
+                    <h3 class="metric-title">Code Coverage</h3>
+                    <a href="#" class="view-all-link">View All</a>
+                </div>
+                <div class="metric-body">
+                    <div class="metric-value-large">78%</div>
+                    <span class="metric-change positive">↑ 2% improvement</span>
+
+                    <div class="chart-placeholder">
+                        <svg class="chart-line" viewBox="0 0 100 100" preserveAspectRatio="none">
+                            <path class="line-path" d="M 0,80 L 15,75 L 30,70 L 45,65 L 60,60 L 75,50 L 90,35 L 100,22" />
+                        </svg>
+                    </div>
+
+                    <div class="metric-stats">
+                        <div class="stat-item">
+                            <div class="stat-label">Target</div>
+                            <div class="stat-value">80%</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">New Code</div>
+                            <div class="stat-value">85%</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Gap</div>
+                            <div class="stat-value">2%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-header">
+                    <h3 class="metric-title">Security Vulnerabilities</h3>
+                    <a href="#" class="view-all-link">View All</a>
+                </div>
+                <div class="metric-body">
+                    <div class="metric-value-large">23 total</div>
+                    <span class="metric-change positive">↓ 5 resolved</span>
+
+                    <div class="severity-bar">
+                        <div class="severity-segment severity-critical" style="width: 8.7%;">2</div>
+                        <div class="severity-segment severity-high" style="width: 34.8%;">8</div>
+                        <div class="severity-segment severity-medium" style="width: 43.5%;">10</div>
+                        <div class="severity-segment severity-low" style="width: 13%;">3</div>
+                    </div>
+
+                    <div class="metric-stats">
+                        <div class="stat-item">
+                            <div class="stat-label">Critical</div>
+                            <div class="stat-value" style="color: #d32f2f;">2</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">High</div>
+                            <div class="stat-value" style="color: #f57c00;">8</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Medium</div>
+                            <div class="stat-value" style="color: #fbc02d;">10</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Low</div>
+                            <div class="stat-value" style="color: #7cb342;">3</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Organization Dashboard - Momentum</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #F5F3EF;
+            color: #3E3A35;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        header {
+            background: #FFFFFF;
+            border-bottom: 1px solid #D9D4CC;
+            box-shadow: 0 1px 2px rgba(62, 58, 53, 0.05);
+        }
+
+        .header-content {
+            max-width: 1440px;
+            margin: 0 auto;
+            padding: 0 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 72px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 20px;
+            font-weight: 700;
+            color: #7B5E3F;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #A87A4E 0%, #8B6B45 100%);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #FFF;
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        nav {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .nav-link {
+            padding: 8px 16px;
+            color: #5A5246;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 14px;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .nav-link:hover {
+            background: #F9F7F4;
+            color: #7B5E3F;
+        }
+
+        .nav-link.active {
+            background: #F9F7F4;
+            color: #7B5E3F;
+            font-weight: 600;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .icon-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 6px;
+            background: transparent;
+            border: none;
+            color: #5A5246;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: all 0.2s;
+        }
+
+        .icon-btn:hover {
+            background: #F9F7F4;
+            color: #7B5E3F;
+        }
+
+        /* Main Layout */
+        .dashboard-layout {
+            max-width: 1440px;
+            margin: 0 auto;
+            padding: 32px;
+        }
+
+        /* Page Header */
+        .page-header {
+            margin-bottom: 32px;
+        }
+
+        .page-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .page-title h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #3E3A35;
+        }
+
+        .date-range-selector {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .date-btn {
+            padding: 8px 16px;
+            border: 2px solid #D9D4CC;
+            background: #FFFFFF;
+            color: #5A5246;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .date-btn:hover {
+            border-color: #A87A4E;
+            background: #F9F7F4;
+        }
+
+        .date-btn.active {
+            background: #A87A4E;
+            color: #FFF;
+            border-color: #A87A4E;
+        }
+
+        .export-btn {
+            padding: 8px 16px;
+            border: 2px solid #D9D4CC;
+            background: #FFFFFF;
+            color: #5A5246;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .export-btn:hover {
+            border-color: #A87A4E;
+            background: #F9F7F4;
+        }
+
+        /* Overview Cards */
+        .overview-cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .overview-card {
+            background: #FFFFFF;
+            border: 1px solid #D9D4CC;
+            border-radius: 12px;
+            padding: 24px;
+        }
+
+        .overview-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #5A5246;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+
+        .overview-value {
+            font-size: 36px;
+            font-weight: 700;
+            color: #3E3A35;
+            margin-bottom: 8px;
+        }
+
+        .overview-change {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .overview-change.positive {
+            color: #6B8E5E;
+        }
+
+        .overview-change.negative {
+            color: #C85A2E;
+        }
+
+        /* Metric Sections */
+        .metric-section {
+            margin-bottom: 48px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #3E3A35;
+            margin-bottom: 24px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #E8E3DB;
+        }
+
+        /* Metric Cards */
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+        }
+
+        .metric-card {
+            background: #FFFFFF;
+            border: 1px solid #D9D4CC;
+            border-radius: 12px;
+            padding: 24px;
+        }
+
+        .metric-card.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .metric-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .metric-header h3 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #3E3A35;
+        }
+
+        .view-all-link {
+            color: #A87A4E;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .view-all-link:hover {
+            text-decoration: underline;
+        }
+
+        .metric-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #3E3A35;
+            margin-bottom: 8px;
+        }
+
+        .metric-subtitle {
+            font-size: 14px;
+            color: #5A5246;
+            margin-bottom: 20px;
+        }
+
+        .metric-trend {
+            display: inline-block;
+            font-size: 14px;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        .metric-trend.up {
+            color: #6B8E5E;
+        }
+
+        .metric-trend.down {
+            color: #C85A2E;
+        }
+
+        /* Chart Placeholder */
+        .chart-placeholder {
+            height: 200px;
+            background: linear-gradient(135deg, #F9F7F4 0%, #E8E3DB 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #A89D92;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 16px;
+        }
+
+        /* Metric Details */
+        .metric-details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #E8E3DB;
+        }
+
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .detail-label {
+            font-size: 14px;
+            color: #5A5246;
+        }
+
+        .detail-value {
+            font-size: 16px;
+            font-weight: 700;
+            color: #3E3A35;
+        }
+
+        /* List Items */
+        .metric-list {
+            list-style: none;
+        }
+
+        .metric-list li {
+            padding: 12px 0;
+            border-bottom: 1px solid #E8E3DB;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+        }
+
+        .metric-list li:last-child {
+            border-bottom: none;
+        }
+
+        .list-label {
+            color: #3E3A35;
+            font-weight: 500;
+        }
+
+        .list-value {
+            font-weight: 700;
+            color: #7B5E3F;
+        }
+
+        /* Severity Badge */
+        .severity-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .severity-badge.critical {
+            background: #FCDAD4;
+            color: #A83219;
+        }
+
+        .severity-badge.high {
+            background: #FFE8D9;
+            color: #C85A2E;
+        }
+
+        .severity-badge.medium {
+            background: #FFF5E8;
+            color: #CC9954;
+        }
+
+        .severity-badge.low {
+            background: #E8E3DB;
+            color: #5A5246;
+        }
+
+        /* Progress Bar */
+        .progress-bar {
+            height: 8px;
+            background: #E8E3DB;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #A87A4E;
+            border-radius: 4px;
+            transition: width 0.3s;
+        }
+
+        .progress-fill.success {
+            background: #6B8E5E;
+        }
+
+        .progress-fill.warning {
+            background: #CC9954;
+        }
+
+        .progress-fill.danger {
+            background: #C85A2E;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <div class="logo">
+                <div class="logo-icon">M</div>
+                <span>Momentum</span>
+            </div>
+            <nav>
+                <a href="#" class="nav-link active">Organization</a>
+                <a href="#" class="nav-link">Individual</a>
+            </nav>
+            <div class="header-actions">
+                <button class="icon-btn">⚙️</button>
+                <button class="icon-btn">👤</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="dashboard-layout">
+        <div class="page-header">
+            <div class="page-title">
+                <h1>Organization Overview</h1>
+                <div class="date-range-selector">
+                    <button class="date-btn">7d</button>
+                    <button class="date-btn active">30d</button>
+                    <button class="date-btn">60d</button>
+                    <button class="date-btn">90d</button>
+                    <button class="export-btn">📥 Export</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Overview Cards -->
+        <div class="overview-cards">
+            <div class="overview-card">
+                <div class="overview-label">Repositories</div>
+                <div class="overview-value">50</div>
+                <div class="overview-change positive">↑ 2 new</div>
+            </div>
+            <div class="overview-card">
+                <div class="overview-label">Contributors</div>
+                <div class="overview-value">23</div>
+                <div class="overview-change positive">↑ 1 new</div>
+            </div>
+            <div class="overview-card">
+                <div class="overview-label">Commits</div>
+                <div class="overview-value">1,247</div>
+                <div class="overview-change positive">↑ 12%</div>
+            </div>
+            <div class="overview-card">
+                <div class="overview-label">Pull Requests</div>
+                <div class="overview-value">156</div>
+                <div class="overview-change negative">↓ 8%</div>
+            </div>
+        </div>
+
+        <!-- Delivery Metrics -->
+        <div class="metric-section">
+            <h2 class="section-title">Delivery</h2>
+            <div class="metric-grid">
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <h3>Deployment Velocity</h3>
+                        <a href="#" class="view-all-link">View All</a>
+                    </div>
+                    <div class="metric-value">
+                        12
+                        <span class="metric-trend up">↑ 33%</span>
+                    </div>
+                    <div class="metric-subtitle">Deployments this week</div>
+                    <div class="chart-placeholder">Deployment Trend Chart</div>
+                    <div class="metric-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Avg Cycle Time</span>
+                            <span class="detail-value">2.1 days</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Lead Time</span>
+                            <span class="detail-value">3.5 days</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <h3>Commit & PR Activity</h3>
+                        <a href="#" class="view-all-link">View All</a>
+                    </div>
+                    <div class="metric-value">
+                        287
+                        <span class="metric-trend up">↑ 12%</span>
+                    </div>
+                    <div class="metric-subtitle">Commits this week</div>
+                    <div class="chart-placeholder">Commit Activity Chart</div>
+                    <div class="metric-details">
+                        <div class="detail-item">
+                            <span class="detail-label">PRs Merged</span>
+                            <span class="detail-value">45</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Avg Time to Merge</span>
+                            <span class="detail-value">18.2 hrs</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <h3>Work In Progress</h3>
+                        <a href="#" class="view-all-link">View All</a>
+                    </div>
+                    <div class="metric-subtitle">Current state of open work</div>
+                    <div class="chart-placeholder">WIP Distribution Chart</div>
+                    <ul class="metric-list">
+                        <li>
+                            <span class="list-label">Open PRs</span>
+                            <span class="list-value">23</span>
+                        </li>
+                        <li>
+                            <span class="list-label">Waiting for Review</span>
+                            <span class="list-value">12</span>
+                        </li>
+                        <li>
+                            <span class="list-label">In Review</span>
+                            <span class="list-value">11</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <h3>Cycle Time Breakdown</h3>
+                        <a href="#" class="view-all-link">View All</a>
+                    </div>
+                    <div class="metric-value">4.8 days</div>
+                    <div class="metric-subtitle">Average total cycle time</div>
+                    <div class="chart-placeholder">Cycle Time Breakdown Chart</div>
+                    <ul class="metric-list">
+                        <li>
+                            <span class="list-label">Coding</span>
+                            <span class="list-value">1.2 days</span>
+                        </li>
+                        <li>
+                            <span class="list-label">Review</span>
+                            <span class="list-value">2.1 days</span>
+                        </li>
+                        <li>
+                            <span class="list-label">Deployment</span>
+                            <span class="list-value">1.5 days</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Operational Metrics -->
+        <div class="metric-section">
+            <h2 class="section-title">Operational</h2>
+            <div class="metric-grid">
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <h3>Pipeline Success Rate</h3>
+                        <a href="#" class="view-all-link">View All</a>
+                    </div>
+                    <div class="metric-value">
+                        94.5%
+                        <span class="metric-trend up">↑ 2.3%</span>
+                    </div>
+                    <div class="metric-subtitle">30-day rolling average</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill success" style="width: 94.5%"></div>
+                    </div>
+                    <div class="chart-placeholder">Success Rate Trend Chart</div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <h3>Pipeline Duration</h3>
+                        <a href="#" class="view-all-link">View All</a>
+                    </div>
+                    <div class="metric-value">
+                        12.5 min
+                        <span class="metric-trend down">↓ 1.2 min</span>
+                    </div>
+                    <div class="metric-subtitle">Average pipeline duration</div>
+                    <div class="chart-placeholder">Duration Breakdown Chart</div>
+                    <ul class="metric-list">
+                        <li>
+                            <span class="list-label">Build</span>
+                            <span class="list-value">8 min</span>
+                        </li>
+                        <li>
+                            <span class="list-label">Test</span>
+                            <span class="list-value">3 min</span>
+                        </li>
+                        <li>
+                            <span class="list-label">Deploy</span>
+                            <span class="list-value">1.5 min</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <h3>Infrastructure Costs</h3>
+                        <a href="#" class="view-all-link">View All</a>
+                    </div>
+                    <div class="metric-value">
+                        $12,450
+                        <span class="metric-trend up">↑ 5%</span>
+                    </div>
+                    <div class="metric-subtitle">This month</div>
+                    <div class="chart-placeholder">Cost Breakdown Chart</div>
+                    <div class="metric-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Budget</span>
+                            <span class="detail-value">$15,000</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Remaining</span>
+                            <span class="detail-value">$2,550</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quality Metrics -->
+        <div class="metric-section">
+            <h2 class="section-title">Quality</h2>
+            <div class="metric-grid">
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <h3>Code Coverage</h3>
+                        <a href="#" class="view-all-link">View All</a>
+                    </div>
+                    <div class="metric-value">
+                        78%
+                        <span class="metric-trend up">↑ 2%</span>
+                    </div>
+                    <div class="metric-subtitle">Overall code coverage</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill warning" style="width: 78%"></div>
+                    </div>
+                    <div class="chart-placeholder">Coverage Trend Chart</div>
+                    <div class="metric-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Target</span>
+                            <span class="detail-value">80%</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Gap</span>
+                            <span class="detail-value">2%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <h3>Code Quality Metrics</h3>
+                        <a href="#" class="view-all-link">View All</a>
+                    </div>
+                    <div class="metric-subtitle">Technical health indicators</div>
+                    <div class="chart-placeholder">Quality Trend Chart</div>
+                    <ul class="metric-list">
+                        <li>
+                            <span class="list-label">Code Smells</span>
+                            <span class="list-value">127 ↓</span>
+                        </li>
+                        <li>
+                            <span class="list-label">Technical Debt</span>
+                            <span class="list-value">12.5 days ↓</span>
+                        </li>
+                        <li>
+                            <span class="list-label">Maintainability</span>
+                            <span class="list-value">A</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="metric-card full-width">
+                    <div class="metric-header">
+                        <h3>Security Vulnerabilities</h3>
+                        <a href="#" class="view-all-link">View All</a>
+                    </div>
+                    <div class="metric-value">
+                        23
+                        <span class="metric-trend down">↓ 5</span>
+                    </div>
+                    <div class="metric-subtitle">Total vulnerabilities by severity</div>
+                    <div class="chart-placeholder">Vulnerability Trend Chart</div>
+                    <ul class="metric-list">
+                        <li>
+                            <span class="list-label">
+                                <span class="severity-badge critical">Critical</span>
+                            </span>
+                            <span class="list-value">2</span>
+                        </li>
+                        <li>
+                            <span class="list-label">
+                                <span class="severity-badge high">High</span>
+                            </span>
+                            <span class="list-value">8</span>
+                        </li>
+                        <li>
+                            <span class="list-label">
+                                <span class="severity-badge medium">Medium</span>
+                            </span>
+                            <span class="list-value">10</span>
+                        </li>
+                        <li>
+                            <span class="list-label">
+                                <span class="severity-badge low">Low</span>
+                            </span>
+                            <span class="list-value">3</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

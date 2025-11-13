@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connect Data Sources - Momentum</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --accent-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --dark-bg: #0f0f23;
+            --card-bg: #1a1a2e;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0c0;
+            --border-color: rgba(255, 255, 255, 0.1);
+            --input-bg: rgba(255, 255, 255, 0.05);
+            --success-color: #66ea75;
+            --error-color: #f5576c;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            background: var(--dark-bg);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        /* Header */
+        header {
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-progress {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Progress Steps */
+        .progress-container {
+            max-width: 1000px;
+            margin: 3rem auto 2rem;
+            padding: 0 2rem;
+        }
+
+        .progress-steps {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            margin-bottom: 3rem;
+        }
+
+        .progress-steps::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--border-color);
+            z-index: 0;
+        }
+
+        .progress-line {
+            position: absolute;
+            top: 20px;
+            left: 0;
+            height: 2px;
+            background: var(--primary-gradient);
+            z-index: 1;
+            transition: width 0.5s ease;
+            width: 33.33%;
+        }
+
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.75rem;
+            position: relative;
+            z-index: 2;
+            flex: 1;
+        }
+
+        .step-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--card-bg);
+            border: 2px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .step.active .step-circle {
+            background: var(--primary-gradient);
+            border-color: transparent;
+        }
+
+        .step.completed .step-circle {
+            background: var(--success-color);
+            border-color: transparent;
+        }
+
+        .step-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            text-align: center;
+        }
+
+        .step.active .step-label {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        /* Main Content */
+        .main-content {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 2rem 4rem;
+        }
+
+        .content-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .content-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .content-header p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Data Source Cards */
+        .datasource-section {
+            margin-bottom: 3rem;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .required-badge {
+            padding: 0.25rem 0.75rem;
+            background: rgba(245, 87, 108, 0.2);
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--error-color);
+        }
+
+        .optional-badge {
+            padding: 0.25rem 0.75rem;
+            background: rgba(160, 160, 192, 0.2);
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .datasource-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .datasource-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .datasource-card:hover {
+            border-color: rgba(102, 126, 234, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .datasource-card.connected {
+            border-color: var(--success-color);
+        }
+
+        .datasource-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .datasource-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .datasource-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            background: var(--input-bg);
+        }
+
+        .datasource-name h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .datasource-type {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .status-badge {
+            padding: 0.35rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status-badge.connected {
+            background: rgba(102, 234, 117, 0.2);
+            color: var(--success-color);
+        }
+
+        .status-badge.configure {
+            background: rgba(102, 126, 234, 0.2);
+            color: #667eea;
+        }
+
+        .datasource-description {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .datasource-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .btn-primary {
+            flex: 1;
+            padding: 0.75rem;
+            background: var(--primary-gradient);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            flex: 1;
+            padding: 0.75rem;
+            background: transparent;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            border-color: rgba(255, 255, 255, 0.3);
+            background: var(--input-bg);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .modal-header {
+            padding: 2rem 2rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.5rem;
+            cursor: pointer;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .modal-close:hover {
+            background: var(--input-bg);
+            color: var(--text-primary);
+        }
+
+        .modal-header h2 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .modal-header p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .modal-body {
+            padding: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .required {
+            color: var(--error-color);
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .help-text {
+            display: block;
+            margin-top: 0.5rem;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .help-text a {
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .help-text a:hover {
+            text-decoration: underline;
+        }
+
+        .connection-status {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            display: none;
+        }
+
+        .connection-status.success {
+            background: rgba(102, 234, 117, 0.1);
+            border: 1px solid rgba(102, 234, 117, 0.3);
+            color: var(--success-color);
+            display: block;
+        }
+
+        .connection-status.error {
+            background: rgba(245, 87, 108, 0.1);
+            border: 1px solid rgba(245, 87, 108, 0.3);
+            color: var(--error-color);
+            display: block;
+        }
+
+        .modal-footer {
+            padding: 1.5rem 2rem;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+
+        /* Navigation Buttons */
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .btn-nav {
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-back {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+
+        .btn-back:hover {
+            background: var(--input-bg);
+        }
+
+        .btn-continue {
+            background: var(--primary-gradient);
+            border: none;
+            color: white;
+        }
+
+        .btn-continue:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-continue:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        @media (max-width: 768px) {
+            .content-header h1 {
+                font-size: 2rem;
+            }
+
+            .datasource-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .progress-steps {
+                flex-wrap: wrap;
+            }
+
+            .step-label {
+                font-size: 0.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="logo">Momentum</div>
+        <div class="header-progress">
+            <span>Step 2 of 4</span>
+        </div>
+    </header>
+
+    <!-- Progress Steps -->
+    <div class="progress-container">
+        <div class="progress-steps">
+            <div class="progress-line"></div>
+            <div class="step completed">
+                <div class="step-circle">✓</div>
+                <div class="step-label">Account Created</div>
+            </div>
+            <div class="step active">
+                <div class="step-circle">2</div>
+                <div class="step-label">Connect Sources</div>
+            </div>
+            <div class="step">
+                <div class="step-circle">3</div>
+                <div class="step-label">Import Data</div>
+            </div>
+            <div class="step">
+                <div class="step-circle">4</div>
+                <div class="step-label">Complete</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="content-header">
+            <h1>Connect Your Development Tools</h1>
+            <p>Connect at least one version control system to start tracking your team's productivity. You can add more integrations later.</p>
+        </div>
+
+        <!-- Version Control Systems (Required) -->
+        <div class="datasource-section">
+            <h2 class="section-title">
+                Version Control Systems
+                <span class="required-badge">REQUIRED</span>
+            </h2>
+
+            <div class="datasource-grid">
+                <div class="datasource-card" onclick="openModal('github')">
+                    <div class="datasource-header">
+                        <div class="datasource-info">
+                            <div class="datasource-icon">🐙</div>
+                            <div class="datasource-name">
+                                <h3>GitHub</h3>
+                                <div class="datasource-type">Version Control</div>
+                            </div>
+                        </div>
+                        <span class="status-badge configure">Configure</span>
+                    </div>
+                    <p class="datasource-description">
+                        Connect your GitHub organizations to track commits, pull requests, code reviews, and contributor activity.
+                    </p>
+                    <div class="datasource-actions">
+                        <button class="btn-primary" onclick="event.stopPropagation(); openModal('github')">Connect GitHub</button>
+                    </div>
+                </div>
+
+                <div class="datasource-card" onclick="openModal('gitlab')">
+                    <div class="datasource-header">
+                        <div class="datasource-info">
+                            <div class="datasource-icon">🦊</div>
+                            <div class="datasource-name">
+                                <h3>GitLab</h3>
+                                <div class="datasource-type">Version Control</div>
+                            </div>
+                        </div>
+                        <span class="status-badge configure">Configure</span>
+                    </div>
+                    <p class="datasource-description">
+                        Connect GitLab projects to track merge requests, pipelines, and development metrics across your teams.
+                    </p>
+                    <div class="datasource-actions">
+                        <button class="btn-primary" onclick="event.stopPropagation(); openModal('gitlab')">Connect GitLab</button>
+                    </div>
+                </div>
+
+                <div class="datasource-card" onclick="openModal('bitbucket')">
+                    <div class="datasource-header">
+                        <div class="datasource-info">
+                            <div class="datasource-icon">🪣</div>
+                            <div class="datasource-name">
+                                <h3>Bitbucket</h3>
+                                <div class="datasource-type">Version Control</div>
+                            </div>
+                        </div>
+                        <span class="status-badge configure">Configure</span>
+                    </div>
+                    <p class="datasource-description">
+                        Connect Bitbucket workspaces to monitor repositories, pull requests, and team collaboration.
+                    </p>
+                    <div class="datasource-actions">
+                        <button class="btn-primary" onclick="event.stopPropagation(); openModal('bitbucket')">Connect Bitbucket</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CI/CD Platforms (Optional) -->
+        <div class="datasource-section">
+            <h2 class="section-title">
+                CI/CD Platforms
+                <span class="optional-badge">OPTIONAL</span>
+            </h2>
+
+            <div class="datasource-grid">
+                <div class="datasource-card" onclick="openModal('jenkins')">
+                    <div class="datasource-header">
+                        <div class="datasource-info">
+                            <div class="datasource-icon">⚙️</div>
+                            <div class="datasource-name">
+                                <h3>Jenkins</h3>
+                                <div class="datasource-type">CI/CD</div>
+                            </div>
+                        </div>
+                        <span class="status-badge configure">Configure</span>
+                    </div>
+                    <p class="datasource-description">
+                        Monitor pipeline stability, build duration, and deployment frequency from your Jenkins instance.
+                    </p>
+                    <div class="datasource-actions">
+                        <button class="btn-primary" onclick="event.stopPropagation(); openModal('jenkins')">Connect Jenkins</button>
+                    </div>
+                </div>
+
+                <div class="datasource-card" onclick="openModal('circleci')">
+                    <div class="datasource-header">
+                        <div class="datasource-info">
+                            <div class="datasource-icon">⭕</div>
+                            <div class="datasource-name">
+                                <h3>CircleCI</h3>
+                                <div class="datasource-type">CI/CD</div>
+                            </div>
+                        </div>
+                        <span class="status-badge configure">Configure</span>
+                    </div>
+                    <p class="datasource-description">
+                        Track CircleCI workflows, job performance, and deployment metrics across your projects.
+                    </p>
+                    <div class="datasource-actions">
+                        <button class="btn-primary" onclick="event.stopPropagation(); openModal('circleci')">Connect CircleCI</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Project Management (Optional) -->
+        <div class="datasource-section">
+            <h2 class="section-title">
+                Project Management
+                <span class="optional-badge">OPTIONAL</span>
+            </h2>
+
+            <div class="datasource-grid">
+                <div class="datasource-card" onclick="openModal('jira')">
+                    <div class="datasource-header">
+                        <div class="datasource-info">
+                            <div class="datasource-icon">📋</div>
+                            <div class="datasource-name">
+                                <h3>JIRA</h3>
+                                <div class="datasource-type">Project Management</div>
+                            </div>
+                        </div>
+                        <span class="status-badge configure">Configure</span>
+                    </div>
+                    <p class="datasource-description">
+                        Link issues to commits and track sprint velocity, cycle time, and team throughput.
+                    </p>
+                    <div class="datasource-actions">
+                        <button class="btn-primary" onclick="event.stopPropagation(); openModal('jira')">Connect JIRA</button>
+                    </div>
+                </div>
+
+                <div class="datasource-card" onclick="openModal('trello')">
+                    <div class="datasource-header">
+                        <div class="datasource-info">
+                            <div class="datasource-icon">📊</div>
+                            <div class="datasource-name">
+                                <h3>Trello</h3>
+                                <div class="datasource-type">Project Management</div>
+                            </div>
+                        </div>
+                        <span class="status-badge configure">Configure</span>
+                    </div>
+                    <p class="datasource-description">
+                        Connect Trello boards to visualize workflow and track card movement through your process.
+                    </p>
+                    <div class="datasource-actions">
+                        <button class="btn-primary" onclick="event.stopPropagation(); openModal('trello')">Connect Trello</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="navigation-buttons">
+            <a href="registration.html" class="btn-nav btn-back">← Back</a>
+            <a href="dashboard.html" class="btn-nav btn-continue" id="continueBtn">Continue →</a>
+        </div>
+    </main>
+
+    <!-- Configuration Modal -->
+    <div class="modal" id="configModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button class="modal-close" onclick="closeModal()">×</button>
+                <h2 id="modalTitle">Connect GitHub</h2>
+                <p id="modalDescription">Configure your GitHub connection to start collecting data</p>
+            </div>
+
+            <div class="modal-body">
+                <form id="configForm">
+                    <div class="form-group">
+                        <label>Personal Access Token <span class="required">*</span></label>
+                        <input type="password" id="token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" required>
+                        <span class="help-text">
+                            Generate a token with <strong>repo</strong>, <strong>read:org</strong>, and <strong>read:user</strong> scopes.
+                            <a href="https://github.com/settings/tokens" target="_blank">Create token →</a>
+                        </span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Organization Name(s) <span class="required">*</span></label>
+                        <input type="text" id="organization" placeholder="your-org-name" required>
+                        <span class="help-text">
+                            Comma-separated for multiple organizations
+                        </span>
+                    </div>
+
+                    <div class="connection-status" id="connectionStatus"></div>
+                </form>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+                <button class="btn-primary" onclick="testConnection()">Test Connection</button>
+                <button class="btn-primary" onclick="saveConnection()" style="display: none;" id="saveBtn">Save Configuration</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let connectedSources = 0;
+
+        function _openModal(source) {
+            const modal = document.getElementById('configModal');
+            modal.classList.add('show');
+
+            const configs = {
+                github: {
+                    title: 'Connect GitHub',
+                    description: 'Configure your GitHub connection to start collecting data'
+                },
+                gitlab: {
+                    title: 'Connect GitLab',
+                    description: 'Configure your GitLab connection to start collecting data'
+                },
+                bitbucket: {
+                    title: 'Connect Bitbucket',
+                    description: 'Configure your Bitbucket connection to start collecting data'
+                },
+                jenkins: {
+                    title: 'Connect Jenkins',
+                    description: 'Configure your Jenkins connection to monitor CI/CD pipelines'
+                },
+                circleci: {
+                    title: 'Connect CircleCI',
+                    description: 'Configure your CircleCI connection to track workflows'
+                },
+                jira: {
+                    title: 'Connect JIRA',
+                    description: 'Configure your JIRA connection to link issues and sprints'
+                },
+                trello: {
+                    title: 'Connect Trello',
+                    description: 'Configure your Trello connection to track board activity'
+                }
+            };
+
+            document.getElementById('modalTitle').textContent = configs[source].title;
+            document.getElementById('modalDescription').textContent = configs[source].description;
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('configModal');
+            modal.classList.remove('show');
+            document.getElementById('configForm').reset();
+            document.getElementById('connectionStatus').style.display = 'none';
+            document.getElementById('saveBtn').style.display = 'none';
+        }
+
+        function _testConnection() {
+            const token = document.getElementById('token').value;
+            const org = document.getElementById('organization').value;
+            const status = document.getElementById('connectionStatus');
+
+            if (!token || !org) {
+                status.className = 'connection-status error';
+                status.textContent = 'Please fill in all required fields';
+                return;
+            }
+
+            status.className = 'connection-status';
+            status.textContent = 'Testing connection...';
+            status.style.display = 'block';
+
+            setTimeout(() => {
+                status.className = 'connection-status success';
+                status.textContent = '✓ Connected successfully! Found 50 repositories.';
+                document.getElementById('saveBtn').style.display = 'inline-block';
+            }, 2000);
+        }
+
+        function _saveConnection() {
+            connectedSources++;
+            closeModal();
+
+            const cards = document.querySelectorAll('.datasource-card');
+            if (connectedSources > 0) {
+                cards[0].classList.add('connected');
+                cards[0].querySelector('.status-badge').className = 'status-badge connected';
+                cards[0].querySelector('.status-badge').textContent = 'Connected';
+                cards[0].querySelector('.btn-primary').textContent = 'Reconfigure';
+            }
+        }
+
+        document.getElementById('configModal').addEventListener('click', (e) => {
+            if (e.target.id === 'configModal') {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MOMENTUM | Developer Productivity Platform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: #000000;
+            color: #FFFFFF;
+            line-height: 1.2;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        header {
+            background-color: #000000;
+            border-bottom: 4px solid #00FF00;
+            padding: 0;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: stretch;
+            height: 80px;
+        }
+
+        .logo {
+            font-size: 32px;
+            font-weight: 900;
+            letter-spacing: -2px;
+            background-color: #00FF00;
+            color: #000000;
+            padding: 0 32px;
+            display: flex;
+            align-items: center;
+            border-right: 4px solid #000000;
+        }
+
+        .nav {
+            display: flex;
+            align-items: stretch;
+        }
+
+        .nav-link {
+            color: #FFFFFF;
+            text-decoration: none;
+            padding: 0 32px;
+            display: flex;
+            align-items: center;
+            text-transform: uppercase;
+            font-weight: 700;
+            font-size: 14px;
+            letter-spacing: 1px;
+            border-left: 2px solid #333333;
+            transition: all 0.1s;
+        }
+
+        .nav-link:hover {
+            background-color: #00FF00;
+            color: #000000;
+        }
+
+        /* Hero Section */
+        .hero {
+            background-color: #000000;
+            border-bottom: 4px solid #00FF00;
+            padding: 80px 32px;
+        }
+
+        .hero-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4px;
+            background-color: #00FF00;
+        }
+
+        .hero-content {
+            background-color: #000000;
+            padding: 60px;
+        }
+
+        .hero-title {
+            font-size: 72px;
+            font-weight: 900;
+            line-height: 0.9;
+            margin-bottom: 32px;
+            letter-spacing: -4px;
+        }
+
+        .hero-subtitle {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 48px;
+            text-transform: uppercase;
+            color: #00FF00;
+        }
+
+        .hero-description {
+            font-size: 16px;
+            margin-bottom: 48px;
+            line-height: 1.6;
+            font-family: monospace;
+        }
+
+        .btn-primary {
+            background-color: #00FF00;
+            color: #000000;
+            border: none;
+            padding: 24px 48px;
+            font-size: 18px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            font-family: 'Courier New', Courier, monospace;
+            transition: all 0.1s;
+        }
+
+        .btn-primary:hover {
+            background-color: #FFFFFF;
+        }
+
+        .hero-data {
+            background-color: #000000;
+            padding: 60px;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th,
+        .data-table td {
+            border: 2px solid #00FF00;
+            padding: 16px;
+            text-align: left;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        .data-table th {
+            background-color: #00FF00;
+            color: #000000;
+            font-weight: 900;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 1px;
+        }
+
+        .data-table td {
+            font-size: 14px;
+        }
+
+        .metric-value {
+            font-size: 32px;
+            font-weight: 900;
+            color: #00FF00;
+        }
+
+        /* Features Section */
+        .features {
+            background-color: #FFFFFF;
+            color: #000000;
+            padding: 0;
+        }
+
+        .features-header {
+            background-color: #000000;
+            color: #FFFFFF;
+            padding: 60px 32px;
+            border-bottom: 4px solid #00FF00;
+        }
+
+        .features-title {
+            font-size: 48px;
+            font-weight: 900;
+            letter-spacing: -2px;
+            text-align: center;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0;
+        }
+
+        .feature-card {
+            background-color: #FFFFFF;
+            border: 4px solid #000000;
+            border-top: none;
+            padding: 48px 32px;
+        }
+
+        .feature-card:nth-child(2) {
+            border-left: none;
+            border-right: none;
+        }
+
+        .feature-number {
+            font-size: 72px;
+            font-weight: 900;
+            color: #00FF00;
+            line-height: 1;
+            margin-bottom: 16px;
+        }
+
+        .feature-title {
+            font-size: 24px;
+            font-weight: 900;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+            letter-spacing: -1px;
+        }
+
+        .feature-list {
+            list-style: none;
+            font-size: 14px;
+            line-height: 1.8;
+            font-family: monospace;
+        }
+
+        .feature-list li:before {
+            content: ">";
+            color: #00FF00;
+            font-weight: 900;
+            margin-right: 8px;
+        }
+
+        /* Data Sources Section */
+        .data-sources {
+            background-color: #000000;
+            padding: 80px 32px;
+            border-top: 4px solid #00FF00;
+        }
+
+        .section-title {
+            font-size: 48px;
+            font-weight: 900;
+            letter-spacing: -2px;
+            margin-bottom: 48px;
+            text-align: center;
+        }
+
+        .source-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 4px;
+            background-color: #00FF00;
+        }
+
+        .source-box {
+            background-color: #000000;
+            padding: 32px;
+            text-align: center;
+            border: 2px solid #00FF00;
+        }
+
+        .source-name {
+            font-size: 18px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* CTA Section */
+        .cta {
+            background-color: #00FF00;
+            color: #000000;
+            padding: 80px 32px;
+            text-align: center;
+        }
+
+        .cta-title {
+            font-size: 64px;
+            font-weight: 900;
+            letter-spacing: -3px;
+            margin-bottom: 32px;
+        }
+
+        .btn-secondary {
+            background-color: #000000;
+            color: #00FF00;
+            border: 4px solid #000000;
+            padding: 24px 48px;
+            font-size: 18px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            font-family: 'Courier New', Courier, monospace;
+            transition: all 0.1s;
+        }
+
+        .btn-secondary:hover {
+            background-color: #FFFFFF;
+            color: #000000;
+            border-color: #FFFFFF;
+        }
+
+        /* Footer */
+        footer {
+            background-color: #000000;
+            border-top: 4px solid #00FF00;
+            padding: 48px 32px;
+            text-align: center;
+        }
+
+        .footer-text {
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <div class="logo">MOMENTUM</div>
+            <nav class="nav">
+                <a href="#" class="nav-link">Features</a>
+                <a href="#" class="nav-link">Sources</a>
+                <a href="#" class="nav-link">Docs</a>
+                <a href="#" class="nav-link">Login</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="container">
+                <div class="hero-grid">
+                    <div class="hero-content">
+                        <h1 class="hero-title">RAW DATA.<br>REAL INSIGHTS.</h1>
+                        <p class="hero-subtitle">Developer Productivity Platform</p>
+                        <p class="hero-description">
+                            Momentum collects, aggregates, and exposes developer metrics without the fluff.
+                            No dashboards hiding the truth. Just raw data tables showing exactly what's happening
+                            in your codebase.
+                        </p>
+                        <button class="btn-primary">START TRACKING</button>
+                    </div>
+                    <div class="hero-data">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>METRIC</th>
+                                    <th>VALUE</th>
+                                    <th>CHANGE</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>COMMITS_30D</td>
+                                    <td class="metric-value">1,247</td>
+                                    <td>+12%</td>
+                                </tr>
+                                <tr>
+                                    <td>DEPLOY_FREQ</td>
+                                    <td class="metric-value">12/WK</td>
+                                    <td>+33%</td>
+                                </tr>
+                                <tr>
+                                    <td>PIPELINE_RATE</td>
+                                    <td class="metric-value">94.5%</td>
+                                    <td>+2.3%</td>
+                                </tr>
+                                <tr>
+                                    <td>CODE_COVERAGE</td>
+                                    <td class="metric-value">78%</td>
+                                    <td>+2%</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="features">
+            <div class="features-header">
+                <div class="container">
+                    <h2 class="features-title">FUNCTION OVER FORM</h2>
+                </div>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-number">01</div>
+                    <h3 class="feature-title">Data Collection</h3>
+                    <ul class="feature-list">
+                        <li>Automated imports</li>
+                        <li>Incremental updates</li>
+                        <li>Dependency management</li>
+                        <li>Concurrency control</li>
+                        <li>Error recovery</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-number">02</div>
+                    <h3 class="feature-title">Organization Metrics</h3>
+                    <ul class="feature-list">
+                        <li>Deployment velocity</li>
+                        <li>Pipeline stability</li>
+                        <li>Code coverage</li>
+                        <li>Security CVE tracking</li>
+                        <li>Infrastructure costs</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-number">03</div>
+                    <h3 class="feature-title">Individual Metrics</h3>
+                    <ul class="feature-list">
+                        <li>Commit patterns</li>
+                        <li>Code contribution</li>
+                        <li>Review performance</li>
+                        <li>Activity heatmaps</li>
+                        <li>Focus time analysis</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section class="data-sources">
+            <div class="container">
+                <h2 class="section-title">SUPPORTED DATA SOURCES</h2>
+                <div class="source-grid">
+                    <div class="source-box">
+                        <div class="source-name">GITHUB</div>
+                    </div>
+                    <div class="source-box">
+                        <div class="source-name">GITLAB</div>
+                    </div>
+                    <div class="source-box">
+                        <div class="source-name">BITBUCKET</div>
+                    </div>
+                    <div class="source-box">
+                        <div class="source-name">JENKINS</div>
+                    </div>
+                    <div class="source-box">
+                        <div class="source-name">CIRCLE CI</div>
+                    </div>
+                    <div class="source-box">
+                        <div class="source-name">JIRA</div>
+                    </div>
+                    <div class="source-box">
+                        <div class="source-name">SONARQUBE</div>
+                    </div>
+                    <div class="source-box">
+                        <div class="source-name">AWS</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="cta">
+            <div class="container">
+                <h2 class="cta-title">READY TO MEASURE?</h2>
+                <button class="btn-secondary">GET STARTED NOW</button>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p class="footer-text">MOMENTUM &copy; 2025 | RAW DATA. NO BULLSHIT.</p>
+        </div>
+    </footer>
+</body>
+</html>
