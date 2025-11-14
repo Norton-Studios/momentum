@@ -19,6 +19,8 @@
             --off-white: #f5f5f5;
             --white: #ffffff;
             --gold: #c9a961;
+            --green: #5F8A5F;
+            --red: #B85C5C;
             --line-height-body: 1.8;
             --line-height-heading: 1.2;
         }
@@ -28,6 +30,7 @@
             color: var(--black);
             background: var(--off-white);
             line-height: var(--line-height-body);
+            min-height: 100vh;
         }
 
         h1, h2, h3 {
@@ -44,7 +47,7 @@
         }
 
         .header-content {
-            max-width: 1200px;
+            max-width: 900px;
             margin: 0 auto;
             padding: 0 60px;
             display: flex;
@@ -111,17 +114,14 @@
 
         /* Main Content */
         main {
-            max-width: 1200px;
+            max-width: 900px;
             margin: 0 auto;
             padding: 80px 60px;
         }
 
         .page-header {
             text-align: center;
-            margin-bottom: 64px;
-            max-width: 720px;
-            margin-left: auto;
-            margin-right: auto;
+            margin-bottom: 80px;
         }
 
         .page-header h1 {
@@ -134,80 +134,26 @@
             font-size: 18px;
             color: var(--dark-gray);
             line-height: 1.7;
+            max-width: 640px;
+            margin: 0 auto;
         }
 
-        /* Data Source Cards */
+        /* Section Headers */
+        .section-header {
+            margin-bottom: 48px;
+            padding-bottom: 24px;
+            border-bottom: 2px solid var(--black);
+        }
+
         .section-title {
             font-size: 14px;
             text-transform: uppercase;
             letter-spacing: 2px;
-            margin-bottom: 32px;
-            color: var(--mid-gray);
-            font-weight: 500;
-        }
-
-        .datasource-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 32px;
-            margin-bottom: 64px;
-        }
-
-        .datasource-card {
-            background: var(--white);
-            border: 1px solid var(--light-gray);
-            padding: 40px;
-            transition: all 0.3s ease;
-            position: relative;
-        }
-
-        .datasource-card:hover {
-            border-color: var(--black);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-        }
-
-        .datasource-card.connected {
-            border-color: var(--gold);
-            border-width: 2px;
-        }
-
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 24px;
-        }
-
-        .datasource-icon {
-            font-size: 32px;
-            line-height: 1;
-        }
-
-        .status-badge {
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            padding: 4px 12px;
-            background: var(--off-white);
-            color: var(--mid-gray);
-            font-weight: 500;
-        }
-
-        .status-badge.connected {
-            background: var(--gold);
             color: var(--black);
-        }
-
-        .datasource-card h3 {
-            font-size: 24px;
-            margin-bottom: 12px;
-        }
-
-        .datasource-card p {
-            font-size: 15px;
-            color: var(--dark-gray);
-            line-height: 1.6;
-            margin-bottom: 24px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 16px;
         }
 
         .required-badge {
@@ -216,24 +162,114 @@
             text-transform: uppercase;
             letter-spacing: 1px;
             padding: 4px 10px;
-            border: 1px solid var(--black);
-            color: var(--black);
-            margin-bottom: 16px;
+            background: var(--black);
+            color: var(--white);
             font-weight: 500;
+        }
+
+        /* Data Source Cards */
+        .datasource-section {
+            margin-bottom: 80px;
+        }
+
+        .datasource-list {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .datasource-card {
+            background: var(--white);
+            border: 2px solid var(--light-gray);
+            padding: 48px;
+            transition: all 0.3s ease;
+        }
+
+        .datasource-card:hover {
+            border-color: var(--black);
+        }
+
+        .datasource-card.connected {
+            border-color: var(--green);
+            border-width: 2px;
+            background: rgba(95, 138, 95, 0.02);
+        }
+
+        .datasource-card.error {
+            border-color: var(--red);
+            border-width: 2px;
+            background: rgba(184, 92, 92, 0.02);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 32px;
+        }
+
+        .datasource-info {
+            flex: 1;
+        }
+
+        .datasource-title {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .datasource-icon {
+            font-size: 28px;
+            line-height: 1;
+        }
+
+        .datasource-card h3 {
+            font-size: 28px;
+            letter-spacing: -0.5px;
+        }
+
+        .datasource-card p {
+            font-size: 16px;
+            color: var(--dark-gray);
+            line-height: 1.7;
+            margin-bottom: 32px;
+        }
+
+        .status-badge {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 6px 14px;
+            background: var(--off-white);
+            color: var(--mid-gray);
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .status-badge.connected {
+            background: var(--green);
+            color: var(--white);
+        }
+
+        .status-badge.error {
+            background: var(--red);
+            color: var(--white);
         }
 
         .btn-configure {
             width: 100%;
             background: transparent;
             color: var(--black);
-            padding: 14px;
+            padding: 16px;
             border: 1px solid var(--black);
             font-size: 14px;
             cursor: pointer;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.8px;
             transition: all 0.3s ease;
             text-transform: uppercase;
             font-weight: 500;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
         }
 
         .btn-configure:hover {
@@ -247,11 +283,11 @@
             color: var(--mid-gray);
         }
 
-        /* Configuration Form (appears when card clicked) */
+        /* Configuration Form */
         .config-form {
             display: none;
-            margin-top: 32px;
-            padding-top: 32px;
+            margin-top: 48px;
+            padding-top: 48px;
             border-top: 1px solid var(--light-gray);
         }
 
@@ -260,15 +296,15 @@
         }
 
         .form-group {
-            margin-bottom: 24px;
+            margin-bottom: 32px;
         }
 
         .form-group label {
             display: block;
             font-size: 13px;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 8px;
+            letter-spacing: 1.2px;
+            margin-bottom: 12px;
             color: var(--black);
             font-weight: 500;
         }
@@ -276,43 +312,59 @@
         .form-group input,
         .form-group select {
             width: 100%;
-            padding: 12px 16px;
+            padding: 16px 20px;
             border: 1px solid var(--light-gray);
             background: var(--white);
-            font-size: 14px;
+            font-size: 16px;
             font-family: inherit;
+            transition: all 0.3s ease;
         }
 
         .form-group input:focus,
         .form-group select:focus {
             outline: none;
             border-color: var(--black);
+            box-shadow: 0 0 0 1px var(--black);
         }
 
         .form-help {
-            font-size: 12px;
+            font-size: 13px;
             color: var(--mid-gray);
-            margin-top: 6px;
-            line-height: 1.5;
+            margin-top: 8px;
+            line-height: 1.6;
+        }
+
+        .form-help a {
+            color: var(--black);
+            text-decoration: underline;
+        }
+
+        .form-help code {
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            background: var(--off-white);
+            padding: 2px 6px;
+            border: 1px solid var(--light-gray);
         }
 
         .form-actions {
             display: flex;
-            gap: 12px;
-            margin-top: 24px;
+            gap: 16px;
+            margin-top: 32px;
         }
 
         .btn-test {
             flex: 1;
             background: var(--off-white);
             color: var(--black);
-            padding: 12px;
+            padding: 14px;
             border: 1px solid var(--light-gray);
             font-size: 13px;
             cursor: pointer;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.8px;
             font-weight: 500;
+            transition: all 0.3s ease;
         }
 
         .btn-test:hover {
@@ -323,26 +375,62 @@
             flex: 1;
             background: var(--black);
             color: var(--white);
-            padding: 12px;
-            border: none;
+            padding: 14px;
+            border: 1px solid var(--black);
             font-size: 13px;
             cursor: pointer;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.8px;
             font-weight: 500;
+            transition: all 0.3s ease;
         }
 
         .btn-save:hover {
             background: var(--gold);
             color: var(--black);
+            border-color: var(--gold);
+        }
+
+        .btn-cancel {
+            flex: 1;
+            background: transparent;
+            color: var(--mid-gray);
+            padding: 14px;
+            border: 1px solid var(--light-gray);
+            font-size: 13px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-cancel:hover {
+            border-color: var(--black);
+            color: var(--black);
         }
 
         .test-result {
-            margin-top: 16px;
-            padding: 12px 16px;
-            font-size: 13px;
-            border-left: 3px solid var(--gold);
+            margin-top: 24px;
+            padding: 16px 20px;
+            font-size: 14px;
+            border-left: 3px solid var(--mid-gray);
             background: var(--off-white);
+            display: none;
+        }
+
+        .test-result.success {
+            border-left-color: var(--green);
+            background: rgba(95, 138, 95, 0.05);
+            color: var(--black);
+            display: block;
+        }
+
+        .test-result.error {
+            border-left-color: var(--red);
+            background: rgba(184, 92, 92, 0.05);
+            color: var(--black);
+            display: block;
         }
 
         /* Bottom Actions */
@@ -350,41 +438,52 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding-top: 48px;
-            border-top: 1px solid var(--light-gray);
+            padding-top: 64px;
+            border-top: 2px solid var(--black);
+            margin-top: 64px;
         }
 
         .connection-summary {
-            font-size: 15px;
+            font-size: 16px;
             color: var(--dark-gray);
         }
 
         .connection-summary strong {
             color: var(--black);
             font-weight: 500;
+            font-size: 18px;
+        }
+
+        .action-buttons {
+            display: flex;
+            align-items: center;
+            gap: 24px;
         }
 
         .btn-primary {
             background: var(--black);
             color: var(--white);
             padding: 16px 48px;
-            border: none;
+            border: 1px solid var(--black);
             font-size: 14px;
             cursor: pointer;
             letter-spacing: 0.8px;
             text-transform: uppercase;
             font-weight: 500;
             transition: all 0.3s ease;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
         }
 
         .btn-primary:hover {
             background: var(--gold);
             color: var(--black);
+            border-color: var(--gold);
         }
 
         .btn-primary:disabled {
             background: var(--light-gray);
             color: var(--mid-gray);
+            border-color: var(--light-gray);
             cursor: not-allowed;
         }
 
@@ -392,11 +491,50 @@
             color: var(--mid-gray);
             text-decoration: none;
             font-size: 14px;
-            margin-left: 24px;
+            transition: color 0.3s ease;
         }
 
         .skip-link:hover {
             color: var(--black);
+        }
+
+        @media (max-width: 768px) {
+            .header-content,
+            main {
+                padding-left: 24px;
+                padding-right: 24px;
+            }
+
+            .progress-indicator {
+                display: none;
+            }
+
+            .page-header h1 {
+                font-size: 36px;
+            }
+
+            .datasource-card {
+                padding: 32px 24px;
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+
+            .bottom-actions {
+                flex-direction: column;
+                gap: 24px;
+                align-items: flex-start;
+            }
+
+            .action-buttons {
+                width: 100%;
+                flex-direction: column;
+            }
+
+            .btn-primary {
+                width: 100%;
+            }
         }
     </style>
 </head>
@@ -428,223 +566,286 @@
     <main>
         <div class="page-header">
             <h1>Connect Your Tools</h1>
-            <p>Momentum integrates with your existing development workflow. Connect at least one version control system to get started. Additional integrations can be configured anytime.</p>
+            <p>Momentum integrates with your existing development workflow. Connect at least one version control system to begin tracking metrics.</p>
         </div>
 
-        <section>
-            <h2 class="section-title">Version Control (Required)</h2>
-            <div class="datasource-grid">
-                <div class="datasource-card" id="github-card">
-                    <div class="card-header">
-                        <span class="datasource-icon">⎈</span>
-                        <span class="status-badge">Not Connected</span>
-                    </div>
+        <section class="datasource-section">
+            <div class="section-header">
+                <h2 class="section-title">
+                    Version Control
                     <span class="required-badge">Required</span>
-                    <h3>GitHub</h3>
-                    <p>Connect your GitHub organization to import repositories, commits, pull requests, and contributor data.</p>
-                    <button class="btn-configure" onclick="toggleForm('github')">Configure</button>
+                </h2>
+            </div>
 
-                    <div class="config-form" id="github-form">
-                        <div class="form-group">
-                            <label for="github-token">Personal Access Token</label>
-                            <input type="password" id="github-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
-                            <p class="form-help">Generate at github.com/settings/tokens with repo, read:org, read:user scopes</p>
+            <div class="datasource-list">
+                <!-- GitHub -->
+                <div class="datasource-card" id="githubCard">
+                    <div class="card-header">
+                        <div class="datasource-info">
+                            <div class="datasource-title">
+                                <span class="datasource-icon">⎈</span>
+                                <h3>GitHub</h3>
+                            </div>
+                            <p>Connect your GitHub organization to import repositories, commits, pull requests, and contributor data. Track code collaboration and delivery velocity.</p>
                         </div>
-                        <div class="form-group">
-                            <label for="github-org">Organization Name</label>
-                            <input type="text" id="github-org" placeholder="your-organization">
-                            <p class="form-help">Comma-separated for multiple organizations</p>
-                        </div>
-                        <div class="form-actions">
-                            <button class="btn-test">Test Connection</button>
-                            <button class="btn-save">Save Configuration</button>
-                        </div>
-                        <div class="test-result" style="display:none;">
-                            ✓ Connected successfully. Found 50 repositories.
-                        </div>
+                        <span class="status-badge" id="githubStatus">Not Connected</span>
+                    </div>
+
+                    <button class="btn-configure" onclick="toggleForm('github')">Configure GitHub</button>
+
+                    <div class="config-form" id="githubForm">
+                        <form onsubmit="testConnection('github'); return false;">
+                            <div class="form-group">
+                                <label for="githubToken">Personal Access Token</label>
+                                <input type="password" id="githubToken" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" required>
+                                <div class="form-help">
+                                    Generate at <a href="https://github.com/settings/tokens" target="_blank">github.com/settings/tokens</a><br>
+                                    Required scopes: <code>repo</code>, <code>read:org</code>, <code>read:user</code>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="githubOrg">Organization Name</label>
+                                <input type="text" id="githubOrg" placeholder="your-organization" required>
+                                <div class="form-help">
+                                    Enter your GitHub organization name. For multiple organizations, separate with commas.
+                                </div>
+                            </div>
+                            <div class="test-result" id="githubResult"></div>
+                            <div class="form-actions">
+                                <button type="submit" class="btn-test">Test Connection</button>
+                                <button type="button" class="btn-save" onclick="saveConnection('github')">Save Configuration</button>
+                                <button type="button" class="btn-cancel" onclick="toggleForm('github')">Cancel</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
 
-                <div class="datasource-card">
+                <!-- GitLab -->
+                <div class="datasource-card" id="gitlabCard">
                     <div class="card-header">
-                        <span class="datasource-icon">⚡</span>
-                        <span class="status-badge">Not Connected</span>
+                        <div class="datasource-info">
+                            <div class="datasource-title">
+                                <span class="datasource-icon">⚡</span>
+                                <h3>GitLab</h3>
+                            </div>
+                            <p>Connect to GitLab (cloud or self-hosted) to track projects, merge requests, CI/CD pipelines, and team activity across your development lifecycle.</p>
+                        </div>
+                        <span class="status-badge" id="gitlabStatus">Not Connected</span>
                     </div>
-                    <span class="required-badge">Required</span>
-                    <h3>GitLab</h3>
-                    <p>Connect your GitLab instance to track projects, merge requests, pipelines, and team activity.</p>
-                    <button class="btn-configure" onclick="toggleForm('gitlab')">Configure</button>
 
-                    <div class="config-form" id="gitlab-form">
-                        <div class="form-group">
-                            <label for="gitlab-url">GitLab URL</label>
-                            <input type="text" id="gitlab-url" placeholder="https://gitlab.com">
-                        </div>
-                        <div class="form-group">
-                            <label for="gitlab-token">Private Token</label>
-                            <input type="password" id="gitlab-token" placeholder="glpat-xxxxxxxxxxxxxxxxxxxx">
-                        </div>
-                        <div class="form-group">
-                            <label for="gitlab-group">Group ID</label>
-                            <input type="text" id="gitlab-group" placeholder="12345">
-                        </div>
-                        <div class="form-actions">
-                            <button class="btn-test">Test Connection</button>
-                            <button class="btn-save">Save Configuration</button>
-                        </div>
+                    <button class="btn-configure" onclick="toggleForm('gitlab')">Configure GitLab</button>
+
+                    <div class="config-form" id="gitlabForm">
+                        <form onsubmit="testConnection('gitlab'); return false;">
+                            <div class="form-group">
+                                <label for="gitlabUrl">GitLab Instance URL</label>
+                                <input type="url" id="gitlabUrl" placeholder="https://gitlab.com" value="https://gitlab.com" required>
+                                <div class="form-help">
+                                    Use https://gitlab.com for GitLab.com or your self-hosted instance URL
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="gitlabToken">Private Token</label>
+                                <input type="password" id="gitlabToken" placeholder="glpat-xxxxxxxxxxxxxxxxxxxx" required>
+                                <div class="form-help">
+                                    Generate a token in GitLab Settings → Access Tokens with <code>api</code> scope
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="gitlabGroup">Group ID or Project IDs</label>
+                                <input type="text" id="gitlabGroup" placeholder="12345" required>
+                                <div class="form-help">
+                                    Enter group ID to import all projects, or comma-separated project IDs
+                                </div>
+                            </div>
+                            <div class="test-result" id="gitlabResult"></div>
+                            <div class="form-actions">
+                                <button type="submit" class="btn-test">Test Connection</button>
+                                <button type="button" class="btn-save" onclick="saveConnection('gitlab')">Save Configuration</button>
+                                <button type="button" class="btn-cancel" onclick="toggleForm('gitlab')">Cancel</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
 
-                <div class="datasource-card">
+                <!-- Bitbucket -->
+                <div class="datasource-card" id="bitbucketCard">
                     <div class="card-header">
-                        <span class="datasource-icon">◆</span>
-                        <span class="status-badge">Not Connected</span>
+                        <div class="datasource-info">
+                            <div class="datasource-title">
+                                <span class="datasource-icon">◆</span>
+                                <h3>Bitbucket</h3>
+                            </div>
+                            <p>Connect Bitbucket to import repositories, commits, and pull requests from your workspace. Monitor code quality and team collaboration.</p>
+                        </div>
+                        <span class="status-badge" id="bitbucketStatus">Not Connected</span>
                     </div>
-                    <span class="required-badge">Required</span>
-                    <h3>Bitbucket</h3>
-                    <p>Connect Bitbucket to import repositories, commits, and pull requests from your workspace.</p>
-                    <button class="btn-configure" onclick="toggleForm('bitbucket')">Configure</button>
 
-                    <div class="config-form" id="bitbucket-form">
-                        <div class="form-group">
-                            <label for="bitbucket-workspace">Workspace Slug</label>
-                            <input type="text" id="bitbucket-workspace" placeholder="your-workspace">
-                        </div>
-                        <div class="form-group">
-                            <label for="bitbucket-username">Username</label>
-                            <input type="text" id="bitbucket-username">
-                        </div>
-                        <div class="form-group">
-                            <label for="bitbucket-password">App Password</label>
-                            <input type="password" id="bitbucket-password">
-                        </div>
-                        <div class="form-actions">
-                            <button class="btn-test">Test Connection</button>
-                            <button class="btn-save">Save Configuration</button>
-                        </div>
+                    <button class="btn-configure" onclick="toggleForm('bitbucket')">Configure Bitbucket</button>
+
+                    <div class="config-form" id="bitbucketForm">
+                        <form onsubmit="testConnection('bitbucket'); return false;">
+                            <div class="form-group">
+                                <label for="bitbucketWorkspace">Workspace Slug</label>
+                                <input type="text" id="bitbucketWorkspace" placeholder="your-workspace" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="bitbucketUsername">Username</label>
+                                <input type="text" id="bitbucketUsername" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="bitbucketPassword">App Password</label>
+                                <input type="password" id="bitbucketPassword" required>
+                                <div class="form-help">
+                                    Generate an app password in Bitbucket Settings → App passwords
+                                </div>
+                            </div>
+                            <div class="test-result" id="bitbucketResult"></div>
+                            <div class="form-actions">
+                                <button type="submit" class="btn-test">Test Connection</button>
+                                <button type="button" class="btn-save" onclick="saveConnection('bitbucket')">Save Configuration</button>
+                                <button type="button" class="btn-cancel" onclick="toggleForm('bitbucket')">Cancel</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
         </section>
 
-        <section>
-            <h2 class="section-title">CI/CD Platforms (Optional)</h2>
-            <div class="datasource-grid">
-                <div class="datasource-card">
-                    <div class="card-header">
-                        <span class="datasource-icon">⚙</span>
-                        <span class="status-badge">Not Connected</span>
-                    </div>
-                    <h3>Jenkins</h3>
-                    <p>Track build pipelines, job success rates, and deployment frequency from Jenkins.</p>
-                    <button class="btn-configure" onclick="toggleForm('jenkins')">Configure</button>
+        <section class="datasource-section">
+            <div class="section-header">
+                <h2 class="section-title">CI/CD Platforms</h2>
+            </div>
 
-                    <div class="config-form" id="jenkins-form">
-                        <div class="form-group">
-                            <label for="jenkins-url">Jenkins URL</label>
-                            <input type="text" id="jenkins-url" placeholder="https://jenkins.company.com">
+            <div class="datasource-list">
+                <!-- Jenkins -->
+                <div class="datasource-card" id="jenkinsCard">
+                    <div class="card-header">
+                        <div class="datasource-info">
+                            <div class="datasource-title">
+                                <span class="datasource-icon">⚙</span>
+                                <h3>Jenkins</h3>
+                            </div>
+                            <p>Track build pipelines, job success rates, deployment frequency, and failure analysis from your Jenkins instance.</p>
                         </div>
-                        <div class="form-group">
-                            <label for="jenkins-username">Username</label>
-                            <input type="text" id="jenkins-username">
-                        </div>
-                        <div class="form-group">
-                            <label for="jenkins-token">API Token</label>
-                            <input type="password" id="jenkins-token">
-                        </div>
-                        <div class="form-actions">
-                            <button class="btn-test">Test Connection</button>
-                            <button class="btn-save">Save Configuration</button>
-                        </div>
+                        <span class="status-badge" id="jenkinsStatus">Not Connected</span>
+                    </div>
+
+                    <button class="btn-configure" onclick="toggleForm('jenkins')">Configure Jenkins</button>
+
+                    <div class="config-form" id="jenkinsForm">
+                        <form onsubmit="testConnection('jenkins'); return false;">
+                            <div class="form-group">
+                                <label for="jenkinsUrl">Jenkins URL</label>
+                                <input type="url" id="jenkinsUrl" placeholder="https://jenkins.company.com" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="jenkinsUsername">Username</label>
+                                <input type="text" id="jenkinsUsername" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="jenkinsToken">API Token</label>
+                                <input type="password" id="jenkinsToken" required>
+                                <div class="form-help">
+                                    Generate an API token in Jenkins User Settings
+                                </div>
+                            </div>
+                            <div class="test-result" id="jenkinsResult"></div>
+                            <div class="form-actions">
+                                <button type="submit" class="btn-test">Test Connection</button>
+                                <button type="button" class="btn-save" onclick="saveConnection('jenkins')">Save Configuration</button>
+                                <button type="button" class="btn-cancel" onclick="toggleForm('jenkins')">Cancel</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
 
-                <div class="datasource-card">
+                <!-- CircleCI -->
+                <div class="datasource-card" id="circleciCard">
                     <div class="card-header">
-                        <span class="datasource-icon">○</span>
-                        <span class="status-badge">Not Connected</span>
+                        <div class="datasource-info">
+                            <div class="datasource-title">
+                                <span class="datasource-icon">○</span>
+                                <h3>CircleCI</h3>
+                            </div>
+                            <p>Monitor pipeline performance, workflow duration, and build success metrics from your CircleCI projects.</p>
+                        </div>
+                        <span class="status-badge" id="circleciStatus">Not Connected</span>
                     </div>
-                    <h3>CircleCI</h3>
-                    <p>Monitor pipeline performance, workflow duration, and build success metrics.</p>
-                    <button class="btn-configure" onclick="toggleForm('circleci')">Configure</button>
 
-                    <div class="config-form" id="circleci-form">
-                        <div class="form-group">
-                            <label for="circleci-token">API Token</label>
-                            <input type="password" id="circleci-token">
-                        </div>
-                        <div class="form-group">
-                            <label for="circleci-project">Project Slug</label>
-                            <input type="text" id="circleci-project" placeholder="gh/username/project">
-                        </div>
-                        <div class="form-actions">
-                            <button class="btn-test">Test Connection</button>
-                            <button class="btn-save">Save Configuration</button>
-                        </div>
-                    </div>
-                </div>
+                    <button class="btn-configure" onclick="toggleForm('circleci')">Configure CircleCI</button>
 
-                <div class="datasource-card">
-                    <div class="card-header">
-                        <span class="datasource-icon">▲</span>
-                        <span class="status-badge">Auto-Configured</span>
+                    <div class="config-form" id="circleciForm">
+                        <form onsubmit="testConnection('circleci'); return false;">
+                            <div class="form-group">
+                                <label for="circleciToken">API Token</label>
+                                <input type="password" id="circleciToken" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="circleciProject">Project Slug</label>
+                                <input type="text" id="circleciProject" placeholder="gh/username/project" required>
+                            </div>
+                            <div class="test-result" id="circleciResult"></div>
+                            <div class="form-actions">
+                                <button type="submit" class="btn-test">Test Connection</button>
+                                <button type="button" class="btn-save" onclick="saveConnection('circleci')">Save Configuration</button>
+                                <button type="button" class="btn-cancel" onclick="toggleForm('circleci')">Cancel</button>
+                            </div>
+                        </form>
                     </div>
-                    <h3>GitHub Actions</h3>
-                    <p>Automatically configured when you connect GitHub. Tracks workflow runs and job performance.</p>
                 </div>
             </div>
         </section>
 
-        <section>
-            <h2 class="section-title">Project Management (Optional)</h2>
-            <div class="datasource-grid">
-                <div class="datasource-card">
-                    <div class="card-header">
-                        <span class="datasource-icon">□</span>
-                        <span class="status-badge">Not Connected</span>
-                    </div>
-                    <h3>JIRA</h3>
-                    <p>Link development metrics to project tickets, sprints, and team velocity.</p>
-                    <button class="btn-configure" onclick="toggleForm('jira')">Configure</button>
+        <section class="datasource-section">
+            <div class="section-header">
+                <h2 class="section-title">Code Quality</h2>
+            </div>
 
-                    <div class="config-form" id="jira-form">
-                        <div class="form-group">
-                            <label for="jira-url">JIRA URL</label>
-                            <input type="text" id="jira-url" placeholder="https://company.atlassian.net">
-                        </div>
-                        <div class="form-group">
-                            <label for="jira-email">Email</label>
-                            <input type="email" id="jira-email">
-                        </div>
-                        <div class="form-group">
-                            <label for="jira-token">API Token</label>
-                            <input type="password" id="jira-token">
-                        </div>
-                        <div class="form-actions">
-                            <button class="btn-test">Test Connection</button>
-                            <button class="btn-save">Save Configuration</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="datasource-card">
+            <div class="datasource-list">
+                <!-- SonarQube -->
+                <div class="datasource-card" id="sonarCard">
                     <div class="card-header">
-                        <span class="datasource-icon">◐</span>
-                        <span class="status-badge">Not Connected</span>
+                        <div class="datasource-info">
+                            <div class="datasource-title">
+                                <span class="datasource-icon">◉</span>
+                                <h3>SonarQube</h3>
+                            </div>
+                            <p>Import code quality metrics, test coverage, technical debt, security vulnerabilities, and code smells from SonarQube projects.</p>
+                        </div>
+                        <span class="status-badge" id="sonarStatus">Not Connected</span>
                     </div>
-                    <h3>Trello</h3>
-                    <p>Track board activity and card movement to understand workflow efficiency.</p>
-                    <button class="btn-configure">Configure</button>
-                </div>
 
-                <div class="datasource-card">
-                    <div class="card-header">
-                        <span class="datasource-icon">◎</span>
-                        <span class="status-badge">Not Connected</span>
+                    <button class="btn-configure" onclick="toggleForm('sonar')">Configure SonarQube</button>
+
+                    <div class="config-form" id="sonarForm">
+                        <form onsubmit="testConnection('sonar'); return false;">
+                            <div class="form-group">
+                                <label for="sonarUrl">SonarQube URL</label>
+                                <input type="url" id="sonarUrl" placeholder="https://sonarqube.company.com" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="sonarToken">Authentication Token</label>
+                                <input type="password" id="sonarToken" required>
+                                <div class="form-help">
+                                    Generate a token in SonarQube → My Account → Security
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="sonarProjects">Project Keys</label>
+                                <input type="text" id="sonarProjects" placeholder="project-key-1,project-key-2" required>
+                                <div class="form-help">
+                                    Comma-separated list of SonarQube project keys to track
+                                </div>
+                            </div>
+                            <div class="test-result" id="sonarResult"></div>
+                            <div class="form-actions">
+                                <button type="submit" class="btn-test">Test Connection</button>
+                                <button type="button" class="btn-save" onclick="saveConnection('sonar')">Save Configuration</button>
+                                <button type="button" class="btn-cancel" onclick="toggleForm('sonar')">Cancel</button>
+                            </div>
+                        </form>
                     </div>
-                    <h3>Asana</h3>
-                    <p>Connect project tasks and milestones to development activity.</p>
-                    <button class="btn-configure">Configure</button>
                 </div>
             </div>
         </section>
@@ -653,25 +854,99 @@
             <div class="connection-summary">
                 <strong>0</strong> of 1 required data sources connected
             </div>
-            <div>
-                <button class="btn-primary" disabled>Continue to Import</button>
+            <div class="action-buttons">
                 <a href="#" class="skip-link">Skip for now</a>
+                <button class="btn-primary" id="continueBtn" disabled>Continue to Import</button>
             </div>
         </div>
     </main>
 
     <script>
-        function _toggleForm(sourceId) {
-            const form = document.getElementById(`${sourceId}-form`);
+        const connectedSources = new Set();
+
+        function _toggleForm(source) {
+            const form = document.getElementById(`${source}Form`);
             const allForms = document.querySelectorAll('.config-form');
 
+            // Close all other forms
             allForms.forEach(f => {
-                if (f.id !== `${sourceId}-form`) {
+                if (f.id !== `${source}Form`) {
                     f.classList.remove('active');
                 }
             });
 
+            // Toggle current form
             form.classList.toggle('active');
+        }
+
+        function _testConnection(source) {
+            const resultDiv = document.getElementById(`${source}Result`);
+            resultDiv.className = 'test-result';
+            resultDiv.textContent = 'Testing connection...';
+            resultDiv.style.display = 'block';
+
+            // Simulate API call
+            setTimeout(() => {
+                const success = Math.random() > 0.2; // 80% success rate
+
+                if (success) {
+                    resultDiv.className = 'test-result success';
+                    if (source === 'github') {
+                        resultDiv.textContent = '✓ Connected successfully. Found 50 repositories in your organization.';
+                    } else if (source === 'gitlab') {
+                        resultDiv.textContent = '✓ Connected successfully. Found 32 projects.';
+                    } else if (source === 'bitbucket') {
+                        resultDiv.textContent = '✓ Connected successfully. Found 28 repositories.';
+                    } else if (source === 'jenkins') {
+                        resultDiv.textContent = '✓ Connected successfully. Found 24 jobs.';
+                    } else if (source === 'circleci') {
+                        resultDiv.textContent = '✓ Connected successfully. Found 18 workflows.';
+                    } else if (source === 'sonar') {
+                        resultDiv.textContent = '✓ Connected successfully. Found 15 projects.';
+                    }
+                } else {
+                    resultDiv.className = 'test-result error';
+                    resultDiv.textContent = '✗ Connection failed. Please verify your credentials and try again.';
+                }
+            }, 1500);
+
+            return false;
+        }
+
+        function _saveConnection(source) {
+            const card = document.getElementById(`${source}Card`);
+            const status = document.getElementById(`${source}Status`);
+            const form = document.getElementById(`${source}Form`);
+
+            // Mark as connected
+            card.classList.remove('error');
+            card.classList.add('connected');
+            status.className = 'status-badge connected';
+            status.textContent = 'Connected';
+            form.classList.remove('active');
+
+            // Add to connected sources
+            connectedSources.add(source);
+
+            // Enable continue button if at least one VCS is connected
+            const vcsConnected = connectedSources.has('github') ||
+                                 connectedSources.has('gitlab') ||
+                                 connectedSources.has('bitbucket');
+
+            const continueBtn = document.getElementById('continueBtn');
+            continueBtn.disabled = !vcsConnected;
+
+            // Update summary
+            updateSummary();
+        }
+
+        function updateSummary() {
+            const vcsConnected = connectedSources.has('github') ||
+                                 connectedSources.has('gitlab') ||
+                                 connectedSources.has('bitbucket') ? 1 : 0;
+
+            const summary = document.querySelector('.connection-summary');
+            summary.innerHTML = `<strong>${vcsConnected}</strong> of 1 required data sources connected`;
         }
     </script>
 </body>
