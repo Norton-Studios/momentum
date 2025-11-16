@@ -18,3 +18,5 @@
 # Logs
 .claude/*.log
 .claude/hooks/*.log
+
+.yarn/
