@@ -2,13 +2,6 @@
 
 This guide contains specific instructions and context for Claude AI to work effectively on the Momentum project.
 
-## Project Overview
-
-This is a modular, extensible web application for measuring developer productivity. It supports:
-- Multi-tenant SaaS deployment
-- Self-hosted deployment for individual organizations
-- Plugin-based architecture for resources, data sources, and reports
-
 ## Core Development Commands
 
 ```bash

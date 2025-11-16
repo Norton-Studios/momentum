@@ -2,20 +2,704 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["multiSchema"]
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  schemas  = ["public", "org", "data", "vcs", "ci", "analysis", "project"]
 }
 
-// Minimal User model for authentication foundation
+// ============================================================================
+// USER & AUTHENTICATION
+// ============================================================================
+
 model User {
+  id             String   @id @default(cuid())
+  email          String   @unique @map("email")
+  name           String?  @map("name")
+  organizationId String   @map("organization_id")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  // Relationships
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  contributors Contributor[]
+
+  @@index([organizationId])
+  @@map("user")
+  @@schema("org")
+}
+
+// ============================================================================
+// ORGANIZATION DOMAIN
+// ============================================================================
+
+model Organization {
+  id          String   @id @default(cuid())
+  name        String   @map("name")
+  displayName String?  @map("display_name")
+  description String?  @map("description")
+  website     String?  @map("website")
+  logoUrl     String?  @map("logo_url")
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Relationships
+  users       User[]
+  dataSources DataSource[]
+
+  @@map("organization")
+  @@schema("org")
+}
+
+// ============================================================================
+// VCS DOMAIN
+// ============================================================================
+
+enum VcsProvider {
+  GITHUB
+  GITLAB
+  BITBUCKET
+  AZURE_DEVOPS
+
+  @@schema("vcs")
+}
+
+enum MergeRequestState {
+  OPEN
+  MERGED
+  CLOSED
+  DRAFT
+
+  @@schema("vcs")
+}
+
+enum ReviewState {
+  APPROVED
+  CHANGES_REQUESTED
+  COMMENTED
+  DISMISSED
+
+  @@schema("vcs")
+}
+
+model Repository {
+  id          String      @id @default(cuid())
+  name        String      @map("name")
+  fullName    String      @unique @map("full_name") // e.g., "org/repo"
+  description String?     @map("description")
+  provider    VcsProvider @map("provider")
+  url         String      @map("url")
+  language    String?     @map("language")
+  stars       Int         @default(0) @map("stars")
+  forks       Int         @default(0) @map("forks")
+  isPrivate   Boolean     @default(true) @map("is_private")
+  lastSyncAt  DateTime?   @map("last_sync_at")
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
+
+  // Relationships
+  commits        Commit[]
+  mergeRequests  MergeRequest[]
+  pipelines      Pipeline[]
+  qualityScans   QualityScan[]
+  vulnerabilities SecurityVulnerability[]
+
+  @@index([provider])
+  @@index([lastSyncAt])
+  @@map("repository")
+  @@schema("vcs")
+}
+
+model Contributor {
+  id              String      @id @default(cuid())
+  name            String      @map("name")
+  email           String      @map("email")
+  username        String?     @map("username")
+  provider        VcsProvider @map("provider")
+  providerUserId  String?     @map("provider_user_id")
+  avatarUrl       String?     @map("avatar_url")
+  userId          String?     @map("user_id")
+  createdAt       DateTime    @default(now()) @map("created_at")
+  updatedAt       DateTime    @updatedAt @map("updated_at")
+
+  // Relationships
+  user                      User?                       @relation(fields: [userId], references: [id], onDelete: SetNull)
+  commits                   Commit[]
+  authoredMergeRequests     MergeRequest[]              @relation("MergeRequestAuthor")
+  assignedMergeRequests     MergeRequest[]              @relation("MergeRequestAssignee")
+  reviews                   MergeRequestReview[]
+  assignedIssues            Issue[]                     @relation("IssueAssignee")
+  reportedIssues            Issue[]                     @relation("IssueReporter")
+
+  @@unique([provider, email])
+  @@index([userId])
+  @@index([provider, providerUserId])
+  @@map("contributor")
+  @@schema("vcs")
+}
+
+model Commit {
+  id             String      @id @default(cuid())
+  sha            String      @map("sha")
+  message        String      @map("message")
+  authorId       String      @map("author_id")
+  committedAt    DateTime    @map("committed_at")
+  repositoryId   String      @map("repository_id")
+  branch         String?     @map("branch")
+  linesAdded     Int         @default(0) @map("lines_added")
+  linesRemoved   Int         @default(0) @map("lines_removed")
+  filesChanged   Int         @default(0) @map("files_changed")
+  createdAt      DateTime    @default(now()) @map("created_at")
+  updatedAt      DateTime    @updatedAt @map("updated_at")
+
+  // Relationships
+  author     Contributor   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  repository Repository    @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
+
+  @@unique([repositoryId, sha])
+  @@index([authorId])
+  @@index([repositoryId])
+  @@index([committedAt])
+  @@index([branch])
+  @@map("commit")
+  @@schema("vcs")
+}
+
+model MergeRequest {
+  id                String             @id @default(cuid())
+  number            Int                @map("number")
+  title             String             @map("title")
+  description       String?            @map("description")
+  state             MergeRequestState  @map("state")
+  authorId          String             @map("author_id")
+  assigneeId        String?            @map("assignee_id")
+  repositoryId      String             @map("repository_id")
+  sourceBranch      String             @map("source_branch")
+  targetBranch      String             @map("target_branch")
+  url               String             @map("url")
+  linesAdded        Int                @default(0) @map("lines_added")
+  linesRemoved      Int                @default(0) @map("lines_removed")
+  filesChanged      Int                @default(0) @map("files_changed")
+  commitsCount      Int                @default(0) @map("commits_count")
+  iterationCount    Int                @default(0) @map("iteration_count")
+  createdAt         DateTime           @default(now()) @map("created_at")
+  updatedAt         DateTime           @updatedAt @map("updated_at")
+  mergedAt          DateTime?          @map("merged_at")
+  closedAt          DateTime?          @map("closed_at")
+
+  // Relationships
+  author     Contributor          @relation("MergeRequestAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  assignee   Contributor?         @relation("MergeRequestAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
+  repository Repository           @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
+  reviews    MergeRequestReview[]
+
+  @@unique([repositoryId, number])
+  @@index([authorId])
+  @@index([assigneeId])
+  @@index([repositoryId])
+  @@index([state])
+  @@index([createdAt])
+  @@index([mergedAt])
+  @@map("merge_request")
+  @@schema("vcs")
+}
+
+model MergeRequestReview {
+  id             String         @id @default(cuid())
+  mergeRequestId String         @map("merge_request_id")
+  reviewerId     String         @map("reviewer_id")
+  state          ReviewState    @map("state")
+  body           String?        @map("body")
+  commentsCount  Int            @default(0) @map("comments_count")
+  submittedAt    DateTime       @map("submitted_at")
+  createdAt      DateTime       @default(now()) @map("created_at")
+  updatedAt      DateTime       @updatedAt @map("updated_at")
+
+  // Relationships
+  mergeRequest MergeRequest @relation(fields: [mergeRequestId], references: [id], onDelete: Cascade)
+  reviewer     Contributor  @relation(fields: [reviewerId], references: [id], onDelete: Cascade)
+
+  @@index([mergeRequestId])
+  @@index([reviewerId])
+  @@index([submittedAt])
+  @@map("merge_request_review")
+  @@schema("vcs")
+}
+
+// ============================================================================
+// CI/CD DOMAIN
+// ============================================================================
+
+enum CiProvider {
+  GITHUB_ACTIONS
+  GITLAB_CI
+  JENKINS
+  CIRCLECI
+  TRAVIS_CI
+  AZURE_PIPELINES
+
+  @@schema("ci")
+}
+
+enum PipelineStatus {
+  PENDING
+  RUNNING
+  SUCCESS
+  FAILED
+  CANCELLED
+  SKIPPED
+
+  @@schema("ci")
+}
+
+model Pipeline {
+  id           String     @id @default(cuid())
+  name         String     @map("name")
+  provider     CiProvider @map("provider")
+  repositoryId String     @map("repository_id")
+  configPath   String?    @map("config_path") // e.g., ".github/workflows/ci.yml"
+  isActive     Boolean    @default(true) @map("is_active")
+  createdAt    DateTime   @default(now()) @map("created_at")
+  updatedAt    DateTime   @updatedAt @map("updated_at")
+
+  // Relationships
+  repository   Repository    @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
+  pipelineRuns PipelineRun[]
+
+  @@index([repositoryId])
+  @@index([provider])
+  @@map("pipeline")
+  @@schema("ci")
+}
+
+model PipelineRun {
+  id             String         @id @default(cuid())
+  pipelineId     String         @map("pipeline_id")
+  runNumber      Int            @map("run_number")
+  status         PipelineStatus @map("status")
+  branch         String?        @map("branch")
+  commitSha      String?        @map("commit_sha")
+  triggerEvent   String?        @map("trigger_event") // e.g., "push", "pull_request", "schedule"
+  url            String?        @map("url")
+  durationMs     Int?           @map("duration_ms")
+  startedAt      DateTime?      @map("started_at")
+  completedAt    DateTime?      @map("completed_at")
+  errorMessage   String?        @map("error_message")
+  createdAt      DateTime       @default(now()) @map("created_at")
+  updatedAt      DateTime       @updatedAt @map("updated_at")
+
+  // Relationships
+  pipeline Pipeline        @relation(fields: [pipelineId], references: [id], onDelete: Cascade)
+  stages   PipelineStage[]
+
+  @@unique([pipelineId, runNumber])
+  @@index([pipelineId])
+  @@index([status])
+  @@index([startedAt])
+  @@index([completedAt])
+  @@map("pipeline_run")
+  @@schema("ci")
+}
+
+model PipelineStage {
+  id            String         @id @default(cuid())
+  pipelineRunId String         @map("pipeline_run_id")
+  name          String         @map("name")
+  status        PipelineStatus @map("status")
+  durationMs    Int?           @map("duration_ms")
+  startedAt     DateTime?      @map("started_at")
+  completedAt   DateTime?      @map("completed_at")
+  errorMessage  String?        @map("error_message")
+  createdAt     DateTime       @default(now()) @map("created_at")
+  updatedAt     DateTime       @updatedAt @map("updated_at")
+
+  // Relationships
+  pipelineRun PipelineRun @relation(fields: [pipelineRunId], references: [id], onDelete: Cascade)
+
+  @@index([pipelineRunId])
+  @@index([status])
+  @@map("pipeline_stage")
+  @@schema("ci")
+}
+
+// ============================================================================
+// CODE ANALYSIS DOMAIN
+// ============================================================================
+
+enum VulnerabilitySeverity {
+  CRITICAL
+  HIGH
+  MEDIUM
+  LOW
+  INFORMATIONAL
+
+  @@schema("analysis")
+}
+
+enum VulnerabilityStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  WONT_FIX
+  FALSE_POSITIVE
+
+  @@schema("analysis")
+}
+
+model QualityScan {
+  id                    String   @id @default(cuid())
+  repositoryId          String   @map("repository_id")
+  branch                String?  @map("branch")
+  commitSha             String?  @map("commit_sha")
+  coveragePercent       Float?   @map("coverage_percent")
+  newCodeCoveragePercent Float?  @map("new_code_coverage_percent")
+  technicalDebtRatio    Float?   @map("technical_debt_ratio")
+  complexityScore       Int?     @map("complexity_score")
+  codeSmellsCount       Int?     @map("code_smells_count")
+  bugsCount             Int?     @map("bugs_count")
+  vulnerabilitiesCount  Int?     @map("vulnerabilities_count")
+  duplicatedLinesPercent Float?  @map("duplicated_lines_percent")
+  maintainabilityRating String?  @map("maintainability_rating") // A, B, C, D, E
+  reliabilityRating     String?  @map("reliability_rating")
+  securityRating        String?  @map("security_rating")
+  scannedAt             DateTime @map("scanned_at")
+  createdAt             DateTime @default(now()) @map("created_at")
+  updatedAt             DateTime @updatedAt @map("updated_at")
+
+  // Relationships
+  repository      Repository        @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
+  coverageMetrics CoverageMetric[]
+
+  @@index([repositoryId])
+  @@index([scannedAt])
+  @@map("quality_scan")
+  @@schema("analysis")
+}
+
+model CoverageMetric {
+  id              String   @id @default(cuid())
+  qualityScanId   String   @map("quality_scan_id")
+  moduleOrPackage String   @map("module_or_package")
+  coveragePercent Float    @map("coverage_percent")
+  linesCovered    Int      @map("lines_covered")
+  linesTotal      Int      @map("lines_total")
+  branchesPercent Float?   @map("branches_percent")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  // Relationships
+  qualityScan QualityScan @relation(fields: [qualityScanId], references: [id], onDelete: Cascade)
+
+  @@index([qualityScanId])
+  @@map("coverage_metric")
+  @@schema("analysis")
+}
+
+model SecurityVulnerability {
+  id              String                 @id @default(cuid())
+  repositoryId    String                 @map("repository_id")
+  cveId           String?                @map("cve_id") // CVE identifier
+  title           String                 @map("title")
+  description     String?                @map("description")
+  severity        VulnerabilitySeverity  @map("severity")
+  status          VulnerabilityStatus    @map("status")
+  affectedComponent String?              @map("affected_component")
+  affectedVersion String?                @map("affected_version")
+  fixedVersion    String?                @map("fixed_version")
+  url             String?                @map("url")
+  discoveredAt    DateTime               @map("discovered_at")
+  resolvedAt      DateTime?              @map("resolved_at")
+  createdAt       DateTime               @default(now()) @map("created_at")
+  updatedAt       DateTime               @updatedAt @map("updated_at")
+
+  // Relationships
+  repository Repository @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
+
+  @@index([repositoryId])
+  @@index([severity])
+  @@index([status])
+  @@index([discoveredAt])
+  @@map("security_vulnerability")
+  @@schema("analysis")
+}
+
+// ============================================================================
+// PROJECT MANAGEMENT DOMAIN
+// ============================================================================
+
+enum ProjectProvider {
+  JIRA
+  TRELLO
+  ASANA
+  LINEAR
+  GITHUB
+  GITLAB
+
+  @@schema("project")
+}
+
+enum IssuePriority {
+  CRITICAL
+  HIGH
+  MEDIUM
+  LOW
+  TRIVIAL
+
+  @@schema("project")
+}
+
+enum IssueStatus {
+  TODO
+  IN_PROGRESS
+  IN_REVIEW
+  BLOCKED
+  DONE
+  CANCELLED
+
+  @@schema("project")
+}
+
+enum IssueType {
+  BUG
+  FEATURE
+  TASK
+  STORY
+  EPIC
+  SUBTASK
+
+  @@schema("project")
+}
+
+model Project {
+  id          String          @id @default(cuid())
+  name        String          @map("name")
+  key         String          @unique @map("key") // e.g., "PROJ"
+  description String?         @map("description")
+  provider    ProjectProvider @map("provider")
+  url         String?         @map("url")
+  createdAt   DateTime        @default(now()) @map("created_at")
+  updatedAt   DateTime        @updatedAt @map("updated_at")
+
+  // Relationships
+  boards  Board[]
+  sprints Sprint[]
+  issues  Issue[]
+
+  @@index([provider])
+  @@map("project")
+  @@schema("project")
+}
+
+model Board {
   id        String   @id @default(cuid())
-  email     String   @unique @map("email")
+  projectId String   @map("project_id")
+  name      String   @map("name")
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  @@map("user")
+  // Relationships
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  issues  Issue[]
+
+  @@index([projectId])
+  @@map("board")
+  @@schema("project")
+}
+
+model Sprint {
+  id          String    @id @default(cuid())
+  projectId   String    @map("project_id")
+  name        String    @map("name")
+  goal        String?   @map("goal")
+  startDate   DateTime  @map("start_date")
+  endDate     DateTime  @map("end_date")
+  completedAt DateTime? @map("completed_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  // Relationships
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  issues  Issue[]
+
+  @@index([projectId])
+  @@index([startDate])
+  @@index([endDate])
+  @@map("sprint")
+  @@schema("project")
+}
+
+model Issue {
+  id            String       @id @default(cuid())
+  projectId     String       @map("project_id")
+  boardId       String?      @map("board_id")
+  sprintId      String?      @map("sprint_id")
+  key           String       @unique @map("key") // e.g., "PROJ-123"
+  title         String       @map("title")
+  description   String?      @map("description")
+  type          IssueType    @map("type")
+  status        IssueStatus  @map("status")
+  priority      IssuePriority @map("priority")
+  assigneeId    String?      @map("assignee_id")
+  reporterId    String?      @map("reporter_id")
+  storyPoints   Int?         @map("story_points")
+  url           String?      @map("url")
+  createdAt     DateTime     @default(now()) @map("created_at")
+  updatedAt     DateTime     @updatedAt @map("updated_at")
+  resolvedAt    DateTime?    @map("resolved_at")
+
+  // Relationships
+  project  Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  board    Board?       @relation(fields: [boardId], references: [id], onDelete: SetNull)
+  sprint   Sprint?      @relation(fields: [sprintId], references: [id], onDelete: SetNull)
+  assignee Contributor? @relation("IssueAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
+  reporter Contributor? @relation("IssueReporter", fields: [reporterId], references: [id], onDelete: SetNull)
+
+  @@index([projectId])
+  @@index([boardId])
+  @@index([sprintId])
+  @@index([assigneeId])
+  @@index([reporterId])
+  @@index([status])
+  @@index([priority])
+  @@index([type])
+  @@index([createdAt])
+  @@map("issue")
+  @@schema("project")
+}
+
+// ============================================================================
+// DATA IMPORT DOMAIN
+// ============================================================================
+
+enum DataSourceProvider {
+  GITHUB
+  GITLAB
+  BITBUCKET
+  AZURE_DEVOPS
+  JIRA
+  TRELLO
+  ASANA
+  LINEAR
+  JENKINS
+  CIRCLECI
+  GITHUB_ACTIONS
+  GITLAB_CI
+  SONARQUBE
+  SNYK
+  DEPENDABOT
+
+  @@schema("data")
+}
+
+enum DataSourceRunStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+  CANCELLED
+
+  @@schema("data")
+}
+
+enum ImportLogLevel {
+  INFO
+  WARNING
+  ERROR
+  DEBUG
+
+  @@schema("data")
+}
+
+model DataSource {
+  id             String             @id @default(cuid())
+  organizationId String             @map("organization_id")
+  name           String             @map("name")
+  provider       DataSourceProvider @map("provider")
+  description    String?            @map("description")
+  isEnabled      Boolean            @default(true) @map("is_enabled")
+  syncIntervalMinutes Int?          @map("sync_interval_minutes")
+  lastSyncAt     DateTime?          @map("last_sync_at")
+  createdAt      DateTime           @default(now()) @map("created_at")
+  updatedAt      DateTime           @updatedAt @map("updated_at")
+
+  // Relationships
+  organization Organization        @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  configs      DataSourceConfig[]
+  runs         DataSourceRun[]
+
+  @@index([organizationId])
+  @@index([provider])
+  @@index([isEnabled])
+  @@map("data_source")
+  @@schema("data")
+}
+
+model DataSourceConfig {
+  id           String     @id @default(cuid())
+  dataSourceId String     @map("data_source_id")
+  key          String     @map("key")
+  value        String     @map("value")
+  isSecret     Boolean    @default(false) @map("is_secret")
+  createdAt    DateTime   @default(now()) @map("created_at")
+  updatedAt    DateTime   @updatedAt @map("updated_at")
+
+  // Relationships
+  dataSource DataSource @relation(fields: [dataSourceId], references: [id], onDelete: Cascade)
+
+  @@unique([dataSourceId, key])
+  @@index([dataSourceId])
+  @@map("data_source_config")
+  @@schema("data")
+}
+
+model DataSourceRun {
+  id                String              @id @default(cuid())
+  dataSourceId      String              @map("data_source_id")
+  status            DataSourceRunStatus @map("status")
+  scriptName        String?             @map("script_name")
+  recordsImported   Int                 @default(0) @map("records_imported")
+  recordsFailed     Int                 @default(0) @map("records_failed")
+  startedAt         DateTime            @map("started_at")
+  completedAt       DateTime?           @map("completed_at")
+  durationMs        Int?                @map("duration_ms")
+  errorMessage      String?             @map("error_message")
+  lastFetchedDataAt DateTime?           @map("last_fetched_data_at") // For incremental sync
+  metadata          String?             @map("metadata") // JSON for additional info
+  createdAt         DateTime            @default(now()) @map("created_at")
+  updatedAt         DateTime            @updatedAt @map("updated_at")
+
+  // Relationships
+  dataSource DataSource  @relation(fields: [dataSourceId], references: [id], onDelete: Cascade)
+  logs       ImportLog[]
+
+  @@index([dataSourceId])
+  @@index([status])
+  @@index([startedAt])
+  @@index([completedAt])
+  @@map("data_source_run")
+  @@schema("data")
+}
+
+model ImportLog {
+  id              String         @id @default(cuid())
+  dataSourceRunId String         @map("data_source_run_id")
+  level           ImportLogLevel @map("level")
+  message         String         @map("message")
+  details         String?        @map("details") // JSON for structured data
+  recordId        String?        @map("record_id") // ID of affected record
+  createdAt       DateTime       @default(now()) @map("created_at")
+
+  // Relationships
+  dataSourceRun DataSourceRun @relation(fields: [dataSourceRunId], references: [id], onDelete: Cascade)
+
+  @@index([dataSourceRunId])
+  @@index([level])
+  @@index([createdAt])
+  @@map("import_log")
+  @@schema("data")
 }
