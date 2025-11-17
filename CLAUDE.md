@@ -8,97 +8,100 @@ This guide contains specific instructions and context for Claude AI to work effe
 # Install dependencies
 yarn install
 
-# Start PostgreSQL database
+# Development
 docker-compose up -d
+yarn dev
 
-# Push Prisma schema to database (for development)
+# Database operations
 yarn db:push
-
-# Run database migrations (for production)
 yarn db:migrate
-
-# Open Prisma Studio (database GUI)
 yarn db:studio
 
 # Start development server with hot reload
-yarn dev
 # App runs on http://localhost:3000
 
-# Run linter
+# Testing and linting
 yarn lint
-
-# Run linter with auto-fix
 yarn lint:fix
-
-# Format code
 yarn format
-
-# Check code formatting
-yarn format:check
-
-# Run unit/integration tests
 yarn test
-
-# Run tests in watch mode
-yarn test:watch
-
-# Run tests with coverage
-yarn test:coverage
-
-# Run E2E tests
 yarn test:e2e
-
-# Build for production
-yarn build
-
-# Start production server
-yarn start
-
-# Type check
 yarn typecheck
 ```
 
-## Project Structure and Conventions
+## Project Structure
 
 ### Repository Layout
 ```
 momentum/
-├── app/                      # React Router application code
-│   ├── routes/              # Route components
-│   │   ├── home.tsx         # Route handlers
-│   │   └── home.test.tsx    # Co-located tests
-│   ├── welcome/             # Feature modules
-│   ├── root.tsx             # Root layout
-│   ├── entry.server.tsx     # Server entry point
-│   ├── entry.client.tsx     # Client entry point
-│   ├── app.css              # Global styles
-│   └── db.server.ts         # Prisma client singleton
-├── e2e/                     # Playwright E2E tests
-│   ├── journeys/            # E2E test files
-│   │   └── example.spec.ts  # Journey test examples
-│   └── playwright.config.ts # Playwright configuration
-├── prisma/                  # Database schema and migrations
-│   └── schema.prisma        # Prisma schema definition
-├── public/                  # Static assets
+├── app/                          # React Router application code
+│   ├── routes/                   # Routes
+│   ├── components/               # Shared UI components
+│   ├── styles/                   # Global CSS
+│   ├── root.tsx                  # Root layout component
+│   ├── app.css                   # Global styles
+│   └── db.server.ts              # Prisma client singleton
+├── e2e/                          # Playwright E2E tests
+│   ├── journeys/                 # E2E journey tests
+│   │   └── example.spec.ts
+│   └── playwright.config.ts      # Playwright configuration
+├── prisma/                       # Database schema and migrations
+│   └── schema.prisma             # Multi-schema Prisma definition
+├── public/                       # Static assets
 │   └── favicon.ico
-├── docs/                    # Project documentation
-│   ├── OVERVIEW.md
-│   ├── TECHNICAL.md
-│   ├── PRODUCT.md
-│   ├── PIPELINES.md
-│   └── USER_JOURNEYS.md
-├── .env                     # Environment variables (not committed)
-├── .env.example             # Environment variables template
-├── .gitignore               # Git ignore patterns
-├── biome.json               # Biome linter/formatter config
-├── docker-compose.yml       # PostgreSQL database setup
-├── package.json             # Dependencies and scripts
-├── react-router.config.ts   # React Router configuration
-├── tsconfig.json            # TypeScript configuration
-├── vite.config.ts           # Vite bundler configuration
-├── vitest.config.ts         # Vitest test configuration
-└── CLAUDE.md                # This file
+└── docs/                         # Project documentation
+    ├── OVERVIEW.md
+    ├── TECHNICAL.md
+    ├── PRODUCT.md
+    ├── PIPELINES.md
+    └── USER_JOURNEYS.md
 ```
+
+### Database Schemas
+
+`org`: Organization, tenant, user models
+`data`: Data source integrations
+`vcs`: Version control system models (repository, merge request)
+`ci`: CI/CD pipeline models
+`analysis`: Analysis and metrics
+`project`: Project management models
+
+## Rules
+
+- **TypeScript**: Strict mode enabled, no `any` types without justification
+- **Formatting**: Use Biome (`yarn format` before commits)
+- **Linting**: Fix all Biome warnings (`yarn lint` or `yarn lint:fix`)
+- **Module System**: Use ES modules exclusively - `"type": "module"` is set in package.json
+- **Dependencies**: All dependencies are pinned to specific versions (e.g., `"react": "19.1.1"`)
+- **Hooks**: If hooks report failures, Claude must investigate and resolve them immediately
+- **No CommonJS**: Use `import`/`export`, never `require()`/`module.exports`
+- **Pinned dependencies**: Specific versions only (`"express": "5.1.0"`) - except peer dependencies
+- **Encapsulation**: Do not expose internal functions in order to test them
+
+## Conventions
+
+**Module Ordering**:
+- consts outside the scope of a function should be at the top (e.g. `const COOKIE_NAME = "cookie_name";`)
+- Exported functions should next
+- Other functions should be ordered in the order they are used
+- Interfaces and types should be at the bottom
+
+**Domain driven folder structure**:
+- Group by feature (e.g. `merge-request/`, `data-sources/`)
+- Do not group by type (e.g. `models/`, `controllers/`, `services/`)
+- Do not create generic folders (e.g. `utils/`, `helpers/`)
+
+**Keep types with the code that uses them**:
+- Do not create a types.ts file
+- Types should be in the same file as the code that uses them
+
+**Comments**:
+- Use comments to explain why code exists, not what it does
+- Keep comments minimal and reference documentation or specifications when possible
+
+**Testing**:
+- Colocate tests with the code they test (e.g. `merge-request.test.ts` next to `merge-request.ts`)
+- Write e2e Playwright tests in `e2e/journeys/` 
 
 ### Naming Conventions
 
@@ -138,35 +141,30 @@ Follow these strict naming conventions throughout the project:
    - Use singular for specific resources: `/user/:id`, `/merge-request/:id`
    - Use singular for resource creation, e.g., `POST /user` to create a new user
 
-## Database Schema Management
+### Error Handling Conventions
 
-1. Database schema is defined in `prisma/schema.prisma`
-2. Use `yarn db:push` for development to sync schema changes to the database
-3. Use `yarn db:migrate` for production to create migration files
-4. Prisma client is automatically generated when schema changes
-5. Always follow snake_case naming for database tables and fields with Prisma @map annotations
+1. **Client-side errors**:
+  - Use React Router error boundaries
+  - Provide user-friendly messages
+  - Log errors to monitoring service
 
+2. **Server-side errors**:
+  - Return proper HTTP status codes
+  - Use Prisma error handling for database errors
+  - Never expose internal errors to client
 
-## Testing Strategy
+3. **Validation**:
+  - Validate at route action/loader level
+  - Return validation errors in standard format
+  - Use Zod or similar for schema validation
 
-- **Unit/Integration Tests**: Use Vitest, co-locate with source files (`*.test.ts` or `*.test.tsx`)
-- **E2E Tests**: Use Playwright in `e2e/` directory
-- **Test Database**: Use Docker Compose PostgreSQL for isolated testing
-- **Coverage**: Aim for high coverage on business logic and route handlers
-- **Test Scripts**:
-  - `yarn test` - Run unit/integration tests (non-interactive, for CI/CD)
-  - `yarn test:watch` - Run tests in watch mode during development
-  - `yarn test:e2e` - Run Playwright E2E tests
+## Principles
 
-## Code Quality Standards
-
-- **TypeScript**: Strict mode enabled, no `any` types without justification
-- **Formatting**: Use Biome (`yarn format` before commits)
-- **Linting**: Fix all Biome warnings (`yarn lint` or `yarn lint:fix`)
-- **Code Quality**: SonarQube integration for static analysis
-- **Module System**: Use ES modules exclusively - `"type": "module"` is set in package.json
-- **Dependencies**: All dependencies are pinned to specific versions (e.g., `"react": "19.1.1"`)
-- **MANDATORY**: If hooks report failures, Claude must investigate and resolve them immediately
+* **YAGNI**: You Aren't Gonna Need It - Don't add speculative functionality or features. Always take the simplest approach. 
+* **Functional style** favour a simple functional approach. Don't use a class unless you have shared state
+* **KISS**: Keep It Simple, Stupid - Avoid unnecessary complexity. Write code that is easy to understand and maintain.
+* **Immutable**: Data should be immutable by default. Use const and avoid mutations to ensure predictable state.
+* **Side Effects**: Functions should have no side effects. Avoid modifying external state or relying on mutable data.
 
 ## Performance Considerations
 
@@ -184,13 +182,8 @@ Follow these strict naming conventions throughout the project:
 - Store sensitive data encrypted
 - Follow OWASP guidelines for web security
 
-## AI-Centric Development Notes
+## Communication Style
 
-This project is optimized for AI-assisted development:
-- Clear separation of concerns through route-based architecture
-- Extensive documentation and type definitions
-- Comprehensive testing infrastructure (Vitest + Playwright)
-- Test coverage helps validate AI-generated code
-- Schema-first approach with Prisma provides clear data contracts
-- Strict naming conventions for consistency
-- Pre-commit hooks ensure code quality
+Be direct and straightforward. No cheerleading phrases like "that's absolutely right" or "great question." Tell the user when ideas are flawed, incomplete, or poorly thought through. Focus on practical problems and realistic solutions rather than being overly positive or encouraging.
+
+Challenge assumptions, point out potential issues, and ask questions about implementation, scalability, and real-world viability. If something won't work, say so directly and explain why it has problems rather than just dismissing it.
