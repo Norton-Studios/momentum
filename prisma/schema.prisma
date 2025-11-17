@@ -16,19 +16,24 @@ datasource db {
 // USER & AUTHENTICATION
 // ============================================================================
 
+enum UserRole {
+  ADMIN
+  USER
+
+  @@schema("org")
+}
+
 model User {
-  id             String   @id @default(cuid())
-  email          String   @unique @map("email")
-  name           String?  @map("name")
-  organizationId String   @map("organization_id")
-  createdAt      DateTime @default(now()) @map("created_at")
-  updatedAt      DateTime @updatedAt @map("updated_at")
+  id        String   @id @default(cuid())
+  email     String   @unique @map("email")
+  name      String?  @map("name")
+  role      UserRole @default(USER) @map("role")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   // Relationships
-  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   contributors Contributor[]
 
-  @@index([organizationId])
   @@map("user")
   @@schema("org")
 }
@@ -49,7 +54,6 @@ model Organization {
   updatedAt   DateTime @updatedAt @map("updated_at")
 
   // Relationships
-  users       User[]
   dataSources DataSource[]
 
   @@map("organization")
