@@ -1,0 +1,39 @@
+.metric-box {
+  padding: 40px;
+  background: var(--white);
+  border: 1px solid var(--light-gray);
+  transition: all 0.3s ease;
+}
+
+.metric-box:hover {
+  border-color: var(--gold);
+}
+
+.metric-label {
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--mid-gray);
+  margin-bottom: 16px;
+}
+
+.metric-value {
+  font-family: Georgia, serif;
+  font-size: 48px;
+  font-weight: 600;
+  color: var(--black);
+  margin-bottom: 12px;
+}
+
+.metric-trend {
+  font-size: 15px;
+  color: var(--dark-gray);
+}
+
+.metric-trend.positive {
+  color: var(--green);
+}
+
+.metric-trend.negative {
+  color: var(--red);
+}

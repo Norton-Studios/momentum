@@ -1,0 +1,48 @@
+.btn-primary {
+  background: var(--black);
+  color: var(--white);
+  padding: 14px 32px;
+  border: 1px solid var(--black);
+  font-size: 15px;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  transition: background 0.3s ease;
+  text-decoration: none;
+  display: inline-block;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  line-height: 1;
+  vertical-align: middle;
+}
+
+.btn-primary:hover {
+  background: var(--gold);
+  color: var(--black);
+}
+
+.btn-primary:disabled {
+  background: var(--light-gray);
+  color: var(--mid-gray);
+  border-color: var(--light-gray);
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--black);
+  padding: 14px 32px;
+  border: 1px solid var(--black);
+  font-size: 15px;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-block;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  line-height: 1;
+  vertical-align: middle;
+}
+
+.btn-secondary:hover {
+  background: var(--black);
+  color: var(--white);
+}

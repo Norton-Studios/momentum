@@ -1,5 +1,5 @@
 import { Link } from "react-router";
-import "../styles/dashboard.css";
+import "./dashboard.css";
 
 export function meta() {
   return [

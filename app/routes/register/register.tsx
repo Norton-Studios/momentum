@@ -1,7 +1,7 @@
 import { Link } from "react-router";
-import { Button } from "../components/button";
-import { Logo } from "../components/logo";
-import "../styles/registration.css";
+import { Button } from "../../components/button/button";
+import { Logo } from "../../components/logo/logo";
+import "./register.css";
 
 export function meta() {
   return [

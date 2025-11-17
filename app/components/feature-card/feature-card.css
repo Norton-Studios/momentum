@@ -1,0 +1,25 @@
+.feature-card {
+  padding: 48px 0;
+  border-top: 2px solid var(--black);
+}
+
+.feature-number {
+  font-family: Georgia, serif;
+  font-size: 18px;
+  color: var(--gold);
+  font-weight: 600;
+  display: block;
+  margin-bottom: 24px;
+}
+
+.feature-card h3 {
+  font-size: 28px;
+  margin-bottom: 20px;
+  color: var(--black);
+}
+
+.feature-card p {
+  font-size: 16px;
+  color: var(--dark-gray);
+  line-height: 1.7;
+}

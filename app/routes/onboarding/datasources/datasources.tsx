@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Link } from "react-router";
-import { Button } from "../components/button";
-import { Logo } from "../components/logo";
-import "../styles/onboarding-datasources.css";
+import { Button } from "../../../components/button/button";
+import { Logo } from "../../../components/logo/logo";
+import "./datasources.css";
 
 export function meta() {
   return [

@@ -1,13 +1,5 @@
 import type { ReactNode } from "react";
-
-interface ButtonProps {
-  children: ReactNode;
-  variant?: "primary" | "secondary";
-  type?: "button" | "submit" | "reset";
-  onClick?: () => void;
-  disabled?: boolean;
-  className?: string;
-}
+import "./button.css";
 
 export function Button({ children, variant = "primary", type = "button", onClick, disabled = false, className = "" }: ButtonProps) {
   const baseClass = variant === "primary" ? "btn-primary" : "btn-secondary";
@@ -17,4 +9,13 @@ export function Button({ children, variant = "primary", type = "button", onClick
       {children}
     </button>
   );
+}
+
+interface ButtonProps {
+  children: ReactNode;
+  variant?: "primary" | "secondary";
+  type?: "button" | "submit" | "reset";
+  onClick?: () => void;
+  disabled?: boolean;
+  className?: string;
 }

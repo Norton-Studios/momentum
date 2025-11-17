@@ -1,0 +1,37 @@
+.header {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 60px 80px 40px;
+  border-bottom: 1px solid var(--light-gray);
+}
+
+.header nav {
+  display: flex;
+  align-items: center;
+  gap: 48px;
+}
+
+.header nav a {
+  color: var(--dark-gray);
+  text-decoration: none;
+  font-size: 15px;
+  letter-spacing: 0.3px;
+  transition: color 0.2s;
+}
+
+.header nav a:hover {
+  color: var(--black);
+}
+
+@media (max-width: 768px) {
+  .header {
+    padding: 40px 40px 30px;
+  }
+
+  .header nav {
+    gap: 16px;
+  }
+}

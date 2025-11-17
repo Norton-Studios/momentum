@@ -1,9 +1,4 @@
-interface MetricBoxProps {
-  label: string;
-  value: string | number;
-  trend?: string;
-  trendType?: "positive" | "negative" | "neutral";
-}
+import "./metric-box.css";
 
 export function MetricBox({ label, value, trend, trendType = "neutral" }: MetricBoxProps) {
   return (
@@ -13,4 +8,11 @@ export function MetricBox({ label, value, trend, trendType = "neutral" }: Metric
       {trend && <div className={`metric-trend ${trendType}`}>{trend}</div>}
     </div>
   );
+}
+
+interface MetricBoxProps {
+  label: string;
+  value: string | number;
+  trend?: string;
+  trendType?: "positive" | "negative" | "neutral";
 }

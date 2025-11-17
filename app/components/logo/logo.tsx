@@ -1,4 +1,5 @@
 import { Link } from "react-router";
+import "./logo.css";
 
 interface LogoProps {
   className?: string;

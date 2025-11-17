@@ -1,6 +1,7 @@
 import { Link } from "react-router";
-import { Button } from "./button";
-import { Logo } from "./logo";
+import { Button } from "../button/button";
+import { Logo } from "../logo/logo";
+import "./header.css";
 
 export function Header() {
   return (

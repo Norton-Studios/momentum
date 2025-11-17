@@ -1,0 +1,13 @@
+.logo {
+  font-size: 36px;
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 400;
+  letter-spacing: -0.5px;
+  color: var(--black);
+  text-decoration: none;
+  display: inline-block;
+}
+
+.logo span {
+  color: var(--gold);
+}

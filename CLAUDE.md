@@ -39,6 +39,7 @@ momentum/
 │   ├── components/               # Shared UI components
 │   ├── styles/                   # Global CSS
 │   ├── root.tsx                  # Root layout component
+│   ├── routes.ts                 # Route configuration
 │   ├── app.css                   # Global styles
 │   └── db.server.ts              # Prisma client singleton
 ├── e2e/                          # Playwright E2E tests

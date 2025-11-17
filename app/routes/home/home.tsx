@@ -1,10 +1,10 @@
 import { Link } from "react-router";
-import { Button } from "../components/button";
-import { FeatureCard } from "../components/feature-card";
-import { Footer } from "../components/footer";
-import { Header } from "../components/header";
-import { MetricBox } from "../components/metric-box";
-import "../styles/homepage.css";
+import { Button } from "../../components/button/button";
+import { FeatureCard } from "../../components/feature-card/feature-card";
+import { Footer } from "../../components/footer/footer";
+import { Header } from "../../components/header/header";
+import { MetricBox } from "../../components/metric-box/metric-box";
+import "./home.css";
 
 export function meta() {
   return [

@@ -1,5 +1,12 @@
-/* Momentum Design System */
+/* Tailwind */
+@import "tailwindcss";
 
+/* Theme Configuration */
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+
+/* CSS Variables - Momentum Design System */
 :root {
   --black: #1a1a1a;
   --dark-gray: #404040;
@@ -14,7 +21,7 @@
   --line-height-heading: 1.2;
 }
 
-/* Reset */
+/* Global Resets */
 * {
   margin: 0;
   padding: 0;
@@ -22,11 +29,17 @@
 }
 
 /* Base Typography */
+html,
 body {
+  @apply bg-white dark:bg-gray-950;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
   color: var(--black);
   background: var(--white);
   line-height: var(--line-height-body);
+
+  @media (prefers-color-scheme: dark) {
+    color-scheme: dark;
+  }
 }
 
 h1,
@@ -38,57 +51,7 @@ h4 {
   font-weight: 400;
 }
 
-/* Buttons */
-.btn-primary {
-  background: var(--black);
-  color: var(--white);
-  padding: 14px 32px;
-  border: 1px solid var(--black);
-  font-size: 15px;
-  cursor: pointer;
-  letter-spacing: 0.5px;
-  transition: background 0.3s ease;
-  text-decoration: none;
-  display: inline-block;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
-  line-height: 1;
-  vertical-align: middle;
-}
-
-.btn-primary:hover {
-  background: var(--gold);
-  color: var(--black);
-}
-
-.btn-primary:disabled {
-  background: var(--light-gray);
-  color: var(--mid-gray);
-  border-color: var(--light-gray);
-  cursor: not-allowed;
-}
-
-.btn-secondary {
-  background: transparent;
-  color: var(--black);
-  padding: 14px 32px;
-  border: 1px solid var(--black);
-  font-size: 15px;
-  cursor: pointer;
-  letter-spacing: 0.5px;
-  transition: all 0.3s ease;
-  text-decoration: none;
-  display: inline-block;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
-  line-height: 1;
-  vertical-align: middle;
-}
-
-.btn-secondary:hover {
-  background: var(--black);
-  color: var(--white);
-}
-
-/* Form Elements */
+/* Global Form Elements */
 .form-group {
   margin-bottom: 32px;
 }
@@ -155,12 +118,7 @@ h4 {
 }
 
 /* Responsive */
-@media (max-width: 1024px) {
-  /* Tablet adjustments */
-}
-
 @media (max-width: 768px) {
-  /* Mobile adjustments */
   h1 {
     font-size: 36px;
   }

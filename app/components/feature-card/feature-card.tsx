@@ -1,8 +1,4 @@
-interface FeatureCardProps {
-  number: string;
-  title: string;
-  description: string;
-}
+import "./feature-card.css";
 
 export function FeatureCard({ number, title, description }: FeatureCardProps) {
   return (
@@ -12,4 +8,10 @@ export function FeatureCard({ number, title, description }: FeatureCardProps) {
       <p>{description}</p>
     </div>
   );
+}
+
+interface FeatureCardProps {
+  number: string;
+  title: string;
+  description: string;
 }
