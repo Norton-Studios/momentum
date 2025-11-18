@@ -94,6 +94,22 @@ jobs:
   e2e:
     name: E2E Tests
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_USER: momentum
+          POSTGRES_PASSWORD: momentum
+          POSTGRES_DB: momentum
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgresql://momentum:momentum@localhost:5432/momentum
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v5
@@ -124,6 +140,9 @@ jobs:
 
       - name: Generate Prisma Client
         run: yarn prisma generate
+
+      - name: Run Database Migrations
+        run: yarn db:migrate:deploy
 
       - name: Restore Playwright Browsers Cache
         uses: actions/cache/restore@v4
