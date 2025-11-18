@@ -102,6 +102,7 @@ momentum/
 
 **Testing**:
 - Colocate tests with the code they test (e.g. `merge-request.test.ts` next to `merge-request.ts`)
+- Aim for >90% code coverage
 - Write e2e Playwright tests in `e2e/journeys/` 
 
 ### Naming Conventions
