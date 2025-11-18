@@ -2,13 +2,26 @@
 
 ## Overview
 
-The data import system is a distributed job orchestration framework that:
-- Loads enabled DataSource records from the database
-- Builds environment from DataSourceConfig key-value pairs
-- Executes provider-specific scripts with dependency resolution using `p-graph`
-- Uses database row locking (`SELECT FOR UPDATE SKIP LOCKED`) for distributed coordination
-- Tracks execution in DataSourceRun and ImportLog tables
-- Supports incremental sync via lastFetchedDataAt
+Distributed job orchestration framework for importing data from external sources (GitHub, GitLab, Jenkins, etc.) with automatic dependency resolution and distributed locking.
+
+### Execution Flow
+
+1. **Acquire global lock** - System-wide PostgreSQL advisory lock ensures single orchestrator
+2. **Load all scripts** - Scan `data-sources/` directory for all import scripts
+3. **Filter by enabled data sources** - Keep only scripts for enabled DataSource records
+4. **Build dependency graph** - Use `p-graph` to resolve execution order
+5. **Execute with resource locks** - Each script acquires `dataSourceId:resource` advisory lock
+6. **Track execution** - Record status, duration, records imported in DataSourceRun table
+7. **Update sync timestamps** - Set DataSource.lastSyncAt after successful completion
+8. **Release global lock** - Allow next orchestrator run
+
+### Key Features
+
+- **Two-level locking**: Global orchestrator lock + per-resource advisory locks
+- **Parallel execution**: Different resources for same data source run concurrently
+- **Incremental sync**: Uses lastFetchedDataAt to fetch only new data
+- **Automatic dependencies**: `p-graph` handles topological sorting and parallelization
+- **Crash-safe**: Advisory locks auto-release on connection close
 
 ## Dependencies
 
@@ -76,53 +89,34 @@ for (const dataSource of dataSources) {
 }
 ```
 
-### 2. Generic Resource Names
+### 2. Explicit Data Source Mapping with Generic Resources
 
-Scripts use generic, provider-agnostic resource names for dependencies:
+Scripts explicitly declare which data source they belong to and use generic resource names:
 
 ```typescript
-// ✅ Correct - dependencies are generic
-export const githubCommitScript = {
-  name: 'github:commit',        // Script ID is provider-scoped
+// ✅ Correct - explicit data source, generic dependencies
+export const commitScript = {
+  dataSourceName: 'GITHUB',     // Explicitly declares provider
+  resource: 'commit',           // What this script provides
   dependsOn: ['repository'],    // Generic dependency
-  provides: ['commit'],         // Generic resource provided
   importWindowDays: 90,
   async run(context) { ... }
 };
 
 // ❌ Wrong - don't scope dependencies to provider
 {
-  dependsOn: ['github:repository']  // Don't do this
+  dataSourceName: 'GITHUB',
+  resource: 'commit',
+  dependsOn: ['github:repository']  // Don't do this - use 'repository'
 }
 ```
 
 This allows cross-provider dependency resolution:
-- GitHub commits depend on "repository" (satisfied by github:repository)
-- GitLab commits also depend on "repository" (satisfied by gitlab:project)
+- GitHub commits depend on "repository" (satisfied by GitHub's repository script)
+- GitLab commits also depend on "repository" (satisfied by GitLab's repository script)
+- Clear mapping between scripts and data sources via `dataSourceName`
 
-### 3. Colocated Types
-
-Each file defines its own types at the top:
-
-```typescript
-// execution/date-calculator.ts
-
-export interface DateRange {
-  startDate: Date;
-  endDate: Date;
-}
-
-export async function calculateDateRange(
-  db: PrismaClient,
-  dataSourceId: string,
-  scriptName: string,
-  defaultWindowDays: number
-): Promise<DateRange> {
-  // implementation
-}
-```
-
-### 4. Parallel Operations
+### 3. Parallel Operations
 
 Use `Promise.all` with `map` for efficient parallel operations:
 
@@ -168,69 +162,72 @@ await context.db.importLog.create({
 
 ## Distributed Locking Strategy
 
-Locking happens at the **DataSource level**, not the script level. This is simpler and more efficient.
+Uses **two-level advisory locking**: global orchestrator lock + per-resource locks.
 
 ### How It Works
 
-1. **Start transaction**
-2. **SELECT FOR UPDATE SKIP LOCKED** to claim ONE data source
-3. **Process all scripts** for that data source (lock held)
-4. **Update `lastSyncAt`** when complete (lock still held)
-5. **Commit transaction** - lock automatically releases
-6. **Repeat** for next data source
+1. **Acquire global orchestrator lock** (system-wide)
+2. **Load all enabled data sources** from database
+3. **Scan and filter import scripts** for enabled data sources
+4. **Build p-graph** with all filtered scripts
+5. **Execute scripts** - each acquires `dataSourceId:resource` lock before running
+6. **Release resource locks** after each script completes
+7. **Update DataSource.lastSyncAt** after all scripts complete for a data source
+8. **Release global lock** when orchestrator finishes
 
-### Critical: Transaction Scope
+### Why Two-Level Locking?
 
-**IMPORTANT:** The `SELECT FOR UPDATE` lock is only held for the duration of the transaction. You MUST keep the same transaction open throughout processing:
+**Global Lock:**
+- Ensures only ONE orchestrator runs at a time (system-wide)
+- Prevents multiple p-graph executions from interfering
+- Simple coordination mechanism
 
-```typescript
-// ✅ CORRECT - Lock held throughout processing
-await db.$transaction(async (tx) => {
-  const [ds] = await tx.$queryRaw`SELECT ... FOR UPDATE SKIP LOCKED`;
-  await processDataSource(tx, ds);
-  await tx.dataSource.update({ ... lastSyncAt ... });
-}); // Lock released here
+**Resource Locks:**
+- Granular locking at `dataSourceId:resource` level (e.g., `ds-abc:commit`)
+- Allows parallel execution of different resources for same data source
+- Process A can work on `github:commit` while Process B works on `github:pull-request`
+- Lightweight, no transactions needed
+- Auto-released on connection close (crash-safe)
 
-// ❌ WRONG - Lock released immediately, defeats the purpose
-const [ds] = await db.$transaction(async (tx) => {
-  return await tx.$queryRaw`SELECT ... FOR UPDATE SKIP LOCKED`;
-}); // Lock released here!
-await processDataSource(db, ds); // Another process could grab this now
-```
-
-### Implementation
+### Advisory Lock Implementation
 
 ```typescript
-async function getAndLockOneDataSource(tx: PrismaClient) {
-  // Lock ONE data source that needs syncing
-  // SKIP LOCKED means if another process has it locked, we skip it
-  const [dataSource] = await tx.$queryRaw<DataSource[]>`
-    SELECT
-      ds.*,
-      json_agg(json_build_object('key', dsc.key, 'value', dsc.value)) as configs
-    FROM data.data_source ds
-    LEFT JOIN data.data_source_config dsc ON dsc.data_source_id = ds.id
-    WHERE ds.is_enabled = true
-      AND (ds.last_sync_at IS NULL
-           OR ds.last_sync_at < NOW() - (ds.sync_interval_minutes || ' minutes')::INTERVAL)
-    GROUP BY ds.id
-    ORDER BY ds.last_sync_at ASC NULLS FIRST
-    LIMIT 1
-    FOR UPDATE OF ds SKIP LOCKED
+// Global orchestrator lock (system-wide)
+const GLOBAL_ORCHESTRATOR_LOCK_ID = 999999;
+
+async function acquireGlobalOrchestratorLock(db: PrismaClient): Promise<boolean> {
+  const [result] = await db.$queryRaw<Array<{ pg_try_advisory_lock: boolean }>>`
+    SELECT pg_try_advisory_lock(${GLOBAL_ORCHESTRATOR_LOCK_ID})
   `;
+  return result.pg_try_advisory_lock;
+}
 
-  return dataSource;
+async function releaseGlobalOrchestratorLock(db: PrismaClient): Promise<void> {
+  await db.$queryRaw`SELECT pg_advisory_unlock(${GLOBAL_ORCHESTRATOR_LOCK_ID})`;
+}
+
+// Resource-level locks (per dataSourceId:resource)
+async function acquireAdvisoryLock(
+  db: PrismaClient,
+  dataSourceId: string,
+  resource: string
+): Promise<boolean> {
+  const lockKey = `${dataSourceId}:${resource}`;
+  const [result] = await db.$queryRaw<Array<{ pg_try_advisory_lock: boolean }>>`
+    SELECT pg_try_advisory_lock(hashtext(${lockKey}))
+  `;
+  return result.pg_try_advisory_lock;
+}
+
+async function releaseAdvisoryLock(
+  db: PrismaClient,
+  dataSourceId: string,
+  resource: string
+): Promise<void> {
+  const lockKey = `${dataSourceId}:${resource}`;
+  await db.$queryRaw`SELECT pg_advisory_unlock(hashtext(${lockKey}))`;
 }
 ```
-
-### Benefits
-
-- ✅ **Simple** - No complex script-level locking logic
-- ✅ **Distributed-safe** - `SKIP LOCKED` prevents duplicate work
-- ✅ **Natural queueing** - Oldest syncs processed first
-- ✅ **Short lock duration** - One data source at a time
-- ✅ **Automatic distribution** - Multiple processes work on different data sources
-- ✅ **Clean separation** - DataSourceRun is just for history/logging, not locking
 
 ## Script Interface
 
@@ -238,9 +235,9 @@ async function getAndLockOneDataSource(tx: PrismaClient) {
 
 ```typescript
 export interface DataSourceScript {
-  name: string;                     // e.g., 'github:repository'
+  dataSourceName: string;           // 'GITHUB', 'GITLAB' - matches DataSourceProvider enum
+  resource: string;                 // 'commit', 'repository', 'pull-request'
   dependsOn: string[];              // Generic: ['repository'], ['commit']
-  provides: string[];               // Generic: ['repository'], ['commit']
   importWindowDays: number;         // Default lookback window (e.g., 90)
   run: (context: ExecutionContext) => Promise<void>;
 }
@@ -251,6 +248,7 @@ export interface DataSourceScript {
 ```typescript
 export interface ExecutionContext {
   dataSourceId: string;             // ID of the DataSource record
+  dataSourceName: string;           // 'GITHUB', 'GITLAB' - provider name
   env: Record<string, string>;      // Environment variables from DataSourceConfig
   db: PrismaClient;                 // Database client
   startDate: Date;                  // Start of date range for incremental sync
@@ -303,12 +301,89 @@ Level 2: github:contributor, github:commit, github:pull-request (depends on: ['r
          ↳ All three run in parallel
 ```
 
-### Benefits
+## Script Loading
 
-- ✅ **No custom code** - Let p-graph handle topological sorting
-- ✅ **Automatic parallelization** - Scripts run in parallel when possible
-- ✅ **Circular dependency detection** - p-graph throws errors for cycles
-- ✅ **Well-tested** - Battle-tested npm package
+### Loading All Import Scripts
+
+The orchestrator dynamically loads all available import scripts from the `data-sources/` directory:
+
+```typescript
+async function loadAllImportScripts(): Promise<DataSourceScript[]> {
+  const allScripts: DataSourceScript[] = [];
+
+  // List of all potential providers
+  const providers = ['github', 'gitlab', 'jenkins', 'circleci', 'sonarqube'];
+
+  for (const provider of providers) {
+    try {
+      // Dynamically import the provider module
+      const module = await import(`../data-sources/${provider}/index.js`);
+
+      // Provider modules export a 'scripts' array
+      if (module.scripts && Array.isArray(module.scripts)) {
+        allScripts.push(...module.scripts);
+      }
+    } catch (error) {
+      // Provider not implemented yet, skip silently
+      console.log(`Provider ${provider} not found, skipping`);
+    }
+  }
+
+  return allScripts;
+}
+```
+
+### Filtering Scripts by Enabled Data Sources
+
+After loading all scripts, filter to keep only those with enabled data sources:
+
+```typescript
+async function getEnabledScripts(
+  db: PrismaClient,
+  allScripts: DataSourceScript[]
+): Promise<{ scripts: DataSourceScript[]; dataSourceMap: Map<DataSourceScript, DataSource> }> {
+  // Load all enabled data sources
+  const dataSources = await db.dataSource.findMany({
+    where: { isEnabled: true },
+    include: { configs: true }
+  });
+
+  // Filter scripts - keep only those with enabled data sources
+  const enabledScripts = allScripts.filter(script =>
+    dataSources.some(ds => ds.provider === script.dataSourceName)
+  );
+
+  // Create a map from script to its data source
+  const dataSourceMap = new Map<DataSourceScript, DataSource>();
+  for (const script of enabledScripts) {
+    const dataSource = dataSources.find(ds => ds.provider === script.dataSourceName);
+    if (dataSource) {
+      dataSourceMap.set(script, dataSource);
+    }
+  }
+
+  return { scripts: enabledScripts, dataSourceMap };
+}
+```
+
+### Provider Module Structure
+
+Each provider module (`data-sources/github/index.ts`) exports an array of scripts:
+
+```typescript
+// data-sources/github/index.ts
+import { repositoryScript } from './repository.js';
+import { contributorScript } from './contributor.js';
+import { commitScript } from './commit.js';
+import { pullRequestScript } from './pull-request.js';
+
+export const scripts = [
+  repositoryScript,
+  contributorScript,
+  commitScript,
+  pullRequestScript
+];
+```
 
 ## Incremental Sync
 
@@ -378,9 +453,9 @@ interface GitHubRepo {
 
 // Script
 export const repositoryScript = {
-  name: 'github:repository',
+  dataSourceName: 'GITHUB',
+  resource: 'repository',
   dependsOn: [],
-  provides: ['repository'],
   importWindowDays: 365, // Full refresh
 
   async run(context: ExecutionContext) {
@@ -438,9 +513,9 @@ export const repositoryScript = {
 
 ```typescript
 export const commitScript = {
-  name: 'github:commit',
+  dataSourceName: 'GITHUB',
+  resource: 'commit',
   dependsOn: ['repository'],
-  provides: ['commit'],
   importWindowDays: 90,
 
   async run(context: ExecutionContext) {
@@ -507,182 +582,63 @@ export const commitScript = {
 
 ### Main Entry Point
 
-Process data sources one at a time, each in its own transaction:
-
-```typescript
-export async function runOrchestrator() {
-  // Process all available data sources sequentially
-  // Each iteration locks one data source, processes it, and releases
-  while (true) {
-    const processed = await processNextDataSource(db);
-
-    if (!processed) {
-      break; // No more data sources need syncing
-    }
-  }
-}
-```
-
-### Process Next Data Source (with Transaction)
-
-Each data source is processed in a single transaction from lock to lastSyncAt update:
-
-```typescript
-async function processNextDataSource(db: PrismaClient): Promise<boolean> {
-  return await db.$transaction(async (tx) => {
-    // Lock and get ONE data source
-    const [dataSource] = await tx.$queryRaw<DataSource[]>`
-      SELECT
-        ds.*,
-        json_agg(
-          json_build_object('key', dsc.key, 'value', dsc.value)
-        ) as configs
-      FROM data.data_source ds
-      LEFT JOIN data.data_source_config dsc ON dsc.data_source_id = ds.id
-      WHERE ds.is_enabled = true
-        AND (ds.last_sync_at IS NULL
-             OR ds.last_sync_at < NOW() - (ds.sync_interval_minutes || ' minutes')::INTERVAL)
-      GROUP BY ds.id
-      ORDER BY ds.last_sync_at ASC NULLS FIRST
-      LIMIT 1
-      FOR UPDATE OF ds SKIP LOCKED
-    `;
-
-    if (!dataSource) {
-      return false; // No work available
-    }
-
-    // Process it (lock held throughout)
-    await processDataSource(tx, dataSource);
-
-    // Update last sync time (lock still held)
-    await tx.dataSource.update({
-      where: { id: dataSource.id },
-      data: { lastSyncAt: new Date() }
-    });
-
-    console.log(`Completed sync for ${dataSource.name}`);
-    return true; // Processed one data source
-  });
-  // Transaction commits here, lock released
-}
-```
-
-### Process Data Source
-
 ```typescript
 import PGraph from 'p-graph';
+import { db } from '~/db.server.js';
 
-async function processDataSource(tx: PrismaClient, dataSource: DataSource) {
-  // Build environment from configs
-  const env = dataSource.configs.reduce((acc, config) => {
-    acc[config.key] = config.value;
-    return acc;
-  }, {} as Record<string, string>);
+export async function runOrchestrator() {
+  // 0. Acquire global orchestrator lock (system-wide)
+  const globalLock = await acquireGlobalOrchestratorLock(db);
 
-  // Load scripts for this provider
-  const scripts = await loadScriptsForProvider(dataSource.provider);
-
-  if (scripts.length === 0) {
-    console.log(`No scripts for provider ${dataSource.provider}`);
+  if (!globalLock) {
+    console.log('Another orchestrator is running, exiting');
     return;
   }
 
-  // Create dependency graph
-  const graph = new PGraph();
-
-  // Add all scripts to the graph
-  for (const script of scripts) {
-    graph.add(
-      async () => executeScript(tx, dataSource.id, script, env),
-      script.dependsOn  // Dependencies
-    );
-  }
-
-  // Execute with automatic dependency resolution and parallelization
-  await graph.run();
-}
-```
-
-### Execute Script
-
-```typescript
-async function executeScript(
-  tx: PrismaClient,
-  dataSourceId: string,
-  script: DataSourceScript,
-  env: Record<string, string>
-) {
-  // Create a new run record
-  const run = await tx.dataSourceRun.create({
-    data: {
-      dataSourceId,
-      scriptName: script.name,
-      status: 'RUNNING',
-      startedAt: new Date(),
-      recordsImported: 0,
-      recordsFailed: 0
-    }
-  });
-
-  const startTime = Date.now();
-
   try {
-    // Calculate date range for incremental sync
-    const { startDate, endDate } = await calculateDateRange(
-      tx,
-      dataSourceId,
-      script.name,
-      script.importWindowDays
-    );
+    // 1. Load all import scripts (scan data-sources/ directory)
+    const allScripts = await loadAllImportScripts();
 
-    // Execute script
-    await script.run({
-      dataSourceId,
-      env,
-      db: tx,  // Pass transaction to script
-      startDate,
-      endDate,
-      runId: run.id
-    });
+    // 2. Get enabled scripts and their data sources
+    const { scripts: enabledScripts, dataSourceMap } = await getEnabledScripts(db, allScripts);
 
-    // Mark as completed
-    await tx.dataSourceRun.update({
-      where: { id: run.id },
-      data: {
-        status: 'COMPLETED',
-        completedAt: new Date(),
-        durationMs: Date.now() - startTime,
-        lastFetchedDataAt: endDate
-      }
-    });
-  } catch (error) {
-    // Mark as failed
-    await tx.dataSourceRun.update({
-      where: { id: run.id },
-      data: {
-        status: 'FAILED',
-        completedAt: new Date(),
-        durationMs: Date.now() - startTime,
-        errorMessage: error.message
-      }
-    });
+    if (enabledScripts.length === 0) {
+      console.log('No enabled scripts to run');
+      return;
+    }
 
-    // Log error
-    await tx.importLog.create({
-      data: {
-        dataSourceRunId: run.id,
-        level: 'ERROR',
-        message: error.message,
-        details: JSON.stringify({ stack: error.stack })
-      }
-    });
+    // 3. Build p-graph with all enabled scripts
+    const graph = new PGraph();
 
-    // Don't throw - let other scripts continue
-    console.error(`Script ${script.name} failed:`, error);
+    for (const script of enabledScripts) {
+      const dataSource = dataSourceMap.get(script)!;
+
+      graph.add(
+        async () => executeScriptWithLock(db, dataSource, script),
+        script.dependsOn
+      );
+    }
+
+    // 4. Execute with dependency resolution and parallelization
+    await graph.run();
+
+    // 5. Update lastSyncAt for all data sources
+    const uniqueDataSources = new Set(dataSourceMap.values());
+    for (const dataSource of uniqueDataSources) {
+      await db.dataSource.update({
+        where: { id: dataSource.id },
+        data: { lastSyncAt: new Date() }
+      });
+    }
+
+    console.log('Orchestrator completed successfully');
+  } finally {
+    // 6. Release global lock
+    await releaseGlobalOrchestratorLock(db);
   }
 }
 ```
+
 
 ## Scheduler
 
@@ -853,9 +809,3 @@ await db.dataSource.create({
 - Respect API rate limits (GitHub: 5000/hour authenticated)
 - Implement backoff on 429 responses
 - Consider using conditional requests (ETags)
-
-### Additional Providers
-- GitLab (similar structure to GitHub)
-- Jenkins (CI/CD data)
-- JIRA (project management)
-- SonarQube (code quality)
