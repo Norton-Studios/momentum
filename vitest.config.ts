@@ -4,7 +4,8 @@ export default defineConfig({
   // @ts-expect-error - Vitest types are compatible at runtime
   test: {
     globals: true,
-    environment: "node",
+    environment: "jsdom",
+    setupFiles: ["./vitest.setup.ts"],
     exclude: ["node_modules", "e2e", "build", ".react-router"],
     coverage: {
       provider: "v8",
