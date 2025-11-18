@@ -77,6 +77,8 @@ momentum/
 - **Hooks**: If hooks report failures, Claude must investigate and resolve them immediately
 - **No CommonJS**: Use `import`/`export`, never `require()`/`module.exports`
 - **Pinned dependencies**: Specific versions only (`"express": "5.1.0"`) - except peer dependencies
+- **Tests**: Write tests for all new features and bug fixes. Aim for >90% code coverage
+- **Colocate tests** with the code they test (e.g. `merge-request.test.ts` next to `merge-request.ts`)
 - **Encapsulation**: Do not expose internal functions in order to test them
 
 ## Conventions
@@ -100,10 +102,10 @@ momentum/
 - Use comments to explain why code exists, not what it does
 - Keep comments minimal and reference documentation or specifications when possible
 
-**Testing**:
-- Colocate tests with the code they test (e.g. `merge-request.test.ts` next to `merge-request.ts`)
-- Aim for >90% code coverage
-- Write e2e Playwright tests in `e2e/journeys/` 
+**Tests**:
+- Use descriptive test names that explain the behavior being tested
+- Follow Arrange-Act-Assert pattern in tests for clarity
+- Write Playwright tests for user journeys in the `e2e/journeys/` folder
 
 ### Naming Conventions
 
