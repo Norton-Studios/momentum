@@ -1,23 +1,5 @@
 import type { DataSource, DataSourceConfig, PrismaClient } from "@prisma/client";
 
-export interface DataSourceScript {
-  dataSourceName: string; // 'GITHUB', 'GITLAB' - matches DataSourceProvider enum
-  resource: string; // 'commit', 'repository', 'pull-request'
-  dependsOn: string[]; // Generic: ['repository'], ['commit']
-  importWindowDays: number; // Default lookback window (e.g., 90)
-  run: (context: ExecutionContext) => Promise<void>;
-}
-
-export interface ExecutionContext {
-  dataSourceId: string; // ID of the DataSource record
-  dataSourceName: string; // 'GITHUB', 'GITLAB' - provider name
-  env: Record<string, string>; // Environment variables from DataSourceConfig
-  db: PrismaClient; // Database client
-  startDate: Date; // Start of date range for incremental sync
-  endDate: Date; // End of date range
-  runId: string; // DataSourceRun ID for logging
-}
-
 export async function loadAllImportScripts(): Promise<DataSourceScript[]> {
   const allScripts: DataSourceScript[] = [];
 
@@ -79,4 +61,22 @@ export function buildEnvironment(configs: DataSourceConfig[]): Record<string, st
     },
     {} as Record<string, string>
   );
+}
+
+export interface DataSourceScript {
+  dataSourceName: string; // 'GITHUB', 'GITLAB' - matches DataSourceProvider enum
+  resource: string; // 'commit', 'repository', 'pull-request'
+  dependsOn: string[]; // Generic: ['repository'], ['commit']
+  importWindowDays: number; // Default lookback window (e.g., 90)
+  run: (context: ExecutionContext) => Promise<void>;
+}
+
+export interface ExecutionContext {
+  dataSourceId: string; // ID of the DataSource record
+  dataSourceName: string; // 'GITHUB', 'GITLAB' - provider name
+  env: Record<string, string>; // Environment variables from DataSourceConfig
+  db: PrismaClient; // Database client
+  startDate: Date; // Start of date range for incremental sync
+  endDate: Date; // End of date range
+  runId: string; // DataSourceRun ID for logging
 }

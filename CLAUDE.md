@@ -42,6 +42,7 @@ momentum/
 │   ├── routes.ts                 # Route configuration
 │   ├── app.css                   # Global styles
 │   └── db.server.ts              # Prisma client singleton
+├── crons/                        # Cron jobs for data import
 ├── e2e/                          # Playwright E2E tests
 │   ├── journeys/                 # E2E journey tests
 │   │   └── example.spec.ts
@@ -66,6 +67,10 @@ momentum/
 `ci`: CI/CD pipeline models
 `analysis`: Analysis and metrics
 `project`: Project management models
+
+# Agent instructions
+
+Claude must follow these instructions strictly when contributing code. Rules and conventions are mandatory and must be adhered to without exception. After implmementing code, Claude must review it to ensure full compliance with these guidelines.
 
 ## Rules
 

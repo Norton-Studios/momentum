@@ -2,6 +2,19 @@ import type { ExecutionContext } from "@crons/orchestrator/script-loader.js";
 import { Octokit } from "@octokit/rest";
 import type { PrismaClient } from "@prisma/client";
 
+export const repositoryScript = {
+  dataSourceName: "GITHUB",
+  resource: "repository",
+  dependsOn: [],
+  importWindowDays: 365,
+
+  async run(context: ExecutionContext) {
+    const octokit = new Octokit({ auth: context.env.GITHUB_TOKEN });
+    const repos = await fetchAllRepositories(octokit, context.env.GITHUB_ORG);
+    await upsertRepositories(context.db, repos, context.runId);
+  },
+};
+
 async function fetchAllRepositories(octokit: Octokit, org: string) {
   const allRepos = [];
   for await (const response of octokit.paginate.iterator(octokit.repos.listForOrg, { org, per_page: 100 })) {
@@ -43,16 +56,3 @@ async function upsertRepositories(db: PrismaClient, repos: Awaited<ReturnType<ty
     data: { recordsImported: repos.length },
   });
 }
-
-export const repositoryScript = {
-  dataSourceName: "GITHUB",
-  resource: "repository",
-  dependsOn: [],
-  importWindowDays: 365,
-
-  async run(context: ExecutionContext) {
-    const octokit = new Octokit({ auth: context.env.GITHUB_TOKEN });
-    const repos = await fetchAllRepositories(octokit, context.env.GITHUB_ORG);
-    await upsertRepositories(context.db, repos, context.runId);
-  },
-};

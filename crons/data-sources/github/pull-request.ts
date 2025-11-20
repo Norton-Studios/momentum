@@ -2,6 +2,41 @@ import type { ExecutionContext } from "@crons/orchestrator/script-loader.js";
 import { Octokit } from "@octokit/rest";
 import type { MergeRequestState, PrismaClient } from "@prisma/client";
 
+export const pullRequestScript = {
+  dataSourceName: "GITHUB",
+  resource: "pull-request",
+  dependsOn: ["repository", "contributor"],
+  importWindowDays: 90,
+
+  async run(context: ExecutionContext) {
+    const octokit = new Octokit({ auth: context.env.GITHUB_TOKEN });
+
+    const repos = await context.db.repository.findMany({
+      where: { provider: "GITHUB" },
+    });
+
+    const errors: string[] = [];
+    let totalPullRequests = 0;
+
+    for (const repo of repos) {
+      const result = await processRepositoryPullRequests(octokit, context.db, repo, context.startDate, context.endDate, context.runId);
+      if (result.error) {
+        errors.push(result.error);
+      }
+      totalPullRequests += result.count;
+    }
+
+    if (errors.length > 0) {
+      await logPullRequestErrors(context.db, context.runId, errors);
+    }
+
+    await context.db.dataSourceRun.update({
+      where: { id: context.runId },
+      data: { recordsImported: totalPullRequests },
+    });
+  },
+};
+
 function mapGitHubStateToMergeRequestState(state: string, draft: boolean, mergedAt: string | null | undefined): MergeRequestState {
   if (draft) return "DRAFT";
   if (state === "closed" && mergedAt) return "MERGED";
@@ -167,7 +202,7 @@ async function processRepositoryPullRequests(
   repo: { id: string; fullName: string },
   startDate: Date,
   endDate: Date,
-  runId: string
+  _runId: string
 ): Promise<{ count: number; error?: string }> {
   try {
     const [owner, repoName] = repo.fullName.split("/");
@@ -199,41 +234,6 @@ async function logPullRequestErrors(db: PrismaClient, runId: string, errors: str
     )
   );
 }
-
-export const pullRequestScript = {
-  dataSourceName: "GITHUB",
-  resource: "pull-request",
-  dependsOn: ["repository", "contributor"],
-  importWindowDays: 90,
-
-  async run(context: ExecutionContext) {
-    const octokit = new Octokit({ auth: context.env.GITHUB_TOKEN });
-
-    const repos = await context.db.repository.findMany({
-      where: { provider: "GITHUB" },
-    });
-
-    const errors: string[] = [];
-    let totalPullRequests = 0;
-
-    for (const repo of repos) {
-      const result = await processRepositoryPullRequests(octokit, context.db, repo, context.startDate, context.endDate, context.runId);
-      if (result.error) {
-        errors.push(result.error);
-      }
-      totalPullRequests += result.count;
-    }
-
-    if (errors.length > 0) {
-      await logPullRequestErrors(context.db, context.runId, errors);
-    }
-
-    await context.db.dataSourceRun.update({
-      where: { id: context.runId },
-      data: { recordsImported: totalPullRequests },
-    });
-  },
-};
 
 interface GitHubPullRequest {
   number: number;

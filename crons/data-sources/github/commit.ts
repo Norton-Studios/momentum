@@ -2,6 +2,41 @@ import type { ExecutionContext } from "@crons/orchestrator/script-loader.js";
 import { Octokit } from "@octokit/rest";
 import type { PrismaClient } from "@prisma/client";
 
+export const commitScript = {
+  dataSourceName: "GITHUB",
+  resource: "commit",
+  dependsOn: ["repository", "contributor"],
+  importWindowDays: 90,
+
+  async run(context: ExecutionContext) {
+    const octokit = new Octokit({ auth: context.env.GITHUB_TOKEN });
+
+    const repos = await context.db.repository.findMany({
+      where: { provider: "GITHUB" },
+    });
+
+    const errors: string[] = [];
+    let totalCommits = 0;
+
+    for (const repo of repos) {
+      const result = await processRepositoryCommits(octokit, context.db, repo, context.startDate, context.endDate);
+      if (result.error) {
+        errors.push(result.error);
+      }
+      totalCommits += result.count;
+    }
+
+    if (errors.length > 0) {
+      await logCommitErrors(context.db, context.runId, errors);
+    }
+
+    await context.db.dataSourceRun.update({
+      where: { id: context.runId },
+      data: { recordsImported: totalCommits },
+    });
+  },
+};
+
 function hasAuthorInfo(commit: GitHubCommit): boolean {
   return Boolean(commit.commit.author?.email && commit.commit.author?.name && commit.commit.author?.date);
 }
@@ -143,41 +178,6 @@ async function logCommitErrors(db: PrismaClient, runId: string, errors: string[]
     )
   );
 }
-
-export const commitScript = {
-  dataSourceName: "GITHUB",
-  resource: "commit",
-  dependsOn: ["repository", "contributor"],
-  importWindowDays: 90,
-
-  async run(context: ExecutionContext) {
-    const octokit = new Octokit({ auth: context.env.GITHUB_TOKEN });
-
-    const repos = await context.db.repository.findMany({
-      where: { provider: "GITHUB" },
-    });
-
-    const errors: string[] = [];
-    let totalCommits = 0;
-
-    for (const repo of repos) {
-      const result = await processRepositoryCommits(octokit, context.db, repo, context.startDate, context.endDate);
-      if (result.error) {
-        errors.push(result.error);
-      }
-      totalCommits += result.count;
-    }
-
-    if (errors.length > 0) {
-      await logCommitErrors(context.db, context.runId, errors);
-    }
-
-    await context.db.dataSourceRun.update({
-      where: { id: context.runId },
-      data: { recordsImported: totalCommits },
-    });
-  },
-};
 
 interface GitHubCommit {
   sha: string;

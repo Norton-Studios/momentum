@@ -2,6 +2,41 @@ import type { ExecutionContext } from "@crons/orchestrator/script-loader.js";
 import { Octokit } from "@octokit/rest";
 import type { PrismaClient } from "@prisma/client";
 
+export const contributorScript = {
+  dataSourceName: "GITHUB",
+  resource: "contributor",
+  dependsOn: ["repository"],
+  importWindowDays: 365,
+
+  async run(context: ExecutionContext) {
+    const octokit = new Octokit({ auth: context.env.GITHUB_TOKEN });
+
+    const repos = await context.db.repository.findMany({
+      where: { provider: "GITHUB" },
+    });
+
+    const errors: string[] = [];
+    let totalContributors = 0;
+
+    for (const repo of repos) {
+      const result = await processRepositoryContributors(octokit, context.db, repo, context.runId);
+      if (result.error) {
+        errors.push(result.error);
+      }
+      totalContributors += result.count;
+    }
+
+    if (errors.length > 0) {
+      await logImportErrors(context.db, context.runId, errors);
+    }
+
+    await context.db.dataSourceRun.update({
+      where: { id: context.runId },
+      data: { recordsImported: totalContributors },
+    });
+  },
+};
+
 function isValidContributor(contributor: GitHubContributor): boolean {
   return Boolean(contributor.login && contributor.id && contributor.avatar_url);
 }
@@ -84,7 +119,7 @@ async function processRepositoryContributors(
   octokit: Octokit,
   db: PrismaClient,
   repo: { id: string; fullName: string },
-  runId: string
+  _runId: string
 ): Promise<{ count: number; error?: string }> {
   try {
     const [owner, repoName] = repo.fullName.split("/");
@@ -117,41 +152,6 @@ async function logImportErrors(db: PrismaClient, runId: string, errors: string[]
     )
   );
 }
-
-export const contributorScript = {
-  dataSourceName: "GITHUB",
-  resource: "contributor",
-  dependsOn: ["repository"],
-  importWindowDays: 365,
-
-  async run(context: ExecutionContext) {
-    const octokit = new Octokit({ auth: context.env.GITHUB_TOKEN });
-
-    const repos = await context.db.repository.findMany({
-      where: { provider: "GITHUB" },
-    });
-
-    const errors: string[] = [];
-    let totalContributors = 0;
-
-    for (const repo of repos) {
-      const result = await processRepositoryContributors(octokit, context.db, repo, context.runId);
-      if (result.error) {
-        errors.push(result.error);
-      }
-      totalContributors += result.count;
-    }
-
-    if (errors.length > 0) {
-      await logImportErrors(context.db, context.runId, errors);
-    }
-
-    await context.db.dataSourceRun.update({
-      where: { id: context.runId },
-      data: { recordsImported: totalContributors },
-    });
-  },
-};
 
 interface GitHubContributor {
   login?: string;
