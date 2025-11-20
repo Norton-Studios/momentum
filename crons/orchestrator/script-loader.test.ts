@@ -1,7 +1,9 @@
-import type { DataSourceConfig, PrismaClient } from "@prisma/client";
+import type { DataSource, DataSourceConfig, PrismaClient } from "@prisma/client";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { DataSourceScript } from "./script-loader.js";
 import { buildEnvironment, getEnabledScripts } from "./script-loader.js";
+
+type DataSourceWithConfig = DataSource & { configs: DataSourceConfig[] };
 
 describe("script-loader", () => {
   describe("buildEnvironment", () => {
@@ -80,31 +82,31 @@ describe("script-loader", () => {
         },
       ];
 
-      vi.mocked(mockDb.dataSource.findMany).mockResolvedValue([
-        {
-          id: "ds-123",
-          organizationId: "org-1",
-          name: "GitHub - MyOrg",
-          provider: "GITHUB",
-          description: null,
-          isEnabled: true,
-          syncIntervalMinutes: 15,
-          lastSyncAt: null,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          configs: [
-            {
-              id: "config-1",
-              dataSourceId: "ds-123",
-              key: "GITHUB_TOKEN",
-              value: "ghp_abc123",
-              isSecret: true,
-              createdAt: new Date(),
-              updatedAt: new Date(),
-            },
-          ],
-        } as any, // Cast to any since this is a test mock with includes
-      ]);
+      const mockDataSourceWithConfig: DataSourceWithConfig = {
+        id: "ds-123",
+        organizationId: "org-1",
+        name: "GitHub - MyOrg",
+        provider: "GITHUB",
+        description: null,
+        isEnabled: true,
+        syncIntervalMinutes: 15,
+        lastSyncAt: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        configs: [
+          {
+            id: "config-1",
+            dataSourceId: "ds-123",
+            key: "GITHUB_TOKEN",
+            value: "ghp_abc123",
+            isSecret: true,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          },
+        ],
+      };
+
+      vi.mocked(mockDb.dataSource.findMany).mockResolvedValue([mockDataSourceWithConfig]);
 
       // Act
       const result = await getEnabledScripts(mockDb, allScripts);
@@ -149,11 +151,11 @@ describe("script-loader", () => {
 
       const allScripts: DataSourceScript[] = [githubScript];
 
-      const dataSource = {
+      const dataSource: DataSourceWithConfig = {
         id: "ds-123",
         organizationId: "org-1",
         name: "GitHub - MyOrg",
-        provider: "GITHUB" as const,
+        provider: "GITHUB",
         description: null,
         isEnabled: true,
         syncIntervalMinutes: 15,
@@ -163,7 +165,7 @@ describe("script-loader", () => {
         configs: [],
       };
 
-      vi.mocked(mockDb.dataSource.findMany).mockResolvedValue([dataSource as any]);
+      vi.mocked(mockDb.dataSource.findMany).mockResolvedValue([dataSource]);
 
       // Act
       const result = await getEnabledScripts(mockDb, allScripts);

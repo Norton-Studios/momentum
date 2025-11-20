@@ -55,14 +55,18 @@ async function enrichContributor(octokit: Octokit, contributor: GitHubContributo
     return null;
   }
 
-  const userDetails = await fetchContributorFromGitHub(octokit, contributor.login!);
+  if (!contributor.login || !contributor.id || !contributor.avatar_url) {
+    return null;
+  }
+
+  const userDetails = await fetchContributorFromGitHub(octokit, contributor.login);
 
   return {
-    providerUserId: String(contributor.id!),
-    username: contributor.login!,
-    name: userDetails.name || contributor.login!,
-    email: userDetails.email || `${contributor.login!}@github.com`,
-    avatarUrl: contributor.avatar_url!,
+    providerUserId: String(contributor.id),
+    username: contributor.login,
+    name: userDetails.name || contributor.login,
+    email: userDetails.email || `${contributor.login}@github.com`,
+    avatarUrl: contributor.avatar_url,
   };
 }
 

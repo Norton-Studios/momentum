@@ -46,14 +46,17 @@ function transformCommit(commit: GitHubCommit): TransformedCommit | null {
     return null;
   }
 
-  const author = commit.commit.author!;
+  const author = commit.commit.author;
+  if (!author || !author.email || !author.name || !author.date) {
+    return null;
+  }
 
   return {
     sha: commit.sha,
     message: commit.commit.message,
-    authorEmail: author.email!,
-    authorName: author.name!,
-    committedAt: new Date(author.date!),
+    authorEmail: author.email,
+    authorName: author.name,
+    committedAt: new Date(author.date),
     linesAdded: commit.stats?.additions || 0,
     linesRemoved: commit.stats?.deletions || 0,
     filesChanged: commit.files?.length || 0,

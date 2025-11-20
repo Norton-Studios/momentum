@@ -1,7 +1,26 @@
-import type { PrismaClient } from "@prisma/client";
+import type { DataSource, DataSourceConfig, PrismaClient } from "@prisma/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { runOrchestrator } from "./runner.js";
 import type { DataSourceScript } from "./script-loader.js";
+
+type DataSourceWithConfig = DataSource & { configs: DataSourceConfig[] };
+
+function createMockDataSource(overrides: Partial<DataSourceWithConfig> = {}): DataSourceWithConfig {
+  return {
+    id: "ds-123",
+    organizationId: "org-1",
+    name: "Test GitHub",
+    provider: "GITHUB",
+    description: null,
+    isEnabled: true,
+    syncIntervalMinutes: 15,
+    lastSyncAt: null,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    configs: [],
+    ...overrides,
+  };
+}
 
 vi.mock("../execution/date-calculator.js", () => ({
   calculateDateRange: vi.fn(),
@@ -104,20 +123,34 @@ describe("runOrchestrator", () => {
       run: mockRunFn,
     };
 
-    const mockDataSource = {
-      id: "ds-123",
-      provider: "GITHUB",
+    const mockDataSource = createMockDataSource({
       configs: [
-        { key: "GITHUB_TOKEN", value: "token123" },
-        { key: "GITHUB_ORG", value: "test-org" },
+        {
+          id: "config-1",
+          dataSourceId: "ds-123",
+          key: "GITHUB_TOKEN",
+          value: "token123",
+          isSecret: true,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          id: "config-2",
+          dataSourceId: "ds-123",
+          key: "GITHUB_ORG",
+          value: "test-org",
+          isSecret: false,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
       ],
-    };
+    });
 
     vi.mocked(acquireGlobalOrchestratorLock).mockResolvedValue(true);
     vi.mocked(loadAllImportScripts).mockResolvedValue([mockScript]);
     vi.mocked(getEnabledScripts).mockResolvedValue({
       scripts: [mockScript],
-      dataSourceMap: new Map([[mockScript, mockDataSource as any]]),
+      dataSourceMap: new Map([[mockScript, mockDataSource]]),
     });
     vi.mocked(acquireAdvisoryLock).mockResolvedValue(true);
     vi.mocked(createRun).mockResolvedValue("run-123");
@@ -170,17 +203,13 @@ describe("runOrchestrator", () => {
       run: mockRunFn,
     };
 
-    const mockDataSource = {
-      id: "ds-123",
-      provider: "GITHUB",
-      configs: [],
-    };
+    const mockDataSource = createMockDataSource();
 
     vi.mocked(acquireGlobalOrchestratorLock).mockResolvedValue(true);
     vi.mocked(loadAllImportScripts).mockResolvedValue([mockScript]);
     vi.mocked(getEnabledScripts).mockResolvedValue({
       scripts: [mockScript],
-      dataSourceMap: new Map([[mockScript, mockDataSource as any]]),
+      dataSourceMap: new Map([[mockScript, mockDataSource]]),
     });
     vi.mocked(acquireAdvisoryLock).mockResolvedValue(false);
 
@@ -207,17 +236,13 @@ describe("runOrchestrator", () => {
       run: mockRunFn,
     };
 
-    const mockDataSource = {
-      id: "ds-123",
-      provider: "GITHUB",
-      configs: [],
-    };
+    const mockDataSource = createMockDataSource();
 
     vi.mocked(acquireGlobalOrchestratorLock).mockResolvedValue(true);
     vi.mocked(loadAllImportScripts).mockResolvedValue([mockScript]);
     vi.mocked(getEnabledScripts).mockResolvedValue({
       scripts: [mockScript],
-      dataSourceMap: new Map([[mockScript, mockDataSource as any]]),
+      dataSourceMap: new Map([[mockScript, mockDataSource]]),
     });
     vi.mocked(acquireAdvisoryLock).mockResolvedValue(true);
     vi.mocked(createRun).mockResolvedValue("run-123");
@@ -258,19 +283,15 @@ describe("runOrchestrator", () => {
       run: vi.fn(),
     };
 
-    const mockDataSource = {
-      id: "ds-123",
-      provider: "GITHUB",
-      configs: [],
-    };
+    const mockDataSource = createMockDataSource();
 
     vi.mocked(acquireGlobalOrchestratorLock).mockResolvedValue(true);
     vi.mocked(loadAllImportScripts).mockResolvedValue([mockScript1, mockScript2]);
     vi.mocked(getEnabledScripts).mockResolvedValue({
       scripts: [mockScript1, mockScript2],
       dataSourceMap: new Map([
-        [mockScript1, mockDataSource as any],
-        [mockScript2, mockDataSource as any],
+        [mockScript1, mockDataSource],
+        [mockScript2, mockDataSource],
       ]),
     });
     vi.mocked(acquireAdvisoryLock).mockResolvedValue(true);
