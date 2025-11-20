@@ -87,7 +87,7 @@ jobs:
         if: always()
         with:
           name: coverage-reports-${{ github.run_id }}
-          path: 'coverage/lcov.info'
+          path: coverage/
           retention-days: 1
           if-no-files-found: ignore
 
@@ -191,15 +191,19 @@ jobs:
 
       - name: Download Coverage Artifacts
         uses: actions/download-artifact@v6
-        continue-on-error: true
         with:
           name: coverage-reports-${{ github.run_id }}
+          path: coverage/
 
-      - name: Move Coverage to Root
-        continue-on-error: true
+      - name: Verify Coverage File
         run: |
           if [ -f coverage/lcov.info ]; then
-            mv coverage/lcov.info lcov.info
+            echo "Coverage file found at coverage/lcov.info"
+            wc -l coverage/lcov.info
+          else
+            echo "ERROR: Coverage file not found"
+            ls -la coverage/ || echo "Coverage directory does not exist"
+            exit 1
           fi
 
       - name: SonarQube Scan
