@@ -28,7 +28,7 @@ The application will be available at:
 
 ```
 momentum/
-├── app/                      # React Router application code
+├── app/                     # React Router application code
 │   ├── routes/              # Route components
 │   ├── welcome/             # Feature modules
 │   ├── root.tsx             # Root layout
@@ -36,6 +36,7 @@ momentum/
 │   ├── entry.client.tsx     # Client entry point
 │   ├── app.css              # Global styles
 │   └── db.server.ts         # Prisma client singleton
+├── crons/                   # Cron jobs for data import
 ├── e2e/                     # Playwright E2E tests
 │   ├── journeys/            # E2E test files
 │   └── playwright.config.ts # Playwright configuration
@@ -130,27 +131,6 @@ yarn build
 # Start production server
 yarn start
 ```
-
-## Technology Stack
-
-### Core Technologies
-
-- **Runtime**: Node.js 24.x with TypeScript 5.9 (strict mode, ES modules only)
-- **Package Manager**: Yarn 4.11 with workspaces
-- **Frontend**: Remix with React 19, Vite build tool
-- **Backend**: Express 5.x REST API
-- **Database**: PostgreSQL 16+ with Prisma 6.x ORM
-- **Testing**: Vitest (unit/integration), Playwright (E2E), Testcontainers
-- **Code Quality**: Biome (linting + formatting), SonarQube (static analysis)
-- **CI/CD**: GitHub Actions with caching and parallel execution
-
-### Key Conventions
-
-- **Database**: `snake_case` tables and fields with Prisma `@map` annotations
-- **TypeScript**: `camelCase` variables, `PascalCase` classes/interfaces
-- **Files**: `kebab-case` file and directory names
-- **Module System**: ES modules exclusively (`import`/`export` only)
-- **Dependencies**: All pinned to specific versions for consistency
 
 ## Contributing
 
