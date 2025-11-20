@@ -22,10 +22,14 @@
     "db:studio": "prisma studio"
   },
   "dependencies": {
+    "@octokit/rest": "22.0.1",
+    "@octokit/types": "15.0.0",
     "@prisma/client": "6.19.0",
     "@react-router/node": "7.9.6",
     "@react-router/serve": "7.9.6",
     "isbot": "5.1.32",
+    "node-cron": "4.2.1",
+    "p-graph": "1.2.0",
     "react": "19.2.0",
     "react-dom": "19.2.0",
     "react-router": "7.9.6"

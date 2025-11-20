@@ -42,6 +42,7 @@ momentum/
 │   ├── routes.ts                 # Route configuration
 │   ├── app.css                   # Global styles
 │   └── db.server.ts              # Prisma client singleton
+├── crons/                        # Cron jobs for data import
 ├── e2e/                          # Playwright E2E tests
 │   ├── journeys/                 # E2E journey tests
 │   │   └── example.spec.ts
@@ -66,6 +67,10 @@ momentum/
 `ci`: CI/CD pipeline models
 `analysis`: Analysis and metrics
 `project`: Project management models
+
+# Agent instructions
+
+Claude must follow these instructions strictly when contributing code. Rules and conventions are mandatory and must be adhered to without exception. After implmementing code, Claude must review it to ensure full compliance with these guidelines.
 
 ## Rules
 
@@ -186,7 +191,181 @@ Follow these strict naming conventions throughout the project:
 - Store sensitive data encrypted
 - Follow OWASP guidelines for web security
 
-## Communication Style
+# Examples
+
+## Example TypeScript Code File
+
+```typescript
+// Constants and imports at the top
+const MAX_RETRIES = 3;
+const SYNC_BATCH_SIZE = 100;
+
+// Exported functions next
+export async function syncMergeRequests(tenantId: string): Promise<SaveResult> {
+  const repositories = await fetchRepositories(tenantId);
+  const mergeRequests = await fetchMergeRequestsForRepos(repositories);
+
+  return saveMergeRequests(mergeRequests);
+}
+
+// Other functions in order of usage
+async function fetchRepositories(tenantId: string) {
+  const repositories = await db.repository.findMany({
+  where: { tenantId },
+    select: { id: true, externalId: true },
+  });
+
+  return repositories;
+}
+
+async function fetchMergeRequestsForRepos(repositories: Repository[]) {
+  // Batch to avoid overwhelming the API
+  return Promise.all(
+    repositories.map(repo =>
+      apiClient.getMergeRequests(repo.externalId)
+    )
+  );
+}
+
+async function saveMergeRequests(mergeRequests: MergeRequestData[]) {
+  return db.mergeRequest.createMany({
+    data: mergeRequests,
+    skipDuplicates: true,
+  });
+}
+
+// Interfaces and types at the bottom
+interface SaveResult {
+  count: number;
+}
+
+interface Repository {
+  id: string;
+  externalId: string;
+}
+
+interface MergeRequestData {
+  externalId: string;
+  title: string;
+  state: string;
+  repositoryId: string;
+}
+```
+
+## Example test file
+
+```typescript
+import { describe, it, expect, beforeEach } from "vitest";
+import { syncMergeRequests } from "./sync-merge-requests.js";
+
+describe("syncMergeRequests", () => {
+  beforeEach(async () => {
+    await db.repository.deleteMany();
+    await db.mergeRequest.deleteMany();
+  });
+
+  it("fetches and saves merge requests for tenant repositories", async () => {
+    // Arrange
+    const tenantId = "test-tenant";
+    await db.repository.create({
+      data: { id: "repo-1", tenantId, externalId: "ext-1" },
+    });
+
+    // Act
+    const result = await syncMergeRequests(tenantId);
+
+    // Assert
+    expect(result.count).toBeGreaterThan(0);
+    const saved = await db.mergeRequest.findMany({ where: { repositoryId: "repo-1" } });
+    expect(saved).toHaveLength(result.count);
+  });
+
+  it("handles tenants with no repositories", async () => {
+    // Arrange
+    const tenantId = "empty-tenant";
+
+    // Act
+    const result = await syncMergeRequests(tenantId);
+
+    // Assert
+    expect(result.count).toBe(0);
+  });
+});
+```
+
+## Example tsx file
+
+```tsx
+import { json, type LoaderFunctionArgs } from "react-router";
+import { useLoaderData } from "react-router";
+import { db } from "~/db.server";
+
+export async function loader({ request, params }: LoaderFunctionArgs) {
+  const tenantId = params.tenantId;
+  if (!tenantId) {
+    throw new Response("Tenant not found", { status: 404 });
+  }
+
+  const mergeRequests = await fetchMergeRequests(tenantId);
+
+  return json({ mergeRequests });
+}
+
+export default function MergeRequests() {
+  const { mergeRequests } = useLoaderData<typeof loader>();
+  const hasRequests = mergeRequests.length > 0;
+
+  return (
+    <div>
+      <h1>Merge Requests</h1>
+      {hasRequests ? (
+        <ul>
+          {mergeRequests.map(mr => (
+            <MergeRequestItem key={mr.id} mergeRequest={mr} />
+          ))}
+        </ul>
+      ) : (
+        <EmptyState />
+      )}
+    </div>
+  );
+}
+
+function MergeRequestItem({ mergeRequest }: MergeRequestItemProps) {
+  const isOpen = mergeRequest.state === "open";
+
+  return (
+    <li>
+      <h2>{mergeRequest.title}</h2>
+      <span className={isOpen ? "badge-open" : "badge-closed"}>
+        {mergeRequest.state}
+      </span>
+    </li>
+  );
+}
+
+function EmptyState() {
+  return <p>No merge requests found</p>;
+}
+
+async function fetchMergeRequests(tenantId: string) {
+  return db.mergeRequest.findMany({
+    where: { repository: { tenantId } },
+    orderBy: { createdAt: "desc" },
+    take: 50,
+  });
+}
+
+interface MergeRequestItemProps {
+  mergeRequest: {
+    id: string;
+    title: string;
+    state: string;
+  };
+}
+```
+
+# Communication Style
 
 Be direct and straightforward. No cheerleading phrases like "that's absolutely right" or "great question." Tell the user when ideas are flawed, incomplete, or poorly thought through. Focus on practical problems and realistic solutions rather than being overly positive or encouraging.
 
