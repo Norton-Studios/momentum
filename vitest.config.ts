@@ -1,6 +1,8 @@
 import { defineConfig } from "vite";
+import tsconfigPaths from "vite-tsconfig-paths";
 
 export default defineConfig({
+  plugins: [tsconfigPaths()],
   // @ts-expect-error - Vitest types are compatible at runtime
   test: {
     globals: true,

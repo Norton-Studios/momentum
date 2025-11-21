@@ -1,4 +1,6 @@
-import { Link } from "react-router";
+import type { LoaderFunctionArgs } from "react-router";
+import { Link, useLoaderData } from "react-router";
+import { requireUser } from "~/auth/auth.server";
 import "./dashboard.css";
 
 export function meta() {
@@ -11,7 +13,19 @@ export function meta() {
   ];
 }
 
+export async function loader({ request }: LoaderFunctionArgs) {
+  const user = await requireUser(request);
+  return { user };
+}
+
 export default function Dashboard() {
+  const { user } = useLoaderData<typeof loader>();
+  const initials =
+    user.name
+      ?.split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase() || user.email[0].toUpperCase();
   return (
     <>
       <header className="dashboard-header">
@@ -21,8 +35,8 @@ export default function Dashboard() {
           </div>
           <div className="header-actions">
             <Link to="#" className="user-profile">
-              <span>John Doe</span>
-              <div className="user-icon">JD</div>
+              <span>{user.name || user.email}</span>
+              <div className="user-icon">{initials}</div>
             </Link>
           </div>
         </div>
