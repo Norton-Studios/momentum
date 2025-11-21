@@ -3,42 +3,7 @@ import type { ActionFunctionArgs } from "react-router";
 import { data, redirect } from "react-router";
 import { requireUser } from "~/auth/auth.server";
 import { db } from "~/db.server";
-
-export const PROVIDER_CONFIGS: Record<string, ProviderConfig> = {
-  github: {
-    fields: [
-      { key: "GITHUB_TOKEN", label: "Personal Access Token", type: "password", placeholder: "ghp_xxxxxxxxxxxx", required: true },
-      { key: "GITHUB_ORG", label: "Organization", type: "text", placeholder: "my-organization", required: true },
-    ],
-  },
-  gitlab: {
-    fields: [
-      { key: "GITLAB_TOKEN", label: "Personal Access Token", type: "password", placeholder: "glpat-xxxxxxxxxxxx", required: true },
-      { key: "GITLAB_URL", label: "GitLab URL", type: "text", placeholder: "https://gitlab.com", required: false },
-    ],
-  },
-  bitbucket: {
-    fields: [
-      { key: "BITBUCKET_TOKEN", label: "App Password", type: "password", placeholder: "xxxxxxxxxxxx", required: true },
-      { key: "BITBUCKET_WORKSPACE", label: "Workspace", type: "text", placeholder: "my-workspace", required: true },
-    ],
-  },
-  jenkins: {
-    fields: [
-      { key: "JENKINS_URL", label: "Jenkins URL", type: "text", placeholder: "https://jenkins.example.com", required: true },
-      { key: "JENKINS_TOKEN", label: "API Token", type: "password", placeholder: "xxxxxxxxxxxx", required: true },
-    ],
-  },
-  circleci: {
-    fields: [{ key: "CIRCLECI_TOKEN", label: "API Token", type: "password", placeholder: "xxxxxxxxxxxx", required: true }],
-  },
-  sonarqube: {
-    fields: [
-      { key: "SONARQUBE_URL", label: "SonarQube URL", type: "text", placeholder: "https://sonarqube.example.com", required: true },
-      { key: "SONARQUBE_TOKEN", label: "API Token", type: "password", placeholder: "xxxxxxxxxxxx", required: true },
-    ],
-  },
-};
+import { PROVIDER_CONFIGS } from "./datasources.config";
 
 export async function datasourcesAction({ request }: ActionFunctionArgs) {
   await requireUser(request);
@@ -201,18 +166,6 @@ export async function testConnection(provider: string, configs: Record<string, s
   }
 
   return { success: false, error: "Test connection not implemented for this provider" };
-}
-
-export interface ProviderConfigField {
-  key: string;
-  label: string;
-  type: "text" | "password";
-  placeholder: string;
-  required: boolean;
-}
-
-export interface ProviderConfig {
-  fields: ProviderConfigField[];
 }
 
 type DataSourceProviderEnum = "GITHUB" | "GITLAB" | "BITBUCKET" | "JENKINS" | "CIRCLECI" | "SONARQUBE";
