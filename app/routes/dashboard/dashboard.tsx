@@ -1,6 +1,8 @@
-import type { LoaderFunctionArgs } from "react-router";
-import { Link, useLoaderData } from "react-router";
+import { useEffect, useRef, useState } from "react";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import { Form, Link, useLoaderData } from "react-router";
 import { requireUser } from "~/auth/auth.server";
+import { logout } from "~/auth/session.server";
 import "./dashboard.css";
 
 export function meta() {
@@ -18,14 +20,34 @@ export async function loader({ request }: LoaderFunctionArgs) {
   return { user };
 }
 
+export async function action({ request }: ActionFunctionArgs) {
+  return logout(request);
+}
+
 export default function Dashboard() {
   const { user } = useLoaderData<typeof loader>();
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const initials =
     user.name
       ?.split(" ")
       .map((n) => n[0])
       .join("")
       .toUpperCase() || user.email[0].toUpperCase();
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    }
+
+    if (isDropdownOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => document.removeEventListener("mousedown", handleClickOutside);
+    }
+  }, [isDropdownOpen]);
+
   return (
     <>
       <header className="dashboard-header">
@@ -34,10 +56,24 @@ export default function Dashboard() {
             Momentum<span>.</span>
           </div>
           <div className="header-actions">
-            <Link to="#" className="user-profile">
-              <span>{user.name || user.email}</span>
-              <div className="user-icon">{initials}</div>
-            </Link>
+            <div className="user-profile-container" ref={dropdownRef}>
+              <button type="button" className="user-profile" onClick={() => setIsDropdownOpen(!isDropdownOpen)}>
+                <span>{user.name || user.email}</span>
+                <div className="user-icon">{initials}</div>
+              </button>
+              {isDropdownOpen && (
+                <div className="user-dropdown">
+                  <Link to="/profile" className="dropdown-item" onClick={() => setIsDropdownOpen(false)}>
+                    Profile
+                  </Link>
+                  <Form method="post">
+                    <button type="submit" className="dropdown-item">
+                      Log Out
+                    </button>
+                  </Form>
+                </div>
+              )}
+            </div>
           </div>
         </div>
         <nav className="main-nav">
