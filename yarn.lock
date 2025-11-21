@@ -1019,12 +1019,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@octokit/types@npm:15.0.0":
-  version: 15.0.0
-  resolution: "@octokit/types@npm:15.0.0"
+"@octokit/types@npm:15.0.2":
+  version: 15.0.2
+  resolution: "@octokit/types@npm:15.0.2"
   dependencies:
     "@octokit/openapi-types": "npm:^26.0.0"
-  checksum: 10c0/49c233d83bdd8fecaa985c84bda78eee0ab41b12c0501fe6835c9ff91f09edc01b28ab7b89cd17218726d76d0b563565f72c0cb25082248fd3f07a01a9534187
+  checksum: 10c0/873f8ade7ad21bd01c18a9887cc2098e35a75675b58c09e22ea8b998b664d31e9fecf5c3629381a468e3dcc8115502e1b5b49912a06657b732504de983493c65
   languageName: node
   linkType: hard
 
@@ -3730,7 +3730,7 @@ __metadata:
   dependencies:
     "@biomejs/biome": "npm:2.3.6"
     "@octokit/rest": "npm:22.0.1"
-    "@octokit/types": "npm:15.0.0"
+    "@octokit/types": "npm:15.0.2"
     "@playwright/test": "npm:1.56.1"
     "@prisma/client": "npm:6.19.0"
     "@react-router/dev": "npm:7.9.6"
