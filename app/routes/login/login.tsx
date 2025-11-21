@@ -1,5 +1,5 @@
 import type { ActionFunctionArgs } from "react-router";
-import { Form, Link, useActionData } from "react-router";
+import { Form, useActionData } from "react-router";
 import { Button } from "../../components/button/button";
 import { Logo } from "../../components/logo/logo";
 import { loginAction } from "./login.server";
@@ -52,10 +52,6 @@ export default function Login() {
             Sign In
           </Button>
         </Form>
-
-        <div className="form-footer">
-          Don't have an account? <Link to="/register">Create Account</Link>
-        </div>
       </div>
     </div>
   );

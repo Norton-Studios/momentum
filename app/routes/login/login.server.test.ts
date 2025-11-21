@@ -58,7 +58,7 @@ describe("loginAction", () => {
     expect(createUserSession).toHaveBeenCalledWith({
       request,
       userId: "user-123",
-      redirectTo: "/dashboard",
+      redirectTo: "/",
     });
   });
 

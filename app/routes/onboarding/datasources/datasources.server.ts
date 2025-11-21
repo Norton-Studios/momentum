@@ -19,7 +19,7 @@ export async function datasourcesAction({ request }: ActionFunctionArgs) {
   }
 
   if (intent === "continue") {
-    return redirect("/dashboard");
+    return redirect("/");
   }
 
   return data({ errors: { form: "Invalid action" } }, { status: 400 });
@@ -58,6 +58,14 @@ async function handleConnectIntent(formData: FormData) {
   const dataSourceId = await upsertDataSource(organization.id, provider, providerEnum);
   await saveDataSourceConfigs(dataSourceId, configs);
 
+  const isVcsProvider = ["github", "gitlab", "bitbucket"].includes(provider);
+  if (isVcsProvider && !organization.onboardingCompletedAt) {
+    await db.organization.update({
+      where: { id: organization.id },
+      data: { onboardingCompletedAt: new Date() },
+    });
+  }
+
   return data({ success: true, provider });
 }
 
@@ -84,12 +92,25 @@ function validateRequiredFields(provider: string, configs: Record<string, string
 }
 
 async function getOrCreateOrganization() {
-  let organization = await db.organization.findFirst();
+  let organization = await db.organization.findFirst({
+    select: {
+      id: true,
+      name: true,
+      displayName: true,
+      onboardingCompletedAt: true,
+    },
+  });
   if (!organization) {
     organization = await db.organization.create({
       data: {
         name: "default",
         displayName: "Default Organization",
+      },
+      select: {
+        id: true,
+        name: true,
+        displayName: true,
+        onboardingCompletedAt: true,
       },
     });
   }
