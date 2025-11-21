@@ -1,15 +1,9 @@
 import type { ActionFunctionArgs } from "react-router";
-import { data, Form, Link, useActionData } from "react-router";
-import { createUserSession, login } from "~/auth/auth.server";
+import { Form, Link, useActionData } from "react-router";
 import { Button } from "../../components/button/button";
 import { Logo } from "../../components/logo/logo";
+import { loginAction } from "./login.server";
 import "./login.css";
-
-interface ActionErrors {
-  email?: string;
-  password?: string;
-  form?: string;
-}
 
 export function meta() {
   return [
@@ -21,38 +15,8 @@ export function meta() {
   ];
 }
 
-export async function action({ request }: ActionFunctionArgs) {
-  const formData = await request.formData();
-  const email = formData.get("email");
-  const password = formData.get("password");
-
-  const errors: ActionErrors = {};
-
-  if (typeof email !== "string" || email.length === 0) {
-    errors.email = "Email is required";
-  }
-  if (typeof password !== "string" || password.length === 0) {
-    errors.password = "Password is required";
-  }
-
-  if (Object.keys(errors).length > 0) {
-    return data({ errors }, { status: 400 });
-  }
-
-  const user = await login({
-    email: email as string,
-    password: password as string,
-  });
-
-  if (!user) {
-    return data({ errors: { form: "Invalid email or password" } as ActionErrors }, { status: 400 });
-  }
-
-  return createUserSession({
-    request,
-    userId: user.id,
-    redirectTo: "/dashboard",
-  });
+export async function action(args: ActionFunctionArgs) {
+  return loginAction(args);
 }
 
 export default function Login() {

@@ -1,48 +1,12 @@
-import { Octokit } from "@octokit/rest";
 import { useState } from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
-import { data, Form, Link, redirect, useActionData, useLoaderData } from "react-router";
+import { Form, Link, useActionData, useLoaderData } from "react-router";
 import { requireUser } from "~/auth/auth.server";
 import { db } from "~/db.server";
 import { Button } from "../../../components/button/button";
 import { Logo } from "../../../components/logo/logo";
+import { datasourcesAction, PROVIDER_CONFIGS } from "./datasources.server";
 import "./datasources.css";
-
-const PROVIDER_CONFIGS: Record<string, ProviderConfig> = {
-  github: {
-    fields: [
-      { key: "GITHUB_TOKEN", label: "Personal Access Token", type: "password", placeholder: "ghp_xxxxxxxxxxxx", required: true },
-      { key: "GITHUB_ORG", label: "Organization", type: "text", placeholder: "my-organization", required: true },
-    ],
-  },
-  gitlab: {
-    fields: [
-      { key: "GITLAB_TOKEN", label: "Personal Access Token", type: "password", placeholder: "glpat-xxxxxxxxxxxx", required: true },
-      { key: "GITLAB_URL", label: "GitLab URL", type: "text", placeholder: "https://gitlab.com", required: false },
-    ],
-  },
-  bitbucket: {
-    fields: [
-      { key: "BITBUCKET_TOKEN", label: "App Password", type: "password", placeholder: "xxxxxxxxxxxx", required: true },
-      { key: "BITBUCKET_WORKSPACE", label: "Workspace", type: "text", placeholder: "my-workspace", required: true },
-    ],
-  },
-  jenkins: {
-    fields: [
-      { key: "JENKINS_URL", label: "Jenkins URL", type: "text", placeholder: "https://jenkins.example.com", required: true },
-      { key: "JENKINS_TOKEN", label: "API Token", type: "password", placeholder: "xxxxxxxxxxxx", required: true },
-    ],
-  },
-  circleci: {
-    fields: [{ key: "CIRCLECI_TOKEN", label: "API Token", type: "password", placeholder: "xxxxxxxxxxxx", required: true }],
-  },
-  sonarqube: {
-    fields: [
-      { key: "SONARQUBE_URL", label: "SonarQube URL", type: "text", placeholder: "https://sonarqube.example.com", required: true },
-      { key: "SONARQUBE_TOKEN", label: "API Token", type: "password", placeholder: "xxxxxxxxxxxx", required: true },
-    ],
-  },
-};
 
 export function meta() {
   return [
@@ -70,139 +34,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
   return { user, connectedProviders };
 }
 
-export async function action({ request }: ActionFunctionArgs) {
-  await requireUser(request);
-  const formData = await request.formData();
-  const intent = formData.get("intent");
-
-  const providerMap: Record<string, DataSourceProviderEnum> = {
-    github: "GITHUB",
-    gitlab: "GITLAB",
-    bitbucket: "BITBUCKET",
-    jenkins: "JENKINS",
-    circleci: "CIRCLECI",
-    sonarqube: "SONARQUBE",
-  };
-
-  if (intent === "test") {
-    const provider = formData.get("provider") as string;
-    const configs = extractConfigsFromForm(formData, provider);
-
-    const testResult = await testConnection(provider, configs);
-    if (!testResult.success) {
-      return data({ testError: testResult.error ?? "Connection failed", provider }, { status: 400 });
-    }
-    return data({ testSuccess: true, provider });
-  }
-
-  if (intent === "connect") {
-    const provider = formData.get("provider");
-
-    if (typeof provider !== "string" || !provider) {
-      return data({ errors: { provider: "Provider is required" } }, { status: 400 });
-    }
-
-    const providerEnum = providerMap[provider];
-    if (!providerEnum) {
-      return data({ errors: { provider: "Invalid provider" } }, { status: 400 });
-    }
-
-    const configs = extractConfigsFromForm(formData, provider);
-    const providerConfig = PROVIDER_CONFIGS[provider];
-    for (const field of providerConfig.fields) {
-      if (field.required && !configs[field.key]) {
-        return data({ errors: { [field.key]: `${field.label} is required` } }, { status: 400 });
-      }
-    }
-
-    let organization = await db.organization.findFirst();
-    if (!organization) {
-      organization = await db.organization.create({
-        data: {
-          name: "default",
-          displayName: "Default Organization",
-        },
-      });
-    }
-
-    const existingDataSource = await db.dataSource.findFirst({
-      where: {
-        organizationId: organization.id,
-        provider: providerEnum,
-      },
-    });
-
-    let dataSourceId: string;
-    if (existingDataSource) {
-      await db.dataSource.update({
-        where: { id: existingDataSource.id },
-        data: { isEnabled: true },
-      });
-      dataSourceId = existingDataSource.id;
-    } else {
-      const newDataSource = await db.dataSource.create({
-        data: {
-          organizationId: organization.id,
-          name: `${provider} Integration`,
-          provider: providerEnum,
-          isEnabled: true,
-        },
-      });
-      dataSourceId = newDataSource.id;
-    }
-
-    for (const [key, value] of Object.entries(configs)) {
-      const isSecret = key.toLowerCase().includes("token") || key.toLowerCase().includes("password");
-      await db.dataSourceConfig.upsert({
-        where: { dataSourceId_key: { dataSourceId, key } },
-        create: { dataSourceId, key, value, isSecret },
-        update: { value },
-      });
-    }
-
-    return data({ success: true, provider });
-  }
-
-  if (intent === "continue") {
-    return redirect("/dashboard");
-  }
-
-  return data({ errors: { form: "Invalid action" } }, { status: 400 });
-}
-
-function extractConfigsFromForm(formData: FormData, provider: string): Record<string, string> {
-  const providerConfig = PROVIDER_CONFIGS[provider];
-  if (!providerConfig) return {};
-
-  const configs: Record<string, string> = {};
-  for (const field of providerConfig.fields) {
-    const value = formData.get(field.key);
-    if (typeof value === "string" && value) {
-      configs[field.key] = value;
-    }
-  }
-  return configs;
-}
-
-async function testConnection(provider: string, configs: Record<string, string>): Promise<{ success: boolean; error?: string }> {
-  if (provider === "github") {
-    const token = configs.GITHUB_TOKEN;
-    const org = configs.GITHUB_ORG;
-    if (!token || !org) {
-      return { success: false, error: "Token and organization are required" };
-    }
-    try {
-      const octokit = new Octokit({ auth: token });
-      await octokit.orgs.get({ org });
-      return { success: true };
-    } catch (error) {
-      const message = error instanceof Error ? error.message : "Connection failed";
-      return { success: false, error: message };
-    }
-  }
-
-  // Other providers not implemented yet
-  return { success: false, error: "Test connection not implemented for this provider" };
+export async function action(args: ActionFunctionArgs) {
+  return datasourcesAction(args);
 }
 
 export default function OnboardingDataSources() {
@@ -440,17 +273,3 @@ interface DataSourceCardProps {
   onToggleForm: (id: string) => void;
   actionData: ReturnType<typeof useActionData<typeof action>>;
 }
-
-interface ProviderConfigField {
-  key: string;
-  label: string;
-  type: "text" | "password";
-  placeholder: string;
-  required: boolean;
-}
-
-interface ProviderConfig {
-  fields: ProviderConfigField[];
-}
-
-type DataSourceProviderEnum = "GITHUB" | "GITLAB" | "BITBUCKET" | "JENKINS" | "CIRCLECI" | "SONARQUBE";
