@@ -23,7 +23,7 @@
   },
   "dependencies": {
     "@octokit/rest": "22.0.1",
-    "@octokit/types": "15.0.0",
+    "@octokit/types": "15.0.2",
     "@prisma/client": "6.19.0",
     "@react-router/node": "7.9.6",
     "@react-router/serve": "7.9.6",
