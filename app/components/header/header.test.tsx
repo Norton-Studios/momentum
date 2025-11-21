@@ -25,6 +25,7 @@ describe("Header", () => {
     expect(screen.getByRole("link", { name: "Metrics" })).toHaveAttribute("href", "/#metrics");
     expect(screen.getByRole("link", { name: "Pricing" })).toHaveAttribute("href", "/#pricing");
     expect(screen.getByRole("link", { name: "Docs" })).toHaveAttribute("href", "/#docs");
+    expect(screen.getByRole("link", { name: "Sign In" })).toHaveAttribute("href", "/login");
   });
 
   it("renders Get Started button with link to register", () => {

@@ -5,7 +5,8 @@ import { requireUser } from "~/auth/auth.server";
 import { db } from "~/db.server";
 import { Button } from "../../../components/button/button";
 import { Logo } from "../../../components/logo/logo";
-import { datasourcesAction, PROVIDER_CONFIGS } from "./datasources.server";
+import { PROVIDER_CONFIGS } from "./datasources.config";
+import { datasourcesAction } from "./datasources.server";
 import "./datasources.css";
 
 export function meta() {

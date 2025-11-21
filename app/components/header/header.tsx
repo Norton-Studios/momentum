@@ -12,6 +12,7 @@ export function Header() {
         <Link to="#metrics">Metrics</Link>
         <Link to="#pricing">Pricing</Link>
         <Link to="#docs">Docs</Link>
+        <Link to="/login">Sign In</Link>
         <Link to="/register">
           <Button>Get Started</Button>
         </Link>
