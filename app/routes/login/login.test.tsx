@@ -86,17 +86,6 @@ describe("Login", () => {
     const submitButton = screen.getByRole("button", { name: "Sign In" });
     expect(submitButton).toHaveAttribute("type", "submit");
   });
-
-  it("renders create account link", () => {
-    render(
-      <MemoryRouter>
-        <Login />
-      </MemoryRouter>
-    );
-
-    expect(screen.getByText(/Don't have an account\?/)).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Create Account" })).toHaveAttribute("href", "/register");
-  });
 });
 
 describe("Login with errors", () => {

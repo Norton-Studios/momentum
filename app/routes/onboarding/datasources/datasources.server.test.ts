@@ -18,6 +18,7 @@ vi.mock("~/db.server", () => ({
     organization: {
       findFirst: vi.fn(),
       create: vi.fn(),
+      update: vi.fn(),
     },
     dataSource: {
       findFirst: vi.fn(),
@@ -80,7 +81,7 @@ describe("datasourcesAction", () => {
   describe("connect intent", () => {
     it("creates organization and data source with config", async () => {
       vi.mocked(db.organization.findFirst).mockResolvedValue(null);
-      vi.mocked(db.organization.create).mockResolvedValue({ id: "org-1", name: "default" } as never);
+      vi.mocked(db.organization.create).mockResolvedValue({ id: "org-1", name: "default", onboardingCompletedAt: null } as never);
       vi.mocked(db.dataSource.findFirst).mockResolvedValue(null);
       vi.mocked(db.dataSource.create).mockResolvedValue({ id: "ds-1" } as never);
 
@@ -103,7 +104,7 @@ describe("datasourcesAction", () => {
     });
 
     it("updates existing data source", async () => {
-      vi.mocked(db.organization.findFirst).mockResolvedValue({ id: "org-1" } as never);
+      vi.mocked(db.organization.findFirst).mockResolvedValue({ id: "org-1", onboardingCompletedAt: null } as never);
       vi.mocked(db.dataSource.findFirst).mockResolvedValue({ id: "ds-1" } as never);
 
       const formData = new FormData();
@@ -155,7 +156,7 @@ describe("datasourcesAction", () => {
       const response = await datasourcesAction({ request, params: {}, context: {} });
 
       expect(response.status).toBe(302);
-      expect(response.headers.get("Location")).toBe("/dashboard");
+      expect(response.headers.get("Location")).toBe("/");
     });
   });
 });

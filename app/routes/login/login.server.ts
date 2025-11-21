@@ -32,7 +32,7 @@ export async function loginAction({ request }: ActionFunctionArgs) {
   return createUserSession({
     request,
     userId: user.id,
-    redirectTo: "/dashboard",
+    redirectTo: "/",
   });
 }
 
