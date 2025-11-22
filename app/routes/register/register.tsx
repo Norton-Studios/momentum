@@ -1,7 +1,18 @@
-import { Link } from "react-router";
+import type { ActionFunctionArgs } from "react-router";
+import { data, Form, Link, useActionData } from "react-router";
+import { createUserSession, register } from "~/auth/auth.server";
+import { db } from "~/db.server";
 import { Button } from "../../components/button/button";
 import { Logo } from "../../components/logo/logo";
 import "./register.css";
+
+interface ActionErrors {
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  password?: string;
+  terms?: string;
+}
 
 export function meta() {
   return [
@@ -13,7 +24,64 @@ export function meta() {
   ];
 }
 
+export async function action({ request }: ActionFunctionArgs) {
+  const formData = await request.formData();
+  const firstName = formData.get("firstName");
+  const lastName = formData.get("lastName");
+  const email = formData.get("email");
+  const password = formData.get("password");
+  const terms = formData.get("terms");
+
+  const errors: ActionErrors = {};
+
+  if (typeof firstName !== "string" || firstName.length === 0) {
+    errors.firstName = "First name is required";
+  }
+  if (typeof lastName !== "string" || lastName.length === 0) {
+    errors.lastName = "Last name is required";
+  }
+  if (typeof email !== "string" || email.length === 0) {
+    errors.email = "Email is required";
+  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    errors.email = "Invalid email address";
+  }
+  if (typeof password !== "string" || password.length < 12) {
+    errors.password = "Password must be at least 12 characters";
+  }
+  if (!terms) {
+    errors.terms = "You must agree to the terms";
+  }
+
+  if (Object.keys(errors).length > 0) {
+    return data({ errors }, { status: 400 });
+  }
+
+  const existingUser = await db.user.findUnique({
+    where: { email: email as string },
+  });
+
+  if (existingUser) {
+    return data({ errors: { email: "A user with this email already exists" } as ActionErrors }, { status: 400 });
+  }
+
+  const name = `${firstName} ${lastName}`;
+  const user = await register({
+    email: email as string,
+    password: password as string,
+    name,
+  });
+
+  return createUserSession({
+    request,
+    userId: user.id,
+    redirectTo: "/onboarding/datasources",
+  });
+}
+
 export default function Register() {
+  const actionData = useActionData<typeof action>();
+  const errors = actionData?.errors;
+
   return (
     <div className="register-container">
       <div className="register-left-column">
@@ -51,62 +119,61 @@ export default function Register() {
           <p>Start your free trial today</p>
         </div>
 
-        <form>
+        <Form method="post">
           <div className="form-row">
             <div className="form-group">
-              <label htmlFor="first-name">First Name</label>
-              <input type="text" id="first-name" placeholder="John" />
+              <label htmlFor="firstName">First Name</label>
+              <input type="text" id="firstName" name="firstName" placeholder="John" />
+              {errors?.firstName && <p className="form-error">{errors.firstName}</p>}
             </div>
             <div className="form-group">
-              <label htmlFor="last-name">Last Name</label>
-              <input type="text" id="last-name" placeholder="Smith" />
+              <label htmlFor="lastName">Last Name</label>
+              <input type="text" id="lastName" name="lastName" placeholder="Smith" />
+              {errors?.lastName && <p className="form-error">{errors.lastName}</p>}
             </div>
           </div>
 
           <div className="form-group">
             <label htmlFor="email">Email Address</label>
-            <input type="email" id="email" placeholder="john.smith@company.com" />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="organization">Organization Name</label>
-            <input type="text" id="organization" placeholder="Your Company" />
-            <p className="form-help">This will be used to identify your workspace</p>
+            <input type="email" id="email" name="email" placeholder="john.smith@company.com" />
+            {errors?.email && <p className="form-error">{errors.email}</p>}
           </div>
 
           <div className="form-group">
             <label htmlFor="password">Password</label>
-            <input type="password" id="password" placeholder="Minimum 12 characters" />
+            <input type="password" id="password" name="password" placeholder="Minimum 12 characters" />
             <p className="form-help">Use a strong password with letters, numbers, and symbols</p>
+            {errors?.password && <p className="form-error">{errors.password}</p>}
           </div>
 
           <div className="checkbox-group">
             <label className="checkbox-label">
-              <input type="checkbox" required />
+              <input type="checkbox" name="terms" />
               <span>
                 I agree to the <Link to="#">Terms of Service</Link> and <Link to="#">Privacy Policy</Link>
               </span>
             </label>
+            {errors?.terms && <p className="form-error">{errors.terms}</p>}
           </div>
 
           <Button type="submit" className="btn-full-width">
             Create Account
           </Button>
-        </form>
+        </Form>
 
         <div className="divider">
           <span>Or continue with</span>
         </div>
 
         <div className="social-buttons">
-          <button type="button" className="btn-social">
+          <button type="button" className="btn-social" disabled>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-label="GitHub logo">
               <title>GitHub</title>
               <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
             </svg>
             GitHub
           </button>
-          <button type="button" className="btn-social">
+          <button type="button" className="btn-social" disabled>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-label="Google logo">
               <title>Google</title>
               <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />

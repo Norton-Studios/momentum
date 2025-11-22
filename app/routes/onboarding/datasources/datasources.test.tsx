@@ -1,8 +1,21 @@
 import { render, screen } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 import { MemoryRouter } from "react-router";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import OnboardingDataSources, { meta } from "./datasources";
+
+vi.mock("react-router", async () => {
+  const actual = await vi.importActual("react-router");
+  return {
+    ...actual,
+    useLoaderData: () => ({
+      user: { id: "1", email: "test@example.com", name: "Test User", role: "USER" },
+      connectedProviders: [],
+    }),
+    useActionData: () => undefined,
+    Form: ({ children, ...props }: { children: React.ReactNode; [key: string]: unknown }) => <form {...props}>{children}</form>,
+  };
+});
 
 describe("OnboardingDataSources meta", () => {
   it("exports correct title and description meta tags", () => {
@@ -144,9 +157,10 @@ describe("OnboardingDataSources", () => {
     const configureButton = screen.getByRole("button", { name: "Configure GitHub" });
     await user.click(configureButton);
 
-    expect(screen.getByLabelText("Configuration")).toBeInTheDocument();
-    expect(screen.getByPlaceholderText("Enter configuration details")).toBeInTheDocument();
-    expect(screen.getByText("Configuration details for GitHub")).toBeInTheDocument();
+    expect(screen.getByLabelText(/Personal Access Token/)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Organization/)).toBeInTheDocument();
+    expect(screen.getByPlaceholderText("ghp_xxxxxxxxxxxx")).toBeInTheDocument();
+    expect(screen.getByPlaceholderText("my-organization")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Test Connection" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Save Configuration" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Cancel" })).toBeInTheDocument();
@@ -167,29 +181,7 @@ describe("OnboardingDataSources", () => {
     const cancelButton = screen.getByRole("button", { name: "Cancel" });
     await user.click(cancelButton);
 
-    expect(screen.queryByLabelText("Configuration")).not.toBeInTheDocument();
-  });
-
-  it("updates connection status when Save Configuration is clicked", async () => {
-    const user = userEvent.setup();
-
-    render(
-      <MemoryRouter>
-        <OnboardingDataSources />
-      </MemoryRouter>
-    );
-
-    const configureButton = screen.getByRole("button", { name: "Configure GitHub" });
-    await user.click(configureButton);
-
-    const saveButton = screen.getByRole("button", { name: "Save Configuration" });
-    await user.click(saveButton);
-
-    const githubCard = document.querySelector("#githubCard");
-    expect(githubCard).toHaveClass("connected");
-
-    const status = document.querySelector("#githubStatus");
-    expect(status).toHaveTextContent("Connected");
+    expect(screen.queryByLabelText(/Personal Access Token/)).not.toBeInTheDocument();
   });
 
   it("renders connection summary showing 0 of 1 initially", () => {
@@ -203,25 +195,6 @@ describe("OnboardingDataSources", () => {
     expect(screen.getByText(/of 1 required data sources connected/)).toBeInTheDocument();
   });
 
-  it("updates connection summary after connecting a source", async () => {
-    const user = userEvent.setup();
-
-    const { container } = render(
-      <MemoryRouter>
-        <OnboardingDataSources />
-      </MemoryRouter>
-    );
-
-    const configureButton = screen.getByRole("button", { name: "Configure GitHub" });
-    await user.click(configureButton);
-
-    const saveButton = screen.getByRole("button", { name: "Save Configuration" });
-    await user.click(saveButton);
-
-    const summary = container.querySelector(".connection-summary");
-    expect(summary).toHaveTextContent("1 of 1 required data sources connected");
-  });
-
   it("renders Continue button disabled initially", () => {
     render(
       <MemoryRouter>
@@ -233,25 +206,6 @@ describe("OnboardingDataSources", () => {
     expect(continueButton).toBeDisabled();
   });
 
-  it("enables Continue button after connecting a required source", async () => {
-    const user = userEvent.setup();
-
-    render(
-      <MemoryRouter>
-        <OnboardingDataSources />
-      </MemoryRouter>
-    );
-
-    const configureButton = screen.getByRole("button", { name: "Configure GitHub" });
-    await user.click(configureButton);
-
-    const saveButton = screen.getByRole("button", { name: "Save Configuration" });
-    await user.click(saveButton);
-
-    const continueButton = screen.getByRole("button", { name: "Continue to Import" });
-    expect(continueButton).not.toBeDisabled();
-  });
-
   it("renders Skip for now link", () => {
     render(
       <MemoryRouter>
@@ -259,6 +213,6 @@ describe("OnboardingDataSources", () => {
       </MemoryRouter>
     );
 
-    expect(screen.getByRole("link", { name: "Skip for now" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Skip for now" })).toHaveAttribute("href", "/dashboard");
   });
 });

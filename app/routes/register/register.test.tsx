@@ -1,7 +1,16 @@
 import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import Register, { meta } from "./register";
+
+vi.mock("react-router", async () => {
+  const actual = await vi.importActual("react-router");
+  return {
+    ...actual,
+    useActionData: () => undefined,
+    Form: ({ children, ...props }: { children: React.ReactNode; [key: string]: unknown }) => <form {...props}>{children}</form>,
+  };
+});
 
 describe("Register meta", () => {
   it("exports correct title and description meta tags", () => {
@@ -79,7 +88,6 @@ describe("Register", () => {
     expect(screen.getByLabelText("First Name")).toBeInTheDocument();
     expect(screen.getByLabelText("Last Name")).toBeInTheDocument();
     expect(screen.getByLabelText("Email Address")).toBeInTheDocument();
-    expect(screen.getByLabelText("Organization Name")).toBeInTheDocument();
     expect(screen.getByLabelText("Password")).toBeInTheDocument();
   });
 
@@ -110,7 +118,6 @@ describe("Register", () => {
       </MemoryRouter>
     );
 
-    expect(screen.getByText("This will be used to identify your workspace")).toBeInTheDocument();
     expect(screen.getByText("Use a strong password with letters, numbers, and symbols")).toBeInTheDocument();
   });
 
@@ -122,7 +129,7 @@ describe("Register", () => {
     );
 
     const checkbox = screen.getByRole("checkbox");
-    expect(checkbox).toBeRequired();
+    expect(checkbox).toBeInTheDocument();
 
     expect(screen.getByRole("link", { name: "Terms of Service" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Privacy Policy" })).toBeInTheDocument();

@@ -1,7 +1,17 @@
 import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import Dashboard, { meta } from "./dashboard";
+
+vi.mock("react-router", async () => {
+  const actual = await vi.importActual("react-router");
+  return {
+    ...actual,
+    useLoaderData: () => ({
+      user: { id: "1", email: "john@example.com", name: "John Doe", role: "USER" },
+    }),
+  };
+});
 
 describe("Dashboard meta", () => {
   it("exports correct title and description meta tags", () => {
