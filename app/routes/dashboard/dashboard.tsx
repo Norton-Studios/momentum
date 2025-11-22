@@ -3,6 +3,7 @@ import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { Form, Link, useLoaderData } from "react-router";
 import { requireUser } from "~/auth/auth.server";
 import { logout } from "~/auth/session.server";
+import { Logo } from "~/components/logo/logo";
 import "./dashboard.css";
 
 export function meta() {
@@ -52,9 +53,7 @@ export default function Dashboard() {
     <>
       <header className="dashboard-header">
         <div className="header-top">
-          <div className="logo">
-            Momentum<span>.</span>
-          </div>
+          <Logo linkTo="/dashboard" />
           <div className="header-actions">
             <div className="user-profile-container" ref={dropdownRef}>
               <button type="button" className="user-profile" onClick={() => setIsDropdownOpen(!isDropdownOpen)}>
