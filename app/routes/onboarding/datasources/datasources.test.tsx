@@ -9,8 +9,9 @@ vi.mock("react-router", async () => {
   return {
     ...actual,
     useLoaderData: () => ({
-      user: { id: "1", email: "test@example.com", name: "Test User", role: "USER" },
+      user: { id: "1", email: "test@example.com", name: "Test User", role: "ADMIN" },
       connectedProviders: [],
+      dataSourceConfigs: {},
     }),
     useActionData: () => undefined,
     Form: ({ children, ...props }: { children: React.ReactNode; [key: string]: unknown }) => <form {...props}>{children}</form>,

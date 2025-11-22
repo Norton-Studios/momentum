@@ -1,12 +1,12 @@
 import { Octokit } from "@octokit/rest";
 import type { ActionFunctionArgs } from "react-router";
 import { data, redirect } from "react-router";
-import { requireUser } from "~/auth/auth.server";
+import { requireAdmin } from "~/auth/auth.server";
 import { db } from "~/db.server";
 import { PROVIDER_CONFIGS } from "./datasources.config";
 
 export async function datasourcesAction({ request }: ActionFunctionArgs) {
-  await requireUser(request);
+  await requireAdmin(request);
   const formData = await request.formData();
   const intent = formData.get("intent");
 

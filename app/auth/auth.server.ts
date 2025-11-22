@@ -83,4 +83,14 @@ export async function getUser(request: Request) {
   });
 }
 
+export async function requireAdmin(request: Request) {
+  const user = await requireUser(request);
+
+  if (user.role !== "ADMIN") {
+    throw redirect("/dashboard");
+  }
+
+  return user;
+}
+
 export { createUserSession };

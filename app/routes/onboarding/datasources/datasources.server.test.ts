@@ -11,6 +11,7 @@ vi.mock("react-router", async () => {
 
 vi.mock("~/auth/auth.server", () => ({
   requireUser: vi.fn(),
+  requireAdmin: vi.fn(),
 }));
 
 vi.mock("~/db.server", () => ({
@@ -35,7 +36,7 @@ vi.mock("@octokit/rest", () => ({
   Octokit: vi.fn(),
 }));
 
-import { requireUser } from "~/auth/auth.server";
+import { requireAdmin } from "~/auth/auth.server";
 import { db } from "~/db.server";
 import { datasourcesAction, extractConfigsFromForm } from "./datasources.server";
 
@@ -75,7 +76,7 @@ describe("extractConfigsFromForm", () => {
 describe("datasourcesAction", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(requireUser).mockResolvedValue({ id: "user-1", email: "test@example.com", name: "Test User", role: "USER" } as never);
+    vi.mocked(requireAdmin).mockResolvedValue({ id: "user-1", email: "test@example.com", name: "Test User", role: "ADMIN" } as never);
   });
 
   describe("connect intent", () => {

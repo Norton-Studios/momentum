@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { Form, Link, useActionData, useLoaderData } from "react-router";
-import { requireUser } from "~/auth/auth.server";
+import { requireAdmin } from "~/auth/auth.server";
 import { db } from "~/db.server";
 import { Button } from "../../../components/button/button";
 import { Logo } from "../../../components/logo/logo";
@@ -20,19 +20,34 @@ export function meta() {
 }
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const user = await requireUser(request);
+  const user = await requireAdmin(request);
 
   const dataSources = await db.dataSource.findMany({
     select: {
       id: true,
       provider: true,
       isEnabled: true,
+      configs: {
+        select: {
+          key: true,
+          value: true,
+        },
+      },
     },
   });
 
   const connectedProviders = dataSources.filter((ds) => ds.isEnabled).map((ds) => ds.provider.toLowerCase());
 
-  return { user, connectedProviders };
+  const dataSourceConfigs: Record<string, Record<string, string>> = {};
+  for (const ds of dataSources) {
+    const provider = ds.provider.toLowerCase();
+    dataSourceConfigs[provider] = {};
+    for (const config of ds.configs) {
+      dataSourceConfigs[provider][config.key] = config.value;
+    }
+  }
+
+  return { user, connectedProviders, dataSourceConfigs };
 }
 
 export async function action(args: ActionFunctionArgs) {
@@ -40,12 +55,22 @@ export async function action(args: ActionFunctionArgs) {
 }
 
 export default function OnboardingDataSources() {
-  const { connectedProviders } = useLoaderData<typeof loader>();
+  const { connectedProviders, dataSourceConfigs } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
   const [activeForm, setActiveForm] = useState<string | null>(null);
 
   const successfulProvider = actionData && "success" in actionData && actionData.success && "provider" in actionData ? actionData.provider : null;
   const connectedSet = new Set([...connectedProviders, ...(successfulProvider ? [successfulProvider] : [])]);
+
+  useEffect(() => {
+    if (successfulProvider) {
+      setActiveForm(null);
+      const cardElement = document.getElementById(`${successfulProvider}Card`);
+      if (cardElement) {
+        cardElement.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }
+    }
+  }, [successfulProvider]);
 
   const versionControlSources: DataSource[] = [
     {
@@ -152,7 +177,14 @@ export default function OnboardingDataSources() {
 
           <div className="datasource-list">
             {versionControlSources.map((source) => (
-              <DataSourceCard key={source.id} source={source} isFormActive={activeForm === source.id} onToggleForm={toggleForm} actionData={actionData} />
+              <DataSourceCard
+                key={source.id}
+                source={source}
+                isFormActive={activeForm === source.id}
+                onToggleForm={toggleForm}
+                actionData={actionData}
+                configs={dataSourceConfigs[source.id] || {}}
+              />
             ))}
           </div>
         </section>
@@ -164,7 +196,14 @@ export default function OnboardingDataSources() {
 
           <div className="datasource-list">
             {cicdSources.map((source) => (
-              <DataSourceCard key={source.id} source={source} isFormActive={activeForm === source.id} onToggleForm={toggleForm} actionData={actionData} />
+              <DataSourceCard
+                key={source.id}
+                source={source}
+                isFormActive={activeForm === source.id}
+                onToggleForm={toggleForm}
+                actionData={actionData}
+                configs={dataSourceConfigs[source.id] || {}}
+              />
             ))}
           </div>
         </section>
@@ -176,7 +215,14 @@ export default function OnboardingDataSources() {
 
           <div className="datasource-list">
             {qualitySources.map((source) => (
-              <DataSourceCard key={source.id} source={source} isFormActive={activeForm === source.id} onToggleForm={toggleForm} actionData={actionData} />
+              <DataSourceCard
+                key={source.id}
+                source={source}
+                isFormActive={activeForm === source.id}
+                onToggleForm={toggleForm}
+                actionData={actionData}
+                configs={dataSourceConfigs[source.id] || {}}
+              />
             ))}
           </div>
         </section>
@@ -202,7 +248,7 @@ export default function OnboardingDataSources() {
   );
 }
 
-function DataSourceCard({ source, isFormActive, onToggleForm, actionData }: DataSourceCardProps) {
+function DataSourceCard({ source, isFormActive, onToggleForm, actionData, configs }: DataSourceCardProps) {
   const providerConfig = PROVIDER_CONFIGS[source.id];
   const testSuccess = actionData && "testSuccess" in actionData && actionData.provider === source.id;
   const testError = actionData && "testError" in actionData && actionData.provider === source.id ? actionData.testError : null;
@@ -223,7 +269,7 @@ function DataSourceCard({ source, isFormActive, onToggleForm, actionData }: Data
       </div>
 
       <button type="button" className="btn-configure" onClick={() => onToggleForm(source.id)}>
-        Configure {source.name}
+        {source.isConnected ? `Edit ${source.name} Configuration` : `Configure ${source.name}`}
       </button>
 
       {isFormActive && (
@@ -236,7 +282,14 @@ function DataSourceCard({ source, isFormActive, onToggleForm, actionData }: Data
                   {field.label}
                   {field.required && <span className="required">*</span>}
                 </label>
-                <input type={field.type} id={`${source.id}-${field.key}`} name={field.key} placeholder={field.placeholder} required={field.required} />
+                <input
+                  type={field.type}
+                  id={`${source.id}-${field.key}`}
+                  name={field.key}
+                  placeholder={field.placeholder}
+                  required={field.required}
+                  defaultValue={configs[field.key] || ""}
+                />
               </div>
             ))}
             {testSuccess && <div className="test-success">Connection successful!</div>}
@@ -273,4 +326,5 @@ interface DataSourceCardProps {
   isFormActive: boolean;
   onToggleForm: (id: string) => void;
   actionData: ReturnType<typeof useActionData<typeof action>>;
+  configs: Record<string, string>;
 }
