@@ -182,10 +182,20 @@ body {
   background: var(--white);
   border: 2px solid var(--black);
   overflow-y: auto;
+  height: 500px; /* Moved from inline style */
+}
+
+.repository-list-sizer {
+  width: 100%;
+  position: relative;
 }
 
 .repository-row {
   border-bottom: 1px solid var(--light-gray);
+  position: absolute; /* Moved from inline style */
+  top: 0;
+  left: 0;
+  width: 100%;
 }
 
 .repository-row:last-child {

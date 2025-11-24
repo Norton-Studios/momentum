@@ -177,7 +177,12 @@ async function handleSelectAllMatchingIntent(formData: FormData) {
 
   const count = await selectAllMatchingFilters(db, dataSource.id, { search, languages, activity }, isEnabled);
 
-  // Also fetch all matching repository IDs for the client to track
+  // For a deselect action, return an empty array to clear client-side selections.
+  if (!isEnabled) {
+    return data({ success: true, count, repositoryIds: [] });
+  }
+
+  // For a select action, return all matching IDs so the client can update its state.
   const repositories = await db.repository.findMany({
     where: {
       dataSourceId: dataSource.id,

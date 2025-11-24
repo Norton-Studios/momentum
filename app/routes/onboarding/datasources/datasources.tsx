@@ -229,7 +229,7 @@ export default function OnboardingDataSources() {
 
         <div className="bottom-actions">
           <div className="connection-summary">
-            <strong>{connectedSet.size > 0 ? 1 : 0}</strong> of 1 required data sources connected
+            <strong>{hasRequiredConnections ? "1" : "0"}</strong> of 1 required connection established
           </div>
           <div className="action-buttons">
             <Link to="/dashboard" className="skip-link">
