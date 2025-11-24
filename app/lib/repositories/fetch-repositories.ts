@@ -66,15 +66,17 @@ export async function saveRepositories(
           stars: repo.stars,
           forks: repo.forks,
           isPrivate: repo.isPrivate,
+          isArchived: repo.isArchived,
           isEnabled: !repo.isArchived,
-          lastSyncAt: new Date(),
+          lastSyncAt: repo.pushedAt,
         },
         update: {
           description: repo.description,
           language: repo.language,
           stars: repo.stars,
           forks: repo.forks,
-          lastSyncAt: new Date(),
+          isArchived: repo.isArchived,
+          lastSyncAt: repo.pushedAt,
         },
       })
     )

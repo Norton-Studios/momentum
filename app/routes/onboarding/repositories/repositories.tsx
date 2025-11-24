@@ -85,20 +85,6 @@ function useRepositorySelection(initialData: SuccessData) {
     }
   }, [fetcher.data, fetcher.state, isLoadingMore]);
 
-  useEffect(() => {
-    const shouldSelectRecommended = searchParams.get("select") === "recommended";
-    if (shouldSelectRecommended) {
-      const formData = new FormData();
-      formData.append("intent", "select-all-matching");
-      formData.append("activity", "active");
-      formData.append("isEnabled", "true");
-      setAllMatchingSelected(true);
-      fetcher.submit(formData, { method: "post" });
-      searchParams.delete("select");
-      setSearchParams(searchParams, { replace: true });
-    }
-  }, [searchParams, fetcher, setSearchParams]);
-
   const loadMore = useCallback(() => {
     if (!nextCursor || isLoadingMore || fetcher.state !== "idle") return;
     const params = new URLSearchParams(searchParams);
@@ -121,12 +107,6 @@ function useRepositorySelection(initialData: SuccessData) {
     [searchParams, setSearchParams]
   );
 
-  const handleActivityChange = (activity: string) => {
-    const params = new URLSearchParams(searchParams);
-    params.set("activity", activity);
-    setSearchParams(params);
-  };
-
   const handleToggle = (repositoryId: string, isEnabled: boolean) => {
     const formData = new FormData();
     formData.append("intent", "toggle");
@@ -146,7 +126,6 @@ function useRepositorySelection(initialData: SuccessData) {
     const formData = new FormData();
     formData.append("intent", "select-all-matching");
     if (initialData.filters.search) formData.append("search", initialData.filters.search);
-    formData.append("activity", initialData.filters.activity);
     formData.append("isEnabled", String(select));
     if (select) setAllMatchingSelected(true);
     else {
@@ -154,13 +133,6 @@ function useRepositorySelection(initialData: SuccessData) {
       setSelectedIds(new Set());
     }
     fetcher.submit(formData, { method: "post" });
-  };
-
-  const handleSelectRecommended = () => {
-    const params = new URLSearchParams();
-    params.set("activity", "active");
-    params.set("select", "recommended");
-    setSearchParams(params);
   };
 
   const selectedCount = allMatchingSelected ? initialData.totalCount : selectedIds.size;
@@ -174,11 +146,9 @@ function useRepositorySelection(initialData: SuccessData) {
     selectedIds,
     selectedCount,
     handleSearchChange,
-    handleActivityChange,
     handleToggle,
     handleSelectAll: createSelectAllHandler(true),
     handleDeselectAll: createSelectAllHandler(false),
-    handleSelectRecommended,
   };
 }
 
@@ -213,11 +183,9 @@ function RepositoriesView({ data }: { data: SuccessData }) {
     selectedIds,
     selectedCount,
     handleSearchChange,
-    handleActivityChange,
     handleToggle,
     handleSelectAll,
     handleDeselectAll,
-    handleSelectRecommended,
   } = useRepositorySelection(data);
   const isLoading = navigation.state !== "idle";
 
@@ -246,21 +214,12 @@ function RepositoriesView({ data }: { data: SuccessData }) {
     <div className="onboarding-container">
       <div className="page-header">
         <h1>Select Repositories</h1>
-        <p>Choose which repositories you want to monitor. Active repositories are pre-selected.</p>
+        <p>Choose which repositories you want to monitor. We've pre-selected the ones we recommend.</p>
       </div>
 
       <div className="repository-filters">
         <div className="search-box">
           <input type="text" placeholder="Search repositories..." value={searchValue} onChange={(e) => handleSearchChange(e.target.value)} className="search-input" />
-        </div>
-        <div className="filter-group">
-          <span className="filter-label">Activity:</span>
-          <select value={data.filters.activity} onChange={(e) => handleActivityChange(e.target.value)} className="filter-select">
-            <option value="all">All</option>
-            <option value="active">Active (&lt; 30 days)</option>
-            <option value="stale">Stale (30-90 days)</option>
-            <option value="inactive">Inactive (&gt; 90 days)</option>
-          </select>
         </div>
       </div>
 
@@ -274,9 +233,6 @@ function RepositoriesView({ data }: { data: SuccessData }) {
           </button>
           <button type="button" onClick={handleDeselectAll} className="btn-secondary">
             Deselect All
-          </button>
-          <button type="button" onClick={handleSelectRecommended} className="btn-secondary">
-            Select Active
           </button>
         </div>
       </div>
@@ -311,13 +267,6 @@ const RepositoryRow = ({ repo, isSelected, onToggle, measureRef, style }: { repo
   const lastActive = repo.lastSyncAt ? new Date(repo.lastSyncAt) : null;
   const daysAgo = lastActive ? Math.floor((Date.now() - lastActive.getTime()) / (1000 * 60 * 60 * 24)) : null;
 
-  const activity = useMemo(() => {
-    if (daysAgo === null) return { className: "", label: "" };
-    if (daysAgo < 30) return { className: "active", label: "Active" };
-    if (daysAgo < 90) return { className: "stale", label: "Stale" };
-    return { className: "inactive", label: "Inactive" };
-  }, [daysAgo]);
-
   return (
     <div ref={measureRef} style={style} className="repository-row">
       <label className="repository-item">
@@ -329,7 +278,6 @@ const RepositoryRow = ({ repo, isSelected, onToggle, measureRef, style }: { repo
           </div>
           <div className="repository-meta">
             {repo.language && <span className="language">{repo.language}</span>}
-            {activity.label && <span className={`activity-badge ${activity.className}`}>{activity.label}</span>}
             {repo.isPrivate && <span className="private-badge">Private</span>}
             {daysAgo !== null && <span className="last-active">Updated {daysAgo}d ago</span>}
             {repo.stars > 0 && <span className="stars">★ {repo.stars}</span>}

@@ -57,6 +57,7 @@ export async function getRepositoriesWithFilters(db: PrismaClient, dataSourceId:
 
   const where = {
     dataSourceId,
+    isArchived: false,
     ...(search && {
       OR: [{ name: { contains: search, mode: "insensitive" as const } }, { description: { contains: search, mode: "insensitive" as const } }],
     }),

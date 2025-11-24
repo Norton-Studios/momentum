@@ -104,6 +104,7 @@ model Repository {
   stars        Int         @default(0) @map("stars")
   forks        Int         @default(0) @map("forks")
   isPrivate    Boolean     @default(true) @map("is_private")
+  isArchived   Boolean     @default(false) @map("is_archived")
   isEnabled    Boolean     @default(true) @map("is_enabled")
   lastSyncAt   DateTime?   @map("last_sync_at")
   createdAt    DateTime    @default(now()) @map("created_at")
