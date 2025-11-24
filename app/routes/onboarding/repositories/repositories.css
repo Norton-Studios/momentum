@@ -1,0 +1,366 @@
+/* Onboarding Repositories Styles */
+
+body {
+  background: var(--off-white);
+  min-height: 100vh;
+}
+
+/* Header */
+.onboarding-header {
+  background: var(--white);
+  border-bottom: 1px solid var(--light-gray);
+  padding: 32px 0;
+}
+
+.header-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 60px;
+}
+
+/* Main Content */
+.onboarding-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 80px 60px;
+}
+
+.page-header {
+  text-align: center;
+  margin-bottom: 80px;
+}
+
+.page-header h1 {
+  font-size: 52px;
+  margin-bottom: 20px;
+  letter-spacing: -1.5px;
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 400;
+}
+
+.page-header p {
+  font-size: 18px;
+  color: var(--dark-gray);
+  line-height: 1.7;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+/* Error State */
+.error-state {
+  text-align: center;
+  padding: 80px 0;
+}
+
+.error-state h2 {
+  font-size: 32px;
+  margin-bottom: 20px;
+  color: var(--red);
+  font-family: Georgia, "Times New Roman", serif;
+}
+
+.error-state p {
+  font-size: 16px;
+  color: var(--dark-gray);
+  margin-bottom: 32px;
+}
+
+.error-state a {
+  color: var(--black);
+  text-decoration: underline;
+}
+
+/* Filters */
+.repository-filters {
+  background: var(--white);
+  border: 2px solid var(--black);
+  padding: 32px;
+  margin-bottom: 48px;
+}
+
+.search-box {
+  margin-bottom: 24px;
+}
+
+.search-input {
+  width: 100%;
+  padding: 16px 20px;
+  border: 1px solid var(--light-gray);
+  background: var(--white);
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: var(--black);
+  box-shadow: 0 0 0 1px var(--black);
+}
+
+.search-input::placeholder {
+  color: var(--mid-gray);
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.filter-label {
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: var(--black);
+  font-weight: 500;
+  min-width: 80px;
+}
+
+.filter-select {
+  padding: 12px 16px;
+  border: 1px solid var(--light-gray);
+  background: var(--white);
+  font-size: 14px;
+  font-family: inherit;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: var(--black);
+}
+
+/* Bulk Actions */
+.bulk-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 32px;
+  background: var(--white);
+  border: 2px solid var(--light-gray);
+  margin-bottom: 24px;
+}
+
+.selection-count {
+  font-size: 16px;
+  color: var(--dark-gray);
+}
+
+.selection-count strong {
+  color: var(--black);
+  font-weight: 500;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 16px;
+}
+
+.btn-secondary {
+  background: var(--off-white);
+  color: var(--black);
+  padding: 12px 24px;
+  border: 1px solid var(--light-gray);
+  font-size: 13px;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.btn-secondary:hover {
+  border-color: var(--black);
+  background: var(--white);
+}
+
+/* Repository List */
+.repository-list-container {
+  background: var(--white);
+  border: 2px solid var(--black);
+  overflow-y: auto;
+}
+
+.repository-row {
+  border-bottom: 1px solid var(--light-gray);
+}
+
+.repository-row:last-child {
+  border-bottom: none;
+}
+
+.repository-item {
+  display: flex;
+  gap: 20px;
+  padding: 20px 32px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  align-items: center;
+}
+
+.repository-item:hover {
+  background: var(--off-white);
+}
+
+.repository-item input[type="checkbox"] {
+  flex-shrink: 0;
+}
+
+.repository-info {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+
+.repository-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.repository-name {
+  font-size: 16px;
+  font-weight: 500;
+  margin-bottom: 4px;
+  color: var(--black);
+  letter-spacing: -0.3px;
+  line-height: 1.3;
+}
+
+.repository-meta {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: nowrap;
+  font-size: 13px;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.repository-meta span {
+  padding: 4px 10px;
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.repository-meta .language {
+  background: var(--off-white);
+  color: var(--black);
+  border: 1px solid var(--light-gray);
+}
+
+.repository-meta .activity-badge.active {
+  background: var(--green);
+  color: var(--white);
+}
+
+.repository-meta .activity-badge.stale {
+  background: var(--gold);
+  color: var(--black);
+}
+
+.repository-meta .activity-badge.inactive {
+  background: var(--off-white);
+  color: var(--mid-gray);
+  border: 1px solid var(--light-gray);
+}
+
+.repository-meta .private-badge {
+  background: var(--black);
+  color: var(--white);
+}
+
+.repository-meta .last-active {
+  background: transparent;
+  color: var(--mid-gray);
+  padding: 4px 0;
+}
+
+.repository-meta .stars {
+  background: transparent;
+  color: var(--gold);
+  padding: 4px 0;
+}
+
+.repository-description {
+  color: var(--dark-gray);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+/* Bottom Actions */
+.onboarding-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 64px;
+  border-top: 2px solid var(--black);
+  margin-top: 64px;
+}
+
+.btn-primary {
+  background: var(--black);
+  color: var(--white);
+  padding: 16px 48px;
+  border: 1px solid var(--black);
+  font-size: 14px;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--gold);
+  color: var(--black);
+  border-color: var(--gold);
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .onboarding-container {
+    padding: 48px 24px;
+  }
+
+  .page-header h1 {
+    font-size: 36px;
+  }
+
+  .repository-filters,
+  .bulk-actions,
+  .repository-item {
+    padding: 20px;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .btn-secondary {
+    width: 100%;
+    text-align: center;
+  }
+
+  .onboarding-actions {
+    flex-direction: column;
+    gap: 24px;
+    align-items: stretch;
+  }
+
+  .btn-primary {
+    width: 100%;
+  }
+}

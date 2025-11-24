@@ -11,7 +11,7 @@ export const repositoryScript = {
   async run(context: ExecutionContext) {
     const octokit = new Octokit({ auth: context.env.GITHUB_TOKEN });
     const repos = await fetchAllRepositories(octokit, context.env.GITHUB_ORG);
-    await upsertRepositories(context.db, repos, context.runId);
+    await upsertRepositories(context.db, repos, context.runId, context.dataSourceId);
   },
 };
 
@@ -23,12 +23,13 @@ async function fetchAllRepositories(octokit: Octokit, org: string) {
   return allRepos;
 }
 
-async function upsertRepositories(db: PrismaClient, repos: Awaited<ReturnType<typeof fetchAllRepositories>>, runId: string) {
+async function upsertRepositories(db: PrismaClient, repos: Awaited<ReturnType<typeof fetchAllRepositories>>, runId: string, dataSourceId: string) {
   await Promise.all(
     repos.map((repo) =>
       db.repository.upsert({
         where: { fullName: repo.full_name },
         create: {
+          dataSourceId,
           name: repo.name,
           fullName: repo.full_name,
           description: repo.description,
@@ -38,6 +39,7 @@ async function upsertRepositories(db: PrismaClient, repos: Awaited<ReturnType<ty
           stars: repo.stargazers_count,
           forks: repo.forks_count,
           isPrivate: repo.private,
+          isEnabled: true,
           lastSyncAt: new Date(),
         },
         update: {
