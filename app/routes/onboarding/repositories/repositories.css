@@ -91,6 +91,12 @@ body {
   letter-spacing: 0.8px;
 }
 
+.subheader-count {
+  margin-left: auto;
+  font-size: 13px;
+  color: var(--mid-gray);
+}
+
 .list-body {
   max-height: 60vh;
   overflow-y: auto;

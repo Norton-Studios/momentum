@@ -280,6 +280,7 @@ function RepositoriesView({ data }: { data: SuccessData }) {
             />
           </label>
           <div className="subheader-title">Repository</div>
+          <div className="subheader-count">{selectedCount} selected</div>
         </div>
 
         <div ref={parentRef} className="list-body">
