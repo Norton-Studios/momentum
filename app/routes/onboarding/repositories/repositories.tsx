@@ -1,7 +1,7 @@
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Form, useFetcher, useLoaderData, useNavigation, useSearchParams } from "react-router";
-import type { repositoriesLoader } from "./repositories.server";
+
 import "./repositories.css";
 
 export { repositoriesAction as action, repositoriesLoader as loader } from "./repositories.server";
@@ -122,10 +122,34 @@ function useRepositorySelection(initialData: SuccessData) {
     });
   };
 
+  const handleToggleVisible = (select: boolean) => {
+    const visibleIds = allRepositories.map((r) => r.id);
+    const formData = new FormData();
+    formData.append("intent", "toggle-batch");
+    for (const id of visibleIds) {
+      formData.append("repositoryIds", id);
+    }
+    formData.append("isEnabled", String(select));
+    fetcher.submit(formData, { method: "post" });
+
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (select) {
+        for (const id of visibleIds) {
+          next.add(id);
+        }
+      } else {
+        for (const id of visibleIds) {
+          next.delete(id);
+        }
+      }
+      return next;
+    });
+  };
+
   const createSelectAllHandler = (select: boolean) => () => {
     const formData = new FormData();
     formData.append("intent", "select-all-matching");
-    if (initialData.filters.search) formData.append("search", initialData.filters.search);
     formData.append("isEnabled", String(select));
     if (select) setAllMatchingSelected(true);
     else {
@@ -147,6 +171,7 @@ function useRepositorySelection(initialData: SuccessData) {
     selectedCount,
     handleSearchChange,
     handleToggle,
+    handleToggleVisible,
     handleSelectAll: createSelectAllHandler(true),
     handleDeselectAll: createSelectAllHandler(false),
   };
@@ -184,6 +209,7 @@ function RepositoriesView({ data }: { data: SuccessData }) {
     selectedCount,
     handleSearchChange,
     handleToggle,
+    handleToggleVisible,
     handleSelectAll,
     handleDeselectAll,
   } = useRepositorySelection(data);
@@ -192,7 +218,7 @@ function RepositoriesView({ data }: { data: SuccessData }) {
   const virtualizer = useVirtualizer({
     count: allRepositories.length,
     getScrollElement: () => parentRef.current,
-    estimateSize: () => 70,
+    estimateSize: () => 70, // smaller height as description is removed
     overscan: 10,
   });
 
@@ -210,6 +236,14 @@ function RepositoriesView({ data }: { data: SuccessData }) {
     return () => element.removeEventListener("scroll", handleScroll);
   }, [nextCursor, isLoadingMore, loadMore]);
 
+  const visibleSelectedCount = useMemo(() => allRepositories.filter((r) => selectedIds.has(r.id)).length, [allRepositories, selectedIds]);
+  const allVisibleSelected = allRepositories.length > 0 && visibleSelectedCount === allRepositories.length;
+  const someVisibleSelected = visibleSelectedCount > 0 && !allVisibleSelected;
+
+  const handleHeaderCheckboxChange = () => {
+    handleToggleVisible(!allVisibleSelected);
+  };
+
   return (
     <div className="onboarding-container">
       <div className="page-header">
@@ -217,53 +251,90 @@ function RepositoriesView({ data }: { data: SuccessData }) {
         <p>Choose which repositories you want to monitor. We've pre-selected the ones we recommend.</p>
       </div>
 
-      <div className="repository-filters">
-        <div className="search-box">
-          <input type="text" placeholder="Search repositories..." value={searchValue} onChange={(e) => handleSearchChange(e.target.value)} className="search-input" />
+      <div className="list-container">
+        <div className="list-header">
+          <div className="search-box">
+            <input type="text" placeholder="Search repositories..." value={searchValue} onChange={(e) => handleSearchChange(e.target.value)} className="search-input" />
+          </div>
+          <div className="action-buttons">
+            <button type="button" onClick={handleSelectAll} className="btn-secondary">
+              Select All
+            </button>
+            <button type="button" onClick={handleDeselectAll} className="btn-secondary">
+              Deselect All
+            </button>
+          </div>
+        </div>
+
+        <div className="list-subheader">
+          <label className="checkbox-container">
+            <input
+              type="checkbox"
+              ref={(el) => {
+                if (el) {
+                  el.indeterminate = someVisibleSelected;
+                }
+              }}
+              checked={allVisibleSelected}
+              onChange={handleHeaderCheckboxChange}
+            />
+          </label>
+          <div className="subheader-title">Repository</div>
+        </div>
+
+        <div ref={parentRef} className="list-body">
+          <div className="list-sizer" style={{ height: `${virtualizer.getTotalSize()}px` }}>
+            {virtualizer.getVirtualItems().map((virtualRow) => {
+              const repo = allRepositories[virtualRow.index];
+              return repo ? (
+                <RepositoryRow
+                  key={repo.id}
+                  repo={repo}
+                  isSelected={selectedIds.has(repo.id)}
+                  onToggle={handleToggle}
+                  measureRef={virtualizer.measureElement}
+                  style={{ transform: `translateY(${virtualRow.start}px)` }}
+                />
+              ) : null;
+            })}
+          </div>
+          {isLoadingMore && <div className="loading-spinner">Loading more...</div>}
         </div>
       </div>
 
-      <div className="bulk-actions">
+      <div className="onboarding-footer">
         <div className="selection-count">
           <strong>{selectedCount}</strong> of <strong>{data.totalCount}</strong> repositories selected
         </div>
-        <div className="action-buttons">
-          <button type="button" onClick={handleSelectAll} className="btn-secondary">
-            Select All
-          </button>
-          <button type="button" onClick={handleDeselectAll} className="btn-secondary">
-            Deselect All
-          </button>
+        <div className="onboarding-actions">
+          <a href="/onboarding/datasources" className="btn-secondary">
+            Back
+          </a>
+          <Form method="post">
+            <input type="hidden" name="intent" value="continue" />
+            <button type="submit" className="btn-primary" disabled={isLoading}>
+              {isLoading ? "Processing..." : "Continue"}
+            </button>
+          </Form>
         </div>
-      </div>
-
-      <div ref={parentRef} className="repository-list-container">
-        <div className="repository-list-sizer" style={{ height: `${virtualizer.getTotalSize()}px` }}>
-          {virtualizer.getVirtualItems().map((virtualRow) => {
-            const repo = allRepositories[virtualRow.index];
-            return repo ? (
-              <RepositoryRow key={repo.id} repo={repo} isSelected={selectedIds.has(repo.id)} onToggle={handleToggle} measureRef={virtualizer.measureElement} style={{ transform: `translateY(${virtualRow.start}px)` }} />
-            ) : null;
-          })}
-        </div>
-      </div>
-
-      <div className="onboarding-actions">
-        <a href="/onboarding/datasources" className="btn-secondary">
-          Back
-        </a>
-        <Form method="post">
-          <input type="hidden" name="intent" value="continue" />
-          <button type="submit" className="btn-primary" disabled={isLoading}>
-            {isLoading ? "Processing..." : "Continue"}
-          </button>
-        </Form>
       </div>
     </div>
   );
 }
 
-const RepositoryRow = ({ repo, isSelected, onToggle, measureRef, style }: { repo: Repository; isSelected: boolean; onToggle: (id: string, selected: boolean) => void; measureRef: (el: HTMLDivElement | null) => void; style: React.CSSProperties }) => {
+const RepositoryRow = ({
+  repo,
+  isSelected,
+  onToggle,
+  measureRef,
+  style,
+}: {
+  repo: Repository;
+  isSelected: boolean;
+  onToggle: (id: string, selected: boolean) => void;
+  measureRef: (el: HTMLDivElement | null) => void;
+  style: React.CSSProperties;
+}) => {
   const lastActive = repo.lastSyncAt ? new Date(repo.lastSyncAt) : null;
   const daysAgo = lastActive ? Math.floor((Date.now() - lastActive.getTime()) / (1000 * 60 * 60 * 24)) : null;
 
@@ -274,13 +345,12 @@ const RepositoryRow = ({ repo, isSelected, onToggle, measureRef, style }: { repo
         <div className="repository-info">
           <div className="repository-details">
             <div className="repository-name">{repo.name}</div>
-            {repo.description && <div className="repository-description">{repo.description}</div>}
           </div>
           <div className="repository-meta">
             {repo.language && <span className="language">{repo.language}</span>}
             {repo.isPrivate && <span className="private-badge">Private</span>}
-            {daysAgo !== null && <span className="last-active">Updated {daysAgo}d ago</span>}
             {repo.stars > 0 && <span className="stars">★ {repo.stars}</span>}
+            {daysAgo !== null && <span className="last-active">Updated {daysAgo}d ago</span>}
           </div>
         </div>
       </label>
