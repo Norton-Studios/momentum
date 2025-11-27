@@ -1,14 +1,31 @@
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { defineConfig, devices } from "@playwright/test";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+const isCI = !!process.env.CI;
+
+const LOCAL_DB_URL = "postgresql://momentum_test:momentum_test@localhost:5433/momentum_test";
+const CI_DB_URL = "postgresql://momentum:momentum@localhost:5432/momentum";
+const TEST_DB_URL = isCI ? CI_DB_URL : LOCAL_DB_URL;
+
+const TEST_PORT = isCI ? "3000" : "3001";
+const BASE_URL = `http://localhost:${TEST_PORT}`;
 
 export default defineConfig({
   testDir: "./journeys",
-  fullyParallel: true,
-  forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
+  fullyParallel: false,
+  forbidOnly: isCI,
+  retries: isCI ? 2 : 0,
+  workers: 1,
   reporter: "html",
+
+  globalSetup: path.join(__dirname, "global-setup.ts"),
+  globalTeardown: path.join(__dirname, "global-teardown.ts"),
+
   use: {
-    baseURL: "http://localhost:3000",
+    baseURL: BASE_URL,
     trace: "on-first-retry",
   },
 
@@ -24,8 +41,12 @@ export default defineConfig({
 
   webServer: {
     command: "yarn dev",
-    url: "http://localhost:3000",
-    reuseExistingServer: !process.env.CI,
+    url: BASE_URL,
+    reuseExistingServer: false,
     timeout: 120 * 1000,
+    env: {
+      DATABASE_URL: TEST_DB_URL,
+      PORT: TEST_PORT,
+    },
   },
 });

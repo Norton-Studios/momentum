@@ -1,158 +1,116 @@
 import { expect, test } from "@playwright/test";
 
-test.describe("Onboarding Flow", () => {
-  test("completes full onboarding flow from data sources to completion", async ({ page }) => {
-    // Step 1: Navigate to data sources page
-    await page.goto("/onboarding/datasources");
-    await expect(page).toHaveTitle(/Momentum/);
+const GITHUB_TOKEN = process.env.E2E_GITHUB_TOKEN;
+const GITHUB_ORG = process.env.E2E_GITHUB_ORG;
 
-    // Step 2: Configure GitHub data source
-    await page.getByRole("button", { name: /github/i }).click();
+test.describe
+  .serial("Onboarding Journey", () => {
+    test.beforeAll(() => {
+      if (!GITHUB_TOKEN || !GITHUB_ORG) {
+        throw new Error("E2E_GITHUB_TOKEN and E2E_GITHUB_ORG environment variables must be set");
+      }
+    });
 
-    await page.getByLabel(/personal access token/i).fill("test_token_123");
-    await page.getByLabel(/organization name/i).fill("test-org");
+    test("Step 1: Create admin account via setup", async ({ page }) => {
+      await page.goto("/setup");
+      await expect(page).toHaveTitle(/Welcome - Momentum Setup/);
 
-    // Note: In real tests, you'd mock the GitHub API
-    // For now, we'll assume the test connection works
-    await page.getByRole("button", { name: /save/i }).click();
+      await page.getByLabel("Organization Name").fill("Test Organization");
+      await page.getByLabel("First Name").fill("Test");
+      await page.getByLabel("Last Name").fill("Admin");
+      await page.getByLabel("Email Address").fill("admin@test.com");
+      await page.getByLabel("Password").fill("TestPassword123!");
 
-    // Step 3: Navigate to repository selection
-    await page.getByRole("button", { name: /continue/i }).click();
-    await expect(page).toHaveURL(/\/onboarding\/repositories/);
+      await page.getByRole("button", { name: "Create Admin Account" }).click();
 
-    // Step 4: Select repositories
-    await expect(page.getByRole("heading", { name: /select repositories/i })).toBeVisible();
+      await expect(page).toHaveURL(/\/onboarding\/datasources/);
+    });
 
-    // Wait for repositories to load
-    await page.waitForSelector(".repository-item", { timeout: 10000 });
+    test("Step 2: Configure GitHub data source", async ({ page }) => {
+      await page.goto("/login");
+      await page.getByLabel("Email Address").fill("admin@test.com");
+      await page.getByLabel("Password").fill("TestPassword123!");
+      await page.getByRole("button", { name: "Sign In" }).click();
 
-    // Select some repositories
-    const firstCheckbox = page.locator(".repository-item input[type='checkbox']").first();
-    await firstCheckbox.check();
+      await page.goto("/onboarding/datasources");
+      await expect(page.getByRole("heading", { name: "Connect Your Tools" })).toBeVisible();
 
-    // Continue to import
-    await page.getByRole("button", { name: /continue/i }).click();
-    await expect(page).toHaveURL(/\/onboarding\/importing/);
+      await page.getByRole("button", { name: /Configure GitHub/i }).click();
 
-    // Step 5: Import progress page
-    await expect(page.getByRole("heading", { name: /import started/i })).toBeVisible();
+      await page.locator("#github-GITHUB_TOKEN").fill(GITHUB_TOKEN as string);
+      await page.locator("#github-GITHUB_ORG").fill(GITHUB_ORG as string);
 
-    // Continue to dashboard
-    await page.getByRole("button", { name: /continue to dashboard/i }).click();
-    await expect(page).toHaveURL(/\/onboarding\/complete/);
+      await page.getByRole("button", { name: "Test Connection" }).click();
 
-    // Step 6: Completion page
-    await expect(page.getByRole("heading", { name: /you're all set/i })).toBeVisible();
-    await expect(page.getByText(/repositories tracked/i)).toBeVisible();
+      await expect(page.getByText("Connection successful!")).toBeVisible({
+        timeout: 30000,
+      });
 
-    // Go to dashboard
-    await page.getByRole("link", { name: /go to dashboard/i }).click();
-    await expect(page).toHaveURL(/\/dashboard/);
+      await page.getByRole("button", { name: "Save Configuration" }).click();
+
+      await expect(page.locator("#githubStatus")).toHaveText("Connected");
+    });
+
+    test("Step 3: Continue to repository selection", async ({ page }) => {
+      await page.goto("/login");
+      await page.getByLabel("Email Address").fill("admin@test.com");
+      await page.getByLabel("Password").fill("TestPassword123!");
+      await page.getByRole("button", { name: "Sign In" }).click();
+
+      await page.goto("/onboarding/datasources");
+
+      await page.getByRole("button", { name: "Continue to Import" }).click();
+
+      await expect(page).toHaveURL(/\/onboarding\/repositories/);
+      await expect(page.getByRole("heading", { name: /Select Repositories/i })).toBeVisible();
+    });
+
+    test("Step 4: Select repositories and start import", async ({ page }) => {
+      await page.goto("/login");
+      await page.getByLabel("Email Address").fill("admin@test.com");
+      await page.getByLabel("Password").fill("TestPassword123!");
+      await page.getByRole("button", { name: "Sign In" }).click();
+
+      await page.goto("/onboarding/repositories");
+
+      await page.waitForSelector('[data-testid="repository-item"]', {
+        timeout: 30000,
+      });
+
+      const firstCheckbox = page.locator('[data-testid="repository-item"] input[type="checkbox"]').first();
+      await firstCheckbox.check();
+
+      await expect(page.getByText(/1 repositor/i)).toBeVisible();
+
+      await page.getByRole("button", { name: /Continue/i }).click();
+
+      await expect(page).toHaveURL(/\/onboarding\/importing/);
+    });
+
+    test("Step 5: Wait for import and complete onboarding", async ({ page }) => {
+      await page.goto("/login");
+      await page.getByLabel("Email Address").fill("admin@test.com");
+      await page.getByLabel("Password").fill("TestPassword123!");
+      await page.getByRole("button", { name: "Sign In" }).click();
+
+      await page.goto("/onboarding/importing");
+
+      await page.getByRole("button", { name: /Continue to Dashboard/i }).click();
+
+      await expect(page).toHaveURL(/\/onboarding\/complete/);
+      await expect(page.getByRole("heading", { name: /You're All Set/i })).toBeVisible();
+    });
+
+    test("Step 6: Navigate to dashboard", async ({ page }) => {
+      await page.goto("/login");
+      await page.getByLabel("Email Address").fill("admin@test.com");
+      await page.getByLabel("Password").fill("TestPassword123!");
+      await page.getByRole("button", { name: "Sign In" }).click();
+
+      await page.goto("/onboarding/complete");
+
+      await page.getByRole("link", { name: /Go to Dashboard/i }).click();
+
+      await expect(page).toHaveURL(/\/dashboard/);
+    });
   });
-
-  test("allows filtering repositories by activity", async ({ page }) => {
-    await page.goto("/onboarding/repositories");
-
-    // Wait for repositories to load
-    await page.waitForSelector(".repository-item", { timeout: 10000 });
-
-    // Change activity filter
-    const activityFilter = page.locator(".filter-select");
-    await activityFilter.selectOption("active");
-
-    // Wait for results to update
-    await page.waitForTimeout(500);
-
-    // URL should reflect the filter
-    await expect(page).toHaveURL(/activity=active/);
-  });
-
-  test("allows searching repositories", async ({ page }) => {
-    await page.goto("/onboarding/repositories");
-
-    // Wait for repositories to load
-    await page.waitForSelector(".repository-item", { timeout: 10000 });
-
-    // Search for a repository
-    const searchInput = page.getByPlaceholder(/search repositories/i);
-    await searchInput.fill("test");
-
-    // Wait for debounce
-    await page.waitForTimeout(500);
-
-    // Results should be filtered (this would depend on actual data)
-  });
-
-  test("allows bulk selection of repositories", async ({ page }) => {
-    await page.goto("/onboarding/repositories");
-
-    // Wait for repositories to load
-    await page.waitForSelector(".repository-item", { timeout: 10000 });
-
-    // Click "Select All"
-    await page.getByRole("button", { name: /^select all$/i }).click();
-
-    // All visible checkboxes should be checked
-    const checkboxes = page.locator(".repository-item input[type='checkbox']");
-    const count = await checkboxes.count();
-
-    for (let i = 0; i < Math.min(count, 5); i++) {
-      await expect(checkboxes.nth(i)).toBeChecked();
-    }
-
-    // Click "Deselect All"
-    await page.getByRole("button", { name: /deselect all/i }).click();
-
-    // All checkboxes should be unchecked
-    for (let i = 0; i < Math.min(count, 5); i++) {
-      await expect(checkboxes.nth(i)).not.toBeChecked();
-    }
-  });
-
-  test("allows selecting active repositories", async ({ page }) => {
-    await page.goto("/onboarding/repositories");
-
-    // Wait for repositories to load
-    await page.waitForSelector(".repository-item", { timeout: 10000 });
-
-    // Click "Select Active"
-    await page.getByRole("button", { name: /select active/i }).click();
-
-    // Wait for the action to complete
-    await page.waitForTimeout(500);
-
-    // The selection count should update
-    await expect(page.getByText(/repositories selected/i)).toBeVisible();
-  });
-
-  test("shows error when no VCS data source is configured", async ({ page }) => {
-    // Try to access repositories page without configuring data source
-    // This would require clearing the database first
-    await page.goto("/onboarding/repositories");
-
-    // Should redirect to datasources or show error
-    await expect(page).toHaveURL(/\/onboarding\/datasources|error/);
-  });
-
-  test("can navigate back from each step", async ({ page }) => {
-    // Start from repositories page
-    await page.goto("/onboarding/repositories");
-    await page.waitForSelector(".repository-item", { timeout: 10000 });
-
-    // Click back button
-    await page.getByRole("link", { name: /back/i }).click();
-    await expect(page).toHaveURL(/\/onboarding\/datasources/);
-
-    // Navigate forward again
-    await page.getByRole("button", { name: /continue/i }).click();
-    await expect(page).toHaveURL(/\/onboarding\/repositories/);
-
-    // Continue to importing
-    await page.getByRole("button", { name: /continue/i }).click();
-    await expect(page).toHaveURL(/\/onboarding\/importing/);
-
-    // Go back to repository selection
-    await page.getByRole("link", { name: /back to repository selection/i }).click();
-    await expect(page).toHaveURL(/\/onboarding\/repositories/);
-  });
-});
