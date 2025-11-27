@@ -157,7 +157,7 @@ describe("datasourcesAction", () => {
       const response = await datasourcesAction({ request, params: {}, context: {} });
 
       expect(response.status).toBe(302);
-      expect(response.headers.get("Location")).toBe("/");
+      expect(response.headers.get("Location")).toBe("/onboarding/repositories");
     });
   });
 });
