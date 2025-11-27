@@ -1,6 +1,6 @@
 import { execSync } from "child_process";
 
-export function globalTeardown() {
+export default function globalTeardown() {
   try {
     execSync("docker compose -f e2e/docker-compose.yml down");
   } catch (error) {
