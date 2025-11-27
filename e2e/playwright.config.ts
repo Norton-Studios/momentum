@@ -12,14 +12,10 @@ if (existsSync(envPath)) {
   config({ path: envPath });
 }
 
-const isCI = !!process.env.CI;
-
-const LOCAL_DB_URL = "postgresql://momentum_test:momentum_test@localhost:5433/momentum_test";
-const CI_DB_URL = "postgresql://momentum:momentum@localhost:5432/momentum";
-const TEST_DB_URL = isCI ? CI_DB_URL : LOCAL_DB_URL;
-
-const TEST_PORT = isCI ? "3000" : "3001";
-const BASE_URL = `http://localhost:${TEST_PORT}`;
+export const isCI = !!process.env.CI;
+export const TEST_DB_URL = "postgresql://momentum:momentum@localhost:5433/momentum";
+export const TEST_PORT = isCI ? "3000" : "3001";
+export const BASE_URL = `http://localhost:${TEST_PORT}`;
 
 export default defineConfig({
   testDir: "./journeys",
@@ -30,12 +26,12 @@ export default defineConfig({
   reporter: "html",
   timeout: 10000, // 10 seconds per test
 
-  globalSetup: path.join(__dirname, "global-setup.ts"),
   globalTeardown: path.join(__dirname, "global-teardown.ts"),
 
   use: {
     baseURL: BASE_URL,
     trace: "on-first-retry",
+    screenshot: "only-on-failure",
   },
 
   projects: [
@@ -49,7 +45,7 @@ export default defineConfig({
   ],
 
   webServer: {
-    command: "yarn dev",
+    command: isCI ? "yarn dev" : "yarn test:e2e:server",
     url: BASE_URL,
     reuseExistingServer: false,
     timeout: 10 * 1000, // 10 seconds for dev server startup

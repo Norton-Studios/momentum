@@ -5,7 +5,7 @@
   "packageManager": "yarn@4.11.0",
   "scripts": {
     "build": "react-router build",
-    "dev": "react-router dev",
+    "dev": "docker compose up -d && react-router dev",
     "start": "react-router-serve ./build/server/index.js",
     "typecheck": "react-router typegen && tsc",
     "lint": "biome check .",
@@ -16,6 +16,8 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test -c e2e/playwright.config.ts",
+    "test:e2e:db": "docker compose -f e2e/docker-compose.yml up -d --wait && npx prisma db push --skip-generate",
+    "test:e2e:server": "yarn test:e2e:db && react-router dev",
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
     "db:migrate:deploy": "prisma migrate deploy",

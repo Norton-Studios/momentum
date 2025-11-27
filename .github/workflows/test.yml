@@ -102,14 +102,14 @@ jobs:
           POSTGRES_PASSWORD: momentum
           POSTGRES_DB: momentum
         ports:
-          - 5432:5432
+          - 5433:5432
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
     env:
-      DATABASE_URL: postgresql://momentum:momentum@localhost:5432/momentum
+      DATABASE_URL: postgresql://momentum:momentum@localhost:5433/momentum
       E2E_GITHUB_TOKEN: ${{ secrets.E2E_GITHUB_TOKEN }}
       E2E_GITHUB_ORG: ${{ secrets.E2E_GITHUB_ORG }}
     steps:
