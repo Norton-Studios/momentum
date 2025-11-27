@@ -48,7 +48,7 @@ export default defineConfig({
   ],
 
   webServer: {
-    command: isCI ? "yarn dev" : "yarn test:e2e:server",
+    command: isCI ? "yarn dev:server" : "yarn test:e2e:server",
     url: BASE_URL,
     reuseExistingServer: false,
     timeout: 10 * 1000, // 10 seconds for dev server startup
