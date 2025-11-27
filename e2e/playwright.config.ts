@@ -1,8 +1,16 @@
+import { existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { defineConfig, devices } from "@playwright/test";
+import { config } from "dotenv";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+// Load environment variables BEFORE test modules are parsed
+const envPath = path.join(__dirname, ".env");
+if (existsSync(envPath)) {
+  config({ path: envPath });
+}
 
 const isCI = !!process.env.CI;
 
@@ -20,6 +28,7 @@ export default defineConfig({
   retries: isCI ? 2 : 0,
   workers: 1,
   reporter: "html",
+  timeout: 10000, // 10 seconds per test
 
   globalSetup: path.join(__dirname, "global-setup.ts"),
   globalTeardown: path.join(__dirname, "global-teardown.ts"),
@@ -43,7 +52,7 @@ export default defineConfig({
     command: "yarn dev",
     url: BASE_URL,
     reuseExistingServer: false,
-    timeout: 120 * 1000,
+    timeout: 10 * 1000, // 10 seconds for dev server startup
     env: {
       DATABASE_URL: TEST_DB_URL,
       PORT: TEST_PORT,

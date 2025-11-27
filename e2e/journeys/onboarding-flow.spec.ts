@@ -56,8 +56,10 @@ test.describe
       await page.getByLabel("Email Address").fill("admin@test.com");
       await page.getByLabel("Password").fill("TestPassword123!");
       await page.getByRole("button", { name: "Sign In" }).click();
+      await page.waitForURL(/\/(dashboard|onboarding)/);
 
       await page.goto("/onboarding/datasources");
+      await expect(page.getByRole("heading", { name: "Connect Your Tools" })).toBeVisible();
 
       await page.getByRole("button", { name: "Continue to Import" }).click();
 

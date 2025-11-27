@@ -1,8 +1,6 @@
 import { execSync } from "node:child_process";
-import { existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { config } from "dotenv";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.join(__dirname, "..");
@@ -14,10 +12,7 @@ const CI_DB_URL = "postgresql://momentum:momentum@localhost:5432/momentum";
 const TEST_DB_URL = isCI ? CI_DB_URL : LOCAL_DB_URL;
 
 export default async function globalSetup() {
-  const envPath = path.join(__dirname, ".env");
-  if (existsSync(envPath)) {
-    config({ path: envPath });
-  }
+  // Environment variables are loaded in playwright.config.ts
 
   if (!isCI) {
     console.log("Starting e2e test database...");
