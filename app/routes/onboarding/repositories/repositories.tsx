@@ -341,7 +341,7 @@ const RepositoryRow = ({
 
   return (
     <div ref={measureRef} style={style} className="repository-row">
-      <label className="repository-item">
+      <label className="repository-item" data-testid="repository-item">
         <input type="checkbox" checked={isSelected} onChange={(e) => onToggle(repo.id, e.target.checked)} />
         <div className="repository-info">
           <div className="repository-details">
