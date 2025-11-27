@@ -32,6 +32,10 @@ vi.mock("~/lib/repositories/fetch-repositories", () => ({
   saveRepositories: vi.fn(),
 }));
 
+// Suppress console.log during tests
+vi.spyOn(console, "log").mockImplementation(() => {});
+vi.spyOn(console, "error").mockImplementation(() => {});
+
 vi.mock("~/lib/repositories/repository-filters", () => ({
   getRepositoriesWithFilters: vi.fn(),
   bulkUpdateRepositorySelection: vi.fn(),
@@ -40,6 +44,7 @@ vi.mock("~/lib/repositories/repository-filters", () => ({
 
 import { requireAdmin } from "~/auth/auth.server";
 import { db } from "~/db.server";
+import { fetchGithubRepositories, saveRepositories } from "~/lib/repositories/fetch-repositories";
 import { bulkUpdateRepositorySelection, getRepositoriesWithFilters, selectAllMatchingFilters } from "~/lib/repositories/repository-filters";
 import { repositoriesAction, repositoriesLoader } from "./repositories.server";
 
@@ -100,6 +105,85 @@ describe("repositoriesLoader", () => {
       cursor: "repo-50",
       limit: 100,
     });
+  });
+
+  it("initializes repositories when none exist and redirects", async () => {
+    const mockDataSource = {
+      id: "ds-1",
+      provider: "GITHUB",
+      configs: [
+        { key: "GITHUB_TOKEN", value: "ghp_test" },
+        { key: "GITHUB_ORG", value: "my-org" },
+      ],
+    };
+    vi.mocked(db.dataSource.findFirst).mockResolvedValue(mockDataSource as never);
+    vi.mocked(db.repository.findMany).mockResolvedValue([]); // No repositories
+    vi.mocked(fetchGithubRepositories).mockResolvedValue([{ name: "repo-1", fullName: "org/repo-1" }] as never);
+    vi.mocked(saveRepositories).mockResolvedValue(undefined);
+    vi.mocked(db.repository.updateMany).mockResolvedValue({ count: 1 });
+
+    const request = new Request("http://localhost/onboarding/repositories");
+    const response = await repositoriesLoader({ request, params: {}, context: {} });
+
+    expect(response.status).toBe(302);
+    expect(response.headers.get("Location")).toBe("/onboarding/repositories?initialized=true");
+    expect(fetchGithubRepositories).toHaveBeenCalledWith({ token: "ghp_test", organization: "my-org" });
+    expect(saveRepositories).toHaveBeenCalled();
+  });
+
+  it("returns error when GitHub token or org is missing", async () => {
+    const mockDataSource = {
+      id: "ds-1",
+      provider: "GITHUB",
+      configs: [{ key: "GITHUB_TOKEN", value: "ghp_test" }], // Missing GITHUB_ORG
+    };
+    vi.mocked(db.dataSource.findFirst).mockResolvedValue(mockDataSource as never);
+    vi.mocked(db.repository.findMany).mockResolvedValue([]);
+
+    const request = new Request("http://localhost/onboarding/repositories");
+    const response = await repositoriesLoader({ request, params: {}, context: {} });
+
+    expect(response.status).toBe(500);
+    const body = await response.json();
+    expect(body.error).toContain("GitHub token or organization not configured");
+  });
+
+  it("returns error when initialization fails", async () => {
+    const mockDataSource = {
+      id: "ds-1",
+      provider: "GITHUB",
+      configs: [
+        { key: "GITHUB_TOKEN", value: "ghp_test" },
+        { key: "GITHUB_ORG", value: "my-org" },
+      ],
+    };
+    vi.mocked(db.dataSource.findFirst).mockResolvedValue(mockDataSource as never);
+    vi.mocked(db.repository.findMany).mockResolvedValue([]);
+    vi.mocked(fetchGithubRepositories).mockRejectedValue(new Error("API rate limit exceeded"));
+
+    const request = new Request("http://localhost/onboarding/repositories");
+    const response = await repositoriesLoader({ request, params: {}, context: {} });
+
+    expect(response.status).toBe(500);
+    const body = await response.json();
+    expect(body.error).toContain("API rate limit exceeded");
+  });
+
+  it("skips initialization when already initialized", async () => {
+    const mockDataSource = { id: "ds-1", provider: "GITHUB", configs: [] };
+    vi.mocked(db.dataSource.findFirst).mockResolvedValue(mockDataSource as never);
+    vi.mocked(db.repository.findMany).mockResolvedValue([]);
+    vi.mocked(getRepositoriesWithFilters).mockResolvedValue({
+      repositories: [],
+      totalCount: 0,
+      nextCursor: undefined,
+    });
+
+    const request = new Request("http://localhost/onboarding/repositories?initialized=true");
+    const response = await repositoriesLoader({ request, params: {}, context: {} });
+
+    expect(response.status).toBe(200);
+    expect(fetchGithubRepositories).not.toHaveBeenCalled();
   });
 });
 
@@ -242,6 +326,73 @@ describe("repositoriesAction", () => {
       expect(response.status).toBe(400);
       const body = await response.json();
       expect(body.error).toContain("No VCS data source configured");
+    });
+
+    it("applies stale activity filter when selecting all", async () => {
+      const mockDataSource = { id: "ds-1", provider: "GITHUB", configs: [] };
+      vi.mocked(db.dataSource.findFirst).mockResolvedValue(mockDataSource as never);
+      vi.mocked(selectAllMatchingFilters).mockResolvedValue(10);
+      vi.mocked(db.repository.findMany).mockResolvedValue([{ id: "repo-1" }] as never);
+
+      const formData = new FormData();
+      formData.append("intent", "select-all-matching");
+      formData.append("activity", "stale");
+      formData.append("isEnabled", "true");
+
+      const request = new Request("http://localhost/onboarding/repositories", {
+        method: "POST",
+        body: formData,
+      });
+
+      const response = await repositoriesAction({ request, params: {}, context: {} });
+
+      expect(response.status).toBe(200);
+      expect(selectAllMatchingFilters).toHaveBeenCalledWith(db, "ds-1", expect.objectContaining({ activity: "stale" }), true);
+    });
+
+    it("applies inactive activity filter when selecting all", async () => {
+      const mockDataSource = { id: "ds-1", provider: "GITHUB", configs: [] };
+      vi.mocked(db.dataSource.findFirst).mockResolvedValue(mockDataSource as never);
+      vi.mocked(selectAllMatchingFilters).mockResolvedValue(5);
+      vi.mocked(db.repository.findMany).mockResolvedValue([{ id: "repo-1" }] as never);
+
+      const formData = new FormData();
+      formData.append("intent", "select-all-matching");
+      formData.append("activity", "inactive");
+      formData.append("isEnabled", "true");
+
+      const request = new Request("http://localhost/onboarding/repositories", {
+        method: "POST",
+        body: formData,
+      });
+
+      const response = await repositoriesAction({ request, params: {}, context: {} });
+
+      expect(response.status).toBe(200);
+      expect(selectAllMatchingFilters).toHaveBeenCalledWith(db, "ds-1", expect.objectContaining({ activity: "inactive" }), true);
+    });
+
+    it("handles languages filter in select-all-matching", async () => {
+      const mockDataSource = { id: "ds-1", provider: "GITHUB", configs: [] };
+      vi.mocked(db.dataSource.findFirst).mockResolvedValue(mockDataSource as never);
+      vi.mocked(selectAllMatchingFilters).mockResolvedValue(20);
+      vi.mocked(db.repository.findMany).mockResolvedValue([{ id: "repo-1" }] as never);
+
+      const formData = new FormData();
+      formData.append("intent", "select-all-matching");
+      formData.append("languages", "TypeScript");
+      formData.append("languages", "JavaScript");
+      formData.append("isEnabled", "true");
+
+      const request = new Request("http://localhost/onboarding/repositories", {
+        method: "POST",
+        body: formData,
+      });
+
+      const response = await repositoriesAction({ request, params: {}, context: {} });
+
+      expect(response.status).toBe(200);
+      expect(selectAllMatchingFilters).toHaveBeenCalledWith(db, "ds-1", expect.objectContaining({ languages: ["TypeScript", "JavaScript"] }), true);
     });
   });
 

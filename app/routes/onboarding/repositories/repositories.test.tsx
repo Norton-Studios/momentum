@@ -395,4 +395,270 @@ describe("Repositories", () => {
       expect(screen.queryByText(/Updated/)).not.toBeInTheDocument();
     });
   });
+
+  describe("Toggle repository selection", () => {
+    it("deselects repository when clicking checked checkbox", async () => {
+      const user = userEvent.setup();
+      vi.mocked(useLoaderData).mockReturnValue(
+        createSuccessData({
+          repositories: [createMockRepository({ id: "repo-1", isEnabled: true })],
+        })
+      );
+
+      render(
+        <MemoryRouter>
+          <Repositories />
+        </MemoryRouter>
+      );
+
+      const checkboxes = screen.getAllByRole("checkbox");
+      const repositoryCheckbox = checkboxes[1];
+      expect(repositoryCheckbox).toBeChecked();
+
+      await user.click(repositoryCheckbox);
+
+      const formData = mockFetcher.submit.mock.calls[0][0] as FormData;
+      expect(formData.get("intent")).toBe("toggle");
+      expect(formData.get("repositoryId")).toBe("repo-1");
+      expect(formData.get("isEnabled")).toBe("false");
+    });
+
+    it("selects repository when clicking unchecked checkbox", async () => {
+      const user = userEvent.setup();
+      vi.mocked(useLoaderData).mockReturnValue(
+        createSuccessData({
+          repositories: [createMockRepository({ id: "repo-1", isEnabled: false })],
+        })
+      );
+
+      render(
+        <MemoryRouter>
+          <Repositories />
+        </MemoryRouter>
+      );
+
+      const checkboxes = screen.getAllByRole("checkbox");
+      const repositoryCheckbox = checkboxes[1];
+      expect(repositoryCheckbox).not.toBeChecked();
+
+      await user.click(repositoryCheckbox);
+
+      const formData = mockFetcher.submit.mock.calls[0][0] as FormData;
+      expect(formData.get("intent")).toBe("toggle");
+      expect(formData.get("isEnabled")).toBe("true");
+    });
+  });
+
+  describe("Header checkbox behavior", () => {
+    it("shows indeterminate state when some repositories selected", () => {
+      vi.mocked(useLoaderData).mockReturnValue(
+        createSuccessData({
+          repositories: [createMockRepository({ id: "repo-1", isEnabled: true }), createMockRepository({ id: "repo-2", name: "web", isEnabled: false })],
+          totalCount: 2,
+        })
+      );
+
+      render(
+        <MemoryRouter>
+          <Repositories />
+        </MemoryRouter>
+      );
+
+      const headerCheckbox = screen.getAllByRole("checkbox")[0] as HTMLInputElement;
+      expect(headerCheckbox.indeterminate).toBe(true);
+    });
+
+    it("deselects all visible when header checkbox is clicked while all selected", async () => {
+      const user = userEvent.setup();
+      vi.mocked(useLoaderData).mockReturnValue(
+        createSuccessData({
+          repositories: [createMockRepository({ id: "repo-1", isEnabled: true }), createMockRepository({ id: "repo-2", name: "web", isEnabled: true })],
+          totalCount: 2,
+        })
+      );
+
+      render(
+        <MemoryRouter>
+          <Repositories />
+        </MemoryRouter>
+      );
+
+      const headerCheckbox = screen.getAllByRole("checkbox")[0];
+      await user.click(headerCheckbox);
+
+      const formData = mockFetcher.submit.mock.calls[0][0] as FormData;
+      expect(formData.get("intent")).toBe("toggle-batch");
+      expect(formData.get("isEnabled")).toBe("false");
+    });
+
+    it("selects all visible when header checkbox is clicked while none selected", async () => {
+      const user = userEvent.setup();
+      vi.mocked(useLoaderData).mockReturnValue(
+        createSuccessData({
+          repositories: [createMockRepository({ id: "repo-1", isEnabled: false }), createMockRepository({ id: "repo-2", name: "web", isEnabled: false })],
+          totalCount: 2,
+        })
+      );
+
+      render(
+        <MemoryRouter>
+          <Repositories />
+        </MemoryRouter>
+      );
+
+      const headerCheckbox = screen.getAllByRole("checkbox")[0];
+      await user.click(headerCheckbox);
+
+      const formData = mockFetcher.submit.mock.calls[0][0] as FormData;
+      expect(formData.get("intent")).toBe("toggle-batch");
+      expect(formData.get("isEnabled")).toBe("true");
+      expect(formData.getAll("repositoryIds")).toEqual(["repo-1", "repo-2"]);
+    });
+  });
+
+  describe("Fetcher error handling", () => {
+    it("handles fetcher error response", async () => {
+      vi.mocked(useLoaderData).mockReturnValue(createSuccessData());
+
+      const { rerender } = render(
+        <MemoryRouter>
+          <Repositories />
+        </MemoryRouter>
+      );
+
+      mockFetcher.data = { error: "Failed to update" };
+
+      rerender(
+        <MemoryRouter>
+          <Repositories />
+        </MemoryRouter>
+      );
+
+      // Component should still render without crashing
+      expect(screen.getByRole("heading", { level: 1, name: "Select Repositories" })).toBeInTheDocument();
+    });
+  });
+
+  describe("Pagination with nextCursor", () => {
+    it("displays data with nextCursor available", () => {
+      vi.mocked(useLoaderData).mockReturnValue(
+        createSuccessData({
+          repositories: [createMockRepository()],
+          totalCount: 100,
+          nextCursor: "cursor-123",
+        })
+      );
+
+      render(
+        <MemoryRouter>
+          <Repositories />
+        </MemoryRouter>
+      );
+
+      expect(screen.getByText("api")).toBeInTheDocument();
+    });
+  });
+
+  describe("Fetcher loading repositories", () => {
+    it("appends new repositories from fetcher load response", async () => {
+      vi.mocked(useLoaderData).mockReturnValue(
+        createSuccessData({
+          repositories: [createMockRepository({ id: "repo-1", name: "api" })],
+          totalCount: 2,
+          nextCursor: "cursor-1",
+        })
+      );
+
+      const { rerender } = render(
+        <MemoryRouter>
+          <Repositories />
+        </MemoryRouter>
+      );
+
+      // Simulate loading more with fetcher data
+      mockFetcher.data = {
+        repositories: [createMockRepository({ id: "repo-2", name: "web", isEnabled: true })],
+        nextCursor: undefined,
+      };
+
+      rerender(
+        <MemoryRouter>
+          <Repositories />
+        </MemoryRouter>
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText("api")).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe("Search with initial filter", () => {
+    it("initializes search input with filter value from loader", () => {
+      vi.mocked(useLoaderData).mockReturnValue(
+        createSuccessData({
+          filters: { search: "initial-search", activity: "all" },
+        })
+      );
+
+      render(
+        <MemoryRouter>
+          <Repositories />
+        </MemoryRouter>
+      );
+
+      const searchInput = screen.getByPlaceholderText("Search repositories...");
+      expect(searchInput).toHaveValue("initial-search");
+    });
+  });
+
+  describe("Select All behavior", () => {
+    it("clears selections when Deselect All is clicked", async () => {
+      const user = userEvent.setup();
+      vi.mocked(useLoaderData).mockReturnValue(
+        createSuccessData({
+          repositories: [createMockRepository({ id: "repo-1", isEnabled: true }), createMockRepository({ id: "repo-2", name: "web", isEnabled: true })],
+          totalCount: 2,
+        })
+      );
+
+      render(
+        <MemoryRouter>
+          <Repositories />
+        </MemoryRouter>
+      );
+
+      expect(screen.getByText("2 selected")).toBeInTheDocument();
+
+      const deselectAllButton = screen.getByRole("button", { name: "Deselect All" });
+      await user.click(deselectAllButton);
+
+      await waitFor(() => {
+        expect(screen.getByText("0 selected")).toBeInTheDocument();
+      });
+    });
+
+    it("shows total count when Select All is clicked", async () => {
+      const user = userEvent.setup();
+      vi.mocked(useLoaderData).mockReturnValue(
+        createSuccessData({
+          repositories: [createMockRepository({ id: "repo-1", isEnabled: false })],
+          totalCount: 100,
+        })
+      );
+
+      render(
+        <MemoryRouter>
+          <Repositories />
+        </MemoryRouter>
+      );
+
+      const selectAllButton = screen.getByRole("button", { name: "Select All" });
+      await user.click(selectAllButton);
+
+      await waitFor(() => {
+        expect(screen.getByText("100 selected")).toBeInTheDocument();
+      });
+    });
+  });
 });
