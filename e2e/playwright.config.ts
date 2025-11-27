@@ -23,7 +23,7 @@ export default defineConfig({
   forbidOnly: isCI,
   retries: isCI ? 2 : 0,
   workers: 1,
-  reporter: "html",
+  reporter: [["html"], ["junit", { outputFile: "junit-results.xml" }]],
   timeout: 10000, // 10 seconds per test
 
   globalTeardown: path.join(__dirname, "global-teardown.ts"),
