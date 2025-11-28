@@ -38,6 +38,7 @@ test.describe
       await expect(page.getByRole("heading", { name: "Connect Your Tools" })).toBeVisible();
 
       await page.getByRole("button", { name: /Configure GitHub/i }).click();
+      await page.locator("#github-GITHUB_TOKEN").waitFor({ state: "visible" });
 
       await page.locator("#github-GITHUB_TOKEN").fill(GITHUB_TOKEN as string);
       await page.locator("#github-GITHUB_ORG").fill(GITHUB_ORG as string);
