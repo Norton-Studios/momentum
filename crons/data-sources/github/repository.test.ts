@@ -94,6 +94,7 @@ describe("repositoryScript", () => {
     expect(mockDb.repository.upsert).toHaveBeenCalledWith({
       where: { fullName: "org/repo1" },
       create: {
+        dataSourceId: "ds-123",
         name: "repo1",
         fullName: "org/repo1",
         description: "Test repo 1",
@@ -103,6 +104,7 @@ describe("repositoryScript", () => {
         stars: 100,
         forks: 10,
         isPrivate: false,
+        isEnabled: true,
         lastSyncAt: expect.any(Date),
       },
       update: {

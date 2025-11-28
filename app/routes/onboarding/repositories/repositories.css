@@ -1,0 +1,269 @@
+/* Onboarding Repositories Styles */
+
+body {
+  background: var(--off-white);
+}
+
+/* Main Content */
+.onboarding-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 80px 60px;
+}
+
+.page-header {
+  text-align: center;
+  margin-bottom: 60px;
+}
+
+.page-header h1 {
+  font-size: 52px;
+  margin-bottom: 20px;
+  letter-spacing: -1.5px;
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 400;
+}
+
+.page-header p {
+  font-size: 18px;
+  color: var(--dark-gray);
+  line-height: 1.7;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+/* List Container */
+.list-container {
+  background: var(--white);
+  border: 1px solid var(--light-gray);
+}
+
+.list-header {
+  padding: 24px;
+  display: flex;
+  justify-content: space-between;
+  gap: 32px;
+  border-bottom: 1px solid var(--light-gray);
+}
+
+.search-box {
+  flex-grow: 1;
+}
+
+.search-input {
+  width: 100%;
+  padding: 16px 20px;
+  border: 1px solid var(--light-gray);
+  background: var(--off-white);
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: var(--black);
+  box-shadow: 0 0 0 1px var(--black);
+  background: var(--white);
+}
+
+.action-buttons {
+  display: flex;
+  gap: 16px;
+}
+
+.list-subheader {
+  display: flex;
+  align-items: center;
+  padding: 12px 32px;
+  border-bottom: 1px solid var(--light-gray);
+  background: var(--off-white);
+}
+
+.checkbox-container {
+  display: flex;
+  align-items: center;
+  padding-right: 20px;
+}
+
+.subheader-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--dark-gray);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+.subheader-count {
+  margin-left: auto;
+  font-size: 13px;
+  color: var(--mid-gray);
+}
+
+.list-body {
+  max-height: 60vh;
+  overflow-y: auto;
+  position: relative;
+}
+
+.list-sizer {
+  position: relative;
+  width: 100%;
+}
+
+/* Repository Row */
+.repository-row {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  border-bottom: 1px solid var(--light-gray);
+}
+.repository-row:last-child {
+  border-bottom: none;
+}
+
+.repository-item {
+  display: flex;
+  gap: 20px;
+  padding: 0 32px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  align-items: center;
+  height: 69px;
+}
+
+.repository-item:hover {
+  background: var(--off-white);
+}
+
+.repository-item input[type="checkbox"] {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+}
+
+.repository-info {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  overflow: hidden;
+}
+
+.repository-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.repository-name {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--black);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.repository-meta {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  font-size: 13px;
+  margin-left: auto;
+  flex-shrink: 0;
+  color: var(--mid-gray);
+}
+
+.repository-meta span {
+  white-space: nowrap;
+}
+
+.repository-meta .language {
+  color: var(--dark-gray);
+}
+
+.repository-meta .private-badge {
+  background: var(--black);
+  color: var(--white);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.repository-meta .stars {
+  color: var(--gold);
+}
+
+/* Footer */
+.onboarding-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 40px;
+  border-top: 1px solid var(--light-gray);
+  margin-top: 40px;
+}
+
+.selection-count {
+  font-size: 16px;
+  color: var(--dark-gray);
+}
+
+.selection-count strong {
+  color: var(--black);
+  font-weight: 500;
+}
+
+.onboarding-actions {
+  display: flex;
+  gap: 16px;
+}
+.loading-spinner {
+  text-align: center;
+  padding: 24px;
+  color: var(--mid-gray);
+}
+
+/* Buttons */
+.btn-primary,
+.btn-secondary {
+  text-decoration: none;
+  display: inline-block;
+  padding: 12px 24px;
+  border: 1px solid var(--light-gray);
+  font-size: 13px;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.btn-secondary {
+  background: var(--off-white);
+  color: var(--black);
+}
+
+.btn-secondary:hover {
+  border-color: var(--black);
+  background: var(--white);
+}
+
+.btn-primary {
+  background: var(--black);
+  color: var(--white);
+  border-color: var(--black);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--gold);
+  color: var(--black);
+  border-color: var(--gold);
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

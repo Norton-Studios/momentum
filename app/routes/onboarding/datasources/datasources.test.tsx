@@ -193,7 +193,7 @@ describe("OnboardingDataSources", () => {
     );
 
     expect(screen.getByText("0")).toBeInTheDocument();
-    expect(screen.getByText(/of 1 required data sources connected/)).toBeInTheDocument();
+    expect(screen.getByText(/of 1 required connection established/)).toBeInTheDocument();
   });
 
   it("renders Continue button disabled initially", () => {

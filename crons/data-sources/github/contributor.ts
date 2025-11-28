@@ -12,7 +12,11 @@ export const contributorScript = {
     const octokit = new Octokit({ auth: context.env.GITHUB_TOKEN });
 
     const repos = await context.db.repository.findMany({
-      where: { provider: "GITHUB" },
+      where: {
+        provider: "GITHUB",
+        dataSourceId: context.dataSourceId,
+        isEnabled: true,
+      },
     });
 
     const errors: string[] = [];

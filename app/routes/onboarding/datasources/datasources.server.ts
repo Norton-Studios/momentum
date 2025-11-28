@@ -19,7 +19,7 @@ export async function datasourcesAction({ request }: ActionFunctionArgs) {
   }
 
   if (intent === "continue") {
-    return redirect("/");
+    return redirect("/onboarding/repositories");
   }
 
   return data({ errors: { form: "Invalid action" } }, { status: 400 });
@@ -57,14 +57,6 @@ async function handleConnectIntent(formData: FormData) {
   const organization = await getOrCreateOrganization();
   const dataSourceId = await upsertDataSource(organization.id, provider, providerEnum);
   await saveDataSourceConfigs(dataSourceId, configs);
-
-  const isVcsProvider = ["github", "gitlab", "bitbucket"].includes(provider);
-  if (isVcsProvider && !organization.onboardingCompletedAt) {
-    await db.organization.update({
-      where: { id: organization.id },
-      data: { onboardingCompletedAt: new Date() },
-    });
-  }
 
   return data({ success: true, provider });
 }

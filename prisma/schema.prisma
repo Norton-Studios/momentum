@@ -93,29 +93,35 @@ enum ReviewState {
 }
 
 model Repository {
-  id          String      @id @default(cuid())
-  name        String      @map("name")
-  fullName    String      @unique @map("full_name") // e.g., "org/repo"
-  description String?     @map("description")
-  provider    VcsProvider @map("provider")
-  url         String      @map("url")
-  language    String?     @map("language")
-  stars       Int         @default(0) @map("stars")
-  forks       Int         @default(0) @map("forks")
-  isPrivate   Boolean     @default(true) @map("is_private")
-  lastSyncAt  DateTime?   @map("last_sync_at")
-  createdAt   DateTime    @default(now()) @map("created_at")
-  updatedAt   DateTime    @updatedAt @map("updated_at")
+  id           String      @id @default(cuid())
+  dataSourceId String      @map("data_source_id")
+  name         String      @map("name")
+  fullName     String      @unique @map("full_name") // e.g., "org/repo"
+  description  String?     @map("description")
+  provider     VcsProvider @map("provider")
+  url          String      @map("url")
+  language     String?     @map("language")
+  stars        Int         @default(0) @map("stars")
+  forks        Int         @default(0) @map("forks")
+  isPrivate    Boolean     @default(true) @map("is_private")
+  isArchived   Boolean     @default(false) @map("is_archived")
+  isEnabled    Boolean     @default(true) @map("is_enabled")
+  lastSyncAt   DateTime?   @map("last_sync_at")
+  createdAt    DateTime    @default(now()) @map("created_at")
+  updatedAt    DateTime    @updatedAt @map("updated_at")
 
   // Relationships
-  commits        Commit[]
-  mergeRequests  MergeRequest[]
-  pipelines      Pipeline[]
-  qualityScans   QualityScan[]
+  commits         Commit[]
+  mergeRequests   MergeRequest[]
+  pipelines       Pipeline[]
+  qualityScans    QualityScan[]
   vulnerabilities SecurityVulnerability[]
 
   @@index([provider])
   @@index([lastSyncAt])
+  @@index([dataSourceId])
+  @@index([dataSourceId, isEnabled])
+  @@index([dataSourceId, name])
   @@map("repository")
   @@schema("vcs")
 }

@@ -3,9 +3,15 @@ import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 
+const port = process.env.PORT ? Number.parseInt(process.env.PORT, 10) : 3000;
+
 export default defineConfig({
   plugins: [tailwindcss(), reactRouter(), tsconfigPaths()],
   server: {
-    port: 3000,
+    port,
+  },
+  // prevent reloading every time these deps are discovered
+  optimizeDeps: {
+    include: ["bcrypt", "@prisma/client", "@octokit/rest", "@tanstack/react-virtual"],
   },
 });
