@@ -10,4 +10,8 @@ export default defineConfig({
   server: {
     port,
   },
+  // prevent reloading every time these deps are discovered
+  optimizeDeps: {
+    include: ["bcrypt", "@prisma/client", "@octokit/rest", "@tanstack/react-virtual"],
+  },
 });
