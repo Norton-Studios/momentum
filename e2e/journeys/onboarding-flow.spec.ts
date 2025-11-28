@@ -35,6 +35,7 @@ test.describe
       await page.waitForURL(/\/(dashboard|onboarding)/);
 
       await page.goto("/onboarding/datasources");
+      await page.waitForLoadState("networkidle");
       await expect(page.getByRole("heading", { name: "Connect Your Tools" })).toBeVisible();
 
       await page.screenshot({ path: "e2e/test-results/debug-1-before-configure-click.png", fullPage: true });
