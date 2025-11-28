@@ -96,6 +96,9 @@ jobs:
           path: ~/.cache/ms-playwright
           key: ${{ runner.os }}-playwright-${{ hashFiles('package.json') }}
 
+      - name: Create Test Results Directory
+        run: mkdir -p e2e/test-results
+
       - name: Run E2E Tests
         id: e2e-tests
         run: yarn test:e2e
