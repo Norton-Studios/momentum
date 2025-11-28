@@ -55,8 +55,7 @@ test.describe
       await expect(page.locator("#githubStatus")).toHaveText("Connected");
     });
 
-    test("Step 3: Continue to repository selection", async ({ page }, testInfo) => {
-      testInfo.setTimeout(60000);
+    test("Step 3: Continue to repository selection", async ({ page }) => {
       await page.goto("/login");
       await page.getByLabel("Email Address").fill("admin@test.com");
       await page.getByLabel("Password").fill("TestPassword123!");
@@ -67,15 +66,9 @@ test.describe
       await page.waitForLoadState("networkidle");
       await expect(page.getByRole("heading", { name: "Connect Your Tools" })).toBeVisible();
 
-      await page.screenshot({ path: "e2e/test-results/step3-1-before-continue.png", fullPage: true });
-
       await page.getByRole("button", { name: "Continue to Import" }).click();
 
-      // Wait a moment then capture whatever page we're on
-      await page.waitForTimeout(2000);
-      await page.screenshot({ path: "e2e/test-results/step3-2-after-continue.png", fullPage: true });
-
-      await expect(page).toHaveURL(/\/onboarding\/repositories/, { timeout: 30000 });
+      await expect(page).toHaveURL(/\/onboarding\/repositories/);
       await expect(page.getByRole("heading", { name: /Select Repositories/i })).toBeVisible();
     });
 
