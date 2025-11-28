@@ -37,11 +37,20 @@ test.describe
       await page.goto("/onboarding/datasources");
       await expect(page.getByRole("heading", { name: "Connect Your Tools" })).toBeVisible();
 
+      await page.screenshot({ path: testInfo.outputPath("debug-1-before-configure-click.png"), fullPage: true });
+
       await page.getByRole("button", { name: /Configure GitHub/i }).click();
+
+      await page.screenshot({ path: testInfo.outputPath("debug-2-after-configure-click.png"), fullPage: true });
+
       await page.locator("#github-GITHUB_TOKEN").waitFor({ state: "visible" });
+
+      await page.screenshot({ path: testInfo.outputPath("debug-3-after-form-visible.png"), fullPage: true });
 
       await page.locator("#github-GITHUB_TOKEN").fill(GITHUB_TOKEN as string);
       await page.locator("#github-GITHUB_ORG").fill(GITHUB_ORG as string);
+
+      await page.screenshot({ path: testInfo.outputPath("debug-4-after-fill.png"), fullPage: true });
 
       await page.getByRole("button", { name: "Test Connection" }).click();
 
