@@ -35,13 +35,14 @@ jobs:
           --health-retries 5
     env:
       DATABASE_URL: postgresql://momentum:momentum@localhost:5433/momentum
-      E2E_GITHUB_TOKEN: ${{ secrets.E2E_GITHUB_TOKEN }}
-      E2E_GITHUB_ORG: ${{ secrets.E2E_GITHUB_ORG }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
+
+      - name: Create E2E Environment File
+        run: echo "${{ secrets.E2E_ENV }}" > e2e/.env
 
       - name: Enable Corepack
         run: corepack enable
