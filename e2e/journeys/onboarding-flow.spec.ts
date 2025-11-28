@@ -38,20 +38,20 @@ test.describe
       await page.waitForLoadState("networkidle");
       await expect(page.getByRole("heading", { name: "Connect Your Tools" })).toBeVisible();
 
-      await page.screenshot({ path: "e2e/test-results/debug-1-before-configure-click.png", fullPage: true });
+      await page.screenshot({ path: testInfo.outputPath("debug-1-before-configure-click.png"), fullPage: true });
 
       await page.getByRole("button", { name: /Configure GitHub/i }).click();
 
-      await page.screenshot({ path: "e2e/test-results/debug-2-after-configure-click.png", fullPage: true });
+      await page.screenshot({ path: testInfo.outputPath("debug-2-after-configure-click.png"), fullPage: true });
 
       await page.locator("#github-GITHUB_TOKEN").waitFor({ state: "visible" });
 
-      await page.screenshot({ path: "e2e/test-results/debug-3-after-form-visible.png", fullPage: true });
+      await page.screenshot({ path: testInfo.outputPath("debug-3-after-form-visible.png"), fullPage: true });
 
       await page.locator("#github-GITHUB_TOKEN").fill(GITHUB_TOKEN as string);
       await page.locator("#github-GITHUB_ORG").fill(GITHUB_ORG as string);
 
-      await page.screenshot({ path: "e2e/test-results/debug-4-after-fill.png", fullPage: true });
+      await page.screenshot({ path: testInfo.outputPath("debug-4-after-fill.png"), fullPage: true });
 
       await page.getByRole("button", { name: "Test Connection" }).click();
 
@@ -72,6 +72,7 @@ test.describe
       await page.waitForURL(/\/(dashboard|onboarding)/);
 
       await page.goto("/onboarding/datasources");
+      await page.waitForLoadState("networkidle");
       await expect(page.getByRole("heading", { name: "Connect Your Tools" })).toBeVisible();
 
       await page.getByRole("button", { name: "Continue to Import" }).click();
@@ -89,6 +90,7 @@ test.describe
       await page.waitForURL(/\/(dashboard|onboarding)/);
 
       await page.goto("/onboarding/repositories");
+      await page.waitForLoadState("networkidle");
 
       await page.waitForSelector('[data-testid="repository-item"]', {
         timeout: 30000,
@@ -113,6 +115,7 @@ test.describe
       await page.waitForURL(/\/(dashboard|onboarding)/);
 
       await page.goto("/onboarding/importing");
+      await page.waitForLoadState("networkidle");
 
       await page.getByRole("button", { name: /Continue to Dashboard/i }).click();
 
@@ -128,6 +131,7 @@ test.describe
       await page.waitForURL(/\/(dashboard|onboarding)/);
 
       await page.goto("/onboarding/complete");
+      await page.waitForLoadState("networkidle");
 
       await page.getByRole("link", { name: /Go to Dashboard/i }).click();
 
