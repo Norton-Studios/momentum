@@ -1,23 +1,20 @@
 import type { DataSource, DataSourceConfig, PrismaClient } from "@prisma/client";
+import { scripts as githubScripts } from "../data-sources/github/index.js";
+
+// Static imports for all implemented providers
+// Add new providers here as they're implemented
+const PROVIDER_SCRIPTS: Record<string, DataSourceScript[]> = {
+  github: githubScripts,
+};
 
 export async function loadAllImportScripts(): Promise<DataSourceScript[]> {
   const allScripts: DataSourceScript[] = [];
 
-  // List of all potential providers
-  const providers = ["github", "gitlab", "jenkins", "circleci", "sonarqube"];
-
-  for (const provider of providers) {
-    try {
-      // Dynamically import the provider module
-      const module = await import(`@crons/data-sources/${provider}/index.js`);
-
-      // Provider modules export a 'scripts' array
-      if (module.scripts && Array.isArray(module.scripts)) {
-        allScripts.push(...module.scripts);
-      }
-    } catch {
-      // Provider not implemented yet, skip silently
-      console.log(`Provider ${provider} not found, skipping`);
+  for (const [provider, scripts] of Object.entries(PROVIDER_SCRIPTS)) {
+    if (scripts && Array.isArray(scripts)) {
+      allScripts.push(...scripts);
+    } else {
+      console.log(`[script-loader] Provider ${provider} has no scripts`);
     }
   }
 

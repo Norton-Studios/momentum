@@ -1,10 +1,11 @@
 import type { PrismaClient } from "@prisma/client";
 
-export async function createRun(db: PrismaClient, dataSourceId: string, scriptName: string): Promise<string> {
+export async function createRun(db: PrismaClient, dataSourceId: string, scriptName: string, importBatchId?: string): Promise<string> {
   const run = await db.dataSourceRun.create({
     data: {
       dataSourceId,
       scriptName,
+      importBatchId,
       status: "RUNNING",
       startedAt: new Date(),
       recordsImported: 0,

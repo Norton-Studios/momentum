@@ -52,10 +52,15 @@ describe("runOrchestrator", () => {
     dataSource: {
       update: vi.fn(),
     },
+    importBatch: {
+      create: vi.fn().mockResolvedValue({ id: "batch-1" }),
+      update: vi.fn(),
+    },
   } as unknown as PrismaClient;
 
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(mockDb.importBatch.create).mockResolvedValue({ id: "batch-1" } as never);
   });
 
   afterEach(() => {
@@ -171,7 +176,7 @@ describe("runOrchestrator", () => {
     expect(result.scriptsFailed).toBe(0);
     expect(result.scriptsSkipped).toBe(0);
     expect(acquireAdvisoryLock).toHaveBeenCalledWith(mockDb, "ds-123", "repository");
-    expect(createRun).toHaveBeenCalledWith(mockDb, "ds-123", "repository");
+    expect(createRun).toHaveBeenCalledWith(mockDb, "ds-123", "repository", "batch-1");
     expect(calculateDateRange).toHaveBeenCalledWith(mockDb, "ds-123", "repository", 365);
     expect(buildEnvironment).toHaveBeenCalledWith(mockDataSource.configs);
     expect(mockRunFn).toHaveBeenCalledWith({

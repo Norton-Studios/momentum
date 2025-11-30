@@ -10,4 +10,8 @@ export default [
   route("onboarding/importing", "routes/onboarding/importing/importing.tsx"),
   route("onboarding/complete", "routes/onboarding/complete/complete.tsx"),
   route("dashboard", "routes/dashboard/dashboard.tsx"),
+  route("api/import", "routes/api/import/import.ts"),
+  route("api/import/:batchId", "routes/api/import/import.$batchId.ts"),
+  route("api/data-source/:dataSourceId/run", "routes/api/data-source/data-source.$dataSourceId.run.ts"),
+  route("api/data-source/:dataSourceId/run/:runId", "routes/api/data-source/data-source.$dataSourceId.run.$runId.ts"),
 ] satisfies RouteConfig;

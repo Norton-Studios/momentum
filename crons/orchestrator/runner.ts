@@ -6,39 +6,88 @@ import { acquireAdvisoryLock, acquireGlobalOrchestratorLock, releaseAdvisoryLock
 import type { DataSourceScript } from "./script-loader.js";
 import { buildEnvironment, getEnabledScripts, loadAllImportScripts } from "./script-loader.js";
 
-export async function runOrchestrator(db: PrismaClient): Promise<OrchestratorResult> {
+export async function runOrchestrator(db: PrismaClient, options: OrchestratorOptions = {}): Promise<OrchestratorResult> {
+  console.log("[orchestrator] Starting orchestrator...");
   const startTime = Date.now();
   const errors: Array<ScriptError> = [];
   const executionResults = new Map<string, ScriptExecutionResult>();
 
+  console.log("[orchestrator] Attempting to acquire global lock...");
   const globalLock = await acquireGlobalOrchestratorLock(db);
 
   if (!globalLock) {
-    console.log("Another orchestrator is running, exiting");
-    return createResult(startTime, executionResults, errors);
+    console.log("[orchestrator] Another orchestrator is running, exiting");
+    return createResult(startTime, executionResults, errors, undefined);
   }
+  console.log("[orchestrator] Global lock acquired");
+
+  let batchId: string | undefined;
 
   try {
+    console.log("[orchestrator] Loading import scripts...");
     const allScripts = await loadAllImportScripts();
+    console.log("[orchestrator] Loaded scripts:", allScripts.length);
+
     const { scripts: enabledScripts, dataSourceMap } = await getEnabledScripts(db, allScripts);
+    console.log("[orchestrator] Enabled scripts:", enabledScripts.length);
 
     if (enabledScripts.length === 0) {
-      console.log("No enabled scripts to run");
-      return createResult(startTime, executionResults, errors);
+      console.log("[orchestrator] No enabled scripts to run");
+      return createResult(startTime, executionResults, errors, undefined);
     }
 
-    const { nodeMap, dependencies } = buildExecutionGraph(enabledScripts, dataSourceMap, db, executionResults, errors);
+    const batch = await db.importBatch.create({
+      data: {
+        status: "RUNNING",
+        triggeredBy: options.triggeredBy ?? "scheduler",
+        totalScripts: enabledScripts.length,
+      },
+    });
+    batchId = batch.id;
+
+    const { nodeMap, dependencies } = buildExecutionGraph(enabledScripts, dataSourceMap, db, executionResults, errors, batchId);
     const graph = new PGraph(nodeMap, dependencies);
 
     await graph.run();
 
     await updateDataSourceSyncTimes(Array.from(new Set(dataSourceMap.values())), db);
+    await finalizeBatch(db, batchId, startTime, executionResults);
 
     console.log("Orchestrator completed successfully");
-    return createResult(startTime, executionResults, errors);
+    return createResult(startTime, executionResults, errors, batchId);
+  } catch (error) {
+    if (batchId) {
+      await db.importBatch.update({
+        where: { id: batchId },
+        data: {
+          status: "FAILED",
+          completedAt: new Date(),
+          durationMs: Date.now() - startTime,
+        },
+      });
+    }
+    throw error;
   } finally {
     await releaseGlobalOrchestratorLock(db);
   }
+}
+
+async function finalizeBatch(db: PrismaClient, batchId: string, startTime: number, executionResults: Map<string, ScriptExecutionResult>): Promise<void> {
+  const results = Array.from(executionResults.values());
+  const completedScripts = results.filter((r) => r.success).length;
+  const failedScripts = results.filter((r) => !r.success && !r.skipped).length;
+  const hasFailures = failedScripts > 0;
+
+  await db.importBatch.update({
+    where: { id: batchId },
+    data: {
+      status: hasFailures ? "FAILED" : "COMPLETED",
+      completedAt: new Date(),
+      durationMs: Date.now() - startTime,
+      completedScripts,
+      failedScripts,
+    },
+  });
 }
 
 function buildNodeId(dataSourceId: string, resource: string): string {
@@ -50,7 +99,8 @@ function buildExecutionGraph(
   dataSourceMap: Map<DataSourceScript, DataSourceWithConfig>,
   db: PrismaClient,
   executionResults: Map<string, ScriptExecutionResult>,
-  errors: Array<ScriptError>
+  errors: Array<ScriptError>,
+  batchId: string
 ): ScriptGraph {
   const nodeMap = new Map<string, { run: () => Promise<void> }>();
   const dependencies: [string, string][] = [];
@@ -64,7 +114,7 @@ function buildExecutionGraph(
     const nodeId = buildNodeId(dataSource.id, script.resource);
     nodeMap.set(nodeId, {
       run: async () => {
-        const result = await executeScriptWithLock(db, dataSource, script);
+        const result = await executeScriptWithLock(db, dataSource, script, batchId);
         executionResults.set(nodeId, result);
         if (!result.success && result.error) {
           errors.push({ script: `${dataSource.provider}:${script.resource}`, error: result.error });
@@ -92,9 +142,15 @@ async function updateDataSourceSyncTimes(dataSources: Array<DataSourceWithConfig
   );
 }
 
-function createResult(startTime: number, executionResults: Map<string, ScriptExecutionResult>, errors: Array<{ script: string; error: string }>): OrchestratorResult {
+function createResult(
+  startTime: number,
+  executionResults: Map<string, ScriptExecutionResult>,
+  errors: Array<{ script: string; error: string }>,
+  batchId: string | undefined
+): OrchestratorResult {
   const results = Array.from(executionResults.values());
   return {
+    batchId,
     scriptsExecuted: results.filter((r) => r.success).length,
     scriptsFailed: results.filter((r) => !r.success && !r.skipped).length,
     scriptsSkipped: results.filter((r) => r.skipped).length,
@@ -103,7 +159,12 @@ function createResult(startTime: number, executionResults: Map<string, ScriptExe
   };
 }
 
-async function executeScriptWithLock(database: PrismaClient, dataSource: DataSource & { configs: DataSourceConfig[] }, script: DataSourceScript): Promise<ScriptExecutionResult> {
+async function executeScriptWithLock(
+  database: PrismaClient,
+  dataSource: DataSource & { configs: DataSourceConfig[] },
+  script: DataSourceScript,
+  batchId: string
+): Promise<ScriptExecutionResult> {
   const lockAcquired = await acquireAdvisoryLock(database, dataSource.id, script.resource);
 
   if (!lockAcquired) {
@@ -112,7 +173,7 @@ async function executeScriptWithLock(database: PrismaClient, dataSource: DataSou
   }
 
   try {
-    const runId = await createRun(database, dataSource.id, script.resource);
+    const runId = await createRun(database, dataSource.id, script.resource, batchId);
     const { startDate, endDate } = await calculateDateRange(database, dataSource.id, script.resource, script.importWindowDays);
     const env = buildEnvironment(dataSource.configs);
 
@@ -147,7 +208,12 @@ type ScriptGraph = {
   dependencies: [string, string][];
 };
 
+export interface OrchestratorOptions {
+  triggeredBy?: string;
+}
+
 export interface OrchestratorResult {
+  batchId?: string;
   scriptsExecuted: number;
   scriptsFailed: number;
   scriptsSkipped: number;
@@ -155,7 +221,7 @@ export interface OrchestratorResult {
   errors: Array<{ script: string; error: string }>;
 }
 
-export interface ScriptExecutionResult {
+interface ScriptExecutionResult {
   success: boolean;
   skipped: boolean;
   error?: string;

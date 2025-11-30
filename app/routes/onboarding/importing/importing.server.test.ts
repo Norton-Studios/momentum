@@ -16,12 +16,23 @@ vi.mock("~/auth/auth.server", () => ({
 vi.mock("~/db.server", () => ({
   db: {
     dataSource: {
-      findFirst: vi.fn(),
+      findMany: vi.fn(),
     },
     repository: {
       count: vi.fn(),
     },
+    importBatch: {
+      findFirst: vi.fn(),
+    },
   },
+}));
+
+vi.mock("@crons/orchestrator/runner.js", () => ({
+  runOrchestrator: vi.fn().mockResolvedValue({
+    batchId: "batch-1",
+    scriptsExecuted: 4,
+    scriptsFailed: 0,
+  }),
 }));
 
 import { requireAdmin } from "~/auth/auth.server";
@@ -34,8 +45,8 @@ describe("importingLoader", () => {
     vi.mocked(requireAdmin).mockResolvedValue({ id: "user-1", email: "admin@example.com", name: "Admin", role: "ADMIN" } as never);
   });
 
-  it("redirects to datasources when no VCS data source exists", async () => {
-    vi.mocked(db.dataSource.findFirst).mockResolvedValue(null);
+  it("redirects to datasources when no enabled data sources exist", async () => {
+    vi.mocked(db.dataSource.findMany).mockResolvedValue([]);
 
     const request = new Request("http://localhost/onboarding/importing");
     const response = await importingLoader({ request, params: {}, context: {} });
@@ -44,9 +55,10 @@ describe("importingLoader", () => {
     expect(response.headers.get("Location")).toBe("/onboarding/datasources");
   });
 
-  it("returns enabled repo count and message when data source exists", async () => {
-    const mockDataSource = { id: "ds-1", provider: "GITHUB", isEnabled: true };
-    vi.mocked(db.dataSource.findFirst).mockResolvedValue(mockDataSource as never);
+  it("returns data sources with task status when data sources exist", async () => {
+    const mockDataSources = [{ id: "ds-1", provider: "GITHUB", name: "GitHub", isEnabled: true }];
+    vi.mocked(db.dataSource.findMany).mockResolvedValue(mockDataSources as never);
+    vi.mocked(db.importBatch.findFirst).mockResolvedValue(null);
     vi.mocked(db.repository.count).mockResolvedValue(25);
 
     const request = new Request("http://localhost/onboarding/importing");
@@ -54,37 +66,47 @@ describe("importingLoader", () => {
 
     expect(response.status).toBe(200);
     const body = await response.json();
-    expect(body.enabledRepos).toBe(25);
-    expect(body.message).toContain("Import has been initiated");
+    expect(body.dataSources).toHaveLength(1);
+    expect(body.repositoryCount).toBe(25);
+    expect(body.hasStartedImport).toBe(false);
+    expect(body.isImportRunning).toBe(false);
   });
 
-  it("queries correct VCS providers", async () => {
-    vi.mocked(db.dataSource.findFirst).mockResolvedValue(null);
+  it("returns running batch info when import is in progress", async () => {
+    const mockDataSources = [{ id: "ds-1", provider: "GITHUB", name: "GitHub", isEnabled: true }];
+    const mockBatch = {
+      id: "batch-1",
+      status: "RUNNING",
+      triggeredBy: "user-1",
+      startedAt: new Date(),
+      completedAt: null,
+      durationMs: null,
+      totalScripts: 4,
+      completedScripts: 2,
+      failedScripts: 0,
+      runs: [],
+    };
+    vi.mocked(db.dataSource.findMany).mockResolvedValue(mockDataSources as never);
+    vi.mocked(db.importBatch.findFirst).mockResolvedValue(mockBatch as never);
+    vi.mocked(db.repository.count).mockResolvedValue(25);
+
+    const request = new Request("http://localhost/onboarding/importing");
+    const response = await importingLoader({ request, params: {}, context: {} });
+
+    const body = await response.json();
+    expect(body.isImportRunning).toBe(true);
+    expect(body.hasStartedImport).toBe(true);
+    expect(body.currentBatch.id).toBe("batch-1");
+  });
+
+  it("queries only enabled data sources", async () => {
+    vi.mocked(db.dataSource.findMany).mockResolvedValue([]);
 
     const request = new Request("http://localhost/onboarding/importing");
     await importingLoader({ request, params: {}, context: {} });
 
-    expect(db.dataSource.findFirst).toHaveBeenCalledWith({
-      where: {
-        provider: { in: ["GITHUB", "GITLAB", "BITBUCKET"] },
-        isEnabled: true,
-      },
-    });
-  });
-
-  it("counts only enabled repositories for the data source", async () => {
-    const mockDataSource = { id: "ds-1", provider: "GITHUB", isEnabled: true };
-    vi.mocked(db.dataSource.findFirst).mockResolvedValue(mockDataSource as never);
-    vi.mocked(db.repository.count).mockResolvedValue(10);
-
-    const request = new Request("http://localhost/onboarding/importing");
-    await importingLoader({ request, params: {}, context: {} });
-
-    expect(db.repository.count).toHaveBeenCalledWith({
-      where: {
-        dataSourceId: "ds-1",
-        isEnabled: true,
-      },
+    expect(db.dataSource.findMany).toHaveBeenCalledWith({
+      where: { isEnabled: true },
     });
   });
 });
@@ -109,6 +131,47 @@ describe("importingAction", () => {
 
       expect(response.status).toBe(302);
       expect(response.headers.get("Location")).toBe("/onboarding/complete");
+    });
+  });
+
+  describe("start-import intent", () => {
+    it("starts import when no batch is running", async () => {
+      vi.mocked(db.importBatch.findFirst).mockResolvedValue(null);
+
+      const formData = new FormData();
+      formData.append("intent", "start-import");
+
+      const request = new Request("http://localhost/onboarding/importing", {
+        method: "POST",
+        body: formData,
+      });
+
+      const response = await importingAction({ request, params: {}, context: {} });
+
+      expect(response.status).toBe(200);
+      const body = await response.json();
+      expect(body.success).toBe(true);
+    });
+
+    it("does not start new import when batch is already running", async () => {
+      vi.mocked(db.importBatch.findFirst).mockResolvedValue({
+        id: "existing-batch",
+        status: "RUNNING",
+      } as never);
+
+      const formData = new FormData();
+      formData.append("intent", "start-import");
+
+      const request = new Request("http://localhost/onboarding/importing", {
+        method: "POST",
+        body: formData,
+      });
+
+      const response = await importingAction({ request, params: {}, context: {} });
+
+      expect(response.status).toBe(200);
+      const body = await response.json();
+      expect(body.success).toBe(true);
     });
   });
 
