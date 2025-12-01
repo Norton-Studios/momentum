@@ -1,8 +1,8 @@
 import type { PrismaClient } from "@prisma/client";
-import type { DataSourceScriptMap } from "../orchestrator/script-loader.js";
-import type { ScriptExecutionResult, ScriptError } from "../orchestrator/runner.js";
-import { executeScript } from "./execute-script";
 import { PGraph } from "p-graph/lib/PGraph.js";
+import type { ScriptError, ScriptExecutionResult } from "../orchestrator/runner.js";
+import type { DataSourceScriptMap } from "../orchestrator/script-loader.js";
+import { executeScript } from "./execute-script";
 
 export function buildExecutionGraph(
   db: PrismaClient,
@@ -15,19 +15,19 @@ export function buildExecutionGraph(
   const dependencies: [string, string][] = [];
 
   for (const [script, executionContext] of dataSources.entries()) {
-    const nodeId = buildNodeId(executionContext.dataSourceId, script.resource);
+    const nodeId = buildNodeId(executionContext.id, script.resource);
     const run = async () => {
       const result = await executeScript(db, executionContext, script, batchId);
       executionResults.set(nodeId, result);
       if (!result.success && result.error) {
-        errors.push({ script: `${executionContext.dataSourceName}:${script.resource}`, error: result.error });
+        errors.push({ script: `${executionContext.provider}:${script.resource}`, error: result.error });
       }
     };
 
     nodeMap.set(nodeId, { run });
 
     for (const dep of script.dependsOn) {
-      const depNodeId = buildNodeId(executionContext.dataSourceId, dep);
+      const depNodeId = buildNodeId(executionContext.id, dep);
       dependencies.push([depNodeId, nodeId]);
     }
   }

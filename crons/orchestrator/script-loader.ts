@@ -62,11 +62,9 @@ export interface DataSourceScript {
   run: (db: PrismaClient, context: ExecutionContext) => Promise<void>;
 }
 
-export interface ExecutionContext {
-  dataSourceId: string; // ID of the DataSource record
-  dataSourceName: string; // 'GITHUB', 'GITLAB' - provider name
+export type ExecutionContext = DataSource & {
   env: Record<string, string>; // Environment variables from DataSourceConfig
   startDate: Date; // Start of date range for incremental sync
   endDate: Date; // End of date range
   runId: string; // DataSourceRun ID for logging
-}
+};

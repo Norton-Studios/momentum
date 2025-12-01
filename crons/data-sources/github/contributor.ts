@@ -14,7 +14,7 @@ export const contributorScript = {
     const repos = await db.repository.findMany({
       where: {
         provider: "GITHUB",
-        dataSourceId: context.dataSourceId,
+        dataSourceId: context.id,
         isEnabled: true,
       },
     });
@@ -23,7 +23,7 @@ export const contributorScript = {
     let totalContributors = 0;
 
     for (const repo of repos) {
-      const result = await processRepositoryContributors(octokit, context.db, repo, context.runId);
+      const result = await processRepositoryContributors(octokit, db, repo, context.runId);
       if (result.error) {
         errors.push(result.error);
       }

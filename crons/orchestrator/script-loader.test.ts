@@ -1,57 +1,29 @@
 import type { DataSource, DataSourceConfig, PrismaClient } from "@prisma/client";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { DataSourceScript } from "./script-loader.js";
-import { buildEnvironment, getEnabledScripts } from "./script-loader.js";
+import { getEnabledScripts } from "./script-loader.js";
 
 type DataSourceWithConfig = DataSource & { configs: DataSourceConfig[] };
 
+vi.mock("../data-sources/github/index.js", () => ({
+  scripts: [
+    {
+      dataSourceName: "GITHUB",
+      resource: "repository",
+      dependsOn: [],
+      importWindowDays: 365,
+      run: vi.fn(),
+    },
+    {
+      dataSourceName: "GITHUB",
+      resource: "contributor",
+      dependsOn: ["repository"],
+      importWindowDays: 365,
+      run: vi.fn(),
+    },
+  ],
+}));
+
 describe("script-loader", () => {
-  describe("buildEnvironment", () => {
-    it("should convert DataSourceConfig array to env object", () => {
-      // Arrange
-      const configs: DataSourceConfig[] = [
-        {
-          id: "config-1",
-          dataSourceId: "ds-123",
-          key: "GITHUB_TOKEN",
-          value: "ghp_abc123",
-          isSecret: true,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        {
-          id: "config-2",
-          dataSourceId: "ds-123",
-          key: "GITHUB_ORG",
-          value: "my-org",
-          isSecret: false,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-      ];
-
-      // Act
-      const result = buildEnvironment(configs);
-
-      // Assert
-      expect(result).toEqual({
-        GITHUB_TOKEN: "ghp_abc123",
-        GITHUB_ORG: "my-org",
-      });
-    });
-
-    it("should return empty object for empty configs", () => {
-      // Arrange
-      const configs: DataSourceConfig[] = [];
-
-      // Act
-      const result = buildEnvironment(configs);
-
-      // Assert
-      expect(result).toEqual({});
-    });
-  });
-
   describe("getEnabledScripts", () => {
     let mockDb: PrismaClient;
 
@@ -63,25 +35,8 @@ describe("script-loader", () => {
       } as unknown as PrismaClient;
     });
 
-    it("should filter scripts by enabled data sources", async () => {
+    it("should return scripts for enabled data sources", async () => {
       // Arrange
-      const allScripts: DataSourceScript[] = [
-        {
-          dataSourceName: "GITHUB",
-          resource: "repository",
-          dependsOn: [],
-          importWindowDays: 365,
-          run: vi.fn(),
-        },
-        {
-          dataSourceName: "GITLAB",
-          resource: "repository",
-          dependsOn: [],
-          importWindowDays: 365,
-          run: vi.fn(),
-        },
-      ];
-
       const mockDataSourceWithConfig: DataSourceWithConfig = {
         id: "ds-123",
         organizationId: "org-1",
@@ -109,48 +64,30 @@ describe("script-loader", () => {
       vi.mocked(mockDb.dataSource.findMany).mockResolvedValue([mockDataSourceWithConfig]);
 
       // Act
-      const result = await getEnabledScripts(mockDb, allScripts);
+      const result = await getEnabledScripts(mockDb);
 
       // Assert
-      expect(result.scripts).toHaveLength(1);
-      expect(result.scripts[0]?.dataSourceName).toBe("GITHUB");
-      expect(result.dataSourceMap.size).toBe(1);
+      expect(result.size).toBe(2);
+
+      const entries = Array.from(result.entries());
+      expect(entries[0][0].dataSourceName).toBe("GITHUB");
+      expect(entries[0][1].id).toBe("ds-123");
+      expect(entries[0][1].env).toEqual({ GITHUB_TOKEN: "ghp_abc123" });
     });
 
-    it("should return empty arrays when no data sources are enabled", async () => {
+    it("should return empty map when no data sources are enabled", async () => {
       // Arrange
-      const allScripts: DataSourceScript[] = [
-        {
-          dataSourceName: "GITHUB",
-          resource: "repository",
-          dependsOn: [],
-          importWindowDays: 365,
-          run: vi.fn(),
-        },
-      ];
-
       vi.mocked(mockDb.dataSource.findMany).mockResolvedValue([]);
 
       // Act
-      const result = await getEnabledScripts(mockDb, allScripts);
+      const result = await getEnabledScripts(mockDb);
 
       // Assert
-      expect(result.scripts).toHaveLength(0);
-      expect(result.dataSourceMap.size).toBe(0);
+      expect(result.size).toBe(0);
     });
 
-    it("should create correct dataSourceMap", async () => {
+    it("should include environment variables from configs", async () => {
       // Arrange
-      const githubScript: DataSourceScript = {
-        dataSourceName: "GITHUB",
-        resource: "repository",
-        dependsOn: [],
-        importWindowDays: 365,
-        run: vi.fn(),
-      };
-
-      const allScripts: DataSourceScript[] = [githubScript];
-
       const dataSource: DataSourceWithConfig = {
         id: "ds-123",
         organizationId: "org-1",
@@ -162,19 +99,64 @@ describe("script-loader", () => {
         lastSyncAt: null,
         createdAt: new Date(),
         updatedAt: new Date(),
-        configs: [],
+        configs: [
+          {
+            id: "config-1",
+            dataSourceId: "ds-123",
+            key: "GITHUB_TOKEN",
+            value: "ghp_abc123",
+            isSecret: true,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          },
+          {
+            id: "config-2",
+            dataSourceId: "ds-123",
+            key: "GITHUB_ORG",
+            value: "my-org",
+            isSecret: false,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          },
+        ],
       };
 
       vi.mocked(mockDb.dataSource.findMany).mockResolvedValue([dataSource]);
 
       // Act
-      const result = await getEnabledScripts(mockDb, allScripts);
+      const result = await getEnabledScripts(mockDb);
 
       // Assert
-      const mappedDataSource = result.dataSourceMap.get(githubScript);
-      expect(mappedDataSource).toBeDefined();
-      expect(mappedDataSource?.id).toBe("ds-123");
-      expect(mappedDataSource?.provider).toBe("GITHUB");
+      const entries = Array.from(result.entries());
+      expect(entries[0][1].env).toEqual({
+        GITHUB_TOKEN: "ghp_abc123",
+        GITHUB_ORG: "my-org",
+      });
+    });
+
+    it("should only include scripts matching enabled providers", async () => {
+      // Arrange
+      const gitlabDataSource: DataSourceWithConfig = {
+        id: "ds-456",
+        organizationId: "org-1",
+        name: "GitLab - MyOrg",
+        provider: "GITLAB",
+        description: null,
+        isEnabled: true,
+        syncIntervalMinutes: 15,
+        lastSyncAt: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        configs: [],
+      };
+
+      vi.mocked(mockDb.dataSource.findMany).mockResolvedValue([gitlabDataSource]);
+
+      // Act
+      const result = await getEnabledScripts(mockDb);
+
+      // Assert
+      expect(result.size).toBe(0);
     });
   });
 });

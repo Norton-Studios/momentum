@@ -52,13 +52,11 @@ describe("advisory-locks", () => {
   describe("acquireAdvisoryLock", () => {
     it("should return true when lock is acquired", async () => {
       // Arrange
-      const dataSourceId = "ds-123";
-      const resource = "repository";
-
+      const lockKey = "GITHUB:repository";
       vi.mocked(mockDb.$queryRaw).mockResolvedValue([{ pg_try_advisory_lock: true }]);
 
       // Act
-      const result = await acquireAdvisoryLock(mockDb, dataSourceId, resource);
+      const result = await acquireAdvisoryLock(mockDb, lockKey);
 
       // Assert
       expect(result).toBe(true);
@@ -67,13 +65,11 @@ describe("advisory-locks", () => {
 
     it("should return false when lock cannot be acquired", async () => {
       // Arrange
-      const dataSourceId = "ds-123";
-      const resource = "repository";
-
+      const lockKey = "GITHUB:repository";
       vi.mocked(mockDb.$queryRaw).mockResolvedValue([{ pg_try_advisory_lock: false }]);
 
       // Act
-      const result = await acquireAdvisoryLock(mockDb, dataSourceId, resource);
+      const result = await acquireAdvisoryLock(mockDb, lockKey);
 
       // Assert
       expect(result).toBe(false);
@@ -83,13 +79,11 @@ describe("advisory-locks", () => {
   describe("releaseAdvisoryLock", () => {
     it("should call pg_advisory_unlock with correct lockKey", async () => {
       // Arrange
-      const dataSourceId = "ds-123";
-      const resource = "repository";
-
+      const lockKey = "GITHUB:repository";
       vi.mocked(mockDb.$queryRaw).mockResolvedValue([]);
 
       // Act
-      await releaseAdvisoryLock(mockDb, dataSourceId, resource);
+      await releaseAdvisoryLock(mockDb, lockKey);
 
       // Assert
       expect(mockDb.$queryRaw).toHaveBeenCalled();

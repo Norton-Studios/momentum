@@ -94,20 +94,19 @@ describe("commitScript", () => {
     } as unknown as PrismaClient;
 
     const context = {
-      dataSourceId: "ds-123",
-      dataSourceName: "GITHUB",
+      id: "ds-123",
+      provider: "GITHUB",
       env: {
         GITHUB_TOKEN: "token123",
         GITHUB_ORG: "org",
       },
-      db: mockDb,
       startDate: new Date("2024-01-01"),
       endDate: new Date("2024-01-31"),
       runId: "run-123",
     };
 
     // Act
-    await commitScript.run(context);
+    await commitScript.run(mockDb, context as never);
 
     // Assert
     expect(mockPaginateIterator).toHaveBeenCalledWith(mockReposListCommits, {
@@ -197,19 +196,18 @@ describe("commitScript", () => {
     } as unknown as PrismaClient;
 
     const context = {
-      dataSourceId: "ds-123",
-      dataSourceName: "GITHUB",
+      id: "ds-123",
+      provider: "GITHUB",
       env: {
         GITHUB_TOKEN: "token123",
       },
-      db: mockDb,
       startDate: new Date("2024-01-01"),
       endDate: new Date("2024-01-31"),
       runId: "run-123",
     };
 
     // Act
-    await commitScript.run(context);
+    await commitScript.run(mockDb, context as never);
 
     // Assert
     expect(mockDb.commit.upsert).toHaveBeenCalledTimes(1);
@@ -238,19 +236,18 @@ describe("commitScript", () => {
     } as unknown as PrismaClient;
 
     const context = {
-      dataSourceId: "ds-123",
-      dataSourceName: "GITHUB",
+      id: "ds-123",
+      provider: "GITHUB",
       env: {
         GITHUB_TOKEN: "token123",
       },
-      db: mockDb,
       startDate: new Date("2024-01-01"),
       endDate: new Date("2024-01-31"),
       runId: "run-123",
     };
 
     // Act
-    await commitScript.run(context);
+    await commitScript.run(mockDb, context as never);
 
     // Assert
     expect(mockDb.importLog.create).toHaveBeenCalledWith({
@@ -282,19 +279,18 @@ describe("commitScript", () => {
     } as unknown as PrismaClient;
 
     const context = {
-      dataSourceId: "ds-123",
-      dataSourceName: "GITHUB",
+      id: "ds-123",
+      provider: "GITHUB",
       env: {
         GITHUB_TOKEN: "token123",
       },
-      db: mockDb,
       startDate: new Date("2024-01-01"),
       endDate: new Date("2024-01-31"),
       runId: "run-123",
     };
 
     // Act
-    await commitScript.run(context);
+    await commitScript.run(mockDb, context as never);
 
     // Assert
     expect(mockDb.importLog.create).not.toHaveBeenCalled();

@@ -14,7 +14,7 @@ export const pullRequestScript = {
     const repos = await db.repository.findMany({
       where: {
         provider: "GITHUB",
-        dataSourceId: context.dataSourceId,
+        dataSourceId: context.id,
         isEnabled: true,
       },
     });
@@ -23,7 +23,7 @@ export const pullRequestScript = {
     let totalPullRequests = 0;
 
     for (const repo of repos) {
-      const result = await processRepositoryPullRequests(octokit, context.db, repo, context.startDate, context.endDate, context.runId);
+      const result = await processRepositoryPullRequests(octokit, db, repo, context.startDate, context.endDate, context.runId);
       if (result.error) {
         errors.push(result.error);
       }

@@ -1,7 +1,7 @@
-import type { PrismaClient, ImportBatch } from "@prisma/client";
+import type { ImportBatch, PrismaClient } from "@prisma/client";
 import { acquireGlobalOrchestratorLock, releaseGlobalOrchestratorLock } from "../execution/advisory-locks.js";
-import { getEnabledScripts, type DataSourceScriptMap } from "./script-loader.js";
 import { buildExecutionGraph } from "../execution/execution-graph.js";
+import { type DataSourceScriptMap, getEnabledScripts } from "./script-loader.js";
 
 export async function runOrchestrator(db: PrismaClient, options: OrchestratorOptions = {}): Promise<OrchestratorResult> {
   const startTime = Date.now();
@@ -35,7 +35,6 @@ export async function runOrchestrator(db: PrismaClient, options: OrchestratorOpt
   }
 
   return createResult(startTime, executionResults, errors, batch.id);
-
 }
 
 async function createBatch(db: PrismaClient, triggeredBy: string | undefined, totalScripts: number): Promise<ImportBatch> {
@@ -44,7 +43,7 @@ async function createBatch(db: PrismaClient, triggeredBy: string | undefined, to
       status: "RUNNING",
       triggeredBy: triggeredBy ?? "scheduler",
       totalScripts,
-    }
+    },
   });
 }
 
@@ -67,7 +66,7 @@ async function finalizeBatch(db: PrismaClient, batchId: string, startTime: numbe
 }
 
 async function updateDataSourceSyncTimes(db: PrismaClient, dataSources: DataSourceScriptMap): Promise<void> {
-  const dataSourcesArray = Array.from(dataSources.values());  
+  const dataSourcesArray = Array.from(dataSources.values());
 
   await Promise.all(
     dataSourcesArray.map((dataSource) =>

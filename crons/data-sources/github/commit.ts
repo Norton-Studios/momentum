@@ -14,7 +14,7 @@ export const commitScript = {
     const repos = await db.repository.findMany({
       where: {
         provider: "GITHUB",
-        dataSourceId: context.dataSourceId,
+        dataSourceId: context.id,
         isEnabled: true,
       },
     });
@@ -23,7 +23,7 @@ export const commitScript = {
     let totalCommits = 0;
 
     for (const repo of repos) {
-      const result = await processRepositoryCommits(octokit, context.db, repo, context.startDate, context.endDate);
+      const result = await processRepositoryCommits(octokit, db, repo, context.startDate, context.endDate);
       if (result.error) {
         errors.push(result.error);
       }

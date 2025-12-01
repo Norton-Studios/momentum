@@ -220,10 +220,7 @@ function StatusBadge({ status }: { status: string }) {
   return <span className={`status-badge ${status}`}>{labels[status] || status}</span>;
 }
 
-function buildDataSourcesFromBatch(
-  dataSources: DataSourceStatus[],
-  runs: BatchRun[]
-): DataSourceStatus[] {
+function buildDataSourcesFromBatch(dataSources: DataSourceStatus[], runs: BatchRun[]): DataSourceStatus[] {
   return dataSources.map((ds) => {
     const dsRuns = runs.filter((run) => run.dataSourceId === ds.id);
 
