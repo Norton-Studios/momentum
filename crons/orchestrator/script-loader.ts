@@ -7,7 +7,28 @@ const PROVIDER_SCRIPTS: Record<string, DataSourceScript[]> = {
   github: githubScripts,
 };
 
-export async function loadAllImportScripts(): Promise<DataSourceScript[]> {
+export async function getEnabledScripts(db: PrismaClient): Promise<DataSourceScriptMap> {
+  const dataSources = await db.dataSource.findMany({
+    where: { isEnabled: true },
+    include: { configs: true },
+  });
+
+  const allScripts = await loadAllImportScripts();
+  const enabledScripts = allScripts.filter((script) => dataSources.some((ds) => ds.provider === script.dataSourceName));
+  const dataSourceMap = new Map();
+
+  for (const script of enabledScripts) {
+    const dataSource = dataSources.find((ds) => ds.provider === script.dataSourceName);
+    if (dataSource) {
+      const env = buildEnvironment(dataSource.configs);
+      dataSourceMap.set(script, { ...dataSource, env });
+    }
+  }
+
+  return dataSourceMap;
+}
+
+async function loadAllImportScripts(): Promise<DataSourceScript[]> {
   const allScripts: DataSourceScript[] = [];
 
   for (const [provider, scripts] of Object.entries(PROVIDER_SCRIPTS)) {
@@ -21,36 +42,7 @@ export async function loadAllImportScripts(): Promise<DataSourceScript[]> {
   return allScripts;
 }
 
-export async function getEnabledScripts(
-  db: PrismaClient,
-  allScripts: DataSourceScript[]
-): Promise<{
-  scripts: DataSourceScript[];
-  dataSourceMap: Map<DataSourceScript, DataSource & { configs: DataSourceConfig[] }>;
-}> {
-  // Load all enabled data sources
-  const dataSources = await db.dataSource.findMany({
-    where: { isEnabled: true },
-    include: { configs: true },
-  });
-
-  // Filter scripts - keep only those with enabled data sources
-  const enabledScripts = allScripts.filter((script) => dataSources.some((ds) => ds.provider === script.dataSourceName));
-
-  // Create a map from script to its data source
-  const dataSourceMap = new Map<DataSourceScript, DataSource & { configs: DataSourceConfig[] }>();
-
-  for (const script of enabledScripts) {
-    const dataSource = dataSources.find((ds) => ds.provider === script.dataSourceName);
-    if (dataSource) {
-      dataSourceMap.set(script, dataSource);
-    }
-  }
-
-  return { scripts: enabledScripts, dataSourceMap };
-}
-
-export function buildEnvironment(configs: DataSourceConfig[]): Record<string, string> {
+function buildEnvironment(configs: DataSourceConfig[]): Record<string, string> {
   return configs.reduce(
     (acc, config) => {
       acc[config.key] = config.value;
@@ -60,19 +52,20 @@ export function buildEnvironment(configs: DataSourceConfig[]): Record<string, st
   );
 }
 
+export type DataSourceScriptMap = Map<DataSourceScript, ExecutionContext>;
+
 export interface DataSourceScript {
   dataSourceName: string; // 'GITHUB', 'GITLAB' - matches DataSourceProvider enum
   resource: string; // 'commit', 'repository', 'pull-request'
   dependsOn: string[]; // Generic: ['repository'], ['commit']
   importWindowDays: number; // Default lookback window (e.g., 90)
-  run: (context: ExecutionContext) => Promise<void>;
+  run: (db: PrismaClient, context: ExecutionContext) => Promise<void>;
 }
 
 export interface ExecutionContext {
   dataSourceId: string; // ID of the DataSource record
   dataSourceName: string; // 'GITHUB', 'GITLAB' - provider name
   env: Record<string, string>; // Environment variables from DataSourceConfig
-  db: PrismaClient; // Database client
   startDate: Date; // Start of date range for incremental sync
   endDate: Date; // End of date range
   runId: string; // DataSourceRun ID for logging

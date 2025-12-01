@@ -8,10 +8,10 @@ export const pullRequestScript = {
   dependsOn: ["repository", "contributor"],
   importWindowDays: 90,
 
-  async run(context: ExecutionContext) {
+  async run(db: PrismaClient, context: ExecutionContext) {
     const octokit = new Octokit({ auth: context.env.GITHUB_TOKEN });
 
-    const repos = await context.db.repository.findMany({
+    const repos = await db.repository.findMany({
       where: {
         provider: "GITHUB",
         dataSourceId: context.dataSourceId,
@@ -31,10 +31,10 @@ export const pullRequestScript = {
     }
 
     if (errors.length > 0) {
-      await logPullRequestErrors(context.db, context.runId, errors);
+      await logPullRequestErrors(db, context.runId, errors);
     }
 
-    await context.db.dataSourceRun.update({
+    await db.dataSourceRun.update({
       where: { id: context.runId },
       data: { recordsImported: totalPullRequests },
     });

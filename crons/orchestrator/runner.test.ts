@@ -44,7 +44,7 @@ vi.mock("./script-loader.js", () => ({
 
 const { calculateDateRange } = await import("../execution/date-calculator.js");
 const { createRun, completeRun, failRun } = await import("../execution/run-tracker.js");
-const { acquireGlobalOrchestratorLock, releaseGlobalOrchestratorLock, acquireAdvisoryLock, releaseAdvisoryLock } = await import("./advisory-locks.js");
+const { acquireGlobalOrchestratorLock, releaseGlobalOrchestratorLock, acquireAdvisoryLock, releaseAdvisoryLock } = await import("../execution/advisory-locks.js");
 const { loadAllImportScripts, getEnabledScripts, buildEnvironment } = await import("./script-loader.js");
 
 describe("runOrchestrator", () => {
