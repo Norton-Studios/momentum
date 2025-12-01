@@ -84,7 +84,7 @@ describe("runOrchestrator", () => {
       env: { GITHUB_TOKEN: "token123" },
     };
 
-    const scriptsMap = new Map([[mockScript, mockExecutionContext]]);
+    const scriptsMap = new Map([[mockScript, mockExecutionContext]]) as never;
 
     vi.mocked(acquireGlobalOrchestratorLock).mockResolvedValue(true);
     vi.mocked(getEnabledScripts).mockResolvedValue(scriptsMap);
@@ -155,7 +155,7 @@ describe("runOrchestrator", () => {
     const scriptsMap = new Map([
       [mockScript1, mockExecutionContext1],
       [mockScript2, mockExecutionContext2],
-    ]);
+    ]) as never;
 
     vi.mocked(acquireGlobalOrchestratorLock).mockResolvedValue(true);
     vi.mocked(getEnabledScripts).mockResolvedValue(scriptsMap);
