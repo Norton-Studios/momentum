@@ -80,19 +80,18 @@ describe("pullRequestScript", () => {
     } as unknown as PrismaClient;
 
     const context = {
-      dataSourceId: "ds-123",
-      dataSourceName: "GITHUB",
+      id: "ds-123",
+      provider: "GITHUB",
       env: {
         GITHUB_TOKEN: "token123",
       },
-      db: mockDb,
       startDate: new Date("2024-01-01"),
       endDate: new Date("2024-01-31"),
       runId: "run-123",
     };
 
     // Act
-    await pullRequestScript.run(context);
+    await pullRequestScript.run(mockDb, context as never);
 
     // Assert
     expect(mockPaginateIterator).toHaveBeenCalledWith(mockPullsList, {
@@ -204,19 +203,18 @@ describe("pullRequestScript", () => {
     } as unknown as PrismaClient;
 
     const context = {
-      dataSourceId: "ds-123",
-      dataSourceName: "GITHUB",
+      id: "ds-123",
+      provider: "GITHUB",
       env: {
         GITHUB_TOKEN: "token123",
       },
-      db: mockDb,
       startDate: new Date("2024-01-01"),
       endDate: new Date("2024-01-31"),
       runId: "run-123",
     };
 
     // Act
-    await pullRequestScript.run(context);
+    await pullRequestScript.run(mockDb, context as never);
 
     // Assert
     expect(mockDb.mergeRequest.upsert).toHaveBeenCalledTimes(3);
@@ -300,19 +298,18 @@ describe("pullRequestScript", () => {
     } as unknown as PrismaClient;
 
     const context = {
-      dataSourceId: "ds-123",
-      dataSourceName: "GITHUB",
+      id: "ds-123",
+      provider: "GITHUB",
       env: {
         GITHUB_TOKEN: "token123",
       },
-      db: mockDb,
       startDate: new Date("2024-01-01"),
       endDate: new Date("2024-01-31"),
       runId: "run-123",
     };
 
     // Act
-    await pullRequestScript.run(context);
+    await pullRequestScript.run(mockDb, context as never);
 
     // Assert
     expect(mockDb.mergeRequest.upsert).toHaveBeenCalledTimes(1);
@@ -370,19 +367,18 @@ describe("pullRequestScript", () => {
     } as unknown as PrismaClient;
 
     const context = {
-      dataSourceId: "ds-123",
-      dataSourceName: "GITHUB",
+      id: "ds-123",
+      provider: "GITHUB",
       env: {
         GITHUB_TOKEN: "token123",
       },
-      db: mockDb,
       startDate: new Date("2024-01-01"),
       endDate: new Date("2024-01-31"),
       runId: "run-123",
     };
 
     // Act
-    await pullRequestScript.run(context);
+    await pullRequestScript.run(mockDb, context as never);
 
     // Assert
     expect(mockDb.contributor.upsert).toHaveBeenCalledTimes(2);
@@ -415,19 +411,18 @@ describe("pullRequestScript", () => {
     } as unknown as PrismaClient;
 
     const context = {
-      dataSourceId: "ds-123",
-      dataSourceName: "GITHUB",
+      id: "ds-123",
+      provider: "GITHUB",
       env: {
         GITHUB_TOKEN: "token123",
       },
-      db: mockDb,
       startDate: new Date("2024-01-01"),
       endDate: new Date("2024-01-31"),
       runId: "run-123",
     };
 
     // Act
-    await pullRequestScript.run(context);
+    await pullRequestScript.run(mockDb, context as never);
 
     // Assert
     expect(mockDb.importLog.create).toHaveBeenCalledWith({
@@ -459,19 +454,18 @@ describe("pullRequestScript", () => {
     } as unknown as PrismaClient;
 
     const context = {
-      dataSourceId: "ds-123",
-      dataSourceName: "GITHUB",
+      id: "ds-123",
+      provider: "GITHUB",
       env: {
         GITHUB_TOKEN: "token123",
       },
-      db: mockDb,
       startDate: new Date("2024-01-01"),
       endDate: new Date("2024-01-31"),
       runId: "run-123",
     };
 
     // Act
-    await pullRequestScript.run(context);
+    await pullRequestScript.run(mockDb, context as never);
 
     // Assert
     expect(mockDb.importLog.create).not.toHaveBeenCalled();
@@ -529,19 +523,18 @@ describe("pullRequestScript", () => {
     } as unknown as PrismaClient;
 
     const context = {
-      dataSourceId: "ds-123",
-      dataSourceName: "GITHUB",
+      id: "ds-123",
+      provider: "GITHUB",
       env: {
         GITHUB_TOKEN: "token123",
       },
-      db: mockDb,
       startDate: new Date("2024-01-01"),
       endDate: new Date("2024-01-31"),
       runId: "run-123",
     };
 
     // Act
-    await pullRequestScript.run(context);
+    await pullRequestScript.run(mockDb, context as never);
 
     // Assert
     expect(mockDb.mergeRequest.upsert).not.toHaveBeenCalled();

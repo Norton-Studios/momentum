@@ -8,13 +8,13 @@ export const contributorScript = {
   dependsOn: ["repository"],
   importWindowDays: 365,
 
-  async run(context: ExecutionContext) {
+  async run(db: PrismaClient, context: ExecutionContext) {
     const octokit = new Octokit({ auth: context.env.GITHUB_TOKEN });
 
-    const repos = await context.db.repository.findMany({
+    const repos = await db.repository.findMany({
       where: {
         provider: "GITHUB",
-        dataSourceId: context.dataSourceId,
+        dataSourceId: context.id,
         isEnabled: true,
       },
     });
@@ -23,7 +23,7 @@ export const contributorScript = {
     let totalContributors = 0;
 
     for (const repo of repos) {
-      const result = await processRepositoryContributors(octokit, context.db, repo, context.runId);
+      const result = await processRepositoryContributors(octokit, db, repo, context.runId);
       if (result.error) {
         errors.push(result.error);
       }
@@ -31,10 +31,10 @@ export const contributorScript = {
     }
 
     if (errors.length > 0) {
-      await logImportErrors(context.db, context.runId, errors);
+      await logImportErrors(db, context.runId, errors);
     }
 
-    await context.db.dataSourceRun.update({
+    await db.dataSourceRun.update({
       where: { id: context.runId },
       data: { recordsImported: totalContributors },
     });

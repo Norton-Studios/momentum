@@ -1,18 +1,23 @@
 import type { PrismaClient } from "@prisma/client";
 
-export async function createRun(db: PrismaClient, dataSourceId: string, scriptName: string): Promise<string> {
-  const run = await db.dataSourceRun.create({
-    data: {
-      dataSourceId,
-      scriptName,
-      status: "RUNNING",
-      startedAt: new Date(),
-      recordsImported: 0,
-      recordsFailed: 0,
-    },
-  });
-
-  return run.id;
+export async function createRun(db: PrismaClient, dataSourceId: string, scriptName: string, importBatchId?: string): Promise<string | null> {
+  try {
+    const run = await db.dataSourceRun.create({
+      data: {
+        dataSourceId,
+        scriptName,
+        importBatchId,
+        status: "RUNNING",
+        startedAt: new Date(),
+        recordsImported: 0,
+        recordsFailed: 0,
+      },
+    });
+    return run.id;
+  } catch (error) {
+    console.error("Error creating data source run:", error);
+  }
+  return null;
 }
 
 export async function completeRun(db: PrismaClient, runId: string, recordsImported: number, lastFetchedDataAt: Date): Promise<void> {

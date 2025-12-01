@@ -8,10 +8,10 @@ export const repositoryScript = {
   dependsOn: [],
   importWindowDays: 365,
 
-  async run(context: ExecutionContext) {
+  async run(db: PrismaClient, context: ExecutionContext) {
     const octokit = new Octokit({ auth: context.env.GITHUB_TOKEN });
     const repos = await fetchAllRepositories(octokit, context.env.GITHUB_ORG);
-    await upsertRepositories(context.db, repos, context.runId, context.dataSourceId);
+    await upsertRepositories(db, repos, context.runId, context.id);
   },
 };
 

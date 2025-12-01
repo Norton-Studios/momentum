@@ -76,19 +76,18 @@ describe("contributorScript", () => {
     } as unknown as PrismaClient;
 
     const context = {
-      dataSourceId: "ds-123",
-      dataSourceName: "GITHUB",
+      id: "ds-123",
+      provider: "GITHUB",
       env: {
         GITHUB_TOKEN: "token123",
       },
-      db: mockDb,
       startDate: new Date("2024-01-01"),
       endDate: new Date("2024-01-31"),
       runId: "run-123",
     };
 
     // Act
-    await contributorScript.run(context);
+    await contributorScript.run(mockDb, context as never);
 
     // Assert
     expect(mockPaginateIterator).toHaveBeenCalledWith(mockReposListContributors, {
@@ -170,19 +169,18 @@ describe("contributorScript", () => {
     } as unknown as PrismaClient;
 
     const context = {
-      dataSourceId: "ds-123",
-      dataSourceName: "GITHUB",
+      id: "ds-123",
+      provider: "GITHUB",
       env: {
         GITHUB_TOKEN: "token123",
       },
-      db: mockDb,
       startDate: new Date("2024-01-01"),
       endDate: new Date("2024-01-31"),
       runId: "run-123",
     };
 
     // Act
-    await contributorScript.run(context);
+    await contributorScript.run(mockDb, context as never);
 
     // Assert
     expect(mockDb.contributor.upsert).toHaveBeenCalledTimes(1);
@@ -225,19 +223,18 @@ describe("contributorScript", () => {
     } as unknown as PrismaClient;
 
     const context = {
-      dataSourceId: "ds-123",
-      dataSourceName: "GITHUB",
+      id: "ds-123",
+      provider: "GITHUB",
       env: {
         GITHUB_TOKEN: "token123",
       },
-      db: mockDb,
       startDate: new Date("2024-01-01"),
       endDate: new Date("2024-01-31"),
       runId: "run-123",
     };
 
     // Act
-    await contributorScript.run(context);
+    await contributorScript.run(mockDb, context as never);
 
     // Assert
     expect(mockDb.contributor.upsert).toHaveBeenCalledWith({
@@ -283,19 +280,18 @@ describe("contributorScript", () => {
     } as unknown as PrismaClient;
 
     const context = {
-      dataSourceId: "ds-123",
-      dataSourceName: "GITHUB",
+      id: "ds-123",
+      provider: "GITHUB",
       env: {
         GITHUB_TOKEN: "token123",
       },
-      db: mockDb,
       startDate: new Date("2024-01-01"),
       endDate: new Date("2024-01-31"),
       runId: "run-123",
     };
 
     // Act
-    await contributorScript.run(context);
+    await contributorScript.run(mockDb, context as never);
 
     // Assert
     expect(mockDb.importLog.create).toHaveBeenCalledWith({
@@ -327,19 +323,18 @@ describe("contributorScript", () => {
     } as unknown as PrismaClient;
 
     const context = {
-      dataSourceId: "ds-123",
-      dataSourceName: "GITHUB",
+      id: "ds-123",
+      provider: "GITHUB",
       env: {
         GITHUB_TOKEN: "token123",
       },
-      db: mockDb,
       startDate: new Date("2024-01-01"),
       endDate: new Date("2024-01-31"),
       runId: "run-123",
     };
 
     // Act
-    await contributorScript.run(context);
+    await contributorScript.run(mockDb, context as never);
 
     // Assert
     expect(mockDb.importLog.create).not.toHaveBeenCalled();
@@ -392,19 +387,18 @@ describe("contributorScript", () => {
     } as unknown as PrismaClient;
 
     const context = {
-      dataSourceId: "ds-123",
-      dataSourceName: "GITHUB",
+      id: "ds-123",
+      provider: "GITHUB",
       env: {
         GITHUB_TOKEN: "token123",
       },
-      db: mockDb,
       startDate: new Date("2024-01-01"),
       endDate: new Date("2024-01-31"),
       runId: "run-123",
     };
 
     // Act
-    await contributorScript.run(context);
+    await contributorScript.run(mockDb, context as never);
 
     // Assert
     expect(mockDb.contributor.upsert).toHaveBeenCalledTimes(2);

@@ -668,9 +668,31 @@ model DataSourceConfig {
   @@schema("data")
 }
 
+model ImportBatch {
+  id               String              @id @default(cuid())
+  status           DataSourceRunStatus @default(PENDING) @map("status")
+  triggeredBy      String?             @map("triggered_by")
+  startedAt        DateTime            @default(now()) @map("started_at")
+  completedAt      DateTime?           @map("completed_at")
+  durationMs       Int?                @map("duration_ms")
+  totalScripts     Int                 @default(0) @map("total_scripts")
+  completedScripts Int                 @default(0) @map("completed_scripts")
+  failedScripts    Int                 @default(0) @map("failed_scripts")
+  createdAt        DateTime            @default(now()) @map("created_at")
+  updatedAt        DateTime            @updatedAt @map("updated_at")
+
+  runs DataSourceRun[]
+
+  @@index([status])
+  @@index([startedAt])
+  @@map("import_batch")
+  @@schema("data")
+}
+
 model DataSourceRun {
   id                String              @id @default(cuid())
   dataSourceId      String              @map("data_source_id")
+  importBatchId     String?             @map("import_batch_id")
   status            DataSourceRunStatus @map("status")
   scriptName        String?             @map("script_name")
   recordsImported   Int                 @default(0) @map("records_imported")
@@ -684,11 +706,12 @@ model DataSourceRun {
   createdAt         DateTime            @default(now()) @map("created_at")
   updatedAt         DateTime            @updatedAt @map("updated_at")
 
-  // Relationships
-  dataSource DataSource  @relation(fields: [dataSourceId], references: [id], onDelete: Cascade)
-  logs       ImportLog[]
+  dataSource  DataSource   @relation(fields: [dataSourceId], references: [id], onDelete: Cascade)
+  importBatch ImportBatch? @relation(fields: [importBatchId], references: [id], onDelete: SetNull)
+  logs        ImportLog[]
 
   @@index([dataSourceId])
+  @@index([importBatchId])
   @@index([status])
   @@index([startedAt])
   @@index([completedAt])

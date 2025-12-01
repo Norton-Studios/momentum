@@ -35,6 +35,7 @@ describe("run-tracker", () => {
         errorMessage: null,
         lastFetchedDataAt: null,
         metadata: null,
+        importBatchId: null,
         createdAt: new Date(),
         updatedAt: new Date(),
       });
@@ -78,6 +79,7 @@ describe("run-tracker", () => {
         errorMessage: null,
         lastFetchedDataAt: null,
         metadata: null,
+        importBatchId: null,
         createdAt: startedAt,
         updatedAt: startedAt,
       });
@@ -95,6 +97,7 @@ describe("run-tracker", () => {
         errorMessage: null,
         lastFetchedDataAt,
         metadata: null,
+        importBatchId: null,
         createdAt: startedAt,
         updatedAt: new Date(),
       });
@@ -152,6 +155,7 @@ describe("run-tracker", () => {
         errorMessage: null,
         lastFetchedDataAt: null,
         metadata: null,
+        importBatchId: null,
         createdAt: startedAt,
         updatedAt: startedAt,
       });
@@ -169,6 +173,7 @@ describe("run-tracker", () => {
         errorMessage,
         lastFetchedDataAt: null,
         metadata: null,
+        importBatchId: null,
         createdAt: startedAt,
         updatedAt: new Date(),
       });

@@ -11,8 +11,10 @@ export function startScheduler(db: PrismaClient, config: SchedulerConfig = {}): 
   cron.schedule(cronExpression, async () => {
     console.log("Running orchestrator...");
     try {
-      const result = await runOrchestrator(db);
-      console.log(`Orchestrator completed: ${result.scriptsExecuted} executed, ${result.scriptsFailed} failed, ${result.scriptsSkipped} skipped (${result.executionTimeMs}ms)`);
+      const result = await runOrchestrator(db, { triggeredBy: "scheduler" });
+      console.log(
+        `Orchestrator completed: batch=${result.batchId}, ${result.scriptsExecuted} executed, ${result.scriptsFailed} failed, ${result.scriptsSkipped} skipped (${result.executionTimeMs}ms)`
+      );
       if (result.errors.length > 0) {
         console.error(`Errors: ${result.errors.map((e) => `${e.script}: ${e.error}`).join(", ")}`);
       }

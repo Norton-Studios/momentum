@@ -73,20 +73,19 @@ describe("repositoryScript", () => {
     } as unknown as PrismaClient;
 
     const context = {
-      dataSourceId: "ds-123",
-      dataSourceName: "GITHUB",
+      id: "ds-123",
+      provider: "GITHUB",
       env: {
         GITHUB_TOKEN: "token123",
         GITHUB_ORG: "org",
       },
-      db: mockDb,
       startDate: new Date("2024-01-01"),
       endDate: new Date("2024-01-31"),
       runId: "run-123",
     };
 
     // Act
-    await repositoryScript.run(context);
+    await repositoryScript.run(mockDb, context as never);
 
     // Assert
     expect(mockPaginateIterator).toHaveBeenCalledWith(mockReposListForOrg, { org: "org", per_page: 100 });
@@ -147,20 +146,19 @@ describe("repositoryScript", () => {
     } as unknown as PrismaClient;
 
     const context = {
-      dataSourceId: "ds-123",
-      dataSourceName: "GITHUB",
+      id: "ds-123",
+      provider: "GITHUB",
       env: {
         GITHUB_TOKEN: "token123",
         GITHUB_ORG: "org",
       },
-      db: mockDb,
       startDate: new Date("2024-01-01"),
       endDate: new Date("2024-01-31"),
       runId: "run-123",
     };
 
     // Act
-    await repositoryScript.run(context);
+    await repositoryScript.run(mockDb, context as never);
 
     // Assert
     expect(mockDb.repository.upsert).toHaveBeenCalledTimes(2);
@@ -188,20 +186,19 @@ describe("repositoryScript", () => {
     } as unknown as PrismaClient;
 
     const context = {
-      dataSourceId: "ds-123",
-      dataSourceName: "GITHUB",
+      id: "ds-123",
+      provider: "GITHUB",
       env: {
         GITHUB_TOKEN: "token123",
         GITHUB_ORG: "org",
       },
-      db: mockDb,
       startDate: new Date("2024-01-01"),
       endDate: new Date("2024-01-31"),
       runId: "run-123",
     };
 
     // Act
-    await repositoryScript.run(context);
+    await repositoryScript.run(mockDb, context as never);
 
     // Assert
     expect(mockDb.repository.upsert).not.toHaveBeenCalled();

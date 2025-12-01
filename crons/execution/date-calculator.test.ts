@@ -66,6 +66,7 @@ describe("calculateDateRange", () => {
       durationMs: 3600000,
       errorMessage: null,
       metadata: null,
+      importBatchId: null,
       createdAt: new Date("2025-01-01T00:00:00Z"),
       updatedAt: new Date("2025-01-01T01:00:00Z"),
     });
