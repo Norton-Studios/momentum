@@ -53,7 +53,7 @@
     "@types/node": "24.10.1",
     "@types/react": "19.2.7",
     "@types/react-dom": "19.2.3",
-    "@vitest/coverage-v8": "4.0.14",
+    "@vitest/coverage-v8": "4.0.15",
     "dotenv": "^17.2.3",
     "jsdom": "^27.2.0",
     "prisma": "6.19.0",
@@ -62,6 +62,6 @@
     "typescript": "5.9.3",
     "vite": "7.2.6",
     "vite-tsconfig-paths": "5.1.4",
-    "vitest": "4.0.14"
+    "vitest": "4.0.15"
   }
 }
