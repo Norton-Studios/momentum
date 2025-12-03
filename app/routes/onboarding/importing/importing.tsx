@@ -12,6 +12,8 @@ const TASK_LABELS: Record<string, string> = {
   contributor: "Contributors",
   commit: "Commit history",
   "pull-request": "Pull requests",
+  project: "Projects",
+  issue: "Issues",
 };
 
 const POLLING_INTERVAL_MS = 3000;
