@@ -159,7 +159,7 @@ describe("script-loader", () => {
       const result = await getEnabledScripts(mockDb);
 
       // Assert
-      expect(result.size).toBe(4);
+      expect(result.size).toBe(8);
       const scripts = Array.from(result.keys());
       expect(scripts.every((s) => s.dataSourceName === "GITLAB")).toBe(true);
     });
