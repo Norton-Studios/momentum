@@ -92,9 +92,6 @@ describe("OnboardingDataSources", () => {
 
     expect(screen.getByRole("heading", { level: 3, name: "GitLab" })).toBeInTheDocument();
     expect(screen.getByText(/Connect to GitLab \(cloud or self-hosted\) to track projects/)).toBeInTheDocument();
-
-    expect(screen.getByRole("heading", { level: 3, name: "Bitbucket" })).toBeInTheDocument();
-    expect(screen.getByText(/Connect Bitbucket to import repositories, commits, and pull requests/)).toBeInTheDocument();
   });
 
   it("renders CI/CD Platforms section", () => {
@@ -140,7 +137,6 @@ describe("OnboardingDataSources", () => {
 
     expect(screen.getByRole("button", { name: "Configure GitHub" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Configure GitLab" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Configure Bitbucket" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Configure Jenkins" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Configure CircleCI" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Configure SonarQube" })).toBeInTheDocument();

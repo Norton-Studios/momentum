@@ -11,12 +11,6 @@ export const PROVIDER_CONFIGS: Record<string, ProviderConfig> = {
       { key: "GITLAB_URL", label: "GitLab URL", type: "text", placeholder: "https://gitlab.com", required: false },
     ],
   },
-  bitbucket: {
-    fields: [
-      { key: "BITBUCKET_TOKEN", label: "App Password", type: "password", placeholder: "xxxxxxxxxxxx", required: true },
-      { key: "BITBUCKET_WORKSPACE", label: "Workspace", type: "text", placeholder: "my-workspace", required: true },
-    ],
-  },
   jenkins: {
     fields: [
       { key: "JENKINS_URL", label: "Jenkins URL", type: "text", placeholder: "https://jenkins.example.com", required: true },
