@@ -1,10 +1,12 @@
 import type { DataSource, DataSourceConfig, PrismaClient } from "@prisma/client";
 import { scripts as githubScripts } from "../data-sources/github/index.js";
+import { scripts as gitlabScripts } from "../data-sources/gitlab/index.js";
 
 // Static imports for all implemented providers
 // Add new providers here as they're implemented
 const PROVIDER_SCRIPTS: Record<string, DataSourceScript[]> = {
   github: githubScripts,
+  gitlab: gitlabScripts,
 };
 
 export async function getEnabledScripts(db: PrismaClient): Promise<DataSourceScriptMap> {
