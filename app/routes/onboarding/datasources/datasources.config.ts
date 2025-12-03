@@ -8,7 +8,7 @@ export const PROVIDER_CONFIGS: Record<string, ProviderConfig> = {
   gitlab: {
     fields: [
       { key: "GITLAB_TOKEN", label: "Personal Access Token", type: "password", placeholder: "glpat-xxxxxxxxxxxx", required: true },
-      { key: "GITLAB_URL", label: "GitLab URL", type: "text", placeholder: "https://gitlab.com", required: false },
+      { key: "GITLAB_HOST", label: "GitLab URL", type: "text", placeholder: "https://gitlab.com", required: false },
     ],
   },
   jenkins: {

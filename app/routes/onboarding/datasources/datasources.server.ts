@@ -1,3 +1,4 @@
+import { Gitlab } from "@gitbeaker/rest";
 import { Octokit } from "@octokit/rest";
 import type { ActionFunctionArgs } from "react-router";
 import { data, redirect } from "react-router";
@@ -163,22 +164,46 @@ export function extractConfigsFromForm(formData: FormData, provider: string): Re
 
 export async function testConnection(provider: string, configs: Record<string, string>): Promise<{ success: boolean; error?: string }> {
   if (provider === "github") {
-    const token = configs.GITHUB_TOKEN;
-    const org = configs.GITHUB_ORG;
-    if (!token || !org) {
-      return { success: false, error: "Token and organization are required" };
-    }
-    try {
-      const octokit = new Octokit({ auth: token });
-      await octokit.orgs.get({ org });
-      return { success: true };
-    } catch (error) {
-      const message = error instanceof Error ? error.message : "Connection failed";
-      return { success: false, error: message };
-    }
+    return testGitHubConnection(configs);
+  }
+
+  if (provider === "gitlab") {
+    return testGitLabConnection(configs);
   }
 
   return { success: false, error: "Test connection not implemented for this provider" };
+}
+
+async function testGitHubConnection(configs: Record<string, string>): Promise<{ success: boolean; error?: string }> {
+  const token = configs.GITHUB_TOKEN;
+  const org = configs.GITHUB_ORG;
+  if (!token || !org) {
+    return { success: false, error: "Token and organization are required" };
+  }
+  try {
+    const octokit = new Octokit({ auth: token });
+    await octokit.orgs.get({ org });
+    return { success: true };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Connection failed";
+    return { success: false, error: message };
+  }
+}
+
+async function testGitLabConnection(configs: Record<string, string>): Promise<{ success: boolean; error?: string }> {
+  const token = configs.GITLAB_TOKEN;
+  if (!token) {
+    return { success: false, error: "Token is required" };
+  }
+  try {
+    const host = configs.GITLAB_HOST || "https://gitlab.com";
+    const gitlab = new Gitlab({ token, host });
+    await gitlab.Users.showCurrentUser();
+    return { success: true };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Connection failed";
+    return { success: false, error: message };
+  }
 }
 
 type DataSourceProviderEnum = "GITHUB" | "GITLAB" | "BITBUCKET" | "JENKINS" | "CIRCLECI" | "SONARQUBE";

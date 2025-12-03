@@ -134,7 +134,7 @@ describe("script-loader", () => {
       });
     });
 
-    it("should only include scripts matching enabled providers", async () => {
+    it("should load GitLab scripts when GitLab data source is enabled", async () => {
       // Arrange
       const gitlabDataSource: DataSourceWithConfig = {
         id: "ds-456",
@@ -147,7 +147,10 @@ describe("script-loader", () => {
         lastSyncAt: null,
         createdAt: new Date(),
         updatedAt: new Date(),
-        configs: [],
+        configs: [
+          { id: "config-1", dataSourceId: "ds-456", key: "GITLAB_TOKEN", value: "glpat_abc123", isSecret: true, createdAt: new Date(), updatedAt: new Date() },
+          { id: "config-2", dataSourceId: "ds-456", key: "GITLAB_GROUP", value: "my-group", isSecret: false, createdAt: new Date(), updatedAt: new Date() },
+        ],
       };
 
       vi.mocked(mockDb.dataSource.findMany).mockResolvedValue([gitlabDataSource]);
@@ -156,7 +159,9 @@ describe("script-loader", () => {
       const result = await getEnabledScripts(mockDb);
 
       // Assert
-      expect(result.size).toBe(0);
+      expect(result.size).toBe(8);
+      const scripts = Array.from(result.keys());
+      expect(scripts.every((s) => s.dataSourceName === "GITLAB")).toBe(true);
     });
   });
 });

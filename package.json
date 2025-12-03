@@ -25,6 +25,7 @@
     "db:studio": "prisma studio"
   },
   "dependencies": {
+    "@gitbeaker/rest": "43.8.0",
     "@octokit/rest": "22.0.1",
     "@octokit/types": "16.0.0",
     "@prisma/client": "6.19.0",
