@@ -23,7 +23,7 @@ export const contributorScript = {
     let totalContributors = 0;
 
     for (const repo of repos) {
-      const result = await processProjectContributors(gitlab, db, repo, context.runId);
+      const result = await processProjectContributors(gitlab, db, repo);
       if (result.error) {
         errors.push(result.error);
       }
@@ -31,7 +31,18 @@ export const contributorScript = {
     }
 
     if (errors.length > 0) {
-      await logImportErrors(db, context.runId, errors);
+      await Promise.all(
+        errors.map((message) =>
+          db.importLog.create({
+            data: {
+              dataSourceRunId: context.runId,
+              level: "ERROR",
+              message,
+              details: null,
+            },
+          })
+        )
+      );
     }
 
     await db.dataSourceRun.update({
@@ -82,8 +93,7 @@ async function upsertContributors(db: PrismaClient, contributors: EnrichedContri
 async function processProjectContributors(
   gitlab: InstanceType<typeof Gitlab>,
   db: PrismaClient,
-  repo: { id: string; fullName: string },
-  _runId: string
+  repo: { id: string; fullName: string }
 ): Promise<{ count: number; error?: string }> {
   try {
     const projectPath = repo.fullName;
@@ -107,23 +117,6 @@ async function processProjectContributors(
       error: `Failed to import contributors for ${repo.fullName}: ${errorMessage}`,
     };
   }
-}
-
-async function logImportErrors(db: PrismaClient, runId: string, errors: string[]): Promise<void> {
-  if (errors.length === 0) return;
-
-  await Promise.all(
-    errors.map((message) =>
-      db.importLog.create({
-        data: {
-          dataSourceRunId: runId,
-          level: "ERROR",
-          message,
-          details: null,
-        },
-      })
-    )
-  );
 }
 
 interface GitLabUser {

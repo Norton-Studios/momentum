@@ -31,7 +31,18 @@ export const commitScript = {
     }
 
     if (errors.length > 0) {
-      await logCommitErrors(db, context.runId, errors);
+      await Promise.all(
+        errors.map((message) =>
+          db.importLog.create({
+            data: {
+              dataSourceRunId: context.runId,
+              level: "ERROR",
+              message,
+              details: null,
+            },
+          })
+        )
+      );
     }
 
     await db.dataSourceRun.update({
@@ -41,21 +52,18 @@ export const commitScript = {
   },
 };
 
-function hasAuthorInfo(commit: GitLabCommit): boolean {
-  return Boolean(commit.authorEmail && commit.authorName && commit.committedDate);
-}
-
 function transformCommit(commit: GitLabCommit): TransformedCommit | null {
-  if (!hasAuthorInfo(commit)) {
+  const { authorEmail, authorName, committedDate } = commit;
+  if (!authorEmail || !authorName || !committedDate) {
     return null;
   }
 
   return {
     sha: commit.id,
     message: commit.message ?? "",
-    authorEmail: commit.authorEmail!,
-    authorName: commit.authorName!,
-    committedAt: new Date(commit.committedDate!),
+    authorEmail,
+    authorName,
+    committedAt: new Date(committedDate),
     linesAdded: 0,
     linesRemoved: 0,
     filesChanged: 0,
@@ -69,25 +77,6 @@ async function fetchCommitsForProject(gitlab: InstanceType<typeof Gitlab>, proje
     perPage: 100,
   });
   return commits as GitLabCommit[];
-}
-
-async function ensureContributorExists(db: PrismaClient, email: string, name: string): Promise<string> {
-  const contributor = await db.contributor.upsert({
-    where: {
-      provider_email: {
-        provider: "GITLAB",
-        email,
-      },
-    },
-    create: {
-      name,
-      email,
-      provider: "GITLAB",
-    },
-    update: {},
-  });
-
-  return contributor.id;
 }
 
 async function upsertCommit(db: PrismaClient, repoId: string, transformedCommit: TransformedCommit, authorId: string): Promise<void> {
@@ -122,8 +111,21 @@ async function storeCommits(db: PrismaClient, repoId: string, transformedCommits
 
   for (const commit of transformedCommits) {
     try {
-      const authorId = await ensureContributorExists(db, commit.authorEmail, commit.authorName);
-      await upsertCommit(db, repoId, commit, authorId);
+      const contributor = await db.contributor.upsert({
+        where: {
+          provider_email: {
+            provider: "GITLAB",
+            email: commit.authorEmail,
+          },
+        },
+        create: {
+          name: commit.authorName,
+          email: commit.authorEmail,
+          provider: "GITLAB",
+        },
+        update: {},
+      });
+      await upsertCommit(db, repoId, commit, contributor.id);
       successCount++;
     } catch (error) {
       console.error(`Failed to store commit ${commit.sha}:`, error);
@@ -155,23 +157,6 @@ async function processProjectCommits(
       error: `Failed to import commits for ${repo.fullName}: ${errorMessage}`,
     };
   }
-}
-
-async function logCommitErrors(db: PrismaClient, runId: string, errors: string[]): Promise<void> {
-  if (errors.length === 0) return;
-
-  await Promise.all(
-    errors.map((message) =>
-      db.importLog.create({
-        data: {
-          dataSourceRunId: runId,
-          level: "ERROR",
-          message,
-          details: null,
-        },
-      })
-    )
-  );
 }
 
 interface GitLabCommit {

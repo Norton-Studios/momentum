@@ -23,7 +23,7 @@ export const mergeRequestScript = {
     let totalMergeRequests = 0;
 
     for (const repo of repos) {
-      const result = await processProjectMergeRequests(gitlab, db, repo, context.startDate, context.endDate, context.runId);
+      const result = await processProjectMergeRequests(gitlab, db, repo, context.startDate, context.endDate);
       if (result.error) {
         errors.push(result.error);
       }
@@ -31,7 +31,18 @@ export const mergeRequestScript = {
     }
 
     if (errors.length > 0) {
-      await logMergeRequestErrors(db, context.runId, errors);
+      await Promise.all(
+        errors.map((message) =>
+          db.importLog.create({
+            data: {
+              dataSourceRunId: context.runId,
+              level: "ERROR",
+              message,
+              details: null,
+            },
+          })
+        )
+      );
     }
 
     await db.dataSourceRun.update({
@@ -93,44 +104,6 @@ function transformMergeRequest(mr: GitLabMergeRequest): TransformedMergeRequest 
   };
 }
 
-async function ensureAuthorExists(db: PrismaClient, email: string, name: string, username?: string): Promise<string> {
-  const author = await db.contributor.upsert({
-    where: {
-      provider_email: {
-        provider: "GITLAB",
-        email,
-      },
-    },
-    create: {
-      name,
-      email,
-      provider: "GITLAB",
-      username,
-    },
-    update: {},
-  });
-  return author.id;
-}
-
-async function ensureAssigneeExists(db: PrismaClient, email: string, name: string, username: string): Promise<string> {
-  const assignee = await db.contributor.upsert({
-    where: {
-      provider_email: {
-        provider: "GITLAB",
-        email,
-      },
-    },
-    create: {
-      name,
-      email,
-      provider: "GITLAB",
-      username,
-    },
-    update: {},
-  });
-  return assignee.id;
-}
-
 async function upsertMergeRequest(db: PrismaClient, repoId: string, transformedMR: TransformedMergeRequest, authorId: string, assigneeId?: string): Promise<void> {
   await db.mergeRequest.upsert({
     where: {
@@ -178,14 +151,43 @@ async function storeMergeRequests(db: PrismaClient, repoId: string, mrs: GitLabM
   for (const mr of mrs) {
     try {
       const transformedMR = transformMergeRequest(mr);
-      const authorId = await ensureAuthorExists(db, transformedMR.authorEmail, transformedMR.authorName, transformedMR.authorUsername);
+      const author = await db.contributor.upsert({
+        where: {
+          provider_email: {
+            provider: "GITLAB",
+            email: transformedMR.authorEmail,
+          },
+        },
+        create: {
+          name: transformedMR.authorName,
+          email: transformedMR.authorEmail,
+          provider: "GITLAB",
+          username: transformedMR.authorUsername,
+        },
+        update: {},
+      });
 
       let assigneeId: string | undefined;
       if (transformedMR.assigneeEmail && transformedMR.assigneeUsername) {
-        assigneeId = await ensureAssigneeExists(db, transformedMR.assigneeEmail, transformedMR.assigneeUsername, transformedMR.assigneeUsername);
+        const assignee = await db.contributor.upsert({
+          where: {
+            provider_email: {
+              provider: "GITLAB",
+              email: transformedMR.assigneeEmail,
+            },
+          },
+          create: {
+            name: transformedMR.assigneeUsername,
+            email: transformedMR.assigneeEmail,
+            provider: "GITLAB",
+            username: transformedMR.assigneeUsername,
+          },
+          update: {},
+        });
+        assigneeId = assignee.id;
       }
 
-      await upsertMergeRequest(db, repoId, transformedMR, authorId, assigneeId);
+      await upsertMergeRequest(db, repoId, transformedMR, author.id, assigneeId);
       successCount++;
     } catch (error) {
       console.error(`Failed to store MR !${mr.iid}:`, error);
@@ -200,8 +202,7 @@ async function processProjectMergeRequests(
   db: PrismaClient,
   repo: { id: string; fullName: string },
   startDate: Date,
-  endDate: Date,
-  _runId: string
+  endDate: Date
 ): Promise<{ count: number; error?: string }> {
   try {
     const project = await gitlab.Projects.show(repo.fullName);
@@ -215,23 +216,6 @@ async function processProjectMergeRequests(
       error: `Failed to import merge requests for ${repo.fullName}: ${errorMessage}`,
     };
   }
-}
-
-async function logMergeRequestErrors(db: PrismaClient, runId: string, errors: string[]): Promise<void> {
-  if (errors.length === 0) return;
-
-  await Promise.all(
-    errors.map((message) =>
-      db.importLog.create({
-        data: {
-          dataSourceRunId: runId,
-          level: "ERROR",
-          message,
-          details: null,
-        },
-      })
-    )
-  );
 }
 
 interface GitLabMergeRequest {

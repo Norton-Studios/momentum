@@ -297,4 +297,196 @@ describe("mergeRequestScript", () => {
       },
     });
   });
+
+  it("should handle closed merge requests", async () => {
+    // Arrange
+    const mockMergeRequests = [
+      {
+        iid: 1,
+        title: "Closed MR",
+        description: null,
+        state: "closed",
+        workInProgress: false,
+        draft: false,
+        mergedAt: null,
+        closedAt: "2024-01-20T10:00:00Z",
+        updatedAt: "2024-01-20T10:00:00Z",
+        author: { username: "developer", name: "Developer", email: "dev@example.com" },
+        assignee: null,
+        sourceBranch: "feature/closed",
+        targetBranch: "main",
+        webUrl: "https://gitlab.com/group/project/-/merge_requests/1",
+      },
+    ];
+
+    mockProjectsShow.mockResolvedValue({ id: 123 });
+    mockMergeRequestsAll.mockResolvedValue(mockMergeRequests);
+
+    const mockDb = {
+      repository: {
+        findMany: vi.fn().mockResolvedValue([{ id: "repo-1", fullName: "group/project" }]),
+      },
+      contributor: {
+        upsert: vi.fn().mockResolvedValue({ id: "contributor-1" }),
+      },
+      mergeRequest: {
+        upsert: vi.fn().mockResolvedValue({}),
+      },
+      dataSourceRun: {
+        update: vi.fn().mockResolvedValue({}),
+      },
+    } as unknown as PrismaClient;
+
+    const context = {
+      id: "ds-123",
+      provider: "GITLAB",
+      env: {
+        GITLAB_TOKEN: "token123",
+      },
+      startDate: new Date("2024-01-01"),
+      endDate: new Date("2024-01-31"),
+      runId: "run-123",
+    };
+
+    // Act
+    await mergeRequestScript.run(mockDb, context as never);
+
+    // Assert
+    expect(mockDb.mergeRequest.upsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        create: expect.objectContaining({
+          state: "CLOSED",
+          closedAt: expect.any(Date),
+        }),
+      })
+    );
+  });
+
+  it("should handle merge requests with WIP prefix in title", async () => {
+    // Arrange
+    const mockMergeRequests = [
+      {
+        iid: 1,
+        title: "WIP: Work in progress",
+        description: null,
+        state: "opened",
+        workInProgress: false,
+        draft: false,
+        mergedAt: null,
+        closedAt: null,
+        updatedAt: "2024-01-15T10:00:00Z",
+        author: { username: "dev", name: "Developer" },
+        assignee: null,
+        sourceBranch: "feature/wip",
+        targetBranch: "main",
+        webUrl: "https://gitlab.com/group/project/-/merge_requests/1",
+      },
+    ];
+
+    mockProjectsShow.mockResolvedValue({ id: 123 });
+    mockMergeRequestsAll.mockResolvedValue(mockMergeRequests);
+
+    const mockDb = {
+      repository: {
+        findMany: vi.fn().mockResolvedValue([{ id: "repo-1", fullName: "group/project" }]),
+      },
+      contributor: {
+        upsert: vi.fn().mockResolvedValue({ id: "contributor-1" }),
+      },
+      mergeRequest: {
+        upsert: vi.fn().mockResolvedValue({}),
+      },
+      dataSourceRun: {
+        update: vi.fn().mockResolvedValue({}),
+      },
+    } as unknown as PrismaClient;
+
+    const context = {
+      id: "ds-123",
+      provider: "GITLAB",
+      env: {
+        GITLAB_TOKEN: "token123",
+      },
+      startDate: new Date("2024-01-01"),
+      endDate: new Date("2024-01-31"),
+      runId: "run-123",
+    };
+
+    // Act
+    await mergeRequestScript.run(mockDb, context as never);
+
+    // Assert
+    expect(mockDb.mergeRequest.upsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        create: expect.objectContaining({
+          state: "DRAFT",
+        }),
+      })
+    );
+  });
+
+  it("should handle merge requests with assignee", async () => {
+    // Arrange
+    const mockMergeRequests = [
+      {
+        iid: 1,
+        title: "MR with assignee",
+        description: null,
+        state: "opened",
+        workInProgress: false,
+        draft: false,
+        mergedAt: null,
+        closedAt: null,
+        updatedAt: "2024-01-15T10:00:00Z",
+        author: { username: "dev", name: "Developer", email: "dev@example.com" },
+        assignee: { username: "reviewer", name: "Reviewer", email: "reviewer@example.com" },
+        sourceBranch: "feature/with-assignee",
+        targetBranch: "main",
+        webUrl: "https://gitlab.com/group/project/-/merge_requests/1",
+      },
+    ];
+
+    mockProjectsShow.mockResolvedValue({ id: 123 });
+    mockMergeRequestsAll.mockResolvedValue(mockMergeRequests);
+
+    const mockDb = {
+      repository: {
+        findMany: vi.fn().mockResolvedValue([{ id: "repo-1", fullName: "group/project" }]),
+      },
+      contributor: {
+        upsert: vi.fn().mockResolvedValueOnce({ id: "author-1" }).mockResolvedValueOnce({ id: "assignee-1" }),
+      },
+      mergeRequest: {
+        upsert: vi.fn().mockResolvedValue({}),
+      },
+      dataSourceRun: {
+        update: vi.fn().mockResolvedValue({}),
+      },
+    } as unknown as PrismaClient;
+
+    const context = {
+      id: "ds-123",
+      provider: "GITLAB",
+      env: {
+        GITLAB_TOKEN: "token123",
+      },
+      startDate: new Date("2024-01-01"),
+      endDate: new Date("2024-01-31"),
+      runId: "run-123",
+    };
+
+    // Act
+    await mergeRequestScript.run(mockDb, context as never);
+
+    // Assert
+    expect(mockDb.contributor.upsert).toHaveBeenCalledTimes(2);
+    expect(mockDb.mergeRequest.upsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        create: expect.objectContaining({
+          authorId: "author-1",
+          assigneeId: "assignee-1",
+        }),
+      })
+    );
+  });
 });

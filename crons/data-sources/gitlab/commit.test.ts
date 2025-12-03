@@ -219,4 +219,94 @@ describe("commitScript", () => {
       data: { recordsImported: 1 },
     });
   });
+
+  it("should log errors and continue processing on API failure", async () => {
+    // Arrange
+    mockProjectsShow.mockRejectedValue(new Error("API Error"));
+
+    const mockDb = {
+      repository: {
+        findMany: vi.fn().mockResolvedValue([{ id: "repo-1", fullName: "group/project1" }]),
+      },
+      importLog: {
+        create: vi.fn().mockResolvedValue({}),
+      },
+      dataSourceRun: {
+        update: vi.fn().mockResolvedValue({}),
+      },
+    } as unknown as PrismaClient;
+
+    const context = {
+      id: "ds-123",
+      provider: "GITLAB",
+      env: {
+        GITLAB_TOKEN: "token123",
+      },
+      startDate: new Date("2024-01-01"),
+      endDate: new Date("2024-01-31"),
+      runId: "run-123",
+    };
+
+    // Act
+    await commitScript.run(mockDb, context as never);
+
+    // Assert
+    expect(mockDb.importLog.create).toHaveBeenCalledWith({
+      data: {
+        dataSourceRunId: "run-123",
+        level: "ERROR",
+        message: expect.stringContaining("Failed to import commits for group/project1"),
+        details: null,
+      },
+    });
+  });
+
+  it("should skip commits missing committedDate", async () => {
+    // Arrange
+    const mockCommits = [
+      {
+        id: "abc123",
+        message: "Commit without date",
+        authorEmail: "dev@example.com",
+        authorName: "Developer",
+        committedDate: null,
+      },
+    ];
+
+    mockProjectsShow.mockResolvedValue({ id: 123 });
+    mockCommitsAll.mockResolvedValue(mockCommits);
+
+    const mockDb = {
+      repository: {
+        findMany: vi.fn().mockResolvedValue([{ id: "repo-1", fullName: "group/project1" }]),
+      },
+      commit: {
+        upsert: vi.fn().mockResolvedValue({}),
+      },
+      dataSourceRun: {
+        update: vi.fn().mockResolvedValue({}),
+      },
+    } as unknown as PrismaClient;
+
+    const context = {
+      id: "ds-123",
+      provider: "GITLAB",
+      env: {
+        GITLAB_TOKEN: "token123",
+      },
+      startDate: new Date("2024-01-01"),
+      endDate: new Date("2024-01-31"),
+      runId: "run-123",
+    };
+
+    // Act
+    await commitScript.run(mockDb, context as never);
+
+    // Assert
+    expect(mockDb.commit.upsert).not.toHaveBeenCalled();
+    expect(mockDb.dataSourceRun.update).toHaveBeenCalledWith({
+      where: { id: "run-123" },
+      data: { recordsImported: 0 },
+    });
+  });
 });
