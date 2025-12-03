@@ -3,7 +3,7 @@ import { type ActionFunctionArgs, data, type LoaderFunctionArgs, redirect } from
 import { requireAdmin } from "~/auth/auth.server";
 import { db } from "~/db.server";
 
-const SCRIPT_RESOURCES = ["repository", "contributor", "commit", "pull-request", "project", "issue"] as const;
+const SCRIPT_RESOURCES = ["repository", "contributor", "commit", "pull-request", "project", "issue", "pipeline", "pipeline-run"] as const;
 
 export async function importingLoader({ request }: LoaderFunctionArgs) {
   await requireAdmin(request);

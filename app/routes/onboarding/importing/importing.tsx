@@ -14,6 +14,8 @@ const TASK_LABELS: Record<string, string> = {
   "pull-request": "Pull requests",
   project: "Projects",
   issue: "Issues",
+  pipeline: "CI/CD Pipelines",
+  "pipeline-run": "Pipeline runs",
 };
 
 const POLLING_INTERVAL_MS = 3000;
