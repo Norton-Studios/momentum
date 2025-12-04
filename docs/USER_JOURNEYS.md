@@ -21,280 +21,261 @@ Set up Momentum for the first time, connecting development tools and preparing t
 
 ---
 
-### Step 1: First Login
+### Step 1: Initial Setup (First-Time Only)
+
+**Page**: Setup (`/setup`)
+
+**Title**: "Welcome - Momentum Setup"
+
+**Purpose**: Create the first administrator account and organization. This page is only accessible when no admin user exists in the system.
+
+**Form Fields**:
+- Organization Name
+- First Name
+- Last Name
+- Email Address
+- Password (minimum 12 characters)
+
+**Flow**:
+1. User fills in organization and personal details
+2. Click "Create Admin Account"
+3. System creates organization and admin user
+4. User is automatically logged in
+5. Redirect to `/onboarding/datasources`
+
+**Guard**: If an admin user already exists, visiting `/setup` redirects to `/`
+
+---
+
+### Step 2: Login (Returning Users)
 
 **Page**: Login (`/login`)
 
-**Form Fields**:
-- Email address
-- Password
+**Title**: "Sign In - Momentum"
 
-**Initial Credentials**:
-- Created during deployment via admin script
-- Provided by system administrator
+**Form Fields**:
+- Email Address
+- Password
 
 **Flow**:
 1. User enters email and password
 2. Click "Sign In"
 3. System validates credentials
-4. Redirect to onboarding wizard
-
----
-
-### Step 2: Welcome and Overview
-
-**Page**: Onboarding Welcome (`/onboarding`)
-
-**Content**:
-- Welcome message explaining Momentum's purpose
-- Brief overview of setup steps:
-  1. Connect data sources
-  2. Discover repositories
-  3. Start data collection
-- Estimated time: 10-15 minutes
-
-**Actions**:
-- Button: "Get Started"
+4. Redirect to dashboard or onboarding (if incomplete)
 
 ---
 
 ### Step 3: Data Source Configuration
 
-**Page**: Configure Data Sources (`/onboarding/data-sources`)
+**Page**: Connect Data Sources (`/onboarding/datasources`)
+
+**Title**: "Connect Data Sources - Momentum"
+
+**Progress Indicator**: Shows 4 steps - Welcome (completed), Data Sources (active), Import, Complete
+
+**Page Header**:
+- Heading: "Connect Your Tools"
+- Subheading: "Momentum integrates with your existing development workflow. Connect at least one version control system to begin tracking metrics."
 
 **Required**: At least one VCS (Version Control System) must be configured
 
-**Supported VCS Providers**:
-- GitHub
-- GitLab
-- Bitbucket
+**Data Source Sections**:
 
-#### VCS Configuration: GitHub Example
+1. **Version Control** (Required badge)
+   - GitHub
+   - GitLab
 
-**Form Interface**:
+2. **CI/CD Platforms**
+   - Jenkins
+   - CircleCI
+
+3. **Code Quality**
+   - SonarQube
+
+#### Data Source Card Pattern
+
+Each data source displays as a card with:
+- Icon and name
+- Description of what data it provides
+- Status badge: "Connected" or "Not Connected"
+- "Configure [Provider]" button (or "Edit [Provider] Configuration" if connected)
+
+**Configuration Form** (expands when clicking Configure):
 ```
 ┌─────────────────────────────────────────────────┐
-│ Connect GitHub                                  │
-├─────────────────────────────────────────────────┤
-│                                                 │
 │ Personal Access Token *                         │
 │ [________________________________]              │
-│ ℹ️ Generate token: github.com/settings/tokens   │
-│    Required scopes: repo, read:org, read:user   │
 │                                                 │
-│ Organization Name(s) *                          │
+│ Organization Name *                             │
 │ [________________________________]              │
-│ ℹ️ Comma-separated for multiple orgs            │
 │                                                 │
-│                                                 │
-│ [Test Connection]  [Cancel]  [Save]             │
+│ [Test Connection]  [Save Configuration]  [Cancel]│
 └─────────────────────────────────────────────────┘
 ```
 
 **Connection Validation**:
 1. User fills in required fields
 2. Click "Test Connection"
-3. System validates:
-   - Token is valid and has required permissions
-   - Organization exists and is accessible
-   - Attempts to fetch repository list
+3. System validates credentials and access
 4. Display result:
-   - ✅ Success: "Connected successfully. Found 50 repositories."
-   - ❌ Error: Specific error message with remediation steps
-
-**Error Examples**:
-- "Authentication failed. Please verify your token is correct."
-- "Organization 'myorg' not found or not accessible with this token."
-- "Token missing required scope: repo. Please regenerate with all required permissions."
+   - Success: "Connection successful!" message
+   - Error: Specific error message
 
 **Save**:
-1. After successful test, click "Save"
+1. After successful test, click "Save Configuration"
 2. Configuration stored in database
-3. Status indicator updates to "Connected"
+3. Card updates to show "Connected" status
 
-#### Optional Data Sources
-
-**Additional Integrations** (can be configured now or later):
-
-**CI/CD Platforms**:
-- Jenkins
-- CircleCI
-- Travis CI
-- GitHub Actions (auto-configured with GitHub)
-- GitLab CI (auto-configured with GitLab)
-
-**Project Management**:
-- JIRA
-- Trello
-- Asana
-
-**Code Quality**:
-- SonarQube
-- CodeClimate
-
-**Cloud Platforms**:
-- AWS
-- Azure
-- Google Cloud Platform
-
-**Communication**:
-- Slack
-- Microsoft Teams
-
-**UI Pattern**: Each additional source uses same configuration pattern:
-1. Expand section
-2. Fill in credentials/configuration
-3. Test connection
-4. Save
-
-**Navigation**:
-- Button: "Continue" (enabled after at least one VCS configured)
-- Link: "Skip optional sources for now"
+**Bottom Actions**:
+- Connection summary: "1 of 1 required connection established"
+- "Skip for now" link → `/dashboard`
+- "Continue to Import" button (enabled when at least one VCS connected)
 
 ---
 
-### Step 4: Repository Discovery
+### Step 4: Repository Selection
 
-**Page**: Review Repositories (`/onboarding/repositories`)
+**Page**: Select Repositories (`/onboarding/repositories`)
 
-**Automatic Process**:
-1. System fetches all repositories from configured VCS sources
-2. Displays list with metadata
+**Page Header**:
+- Heading: "Select Repositories"
+- Subheading: "Choose which repositories you want to monitor. We've pre-selected the ones we recommend."
 
-**Repository Table**:
-```
-┌──────────────────┬───────────────────────┬──────────┬────────────┬─────────┐
-│ ☑ Name           │ Description           │ Language │ Last Active│ Include │
-├──────────────────┼───────────────────────┼──────────┼────────────┼─────────┤
-│ ☑ frontend-web   │ Web application       │TypeScript│ 2 days ago │   ☑     │
-│ ☑ api-service    │ REST API              │ Python   │ 1 day ago  │   ☑     │
-│ ☑ mobile-ios     │ iOS app               │ Swift    │ 1 week ago │   ☑     │
-│ ☐ old-prototype  │ Archived prototype    │JavaScript│ 1 year ago │   ☐     │
-│ ☑ shared-lib     │ Common utilities      │TypeScript│ 3 days ago │   ☑     │
-└──────────────────┴───────────────────────┴──────────┴────────────┴─────────┘
+**List Controls**:
+- Search box: "Search repositories..."
+- "Select All" button
+- "Deselect All" button
 
-Selected: 4 of 5 repositories
-```
+**List Header**:
+- Checkbox (with indeterminate state for partial selection)
+- "Repository" column header
+- Selected count display: "X selected"
 
-**Filtering Options**:
-- Search by name
-- Filter by language
-- Filter by activity (Active: < 30 days, Stale: 30-90 days, Inactive: > 90 days)
-- Show archived only
+**Repository List** (virtualized for performance):
+Each row displays:
+- Checkbox for selection
+- Repository name
+- Language badge (if available)
+- "Private" badge (if private)
+- Star count (if > 0)
+- Last active: "Updated Xd ago"
 
-**Bulk Actions**:
-- Select All / Deselect All
-- Include Selected / Exclude Selected
-
-**Recommendations**:
-- Active repositories (< 30 days): Pre-selected ✅
-- Stale repositories (30-90 days): Pre-selected ✅
-- Inactive repositories (> 90 days): Not selected ☐
+**Pre-selection Logic**:
+- Repositories with recent activity are pre-selected
 - User can override any selection
 
-**Navigation**:
-- Button: "Continue" (proceeds even if no repositories selected, but shows warning)
-- Link: "Back to Data Sources"
+**Footer**:
+- Selection summary: "X of Y repositories selected"
+- "Back" link → `/onboarding/datasources`
+- "Continue" button → `/onboarding/importing`
 
 ---
 
-### Step 5: Initial Data Collection
+### Step 5: Data Import
 
-**Page**: Import Progress (`/onboarding/importing`)
+**Page**: Import Data (`/onboarding/importing`)
 
-**Collection Process**:
-System begins importing historical data (last 90 days) for selected repositories
+**Progress Indicator**: Shows step 3 (Import) as active
 
-**Progress Display**:
+**Page Header** (changes based on state):
+- Before import: "Start Import" / "Start the import process to collect data from your connected sources."
+- During/after import: "Import in Progress" / "Background jobs are collecting your data. You can continue to the dashboard while this runs."
+
+**Summary Cards**:
+```
+┌──────────────┬──────────────┬──────────────┐
+│ Repositories │    Days      │   Sources    │
+│     50       │     90       │      2       │
+│   Selected   │   History    │  Connected   │
+└──────────────┴──────────────┴──────────────┘
+```
+
+**Task Cards** (one per data source):
+Each data source shows a card with:
+- Provider name and overall status badge (Pending/Running/Complete/Partial)
+- List of import tasks with status:
+
 ```
 ┌─────────────────────────────────────────────────┐
-│ Importing Your Data                             │
-│                                                 │
-│ This may take 5-15 minutes depending on the     │
-│ number of repositories and amount of data.      │
-│                                                 │
-│ ✅ Repositories       50/50 complete            │
-│                                                 │
-│ ⏳ Commits            ████████░░ 1,234/~1,800   │
-│                                                 │
-│ ⏳ Pull Requests      ████░░░░░░ 45/120         │
-│                                                 │
-│ ⏳ Contributors       ███████░░░ 15/~20         │
-│                                                 │
-│ ⏳ Builds             ██████░░░░ 200/~350       │
-│                                                 │
-│ Estimated time remaining: 6 minutes             │
+│ GitHub                              [Complete]  │
+├─────────────────────────────────────────────────┤
+│ ✓ Repository metadata        150 records [Complete]   │
+│ ✓ Contributors               45 records  [Complete]   │
+│ ↻ Commit history             1,234 records [In Progress] │
+│ ○ Pull requests              -           [Queued]     │
 └─────────────────────────────────────────────────┘
 ```
 
-**Status Indicators**:
-- ✅ Complete
-- ⏳ In Progress
-- ⚠️ Warning (some data failed, but import continues)
-- ❌ Failed (critical error, requires attention)
+**Task Status Icons**:
+- ✓ Completed (checkmark)
+- ↻ Running (spinning)
+- ✕ Failed (X)
+- ○ Pending (circle)
 
-**User Options**:
-- "Continue in Background" - allows user to explore app while import continues
-- Progress accessible via notification icon in top nav
+**Import Tasks** (varies by provider):
+- Repository metadata
+- Contributors
+- Commit history
+- Pull requests
+- Projects
+- Issues
+- CI/CD Pipelines
+- Pipeline runs
 
-**Collection Details**:
-- **Repositories**: Metadata and current state
-- **Commits**: Last 90 days of commit history with file changes
-- **Pull Requests**: Open and recently closed PRs with review data
-- **Contributors**: All users who have committed or reviewed code
-- **Builds**: CI/CD run history
-- **Issues**: If JIRA/Trello configured, recent tickets
+**Actions**:
+- "Start Import" button (shown before import starts)
+- Note: "You can safely continue to the dashboard — the import will run in the background and data will appear as it becomes available."
 
-**Error Handling**:
-If any data source fails:
-```
-⚠️ GitHub Commits: Partial import (rate limit reached)
-   - Imported: 1,234 of ~1,800 commits
-   - Next sync: 15 minutes (when rate limit resets)
-   - Action: No action needed, will resume automatically
-```
+**Bottom Actions**:
+- Progress summary: "X tasks running, Y of Z completed"
+- "Back to Repositories" link
+- "Continue to Dashboard" button → `/onboarding/complete`
+
+**Polling**: Page polls for import status updates every 3 seconds while import is running
 
 ---
 
 ### Step 6: Onboarding Complete
 
-**Page**: Welcome to Momentum (`/onboarding/complete`)
+**Page**: Complete (`/onboarding/complete`)
 
-**Success Message**:
+**Content**:
 ```
 ┌─────────────────────────────────────────────────┐
-│ 🎉 You're All Set!                              │
+│                      🎉                          │
 │                                                 │
-│ Momentum is now collecting data from:           │
+│             You're All Set!                     │
+│                                                 │
+│ Momentum is now collecting data from your       │
+│ development tools.                              │
+│                                                 │
+│ Connected Data Sources:                         │
 │  • GitHub (my-organization)                     │
-│  • Jenkins (jenkins.company.com)                │
-│  • JIRA (company.atlassian.net)                 │
+│  • GitLab (gitlab.company.com)                  │
 │                                                 │
 │ Data Collection Summary:                        │
-│  ✅ 50 repositories tracked                     │
-│  ✅ 1,234 commits imported                      │
-│  ✅ 120 pull requests imported                  │
-│  ✅ 20 contributors identified                  │
+│ ┌─────────┬─────────┬─────────┬─────────┐      │
+│ │ 📦 50   │ 💾 1,234│ 🔀 120  │ 👥 20   │      │
+│ │ repos   │ commits │ PRs     │ contrib.│      │
+│ │ tracked │ imported│ imported│ found   │      │
+│ └─────────┴─────────┴─────────┴─────────┘      │
 │                                                 │
 │ Next Steps:                                     │
 │  → Explore your organization metrics            │
 │  → View individual contributor metrics          │
 │  → Configure additional data sources            │
 │  → Invite team members                          │
+│                                                 │
+│           [Go to Dashboard]                     │
 └─────────────────────────────────────────────────┘
-
-[Go to Dashboard]
 ```
 
 **Navigation**:
-- Primary button: "Go to Dashboard" → redirects to `/dashboard`
-- Links to quick start guides
-- Links to documentation
+- "Go to Dashboard" button → `/dashboard`
 
 **Post-Onboarding**:
-- User preference saved to skip onboarding on future logins
 - Background data collection continues automatically
-- Incremental updates occur every 15 minutes (or configurable interval)
+- Incremental updates occur on configured schedule
 
 ---
 

@@ -45,18 +45,15 @@ momentum/
 ├── crons/                        # Cron jobs for data import
 ├── e2e/                          # Playwright E2E tests
 │   ├── journeys/                 # E2E journey tests
-│   │   └── example.spec.ts
 │   └── playwright.config.ts      # Playwright configuration
 ├── prisma/                       # Database schema and migrations
-│   └── schema.prisma             # Multi-schema Prisma definition
 ├── public/                       # Static assets
-│   └── favicon.ico
 └── docs/                         # Project documentation
-    ├── OVERVIEW.md
-    ├── TECHNICAL.md
-    ├── PRODUCT.md
-    ├── PIPELINES.md
-    └── USER_JOURNEYS.md
+    ├── OVERVIEW.md               # High-level architecture overview 
+    ├── TECHNICAL.md              # Details on the tech stack
+    ├── PRODUCT.md                # High level product overview, details about metrics and features
+    ├── PIPELINES.md              # Information GitHub Action pipelines
+    └── USER_JOURNEYS.md          # Descriptions of user journeys
 ```
 
 ### Database Schemas
