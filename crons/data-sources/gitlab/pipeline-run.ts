@@ -1,6 +1,7 @@
 import type { ExecutionContext } from "@crons/orchestrator/script-loader.js";
 import { Gitlab } from "@gitbeaker/rest";
-import type { PipelineStatus, PrismaClient } from "@prisma/client";
+import type { PipelineStatus } from "@prisma/client";
+import type { DbClient } from "~/db.server.js";
 
 export const pipelineRunScript = {
   dataSourceName: "GITLAB",
@@ -8,7 +9,7 @@ export const pipelineRunScript = {
   dependsOn: ["repository", "pipeline"],
   importWindowDays: 90,
 
-  async run(db: PrismaClient, context: ExecutionContext) {
+  async run(db: DbClient, context: ExecutionContext) {
     const gitlab = new Gitlab({ token: context.env.GITLAB_TOKEN, host: context.env.GITLAB_HOST || "https://gitlab.com" });
 
     const repos = await db.repository.findMany({
@@ -98,7 +99,7 @@ function calculateDuration(startedAt: string | null, finishedAt: string | null):
   return new Date(finishedAt).getTime() - new Date(startedAt).getTime();
 }
 
-async function findPipelineForRepo(db: PrismaClient, repoId: string): Promise<string | null> {
+async function findPipelineForRepo(db: DbClient, repoId: string): Promise<string | null> {
   const pipeline = await db.pipeline.findFirst({
     where: {
       repositoryId: repoId,
@@ -109,7 +110,7 @@ async function findPipelineForRepo(db: PrismaClient, repoId: string): Promise<st
   return pipeline?.id ?? null;
 }
 
-async function upsertPipelineRun(db: PrismaClient, pipelineId: string, run: GitLabPipeline): Promise<string> {
+async function upsertPipelineRun(db: DbClient, pipelineId: string, run: GitLabPipeline): Promise<string> {
   const status = mapGitLabStatusToPipelineStatus(run.status);
   const durationMs = run.duration ? run.duration * 1000 : calculateDuration(run.startedAt, run.finishedAt);
 
@@ -156,7 +157,7 @@ async function upsertPipelineRun(db: PrismaClient, pipelineId: string, run: GitL
   return created.id;
 }
 
-async function upsertPipelineStages(db: PrismaClient, pipelineRunId: string, jobs: GitLabJob[]): Promise<void> {
+async function upsertPipelineStages(db: DbClient, pipelineRunId: string, jobs: GitLabJob[]): Promise<void> {
   for (const job of jobs) {
     const status = mapGitLabStatusToPipelineStatus(job.status);
     const durationMs = job.duration ? job.duration * 1000 : calculateDuration(job.startedAt, job.finishedAt);
@@ -195,7 +196,7 @@ async function upsertPipelineStages(db: PrismaClient, pipelineRunId: string, job
 
 async function processRepositoryPipelineRuns(
   gitlab: InstanceType<typeof Gitlab>,
-  db: PrismaClient,
+  db: DbClient,
   repo: { id: string; fullName: string },
   startDate: Date,
   endDate: Date

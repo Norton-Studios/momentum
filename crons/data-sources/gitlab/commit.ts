@@ -1,6 +1,6 @@
 import type { ExecutionContext } from "@crons/orchestrator/script-loader.js";
 import { Gitlab } from "@gitbeaker/rest";
-import type { PrismaClient } from "@prisma/client";
+import type { DbClient } from "~/db.server.js";
 
 export const commitScript = {
   dataSourceName: "GITLAB",
@@ -8,7 +8,7 @@ export const commitScript = {
   dependsOn: ["repository", "contributor"],
   importWindowDays: 90,
 
-  async run(db: PrismaClient, context: ExecutionContext) {
+  async run(db: DbClient, context: ExecutionContext) {
     const gitlab = new Gitlab({ token: context.env.GITLAB_TOKEN, host: context.env.GITLAB_HOST || "https://gitlab.com" });
 
     const repos = await db.repository.findMany({
@@ -79,7 +79,7 @@ async function fetchCommitsForProject(gitlab: InstanceType<typeof Gitlab>, proje
   return commits as GitLabCommit[];
 }
 
-async function upsertCommit(db: PrismaClient, repoId: string, transformedCommit: TransformedCommit, authorId: string): Promise<void> {
+async function upsertCommit(db: DbClient, repoId: string, transformedCommit: TransformedCommit, authorId: string): Promise<void> {
   await db.commit.upsert({
     where: {
       repositoryId_sha: {
@@ -106,7 +106,7 @@ async function upsertCommit(db: PrismaClient, repoId: string, transformedCommit:
   });
 }
 
-async function storeCommits(db: PrismaClient, repoId: string, transformedCommits: TransformedCommit[]): Promise<number> {
+async function storeCommits(db: DbClient, repoId: string, transformedCommits: TransformedCommit[]): Promise<number> {
   let successCount = 0;
 
   for (const commit of transformedCommits) {
@@ -137,7 +137,7 @@ async function storeCommits(db: PrismaClient, repoId: string, transformedCommits
 
 async function processProjectCommits(
   gitlab: InstanceType<typeof Gitlab>,
-  db: PrismaClient,
+  db: DbClient,
   repo: { id: string; fullName: string },
   startDate: Date,
   endDate: Date

@@ -17,6 +17,7 @@ vi.mock("~/db.server", () => ({
   db: {
     dataSource: {
       findMany: vi.fn(),
+      count: vi.fn(),
     },
     repository: {
       count: vi.fn(),
@@ -24,15 +25,20 @@ vi.mock("~/db.server", () => ({
     importBatch: {
       findFirst: vi.fn(),
     },
+    $transaction: vi.fn((fn) => fn({ $queryRaw: vi.fn() })),
   },
 }));
 
-vi.mock("@crons/orchestrator/runner.js", () => ({
-  runOrchestrator: vi.fn().mockResolvedValue({
+const mockRunOrchestrator = vi.hoisted(() =>
+  vi.fn().mockResolvedValue({
     batchId: "batch-1",
     scriptsExecuted: 4,
     scriptsFailed: 0,
-  }),
+  })
+);
+
+vi.mock("@crons/orchestrator/runner.js", () => ({
+  runOrchestrator: mockRunOrchestrator,
 }));
 
 import { requireAdmin } from "~/auth/auth.server";
@@ -55,7 +61,7 @@ describe("importingLoader", () => {
     expect(response.headers.get("Location")).toBe("/onboarding/datasources");
   });
 
-  it("returns data sources with task status when data sources exist", async () => {
+  it("returns hasStartedImport false when no batch is running", async () => {
     const mockDataSources = [{ id: "ds-1", provider: "GITHUB", name: "GitHub", isEnabled: true }];
     vi.mocked(db.dataSource.findMany).mockResolvedValue(mockDataSources as never);
     vi.mocked(db.importBatch.findFirst).mockResolvedValue(null);
@@ -70,6 +76,7 @@ describe("importingLoader", () => {
     expect(body.repositoryCount).toBe(25);
     expect(body.hasStartedImport).toBe(false);
     expect(body.isImportRunning).toBe(false);
+    expect(body.currentBatch).toBe(null);
   });
 
   it("returns running batch info when import is in progress", async () => {
@@ -135,25 +142,8 @@ describe("importingAction", () => {
   });
 
   describe("start-import intent", () => {
-    it("starts import when no batch is running", async () => {
-      vi.mocked(db.importBatch.findFirst).mockResolvedValue(null);
-
-      const formData = new FormData();
-      formData.append("intent", "start-import");
-
-      const request = new Request("http://localhost/onboarding/importing", {
-        method: "POST",
-        body: formData,
-      });
-
-      const response = await importingAction({ request, params: {}, context: {} });
-
-      expect(response.status).toBe(200);
-      const body = await response.json();
-      expect(body.success).toBe(true);
-    });
-
-    it("does not start new import when batch is already running", async () => {
+    it("returns existing batch if one is already running", async () => {
+      vi.mocked(db.dataSource.count).mockResolvedValue(1);
       vi.mocked(db.importBatch.findFirst).mockResolvedValue({
         id: "existing-batch",
         status: "RUNNING",
@@ -172,6 +162,33 @@ describe("importingAction", () => {
       expect(response.status).toBe(200);
       const body = await response.json();
       expect(body.success).toBe(true);
+      expect(body.batchId).toBe("existing-batch");
+      expect(mockRunOrchestrator).not.toHaveBeenCalled();
+    });
+
+    it("starts orchestrator in fire-and-forget manner when no batch running", async () => {
+      vi.mocked(db.dataSource.count).mockResolvedValue(1);
+      // First call (check for existing) returns null, second call (after start) returns new batch
+      vi.mocked(db.importBatch.findFirst)
+        .mockResolvedValueOnce(null)
+        .mockResolvedValueOnce({ id: "new-batch", status: "RUNNING" } as never);
+
+      const formData = new FormData();
+      formData.append("intent", "start-import");
+
+      const request = new Request("http://localhost/onboarding/importing", {
+        method: "POST",
+        body: formData,
+      });
+
+      const response = await importingAction({ request, params: {}, context: {} });
+
+      expect(response.status).toBe(200);
+      const body = await response.json();
+      expect(body.success).toBe(true);
+      expect(body.batchId).toBe("new-batch");
+      // runOrchestrator is called inside a transaction, so it receives a tx client
+      expect(mockRunOrchestrator).toHaveBeenCalledWith(expect.anything(), { triggeredBy: "user-1" });
     });
   });
 

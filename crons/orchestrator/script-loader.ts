@@ -1,4 +1,5 @@
-import type { DataSource, DataSourceConfig, PrismaClient } from "@prisma/client";
+import type { DataSource, DataSourceConfig } from "@prisma/client";
+import type { DbClient } from "~/db.server.js";
 import { scripts as githubScripts } from "../data-sources/github/index.js";
 import { scripts as gitlabScripts } from "../data-sources/gitlab/index.js";
 
@@ -9,7 +10,7 @@ const PROVIDER_SCRIPTS: Record<string, DataSourceScript[]> = {
   gitlab: gitlabScripts,
 };
 
-export async function getEnabledScripts(db: PrismaClient): Promise<DataSourceScriptMap> {
+export async function getEnabledScripts(db: DbClient): Promise<DataSourceScriptMap> {
   const dataSources = await db.dataSource.findMany({
     where: { isEnabled: true },
     include: { configs: true },
@@ -61,7 +62,7 @@ export interface DataSourceScript {
   resource: string; // 'commit', 'repository', 'pull-request'
   dependsOn: string[]; // Generic: ['repository'], ['commit']
   importWindowDays: number; // Default lookback window (e.g., 90)
-  run: (db: PrismaClient, context: ExecutionContext) => Promise<void>;
+  run: (db: DbClient, context: ExecutionContext) => Promise<void>;
 }
 
 export type ExecutionContext = DataSource & {

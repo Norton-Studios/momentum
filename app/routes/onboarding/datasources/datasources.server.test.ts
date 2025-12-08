@@ -145,7 +145,7 @@ describe("datasourcesAction", () => {
   });
 
   describe("continue intent", () => {
-    it("redirects to dashboard", async () => {
+    it("redirects to importing page", async () => {
       const formData = new FormData();
       formData.append("intent", "continue");
 
@@ -157,7 +157,7 @@ describe("datasourcesAction", () => {
       const response = await datasourcesAction({ request, params: {}, context: {} });
 
       expect(response.status).toBe(302);
-      expect(response.headers.get("Location")).toBe("/onboarding/repositories");
+      expect(response.headers.get("Location")).toBe("/onboarding/importing");
     });
   });
 });

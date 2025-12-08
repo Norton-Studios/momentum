@@ -1,6 +1,7 @@
 import type { ExecutionContext } from "@crons/orchestrator/script-loader.js";
 import { Octokit } from "@octokit/rest";
-import type { IssuePriority, IssueStatus, IssueType, PrismaClient } from "@prisma/client";
+import type { IssuePriority, IssueStatus, IssueType } from "@prisma/client";
+import type { DbClient } from "~/db.server.js";
 
 export const issueScript = {
   dataSourceName: "GITHUB",
@@ -8,7 +9,7 @@ export const issueScript = {
   dependsOn: ["repository", "contributor", "project"],
   importWindowDays: 90,
 
-  async run(db: PrismaClient, context: ExecutionContext) {
+  async run(db: DbClient, context: ExecutionContext) {
     const octokit = new Octokit({ auth: context.env.GITHUB_TOKEN });
 
     const repos = await db.repository.findMany({
@@ -122,7 +123,7 @@ function transformIssue(issue: GitHubIssue, repoFullName: string): TransformedIs
   };
 }
 
-async function ensureContributorExists(db: PrismaClient, email: string, name: string, username?: string): Promise<string> {
+async function ensureContributorExists(db: DbClient, email: string, name: string, username?: string): Promise<string> {
   const contributor = await db.contributor.upsert({
     where: {
       provider_email: {
@@ -141,7 +142,7 @@ async function ensureContributorExists(db: PrismaClient, email: string, name: st
   return contributor.id;
 }
 
-async function upsertIssue(db: PrismaClient, projectId: string, transformedIssue: TransformedIssue, reporterId: string | null, assigneeId: string | null): Promise<void> {
+async function upsertIssue(db: DbClient, projectId: string, transformedIssue: TransformedIssue, reporterId: string | null, assigneeId: string | null): Promise<void> {
   await db.issue.upsert({
     where: { key: transformedIssue.key },
     create: {
@@ -169,7 +170,7 @@ async function upsertIssue(db: PrismaClient, projectId: string, transformedIssue
   });
 }
 
-async function storeIssues(db: PrismaClient, projectId: string, repoFullName: string, issues: GitHubIssue[]): Promise<number> {
+async function storeIssues(db: DbClient, projectId: string, repoFullName: string, issues: GitHubIssue[]): Promise<number> {
   let successCount = 0;
 
   for (const issue of issues) {
@@ -198,7 +199,7 @@ async function storeIssues(db: PrismaClient, projectId: string, repoFullName: st
 
 async function processRepositoryIssues(
   octokit: Octokit,
-  db: PrismaClient,
+  db: DbClient,
   repo: { id: string; fullName: string },
   startDate: Date,
   endDate: Date
@@ -228,7 +229,7 @@ async function processRepositoryIssues(
   }
 }
 
-async function logIssueErrors(db: PrismaClient, runId: string, errors: string[]): Promise<void> {
+async function logIssueErrors(db: DbClient, runId: string, errors: string[]): Promise<void> {
   if (errors.length === 0) return;
 
   await Promise.all(

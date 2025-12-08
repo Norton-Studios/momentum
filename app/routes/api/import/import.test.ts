@@ -21,6 +21,7 @@ vi.mock("~/db.server", () => ({
       findFirst: vi.fn(),
       findMany: vi.fn(),
     },
+    $transaction: vi.fn((fn) => fn({ $queryRaw: vi.fn() })),
   },
 }));
 

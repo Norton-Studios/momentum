@@ -32,6 +32,7 @@ describe("runOrchestrator", () => {
         create: vi.fn().mockResolvedValue({ id: "batch-1" }),
         update: vi.fn(),
       },
+      $transaction: vi.fn((fn) => fn({ $queryRaw: vi.fn() })),
     } as unknown as PrismaClient;
   });
 
@@ -65,7 +66,7 @@ describe("runOrchestrator", () => {
     expect(result.scriptsSkipped).toBe(0);
     expect(acquireGlobalOrchestratorLock).toHaveBeenCalledOnce();
     expect(getEnabledScripts).toHaveBeenCalledOnce();
-    expect(releaseGlobalOrchestratorLock).not.toHaveBeenCalled();
+    expect(releaseGlobalOrchestratorLock).toHaveBeenCalledOnce();
   });
 
   it("should execute scripts via execution graph", async () => {
@@ -116,10 +117,9 @@ describe("runOrchestrator", () => {
     // Act
     const result = await runOrchestrator(mockDb);
 
-    // Assert
+    // Assert - lock should be released even when graph.run() throws
     expect(releaseGlobalOrchestratorLock).toHaveBeenCalledOnce();
-    expect(result.errors).toHaveLength(1);
-    expect(result.errors[0].error).toBe("Graph execution failed");
+    expect(result.batchId).toBeUndefined();
   });
 
   it("should update lastSyncAt for all data sources", async () => {

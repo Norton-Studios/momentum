@@ -1,7 +1,7 @@
-import { runOrchestrator } from "@crons/orchestrator/runner.js";
 import { type ActionFunctionArgs, data, type LoaderFunctionArgs } from "react-router";
 import { requireAdmin } from "~/auth/auth.server";
 import { db } from "~/db.server";
+import { triggerImport } from "~/lib/import/trigger-import";
 
 export async function action({ request }: ActionFunctionArgs) {
   const user = await requireAdmin(request);
@@ -10,41 +10,22 @@ export async function action({ request }: ActionFunctionArgs) {
     return data({ error: "Method not allowed" }, { status: 405 });
   }
 
-  const hasEnabledDataSources = await db.dataSource.count({
-    where: { isEnabled: true },
-  });
+  const result = await triggerImport(user.id);
 
-  if (hasEnabledDataSources === 0) {
+  if (result.status === "no_data_sources") {
     return data({ error: "No enabled data sources found" }, { status: 400 });
   }
 
-  const runningBatch = await db.importBatch.findFirst({
-    where: { status: "RUNNING" },
-  });
-
-  if (runningBatch) {
+  if (result.status === "already_running") {
     return data({
-      batchId: runningBatch.id,
+      batchId: result.batchId,
       status: "already_running",
       message: "An import is already in progress",
     });
   }
 
-  runOrchestrator(db, { triggeredBy: user.id })
-    .then((result) => {
-      console.log(`Import completed: batch=${result.batchId}, ${result.scriptsExecuted} executed, ${result.scriptsFailed} failed`);
-    })
-    .catch((error) => {
-      console.error("Import failed:", error);
-    });
-
-  const batch = await db.importBatch.findFirst({
-    where: { status: "RUNNING" },
-    orderBy: { createdAt: "desc" },
-  });
-
   return data({
-    batchId: batch?.id,
+    batchId: result.batchId,
     status: "started",
     message: "Import started",
   });

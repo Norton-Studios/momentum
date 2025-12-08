@@ -1,14 +1,15 @@
 import type { ExecutionContext } from "@crons/orchestrator/script-loader.js";
 import { Gitlab } from "@gitbeaker/rest";
-import type { MergeRequestState, PrismaClient } from "@prisma/client";
+import type { PullRequestState } from "@prisma/client";
+import type { DbClient } from "~/db.server.js";
 
 export const mergeRequestScript = {
   dataSourceName: "GITLAB",
-  resource: "merge-request",
+  resource: "pull-request",
   dependsOn: ["repository", "contributor"],
   importWindowDays: 90,
 
-  async run(db: PrismaClient, context: ExecutionContext) {
+  async run(db: DbClient, context: ExecutionContext) {
     const gitlab = new Gitlab({ token: context.env.GITLAB_TOKEN, host: context.env.GITLAB_HOST || "https://gitlab.com" });
 
     const repos = await db.repository.findMany({
@@ -52,7 +53,7 @@ export const mergeRequestScript = {
   },
 };
 
-function mapGitLabStateToMergeRequestState(state: string, draft: boolean, mergedAt: string | null | undefined): MergeRequestState {
+function mapGitLabStateToPullRequestState(state: string, draft: boolean, mergedAt: string | null | undefined): PullRequestState {
   if (draft) return "DRAFT";
   if (state === "merged" || mergedAt) return "MERGED";
   if (state === "closed") return "CLOSED";
@@ -90,7 +91,7 @@ function transformMergeRequest(mr: GitLabMergeRequest): TransformedMergeRequest 
     number: mr.iid,
     title: mr.title,
     description: mr.description,
-    state: mapGitLabStateToMergeRequestState(mr.state, isDraft, mr.mergedAt),
+    state: mapGitLabStateToPullRequestState(mr.state, isDraft, mr.mergedAt),
     authorEmail: mr.author?.email || `${mr.author?.username || "unknown"}@gitlab.com`,
     authorName: mr.author?.name || mr.author?.username || "unknown",
     authorUsername: mr.author?.username,
@@ -104,8 +105,8 @@ function transformMergeRequest(mr: GitLabMergeRequest): TransformedMergeRequest 
   };
 }
 
-async function upsertMergeRequest(db: PrismaClient, repoId: string, transformedMR: TransformedMergeRequest, authorId: string, assigneeId?: string): Promise<void> {
-  await db.mergeRequest.upsert({
+async function upsertMergeRequest(db: DbClient, repoId: string, transformedMR: TransformedMergeRequest, authorId: string, assigneeId?: string): Promise<void> {
+  await db.pullRequest.upsert({
     where: {
       repositoryId_number: {
         repositoryId: repoId,
@@ -145,7 +146,7 @@ async function upsertMergeRequest(db: PrismaClient, repoId: string, transformedM
   });
 }
 
-async function storeMergeRequests(db: PrismaClient, repoId: string, mrs: GitLabMergeRequest[]): Promise<number> {
+async function storeMergeRequests(db: DbClient, repoId: string, mrs: GitLabMergeRequest[]): Promise<number> {
   let successCount = 0;
 
   for (const mr of mrs) {
@@ -199,7 +200,7 @@ async function storeMergeRequests(db: PrismaClient, repoId: string, mrs: GitLabM
 
 async function processProjectMergeRequests(
   gitlab: InstanceType<typeof Gitlab>,
-  db: PrismaClient,
+  db: DbClient,
   repo: { id: string; fullName: string },
   startDate: Date,
   endDate: Date
@@ -239,7 +240,7 @@ interface TransformedMergeRequest {
   number: number;
   title: string;
   description: string | null | undefined;
-  state: MergeRequestState;
+  state: PullRequestState;
   authorEmail: string;
   authorName: string;
   authorUsername?: string;

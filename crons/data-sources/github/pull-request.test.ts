@@ -68,7 +68,7 @@ describe("pullRequestScript", () => {
       contributor: {
         upsert: vi.fn().mockResolvedValue({ id: "contributor-1" }),
       },
-      mergeRequest: {
+      pullRequest: {
         upsert: vi.fn().mockResolvedValue({}),
       },
       importLog: {
@@ -103,7 +103,7 @@ describe("pullRequestScript", () => {
       per_page: 100,
     });
     expect(mockDb.contributor.upsert).toHaveBeenCalled();
-    expect(mockDb.mergeRequest.upsert).toHaveBeenCalledWith({
+    expect(mockDb.pullRequest.upsert).toHaveBeenCalledWith({
       where: {
         repositoryId_number: {
           repositoryId: "repo-1",
@@ -191,7 +191,7 @@ describe("pullRequestScript", () => {
       contributor: {
         upsert: vi.fn().mockResolvedValue({ id: "contributor-1" }),
       },
-      mergeRequest: {
+      pullRequest: {
         upsert: vi.fn().mockResolvedValue({}),
       },
       importLog: {
@@ -217,20 +217,20 @@ describe("pullRequestScript", () => {
     await pullRequestScript.run(mockDb, context as never);
 
     // Assert
-    expect(mockDb.mergeRequest.upsert).toHaveBeenCalledTimes(3);
-    expect(mockDb.mergeRequest.upsert).toHaveBeenNthCalledWith(
+    expect(mockDb.pullRequest.upsert).toHaveBeenCalledTimes(3);
+    expect(mockDb.pullRequest.upsert).toHaveBeenNthCalledWith(
       1,
       expect.objectContaining({
         create: expect.objectContaining({ state: "DRAFT" }),
       })
     );
-    expect(mockDb.mergeRequest.upsert).toHaveBeenNthCalledWith(
+    expect(mockDb.pullRequest.upsert).toHaveBeenNthCalledWith(
       2,
       expect.objectContaining({
         create: expect.objectContaining({ state: "MERGED" }),
       })
     );
-    expect(mockDb.mergeRequest.upsert).toHaveBeenNthCalledWith(
+    expect(mockDb.pullRequest.upsert).toHaveBeenNthCalledWith(
       3,
       expect.objectContaining({
         create: expect.objectContaining({ state: "CLOSED" }),
@@ -286,7 +286,7 @@ describe("pullRequestScript", () => {
       contributor: {
         upsert: vi.fn().mockResolvedValue({ id: "contributor-1" }),
       },
-      mergeRequest: {
+      pullRequest: {
         upsert: vi.fn().mockResolvedValue({}),
       },
       importLog: {
@@ -312,7 +312,7 @@ describe("pullRequestScript", () => {
     await pullRequestScript.run(mockDb, context as never);
 
     // Assert
-    expect(mockDb.mergeRequest.upsert).toHaveBeenCalledTimes(1);
+    expect(mockDb.pullRequest.upsert).toHaveBeenCalledTimes(1);
     expect(mockDb.dataSourceRun.update).toHaveBeenCalledWith({
       where: { id: "run-123" },
       data: { recordsImported: 1 },
@@ -355,7 +355,7 @@ describe("pullRequestScript", () => {
       contributor: {
         upsert: vi.fn().mockResolvedValueOnce({ id: "contributor-1" }).mockResolvedValueOnce({ id: "contributor-2" }),
       },
-      mergeRequest: {
+      pullRequest: {
         upsert: vi.fn().mockResolvedValue({}),
       },
       importLog: {
@@ -382,7 +382,7 @@ describe("pullRequestScript", () => {
 
     // Assert
     expect(mockDb.contributor.upsert).toHaveBeenCalledTimes(2);
-    expect(mockDb.mergeRequest.upsert).toHaveBeenCalledWith(
+    expect(mockDb.pullRequest.upsert).toHaveBeenCalledWith(
       expect.objectContaining({
         create: expect.objectContaining({
           authorId: "contributor-1",
@@ -511,7 +511,7 @@ describe("pullRequestScript", () => {
       contributor: {
         upsert: vi.fn().mockResolvedValue({ id: "contributor-1" }),
       },
-      mergeRequest: {
+      pullRequest: {
         upsert: vi.fn().mockResolvedValue({}),
       },
       importLog: {
@@ -537,7 +537,7 @@ describe("pullRequestScript", () => {
     await pullRequestScript.run(mockDb, context as never);
 
     // Assert
-    expect(mockDb.mergeRequest.upsert).not.toHaveBeenCalled();
+    expect(mockDb.pullRequest.upsert).not.toHaveBeenCalled();
     expect(mockDb.dataSourceRun.update).toHaveBeenCalledWith({
       where: { id: "run-123" },
       data: { recordsImported: 0 },

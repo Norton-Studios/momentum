@@ -1,43 +1,51 @@
 import type { ImportBatch, PrismaClient } from "@prisma/client";
+import type { DbClient } from "~/db.server.js";
 import { acquireGlobalOrchestratorLock, releaseGlobalOrchestratorLock } from "../execution/advisory-locks.js";
 import { buildExecutionGraph } from "../execution/execution-graph.js";
 import { type DataSourceScriptMap, getEnabledScripts } from "./script-loader.js";
 
 export async function runOrchestrator(db: PrismaClient, options: OrchestratorOptions = {}): Promise<OrchestratorResult> {
-  const startTime = Date.now();
-  const globalLock = await acquireGlobalOrchestratorLock(db);
+  // Transaction ensures lock acquire/release use the same connection
+  // Data operations use regular db client so they commit immediately (visible for progress)
+  return db.$transaction(
+    async (tx) => {
+      const startTime = Date.now();
+      const errors: Array<ScriptError> = [];
+      const executionResults = new Map<string, ScriptExecutionResult>();
+      const globalLock = await acquireGlobalOrchestratorLock(tx);
 
-  if (!globalLock) {
-    console.log("[orchestrator] Another orchestrator is running, exiting");
-    return createResult(startTime, new Map(), [], undefined);
-  }
+      if (!globalLock) {
+        console.log("[orchestrator] Another orchestrator is running, exiting");
+        return createResult(startTime, new Map(), [], undefined);
+      }
 
-  const scriptsWithDataSources = await getEnabledScripts(db);
-  const batch = await createBatch(db, options.triggeredBy, scriptsWithDataSources.size);
+      try {
+        const scriptsWithDataSources = await getEnabledScripts(db);
+        const batch = await createBatch(db, options.triggeredBy, scriptsWithDataSources.size);
 
-  if (scriptsWithDataSources.size === 0 || !batch) {
-    return createResult(startTime, new Map(), [], undefined);
-  }
+        if (scriptsWithDataSources.size === 0 || !batch) {
+          return createResult(startTime, new Map(), [], undefined);
+        }
 
-  const errors: Array<ScriptError> = [];
-  const executionResults = new Map<string, ScriptExecutionResult>();
+        const graph = buildExecutionGraph(db, scriptsWithDataSources, executionResults, errors, batch.id);
 
-  try {
-    const graph = buildExecutionGraph(db, scriptsWithDataSources, executionResults, errors, batch.id);
+        await graph.run();
+        await updateDataSourceSyncTimes(db, scriptsWithDataSources);
+        await finalizeBatch(db, batch.id, startTime, executionResults);
 
-    await graph.run();
-    await updateDataSourceSyncTimes(db, scriptsWithDataSources);
-    await finalizeBatch(db, batch.id, startTime, executionResults);
-  } catch (error) {
-    errors.push({ script: "orchestrator", error: error instanceof Error ? error.message : String(error) });
-  } finally {
-    await releaseGlobalOrchestratorLock(db);
-  }
-
-  return createResult(startTime, executionResults, errors, batch.id);
+        return createResult(startTime, executionResults, errors, batch.id);
+      } catch (error) {
+        return createResult(startTime, executionResults, errors, undefined);
+      } finally {
+        console.log("[orchestrator] Releasing global lock");
+        await releaseGlobalOrchestratorLock(tx);
+      }
+    },
+    { timeout: 30 * 60 * 1000 }
+  );
 }
 
-async function createBatch(db: PrismaClient, triggeredBy: string | undefined, totalScripts: number): Promise<ImportBatch> {
+async function createBatch(db: DbClient, triggeredBy: string | undefined, totalScripts: number): Promise<ImportBatch> {
   return db.importBatch.create({
     data: {
       status: "RUNNING",
@@ -47,7 +55,7 @@ async function createBatch(db: PrismaClient, triggeredBy: string | undefined, to
   });
 }
 
-async function finalizeBatch(db: PrismaClient, batchId: string, startTime: number, executionResults: Map<string, ScriptExecutionResult>): Promise<void> {
+async function finalizeBatch(db: DbClient, batchId: string, startTime: number, executionResults: Map<string, ScriptExecutionResult>): Promise<void> {
   const results = Array.from(executionResults.values());
   const completedScripts = results.filter((r) => r.success).length;
   const failedScripts = results.filter((r) => !r.success && !r.skipped).length;
@@ -65,7 +73,7 @@ async function finalizeBatch(db: PrismaClient, batchId: string, startTime: numbe
   });
 }
 
-async function updateDataSourceSyncTimes(db: PrismaClient, dataSources: DataSourceScriptMap): Promise<void> {
+async function updateDataSourceSyncTimes(db: DbClient, dataSources: DataSourceScriptMap): Promise<void> {
   const dataSourcesArray = Array.from(dataSources.values());
 
   await Promise.all(

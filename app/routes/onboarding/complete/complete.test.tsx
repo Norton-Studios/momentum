@@ -16,7 +16,7 @@ vi.mock("react-router", async () => {
       summary: {
         repositories: 25,
         commits: 1500,
-        mergeRequests: 200,
+        pullRequests: 200,
         contributors: 15,
       },
     }),
@@ -102,7 +102,7 @@ describe("Complete", () => {
     expect(screen.getByText("commits imported")).toBeInTheDocument();
   });
 
-  it("renders merge request count", () => {
+  it("renders pull request count", () => {
     render(
       <MemoryRouter>
         <Complete />
@@ -176,7 +176,7 @@ describe("Complete with empty data", () => {
           summary: {
             repositories: 0,
             commits: 0,
-            mergeRequests: 0,
+            pullRequests: 0,
             contributors: 0,
           },
         }),

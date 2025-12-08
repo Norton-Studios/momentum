@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useVirtualizer } from "@tanstack/react-virtual";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
-import { Form, Link, useActionData, useLoaderData } from "react-router";
+import { Form, Link, useActionData, useFetcher, useLoaderData } from "react-router";
 import { requireAdmin } from "~/auth/auth.server";
 import { db } from "~/db.server";
 import { Button } from "../../../components/button/button";
@@ -94,10 +95,13 @@ function SonarQubeIcon() {
   );
 }
 
+const VCS_PROVIDERS = new Set(["github", "gitlab"]);
+
 export default function OnboardingDataSources() {
   const { connectedProviders, dataSourceConfigs } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
   const [activeForm, setActiveForm] = useState<string | null>(null);
+  const [expandedRepositories, setExpandedRepositories] = useState<Set<string>>(new Set());
 
   const successfulProvider = actionData && "success" in actionData && actionData.success && "provider" in actionData ? actionData.provider : null;
   const connectedSet = new Set([...connectedProviders, ...(successfulProvider ? [successfulProvider] : [])]);
@@ -105,6 +109,10 @@ export default function OnboardingDataSources() {
   useEffect(() => {
     if (successfulProvider) {
       setActiveForm(null);
+      // Auto-expand repositories for VCS providers after successful connection
+      if (VCS_PROVIDERS.has(successfulProvider)) {
+        setExpandedRepositories((prev) => new Set([...prev, successfulProvider]));
+      }
       const cardElement = document.getElementById(`${successfulProvider}Card`);
       if (cardElement) {
         cardElement.scrollIntoView({ behavior: "smooth", block: "nearest" });
@@ -120,6 +128,7 @@ export default function OnboardingDataSources() {
       description: "Connect your GitHub organization to import repositories, commits, pull requests, and contributor data. Track code collaboration and delivery velocity.",
       isConnected: connectedSet.has("github"),
       isRequired: true,
+      isVcs: true,
     },
     {
       id: "gitlab",
@@ -128,6 +137,7 @@ export default function OnboardingDataSources() {
       description: "Connect to GitLab (cloud or self-hosted) to track projects, merge requests, CI/CD pipelines, and team activity across your development lifecycle.",
       isConnected: connectedSet.has("gitlab"),
       isRequired: true,
+      isVcs: true,
     },
   ];
 
@@ -139,6 +149,7 @@ export default function OnboardingDataSources() {
       description: "Track build pipelines, job success rates, deployment frequency, and failure analysis from your Jenkins instance.",
       isConnected: connectedSet.has("jenkins"),
       isRequired: false,
+      isVcs: false,
     },
     {
       id: "circleci",
@@ -147,6 +158,7 @@ export default function OnboardingDataSources() {
       description: "Monitor pipeline performance, workflow duration, and build success metrics from your CircleCI projects.",
       isConnected: connectedSet.has("circleci"),
       isRequired: false,
+      isVcs: false,
     },
   ];
 
@@ -158,11 +170,24 @@ export default function OnboardingDataSources() {
       description: "Import code quality metrics, test coverage, technical debt, security vulnerabilities, and code smells from SonarQube projects.",
       isConnected: connectedSet.has("sonarqube"),
       isRequired: false,
+      isVcs: false,
     },
   ];
 
   const toggleForm = (sourceId: string) => {
     setActiveForm(activeForm === sourceId ? null : sourceId);
+  };
+
+  const toggleRepositories = (sourceId: string) => {
+    setExpandedRepositories((prev) => {
+      const next = new Set(prev);
+      if (next.has(sourceId)) {
+        next.delete(sourceId);
+      } else {
+        next.add(sourceId);
+      }
+      return next;
+    });
   };
 
   const hasRequiredConnections = versionControlSources.some((source) => connectedSet.has(source.id));
@@ -213,7 +238,9 @@ export default function OnboardingDataSources() {
                 key={source.id}
                 source={source}
                 isFormActive={activeForm === source.id}
+                isRepositoriesExpanded={expandedRepositories.has(source.id)}
                 onToggleForm={toggleForm}
+                onToggleRepositories={toggleRepositories}
                 actionData={actionData}
                 configs={dataSourceConfigs[source.id] || {}}
               />
@@ -232,7 +259,9 @@ export default function OnboardingDataSources() {
                 key={source.id}
                 source={source}
                 isFormActive={activeForm === source.id}
+                isRepositoriesExpanded={false}
                 onToggleForm={toggleForm}
+                onToggleRepositories={toggleRepositories}
                 actionData={actionData}
                 configs={dataSourceConfigs[source.id] || {}}
               />
@@ -251,7 +280,9 @@ export default function OnboardingDataSources() {
                 key={source.id}
                 source={source}
                 isFormActive={activeForm === source.id}
+                isRepositoriesExpanded={false}
                 onToggleForm={toggleForm}
+                onToggleRepositories={toggleRepositories}
                 actionData={actionData}
                 configs={dataSourceConfigs[source.id] || {}}
               />
@@ -280,7 +311,7 @@ export default function OnboardingDataSources() {
   );
 }
 
-function DataSourceCard({ source, isFormActive, onToggleForm, actionData, configs }: DataSourceCardProps) {
+function DataSourceCard({ source, isFormActive, isRepositoriesExpanded, onToggleForm, onToggleRepositories, actionData, configs }: DataSourceCardProps) {
   const providerConfig = PROVIDER_CONFIGS[source.id];
   const testSuccess = actionData && "testSuccess" in actionData && actionData.provider === source.id;
   const testError = actionData && "testError" in actionData && actionData.provider === source.id ? actionData.testError : null;
@@ -340,6 +371,209 @@ function DataSourceCard({ source, isFormActive, onToggleForm, actionData, config
           </Form>
         </div>
       )}
+
+      {source.isVcs && source.isConnected && <RepositoriesSection provider={source.id} isExpanded={isRepositoriesExpanded} onToggle={() => onToggleRepositories(source.id)} />}
+    </div>
+  );
+}
+
+function RepositoriesSection({ provider, isExpanded, onToggle }: RepositoriesSectionProps) {
+  const fetcher = useFetcher();
+  const [searchValue, setSearchValue] = useState("");
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [allRepositories, setAllRepositories] = useState<Repository[]>([]);
+  const [_nextCursor, setNextCursor] = useState<string | undefined>();
+  const [hasInitialized, setHasInitialized] = useState(false);
+
+  useEffect(() => {
+    if (isExpanded && !hasInitialized) {
+      const formData = new FormData();
+      formData.append("intent", "fetch-repositories");
+      formData.append("provider", provider);
+      fetcher.submit(formData, { method: "post" });
+      setHasInitialized(true);
+    }
+  }, [isExpanded, hasInitialized, provider, fetcher]);
+
+  useEffect(() => {
+    if (fetcher.state === "idle" && fetcher.data) {
+      const data = fetcher.data as RepositoriesFetcherData;
+      if ("repositories" in data) {
+        setAllRepositories(data.repositories);
+        setNextCursor(data.nextCursor);
+        const enabledIds = new Set(data.repositories.filter((r) => r.isEnabled).map((r) => r.id));
+        setSelectedIds(enabledIds);
+      }
+    }
+  }, [fetcher.data, fetcher.state]);
+
+  const handleSearchChange = useCallback((value: string) => {
+    setSearchValue(value);
+  }, []);
+
+  const handleToggle = (repositoryId: string, isEnabled: boolean) => {
+    const formData = new FormData();
+    formData.append("intent", "toggle-repository");
+    formData.append("repositoryId", repositoryId);
+    formData.append("isEnabled", String(isEnabled));
+    fetcher.submit(formData, { method: "post" });
+
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (isEnabled) {
+        next.add(repositoryId);
+      } else {
+        next.delete(repositoryId);
+      }
+      return next;
+    });
+  };
+
+  const handleSelectAll = () => {
+    const visibleIds = filteredRepositories.map((r) => r.id);
+    const formData = new FormData();
+    formData.append("intent", "toggle-repositories-batch");
+    for (const id of visibleIds) {
+      formData.append("repositoryIds", id);
+    }
+    formData.append("isEnabled", "true");
+    fetcher.submit(formData, { method: "post" });
+
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      for (const id of visibleIds) {
+        next.add(id);
+      }
+      return next;
+    });
+  };
+
+  const handleDeselectAll = () => {
+    const visibleIds = filteredRepositories.map((r) => r.id);
+    const formData = new FormData();
+    formData.append("intent", "toggle-repositories-batch");
+    for (const id of visibleIds) {
+      formData.append("repositoryIds", id);
+    }
+    formData.append("isEnabled", "false");
+    fetcher.submit(formData, { method: "post" });
+
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      for (const id of visibleIds) {
+        next.delete(id);
+      }
+      return next;
+    });
+  };
+
+  const filteredRepositories = useMemo(() => {
+    if (!searchValue) return allRepositories;
+    const lowerSearch = searchValue.toLowerCase();
+    return allRepositories.filter((r) => r.name.toLowerCase().includes(lowerSearch) || r.fullName.toLowerCase().includes(lowerSearch));
+  }, [allRepositories, searchValue]);
+
+  const selectedCount = selectedIds.size;
+  const isLoading = fetcher.state === "loading" || fetcher.state === "submitting";
+
+  return (
+    <div className="repositories-section">
+      <button type="button" className="repositories-toggle" onClick={onToggle}>
+        <span className={`toggle-icon ${isExpanded ? "expanded" : ""}`}>▶</span>
+        <span className="toggle-label">Repositories</span>
+        {selectedCount > 0 && <span className="selection-badge">{selectedCount} selected</span>}
+      </button>
+
+      {isExpanded && (
+        <div className="repositories-content">
+          {isLoading && allRepositories.length === 0 ? (
+            <div className="repositories-loading">
+              <div className="loading-skeleton">Loading repositories...</div>
+            </div>
+          ) : (
+            <>
+              <div className="repositories-header">
+                <input type="text" placeholder="Search repositories..." value={searchValue} onChange={(e) => handleSearchChange(e.target.value)} className="repository-search" />
+                <div className="repository-actions">
+                  <button type="button" onClick={handleSelectAll} className="btn-repo-action">
+                    Select All
+                  </button>
+                  <button type="button" onClick={handleDeselectAll} className="btn-repo-action">
+                    Deselect All
+                  </button>
+                </div>
+              </div>
+
+              <RepositoryList repositories={filteredRepositories} selectedIds={selectedIds} onToggle={handleToggle} />
+
+              <div className="repositories-footer">
+                <span className="selection-count">
+                  {selectedCount} of {allRepositories.length} repositories selected
+                </span>
+              </div>
+            </>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function RepositoryList({ repositories, selectedIds, onToggle }: RepositoryListProps) {
+  const parentRef = useRef<HTMLDivElement>(null);
+
+  const virtualizer = useVirtualizer({
+    count: repositories.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 60,
+    overscan: 5,
+  });
+
+  if (repositories.length === 0) {
+    return <div className="repositories-empty">No repositories found</div>;
+  }
+
+  return (
+    <div ref={parentRef} className="repository-list">
+      <div className="repository-list-sizer" style={{ height: `${virtualizer.getTotalSize()}px` }}>
+        {virtualizer.getVirtualItems().map((virtualRow) => {
+          const repo = repositories[virtualRow.index];
+          return repo ? (
+            <RepositoryRow
+              key={repo.id}
+              repo={repo}
+              isSelected={selectedIds.has(repo.id)}
+              onToggle={onToggle}
+              measureRef={virtualizer.measureElement}
+              style={{ transform: `translateY(${virtualRow.start}px)` }}
+            />
+          ) : null;
+        })}
+      </div>
+    </div>
+  );
+}
+
+function RepositoryRow({ repo, isSelected, onToggle, measureRef, style }: RepositoryRowProps) {
+  const lastActive = repo.lastSyncAt ? new Date(repo.lastSyncAt) : null;
+  const daysAgo = lastActive ? Math.floor((Date.now() - lastActive.getTime()) / (1000 * 60 * 60 * 24)) : null;
+
+  return (
+    <div ref={measureRef} data-testid="repository-item" style={style} className="repository-row">
+      <label className="repository-item">
+        <input type="checkbox" checked={isSelected} onChange={(e) => onToggle(repo.id, e.target.checked)} />
+        <div className="repository-info">
+          <div className="repository-details">
+            <div className="repository-name">{repo.name}</div>
+          </div>
+          <div className="repository-meta">
+            {repo.language && <span className="language">{repo.language}</span>}
+            {repo.isPrivate && <span className="private-badge">Private</span>}
+            {repo.stars > 0 && <span className="stars">★ {repo.stars}</span>}
+            {daysAgo !== null && <span className="last-active">Updated {daysAgo}d ago</span>}
+          </div>
+        </div>
+      </label>
     </div>
   );
 }
@@ -351,12 +585,53 @@ interface DataSource {
   description: string;
   isConnected: boolean;
   isRequired: boolean;
+  isVcs: boolean;
 }
 
 interface DataSourceCardProps {
   source: DataSource;
   isFormActive: boolean;
+  isRepositoriesExpanded: boolean;
   onToggleForm: (id: string) => void;
+  onToggleRepositories: (id: string) => void;
   actionData: ReturnType<typeof useActionData<typeof action>>;
   configs: Record<string, string>;
+}
+
+interface RepositoriesSectionProps {
+  provider: string;
+  isExpanded: boolean;
+  onToggle: () => void;
+}
+
+interface Repository {
+  id: string;
+  name: string;
+  fullName: string;
+  description: string | null;
+  language: string | null;
+  stars: number;
+  isPrivate: boolean;
+  isEnabled: boolean;
+  lastSyncAt: Date | null;
+}
+
+interface RepositoriesFetcherData {
+  repositories: Repository[];
+  totalCount: number;
+  nextCursor?: string;
+}
+
+interface RepositoryListProps {
+  repositories: Repository[];
+  selectedIds: Set<string>;
+  onToggle: (id: string, isEnabled: boolean) => void;
+}
+
+interface RepositoryRowProps {
+  repo: Repository;
+  isSelected: boolean;
+  onToggle: (id: string, selected: boolean) => void;
+  measureRef: (el: HTMLDivElement | null) => void;
+  style: React.CSSProperties;
 }

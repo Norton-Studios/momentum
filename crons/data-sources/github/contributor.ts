@@ -1,6 +1,6 @@
 import type { ExecutionContext } from "@crons/orchestrator/script-loader.js";
 import { Octokit } from "@octokit/rest";
-import type { PrismaClient } from "@prisma/client";
+import type { DbClient } from "~/db.server.js";
 
 export const contributorScript = {
   dataSourceName: "GITHUB",
@@ -8,7 +8,7 @@ export const contributorScript = {
   dependsOn: ["repository"],
   importWindowDays: 365,
 
-  async run(db: PrismaClient, context: ExecutionContext) {
+  async run(db: DbClient, context: ExecutionContext) {
     const octokit = new Octokit({ auth: context.env.GITHUB_TOKEN });
 
     const repos = await db.repository.findMany({
@@ -94,7 +94,7 @@ async function enrichAllContributors(octokit: Octokit, contributors: GitHubContr
   return enrichedResults.filter((c) => c !== null) as EnrichedContributor[];
 }
 
-async function upsertContributors(db: PrismaClient, contributors: EnrichedContributor[]): Promise<void> {
+async function upsertContributors(db: DbClient, contributors: EnrichedContributor[]): Promise<void> {
   await Promise.all(
     contributors.map((contributor) =>
       db.contributor.upsert({
@@ -123,12 +123,7 @@ async function upsertContributors(db: PrismaClient, contributors: EnrichedContri
   );
 }
 
-async function processRepositoryContributors(
-  octokit: Octokit,
-  db: PrismaClient,
-  repo: { id: string; fullName: string },
-  _runId: string
-): Promise<{ count: number; error?: string }> {
+async function processRepositoryContributors(octokit: Octokit, db: DbClient, repo: { id: string; fullName: string }, _runId: string): Promise<{ count: number; error?: string }> {
   try {
     const [owner, repoName] = repo.fullName.split("/");
     const contributors = await fetchContributorsForRepository(octokit, owner, repoName);
@@ -144,7 +139,7 @@ async function processRepositoryContributors(
   }
 }
 
-async function logImportErrors(db: PrismaClient, runId: string, errors: string[]): Promise<void> {
+async function logImportErrors(db: DbClient, runId: string, errors: string[]): Promise<void> {
   if (errors.length === 0) return;
 
   await Promise.all(

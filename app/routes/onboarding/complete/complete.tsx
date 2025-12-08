@@ -42,7 +42,7 @@ export default function Complete() {
             </div>
             <div className="summary-item">
               <span className="summary-icon">🔀</span>
-              <span className="summary-value">{data.summary.mergeRequests}</span>
+              <span className="summary-value">{data.summary.pullRequests}</span>
               <span className="summary-label">pull requests imported</span>
             </div>
             <div className="summary-item">

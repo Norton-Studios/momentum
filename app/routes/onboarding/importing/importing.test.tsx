@@ -17,9 +17,9 @@ const createMockLoaderData = (
       id: "ds-1",
       provider: "GITHUB",
       name: "GitHub",
-      overallStatus: "pending",
+      overallStatus: "running",
       tasks: [
-        { resource: "repository", status: "pending", recordsImported: 0, errorMessage: null, startedAt: null, completedAt: null },
+        { resource: "repository", status: "running", recordsImported: 0, errorMessage: null, startedAt: null, completedAt: null },
         { resource: "contributor", status: "pending", recordsImported: 0, errorMessage: null, startedAt: null, completedAt: null },
         { resource: "commit", status: "pending", recordsImported: 0, errorMessage: null, startedAt: null, completedAt: null },
         { resource: "pull-request", status: "pending", recordsImported: 0, errorMessage: null, startedAt: null, completedAt: null },
@@ -27,21 +27,33 @@ const createMockLoaderData = (
     },
   ],
   repositoryCount: 25,
-  isImportRunning: false,
-  hasStartedImport: false,
-  currentBatch: null,
+  isImportRunning: true,
+  hasStartedImport: true,
+  currentBatch: {
+    id: "batch-1",
+    status: "RUNNING",
+    totalScripts: 4,
+    completedScripts: 0,
+    failedScripts: 0,
+  },
   ...overrides,
 });
 
 let mockLoaderData = createMockLoaderData();
-let mockActionData: { batchId?: string } | undefined;
+const mockFetcherSubmit = vi.fn();
+const mockFetcherState = "idle";
+const mockFetcherData: { batchId?: string } | null = null;
 
 vi.mock("react-router", async () => {
   const actual = await vi.importActual("react-router");
   return {
     ...actual,
     useLoaderData: () => mockLoaderData,
-    useActionData: () => mockActionData,
+    useFetcher: () => ({
+      submit: mockFetcherSubmit,
+      state: mockFetcherState,
+      data: mockFetcherData,
+    }),
     Form: ({ children, ...props }: { children: React.ReactNode; [key: string]: unknown }) => <form {...props}>{children}</form>,
   };
 });
@@ -50,7 +62,7 @@ describe("Importing", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockLoaderData = createMockLoaderData();
-    mockActionData = undefined;
+    mockFetcherSubmit.mockClear();
     vi.spyOn(global, "fetch").mockResolvedValue({
       ok: true,
       json: () => Promise.resolve({ status: "RUNNING", runs: [] }),
@@ -61,53 +73,12 @@ describe("Importing", () => {
     vi.restoreAllMocks();
   });
 
-  describe("Pre-import state", () => {
-    it("renders Start Import title when import has not started", () => {
-      render(
-        <MemoryRouter>
-          <Importing />
-        </MemoryRouter>
-      );
-
-      expect(screen.getByRole("heading", { level: 1, name: "Start Import" })).toBeInTheDocument();
-    });
-
-    it("renders Start Import button when import has not started", () => {
-      render(
-        <MemoryRouter>
-          <Importing />
-        </MemoryRouter>
-      );
-
-      expect(screen.getByRole("button", { name: "Start Import" })).toBeInTheDocument();
-    });
-
-    it("renders pre-import description", () => {
-      render(
-        <MemoryRouter>
-          <Importing />
-        </MemoryRouter>
-      );
-
-      expect(screen.getByText(/Start the import process to collect data from your connected sources/)).toBeInTheDocument();
-    });
-
-    it("renders ready message in connection summary", () => {
-      render(
-        <MemoryRouter>
-          <Importing />
-        </MemoryRouter>
-      );
-
-      expect(screen.getByText(/Ready to import from 1 data source/)).toBeInTheDocument();
-    });
-
-    it("pluralizes data sources correctly when multiple exist", () => {
+  describe("Auto-trigger import", () => {
+    it("triggers start-import action when hasStartedImport is false", async () => {
       mockLoaderData = createMockLoaderData({
-        dataSources: [
-          { id: "ds-1", provider: "GITHUB", name: "GitHub", overallStatus: "pending", tasks: [] },
-          { id: "ds-2", provider: "GITLAB", name: "GitLab", overallStatus: "pending", tasks: [] },
-        ],
+        hasStartedImport: false,
+        isImportRunning: false,
+        currentBatch: null,
       });
 
       render(
@@ -116,7 +87,24 @@ describe("Importing", () => {
         </MemoryRouter>
       );
 
-      expect(screen.getByText(/Ready to import from 2 data sources/)).toBeInTheDocument();
+      await waitFor(() => {
+        expect(mockFetcherSubmit).toHaveBeenCalledWith({ intent: "start-import" }, { method: "post" });
+      });
+    });
+
+    it("does not trigger start-import when import has already started", () => {
+      mockLoaderData = createMockLoaderData({
+        hasStartedImport: true,
+        isImportRunning: true,
+      });
+
+      render(
+        <MemoryRouter>
+          <Importing />
+        </MemoryRouter>
+      );
+
+      expect(mockFetcherSubmit).not.toHaveBeenCalled();
     });
   });
 
@@ -546,15 +534,15 @@ describe("Importing", () => {
   });
 
   describe("Navigation", () => {
-    it("renders Back to Repositories link", () => {
+    it("renders Back to Data Sources link", () => {
       render(
         <MemoryRouter>
           <Importing />
         </MemoryRouter>
       );
 
-      const backLink = screen.getByRole("link", { name: "Back to Repositories" });
-      expect(backLink).toHaveAttribute("href", "/onboarding/repositories");
+      const backLink = screen.getByRole("link", { name: "Back to Data Sources" });
+      expect(backLink).toHaveAttribute("href", "/onboarding/datasources");
     });
 
     it("renders Continue to Dashboard button", () => {
@@ -579,8 +567,17 @@ describe("Importing", () => {
   });
 
   describe("Polling behavior", () => {
-    it("starts polling when actionData contains batchId", async () => {
-      mockActionData = { batchId: "new-batch-123" };
+    it("starts polling when import is running", async () => {
+      mockLoaderData = createMockLoaderData({
+        isImportRunning: true,
+        currentBatch: {
+          id: "batch-123",
+          status: "RUNNING",
+          totalScripts: 4,
+          completedScripts: 0,
+          failedScripts: 0,
+        },
+      });
 
       render(
         <MemoryRouter>
@@ -589,12 +586,21 @@ describe("Importing", () => {
       );
 
       await waitFor(() => {
-        expect(global.fetch).toHaveBeenCalledWith("/api/import/new-batch-123");
+        expect(global.fetch).toHaveBeenCalledWith("/api/import/batch-123");
       });
     });
 
     it("stops polling when batch status is not RUNNING", async () => {
-      mockActionData = { batchId: "batch-123" };
+      mockLoaderData = createMockLoaderData({
+        isImportRunning: true,
+        currentBatch: {
+          id: "batch-123",
+          status: "RUNNING",
+          totalScripts: 4,
+          completedScripts: 0,
+          failedScripts: 0,
+        },
+      });
       vi.spyOn(global, "fetch").mockResolvedValue({
         ok: true,
         json: () => Promise.resolve({ status: "COMPLETED", runs: [] }),
@@ -612,7 +618,16 @@ describe("Importing", () => {
     });
 
     it("handles fetch errors gracefully", async () => {
-      mockActionData = { batchId: "batch-123" };
+      mockLoaderData = createMockLoaderData({
+        isImportRunning: true,
+        currentBatch: {
+          id: "batch-123",
+          status: "RUNNING",
+          totalScripts: 4,
+          completedScripts: 0,
+          failedScripts: 0,
+        },
+      });
       const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
       vi.spyOn(global, "fetch").mockRejectedValue(new Error("Network error"));
 
@@ -629,20 +644,17 @@ describe("Importing", () => {
       consoleError.mockRestore();
     });
 
-    it("uses actionData batchId over currentBatch id for polling", async () => {
-      // When actionData has a batchId, it takes precedence
+    it("does not poll when import is not running", async () => {
       mockLoaderData = createMockLoaderData({
         isImportRunning: false,
-        hasStartedImport: false,
         currentBatch: {
-          id: "existing-batch-456",
+          id: "batch-123",
           status: "COMPLETED",
           totalScripts: 4,
           completedScripts: 4,
           failedScripts: 0,
         },
       });
-      mockActionData = { batchId: "new-batch-789" };
 
       render(
         <MemoryRouter>
@@ -650,50 +662,9 @@ describe("Importing", () => {
         </MemoryRouter>
       );
 
-      await waitFor(() => {
-        expect(global.fetch).toHaveBeenCalledWith("/api/import/new-batch-789");
-      });
-    });
-  });
-
-  describe("Batch status updates from polling", () => {
-    it("fetches batch data when actionData contains batchId", async () => {
-      mockLoaderData = createMockLoaderData({
-        isImportRunning: false,
-        hasStartedImport: false,
-      });
-      mockActionData = { batchId: "batch-1" };
-
-      vi.spyOn(global, "fetch").mockResolvedValue({
-        ok: true,
-        json: () =>
-          Promise.resolve({
-            id: "batch-1",
-            status: "RUNNING",
-            totalScripts: 4,
-            completedScripts: 1,
-            failedScripts: 0,
-            runs: [
-              {
-                id: "run-1",
-                dataSourceId: "ds-1",
-                scriptName: "repository",
-                status: "COMPLETED",
-                recordsImported: 50,
-              },
-            ],
-          }),
-      } as Response);
-
-      render(
-        <MemoryRouter>
-          <Importing />
-        </MemoryRouter>
-      );
-
-      await waitFor(() => {
-        expect(global.fetch).toHaveBeenCalledWith("/api/import/batch-1");
-      });
+      // Wait a bit to ensure no fetch was made
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      expect(global.fetch).not.toHaveBeenCalled();
     });
   });
 

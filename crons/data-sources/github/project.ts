@@ -1,5 +1,5 @@
 import type { ExecutionContext } from "@crons/orchestrator/script-loader.js";
-import type { PrismaClient } from "@prisma/client";
+import type { DbClient } from "~/db.server.js";
 
 export const projectScript = {
   dataSourceName: "GITHUB",
@@ -7,7 +7,7 @@ export const projectScript = {
   dependsOn: ["repository"],
   importWindowDays: 365,
 
-  async run(db: PrismaClient, context: ExecutionContext) {
+  async run(db: DbClient, context: ExecutionContext) {
     const repos = await db.repository.findMany({
       where: {
         provider: "GITHUB",
@@ -39,7 +39,7 @@ export const projectScript = {
 };
 
 async function processRepositoryProject(
-  db: PrismaClient,
+  db: DbClient,
   repo: { id: string; fullName: string; name: string; url: string | null; description: string | null }
 ): Promise<{ count: number; error?: string }> {
   try {
@@ -54,7 +54,7 @@ async function processRepositoryProject(
   }
 }
 
-async function upsertProject(db: PrismaClient, repo: { id: string; fullName: string; name: string; url: string | null; description: string | null }): Promise<void> {
+async function upsertProject(db: DbClient, repo: { id: string; fullName: string; name: string; url: string | null; description: string | null }): Promise<void> {
   await db.project.upsert({
     where: { key: repo.fullName },
     create: {
@@ -72,7 +72,7 @@ async function upsertProject(db: PrismaClient, repo: { id: string; fullName: str
   });
 }
 
-async function logProjectErrors(db: PrismaClient, runId: string, errors: string[]): Promise<void> {
+async function logProjectErrors(db: DbClient, runId: string, errors: string[]): Promise<void> {
   if (errors.length === 0) return;
 
   await Promise.all(

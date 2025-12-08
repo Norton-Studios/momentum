@@ -1,6 +1,6 @@
 import type { ExecutionContext } from "@crons/orchestrator/script-loader.js";
 import { Octokit } from "@octokit/rest";
-import type { PrismaClient } from "@prisma/client";
+import type { DbClient } from "~/db.server.js";
 
 export const pipelineScript = {
   dataSourceName: "GITHUB",
@@ -8,7 +8,7 @@ export const pipelineScript = {
   dependsOn: ["repository"],
   importWindowDays: 365,
 
-  async run(db: PrismaClient, context: ExecutionContext) {
+  async run(db: DbClient, context: ExecutionContext) {
     const octokit = new Octokit({ auth: context.env.GITHUB_TOKEN });
 
     const repos = await db.repository.findMany({
@@ -55,7 +55,7 @@ async function fetchWorkflows(octokit: Octokit, owner: string, repoName: string)
   return allWorkflows;
 }
 
-async function upsertPipeline(db: PrismaClient, repoId: string, workflow: GitHubWorkflow): Promise<void> {
+async function upsertPipeline(db: DbClient, repoId: string, workflow: GitHubWorkflow): Promise<void> {
   const existing = await db.pipeline.findFirst({
     where: {
       repositoryId: repoId,
@@ -84,7 +84,7 @@ async function upsertPipeline(db: PrismaClient, repoId: string, workflow: GitHub
   }
 }
 
-async function processRepositoryPipelines(octokit: Octokit, db: PrismaClient, repo: { id: string; fullName: string }): Promise<{ count: number; error?: string }> {
+async function processRepositoryPipelines(octokit: Octokit, db: DbClient, repo: { id: string; fullName: string }): Promise<{ count: number; error?: string }> {
   try {
     const [owner, repoName] = repo.fullName.split("/");
     const workflows = await fetchWorkflows(octokit, owner, repoName);
@@ -109,7 +109,7 @@ async function processRepositoryPipelines(octokit: Octokit, db: PrismaClient, re
   }
 }
 
-async function logPipelineErrors(db: PrismaClient, runId: string, errors: string[]): Promise<void> {
+async function logPipelineErrors(db: DbClient, runId: string, errors: string[]): Promise<void> {
   if (errors.length === 0) return;
 
   await Promise.all(
