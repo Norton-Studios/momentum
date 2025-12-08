@@ -267,9 +267,9 @@ describe("OnboardingDataSources with connected providers", () => {
       </MemoryRouter>
     );
 
-    const githubCard = document.getElementById("githubCard");
+    const githubCard = document.getElementById("githubCard") as HTMLElement;
     expect(githubCard).toHaveClass("connected");
-    expect(within(githubCard!).getByText("Connected")).toBeInTheDocument();
+    expect(within(githubCard).getByText("Connected")).toBeInTheDocument();
   });
 
   it("shows Edit Configuration button for connected providers", () => {

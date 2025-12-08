@@ -22,17 +22,13 @@
     }
   },
   "initializeCommand": "touch ~/.bash_history ~/.zsh_history",
-  "postCreateCommand": "npm install -g @anthropic-ai/claude-code",
+  "postCreateCommand": "bash .devcontainer/install.sh",
   "customizations": {
     "vscode": {
       "settings": {
         "files.autoSave": "onFocusChange"
       },
-      "extensions": [
-        "ms-azuretools.vscode-docker",
-        "ms-playwright.playwright",
-        "anthropic.claude-code"
-      ]
+      "extensions": ["ms-azuretools.vscode-docker", "ms-playwright.playwright", "anthropic.claude-code"]
     }
   }
 }
