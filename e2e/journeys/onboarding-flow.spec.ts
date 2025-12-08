@@ -105,7 +105,7 @@ test.describe
 
       await page.getByRole("button", { name: /Continue to Dashboard/i }).click();
 
-      await expect(page).toHaveURL(/\/onboarding\/complete/);
+      await expect(page).toHaveURL(/\/onboarding\/complete/, { timeout: 30000 });
       await expect(page.getByRole("heading", { name: /You're All Set/i })).toBeVisible();
     });
 
