@@ -3,7 +3,8 @@ import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { data } from "react-router";
 import { requireAdmin } from "~/auth/auth.server";
 import { db } from "~/db.server";
-import { type ActivityStatus, bulkUpdateRepositorySelection, getRepositoriesWithFilters } from "~/lib/repositories/repository-filters";
+import { type ActivityStatus, getRepositoriesWithFilters } from "~/lib/repositories/repository-filters";
+import { REPOSITORY_PAGE_SIZE, toggleRepositoriesBatch, toggleRepository } from "~/lib/repositories/toggle-repositories";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   await requireAdmin(request);
@@ -23,7 +24,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     return data({ error: "No data source configured for this provider" }, { status: 400 });
   }
 
-  const result = await getRepositoriesWithFilters(db, dataSource.id, { search, activity, cursor, limit: 100 });
+  const result = await getRepositoriesWithFilters(db, dataSource.id, { search, activity, cursor, limit: REPOSITORY_PAGE_SIZE });
 
   return data({
     repositories: result.repositories,
@@ -75,22 +76,27 @@ async function getVcsDataSource(provider: string) {
 }
 
 async function handleToggleIntent(formData: FormData) {
-  const repositoryId = formData.get("repositoryId") as string;
+  const repositoryId = formData.get("repositoryId");
   const isEnabled = formData.get("isEnabled") === "true";
 
-  await db.repository.update({
-    where: { id: repositoryId },
-    data: { isEnabled },
-  });
+  if (typeof repositoryId !== "string" || !repositoryId) {
+    return data({ error: "Repository ID is required" }, { status: 400 });
+  }
 
-  return data({ success: true });
+  try {
+    await toggleRepository(db, repositoryId, isEnabled);
+    return data({ success: true });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Failed to toggle repository";
+    return data({ error: message }, { status: 404 });
+  }
 }
 
 async function handleBulkSelectIntent(formData: FormData) {
   const repositoryIds = formData.getAll("repositoryIds") as string[];
   const isEnabled = formData.get("isEnabled") === "true";
 
-  await bulkUpdateRepositorySelection(db, repositoryIds, isEnabled);
+  const result = await toggleRepositoriesBatch(db, repositoryIds, isEnabled);
 
-  return data({ success: true, count: repositoryIds.length });
+  return data({ success: true, count: result.count });
 }

@@ -45,7 +45,7 @@ describe("import action", () => {
 
   it("returns 405 for non-POST requests", async () => {
     const request = new Request("http://localhost/api/import", { method: "GET" });
-    const response = await action({ request, params: {}, context: {} });
+    const response = (await action({ request, params: {}, context: {} } as never)) as unknown as Response;
 
     expect(response.status).toBe(405);
     const body = await response.json();
@@ -56,7 +56,7 @@ describe("import action", () => {
     vi.mocked(db.dataSource.count).mockResolvedValue(0);
 
     const request = new Request("http://localhost/api/import", { method: "POST" });
-    const response = await action({ request, params: {}, context: {} });
+    const response = (await action({ request, params: {}, context: {} } as never)) as unknown as Response;
 
     expect(response.status).toBe(400);
     const body = await response.json();
@@ -71,7 +71,7 @@ describe("import action", () => {
     } as never);
 
     const request = new Request("http://localhost/api/import", { method: "POST" });
-    const response = await action({ request, params: {}, context: {} });
+    const response = (await action({ request, params: {}, context: {} } as never)) as unknown as Response;
 
     expect(response.status).toBe(200);
     const body = await response.json();
@@ -89,7 +89,7 @@ describe("import action", () => {
       } as never);
 
     const request = new Request("http://localhost/api/import", { method: "POST" });
-    const response = await action({ request, params: {}, context: {} });
+    const response = (await action({ request, params: {}, context: {} } as never)) as unknown as Response;
 
     expect(response.status).toBe(200);
     const body = await response.json();
@@ -134,7 +134,7 @@ describe("import loader", () => {
     vi.mocked(db.importBatch.findMany).mockResolvedValue(mockBatches as never);
 
     const request = new Request("http://localhost/api/import");
-    const response = await loader({ request, params: {}, context: {} });
+    const response = (await loader({ request, params: {}, context: {} } as never)) as unknown as Response;
 
     expect(response.status).toBe(200);
     const body = await response.json();
@@ -149,7 +149,7 @@ describe("import loader", () => {
     vi.mocked(db.importBatch.findMany).mockResolvedValue([]);
 
     const request = new Request("http://localhost/api/import");
-    const response = await loader({ request, params: {}, context: {} });
+    const response = (await loader({ request, params: {}, context: {} } as never)) as unknown as Response;
 
     expect(response.status).toBe(200);
     const body = await response.json();

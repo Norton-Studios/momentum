@@ -110,8 +110,8 @@ export default function OnboardingDataSources() {
     if (successfulProvider) {
       setActiveForm(null);
       // Auto-expand repositories for VCS providers after successful connection
-      if (VCS_PROVIDERS.has(successfulProvider)) {
-        setExpandedRepositories((prev) => new Set([...prev, successfulProvider]));
+      if (VCS_PROVIDERS.has(successfulProvider as string)) {
+        setExpandedRepositories((prev) => new Set([...prev, successfulProvider as string]));
       }
       const cardElement = document.getElementById(`${successfulProvider}Card`);
       if (cardElement) {

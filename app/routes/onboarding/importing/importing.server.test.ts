@@ -55,7 +55,7 @@ describe("importingLoader", () => {
     vi.mocked(db.dataSource.findMany).mockResolvedValue([]);
 
     const request = new Request("http://localhost/onboarding/importing");
-    const response = await importingLoader({ request, params: {}, context: {} });
+    const response = (await importingLoader({ request, params: {}, context: {} } as never)) as unknown as Response;
 
     expect(response.status).toBe(302);
     expect(response.headers.get("Location")).toBe("/onboarding/datasources");
@@ -68,7 +68,7 @@ describe("importingLoader", () => {
     vi.mocked(db.repository.count).mockResolvedValue(25);
 
     const request = new Request("http://localhost/onboarding/importing");
-    const response = await importingLoader({ request, params: {}, context: {} });
+    const response = (await importingLoader({ request, params: {}, context: {} } as never)) as unknown as Response;
 
     expect(response.status).toBe(200);
     const body = await response.json();
@@ -98,7 +98,7 @@ describe("importingLoader", () => {
     vi.mocked(db.repository.count).mockResolvedValue(25);
 
     const request = new Request("http://localhost/onboarding/importing");
-    const response = await importingLoader({ request, params: {}, context: {} });
+    const response = (await importingLoader({ request, params: {}, context: {} } as never)) as unknown as Response;
 
     const body = await response.json();
     expect(body.isImportRunning).toBe(true);
@@ -110,7 +110,7 @@ describe("importingLoader", () => {
     vi.mocked(db.dataSource.findMany).mockResolvedValue([]);
 
     const request = new Request("http://localhost/onboarding/importing");
-    await importingLoader({ request, params: {}, context: {} });
+    await importingLoader({ request, params: {}, context: {} } as never);
 
     expect(db.dataSource.findMany).toHaveBeenCalledWith({
       where: { isEnabled: true },
@@ -134,7 +134,7 @@ describe("importingAction", () => {
         body: formData,
       });
 
-      const response = await importingAction({ request, params: {}, context: {} });
+      const response = (await importingAction({ request, params: {}, context: {} } as never)) as unknown as Response;
 
       expect(response.status).toBe(302);
       expect(response.headers.get("Location")).toBe("/onboarding/complete");
@@ -157,7 +157,7 @@ describe("importingAction", () => {
         body: formData,
       });
 
-      const response = await importingAction({ request, params: {}, context: {} });
+      const response = (await importingAction({ request, params: {}, context: {} } as never)) as unknown as Response;
 
       expect(response.status).toBe(200);
       const body = await response.json();
@@ -181,7 +181,7 @@ describe("importingAction", () => {
         body: formData,
       });
 
-      const response = await importingAction({ request, params: {}, context: {} });
+      const response = (await importingAction({ request, params: {}, context: {} } as never)) as unknown as Response;
 
       expect(response.status).toBe(200);
       const body = await response.json();
@@ -202,7 +202,7 @@ describe("importingAction", () => {
         body: formData,
       });
 
-      const response = await importingAction({ request, params: {}, context: {} });
+      const response = (await importingAction({ request, params: {}, context: {} } as never)) as unknown as Response;
 
       expect(response.status).toBe(400);
       const body = await response.json();
@@ -217,7 +217,7 @@ describe("importingAction", () => {
         body: formData,
       });
 
-      const response = await importingAction({ request, params: {}, context: {} });
+      const response = (await importingAction({ request, params: {}, context: {} } as never)) as unknown as Response;
 
       expect(response.status).toBe(400);
     });

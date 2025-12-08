@@ -97,7 +97,7 @@ describe("datasourcesAction", () => {
         body: formData,
       });
 
-      await datasourcesAction({ request, params: {}, context: {} });
+      await datasourcesAction({ request, params: {}, context: {} } as never);
 
       expect(db.organization.create).toHaveBeenCalled();
       expect(db.dataSource.create).toHaveBeenCalled();
@@ -119,7 +119,7 @@ describe("datasourcesAction", () => {
         body: formData,
       });
 
-      await datasourcesAction({ request, params: {}, context: {} });
+      await datasourcesAction({ request, params: {}, context: {} } as never);
 
       expect(db.dataSource.update).toHaveBeenCalled();
       expect(db.dataSource.create).not.toHaveBeenCalled();
@@ -137,7 +137,7 @@ describe("datasourcesAction", () => {
         body: formData,
       });
 
-      const response = await datasourcesAction({ request, params: {}, context: {} });
+      const response = (await datasourcesAction({ request, params: {}, context: {} } as never)) as unknown as Response;
 
       expect(response.status).toBe(400);
       expect(db.dataSource.create).not.toHaveBeenCalled();
@@ -154,7 +154,7 @@ describe("datasourcesAction", () => {
         body: formData,
       });
 
-      const response = await datasourcesAction({ request, params: {}, context: {} });
+      const response = (await datasourcesAction({ request, params: {}, context: {} } as never)) as unknown as Response;
 
       expect(response.status).toBe(302);
       expect(response.headers.get("Location")).toBe("/onboarding/importing");

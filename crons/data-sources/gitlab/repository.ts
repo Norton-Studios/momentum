@@ -37,7 +37,8 @@ async function upsertRepositories(db: DbClient, repos: GitLabProject[], runId: s
 
   await Promise.all(
     validRepos.map((repo) => {
-      const fullName = repo.pathWithNamespace ?? repo.path_with_namespace ?? repo.path;
+      // Safe: validRepos is filtered to only include repos with fullName
+      const fullName = repo.pathWithNamespace ?? repo.path_with_namespace ?? repo.path ?? "";
       const url = repo.webUrl ?? repo.web_url ?? `${host}/${fullName}`;
       return db.repository.upsert({
         where: { fullName },

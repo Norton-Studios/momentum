@@ -34,7 +34,7 @@ export async function runOrchestrator(db: PrismaClient, options: OrchestratorOpt
         await finalizeBatch(db, batch.id, startTime, executionResults);
 
         return createResult(startTime, executionResults, errors, batch.id);
-      } catch (error) {
+      } catch (_error) {
         return createResult(startTime, executionResults, errors, undefined);
       } finally {
         console.log("[orchestrator] Releasing global lock");

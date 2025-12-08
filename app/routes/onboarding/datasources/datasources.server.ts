@@ -6,6 +6,7 @@ import { requireAdmin } from "~/auth/auth.server";
 import { db } from "~/db.server";
 import { fetchGithubRepositories, fetchGitlabRepositories, saveRepositories } from "~/lib/repositories/fetch-repositories";
 import { getRepositoriesWithFilters } from "~/lib/repositories/repository-filters";
+import { DEFAULT_ACTIVE_THRESHOLD_DAYS, REPOSITORY_PAGE_SIZE, toggleRepositoriesBatch, toggleRepository } from "~/lib/repositories/toggle-repositories";
 import { PROVIDER_CONFIGS } from "./datasources.config";
 
 export async function datasourcesAction({ request }: ActionFunctionArgs) {
@@ -121,7 +122,7 @@ async function handleFetchRepositoriesIntent(formData: FormData) {
   const result = await getRepositoriesWithFilters(db, dataSource.id, {
     search,
     cursor,
-    limit: 100,
+    limit: REPOSITORY_PAGE_SIZE,
   });
 
   return data({
@@ -132,27 +133,29 @@ async function handleFetchRepositoriesIntent(formData: FormData) {
 }
 
 async function handleToggleRepositoryIntent(formData: FormData) {
-  const repositoryId = formData.get("repositoryId") as string;
+  const repositoryId = formData.get("repositoryId");
   const isEnabled = formData.get("isEnabled") === "true";
 
-  await db.repository.update({
-    where: { id: repositoryId },
-    data: { isEnabled },
-  });
+  if (typeof repositoryId !== "string" || !repositoryId) {
+    return data({ error: "Repository ID is required" }, { status: 400 });
+  }
 
-  return data({ success: true });
+  try {
+    await toggleRepository(db, repositoryId, isEnabled);
+    return data({ success: true });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Failed to toggle repository";
+    return data({ error: message }, { status: 404 });
+  }
 }
 
 async function handleToggleRepositoriesBatchIntent(formData: FormData) {
   const repositoryIds = formData.getAll("repositoryIds") as string[];
   const isEnabled = formData.get("isEnabled") === "true";
 
-  await db.repository.updateMany({
-    where: { id: { in: repositoryIds } },
-    data: { isEnabled },
-  });
+  const result = await toggleRepositoriesBatch(db, repositoryIds, isEnabled);
 
-  return data({ success: true, count: repositoryIds.length });
+  return data({ success: true, count: result.count });
 }
 
 async function initializeRepositories(dataSource: { id: string; provider: string; configs: Array<{ key: string; value: string }> }, provider: string) {
@@ -183,12 +186,12 @@ async function initializeRepositories(dataSource: { id: string; provider: string
 
 async function setDefaultSelections(dataSourceId: string) {
   const now = new Date();
-  const ninetyDaysAgo = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+  const thresholdDate = new Date(now.getTime() - DEFAULT_ACTIVE_THRESHOLD_DAYS * 24 * 60 * 60 * 1000);
 
   await db.repository.updateMany({
     where: {
       dataSourceId,
-      lastSyncAt: { gte: ninetyDaysAgo },
+      lastSyncAt: { gte: thresholdDate },
     },
     data: { isEnabled: true },
   });
@@ -196,7 +199,7 @@ async function setDefaultSelections(dataSourceId: string) {
   await db.repository.updateMany({
     where: {
       dataSourceId,
-      OR: [{ lastSyncAt: { lt: ninetyDaysAgo } }, { lastSyncAt: null }],
+      OR: [{ lastSyncAt: { lt: thresholdDate } }, { lastSyncAt: null }],
     },
     data: { isEnabled: false },
   });

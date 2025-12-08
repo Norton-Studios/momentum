@@ -51,7 +51,7 @@ describe("completeLoader", () => {
     vi.mocked(db.organization.findFirst).mockResolvedValue(null);
 
     const request = new Request("http://localhost/onboarding/complete");
-    const response = await completeLoader({ request, params: {}, context: {} });
+    const response = (await completeLoader({ request, params: {}, context: {} } as never)) as unknown as Response;
 
     expect(response.status).toBe(302);
     expect(response.headers.get("Location")).toBe("/onboarding/datasources");
@@ -68,7 +68,7 @@ describe("completeLoader", () => {
     vi.mocked(db.contributor.count).mockResolvedValue(5);
 
     const request = new Request("http://localhost/onboarding/complete");
-    await completeLoader({ request, params: {}, context: {} });
+    await completeLoader({ request, params: {}, context: {} } as never);
 
     expect(db.organization.update).toHaveBeenCalledWith({
       where: { id: "org-1" },
@@ -87,7 +87,7 @@ describe("completeLoader", () => {
     vi.mocked(db.contributor.count).mockResolvedValue(5);
 
     const request = new Request("http://localhost/onboarding/complete");
-    const response = await completeLoader({ request, params: {}, context: {} });
+    const response = (await completeLoader({ request, params: {}, context: {} } as never)) as unknown as Response;
 
     expect(response.status).toBe(200);
     const body = await response.json();
@@ -116,7 +116,7 @@ describe("completeLoader", () => {
     vi.mocked(db.contributor.count).mockResolvedValue(0);
 
     const request = new Request("http://localhost/onboarding/complete");
-    const response = await completeLoader({ request, params: {}, context: {} });
+    const response = (await completeLoader({ request, params: {}, context: {} } as never)) as unknown as Response;
 
     const body = await response.json();
     expect(body.organization.name).toBe("default-org");
@@ -137,7 +137,7 @@ describe("completeLoader", () => {
     vi.mocked(db.contributor.count).mockResolvedValue(0);
 
     const request = new Request("http://localhost/onboarding/complete");
-    const response = await completeLoader({ request, params: {}, context: {} });
+    const response = (await completeLoader({ request, params: {}, context: {} } as never)) as unknown as Response;
 
     const body = await response.json();
     expect(body.dataSources).toEqual([
@@ -158,7 +158,7 @@ describe("completeLoader", () => {
     vi.mocked(db.contributor.count).mockResolvedValue(0);
 
     const request = new Request("http://localhost/onboarding/complete");
-    const response = await completeLoader({ request, params: {}, context: {} });
+    const response = (await completeLoader({ request, params: {}, context: {} } as never)) as unknown as Response;
 
     const body = await response.json();
     expect(body.dataSources[0].name).toBe("Fallback Name");

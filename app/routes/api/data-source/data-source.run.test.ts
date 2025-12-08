@@ -34,7 +34,7 @@ describe("list runs loader", () => {
 
   it("returns 400 when dataSourceId is missing", async () => {
     const request = new Request("http://localhost/api/data-source//run");
-    const response = await listRunsLoader({ request, params: {}, context: {} });
+    const response = (await listRunsLoader({ request, params: {}, context: {} } as never)) as unknown as Response;
 
     expect(response.status).toBe(400);
     const body = await response.json();
@@ -75,7 +75,7 @@ describe("list runs loader", () => {
     vi.mocked(db.dataSourceRun.findMany).mockResolvedValue(mockRuns as never);
 
     const request = new Request("http://localhost/api/data-source/ds-1/run");
-    const response = await listRunsLoader({ request, params: { dataSourceId: "ds-1" }, context: {} });
+    const response = (await listRunsLoader({ request, params: { dataSourceId: "ds-1" }, context: {} } as never)) as unknown as Response;
 
     expect(response.status).toBe(200);
     const body = await response.json();
@@ -88,7 +88,7 @@ describe("list runs loader", () => {
     vi.mocked(db.dataSourceRun.findMany).mockResolvedValue([]);
 
     const request = new Request("http://localhost/api/data-source/ds-1/run?batchId=batch-2");
-    await listRunsLoader({ request, params: { dataSourceId: "ds-1" }, context: {} });
+    await listRunsLoader({ request, params: { dataSourceId: "ds-1" }, context: {} } as never);
 
     expect(db.dataSourceRun.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -104,7 +104,7 @@ describe("list runs loader", () => {
     vi.mocked(db.dataSourceRun.findMany).mockResolvedValue([]);
 
     const request = new Request("http://localhost/api/data-source/ds-1/run");
-    const response = await listRunsLoader({ request, params: { dataSourceId: "ds-1" }, context: {} });
+    const response = (await listRunsLoader({ request, params: { dataSourceId: "ds-1" }, context: {} } as never)) as unknown as Response;
 
     expect(response.status).toBe(200);
     const body = await response.json();
@@ -120,7 +120,7 @@ describe("get run loader", () => {
 
   it("returns 400 when dataSourceId or runId is missing", async () => {
     const request = new Request("http://localhost/api/data-source/ds-1/run/");
-    const response = await getRunLoader({ request, params: { dataSourceId: "ds-1" }, context: {} });
+    const response = (await getRunLoader({ request, params: { dataSourceId: "ds-1" }, context: {} } as never)) as unknown as Response;
 
     expect(response.status).toBe(400);
     const body = await response.json();
@@ -131,7 +131,7 @@ describe("get run loader", () => {
     vi.mocked(db.dataSourceRun.findFirst).mockResolvedValue(null);
 
     const request = new Request("http://localhost/api/data-source/ds-1/run/nonexistent");
-    const response = await getRunLoader({ request, params: { dataSourceId: "ds-1", runId: "nonexistent" }, context: {} });
+    const response = (await getRunLoader({ request, params: { dataSourceId: "ds-1", runId: "nonexistent" }, context: {} } as never)) as unknown as Response;
 
     expect(response.status).toBe(404);
     const body = await response.json();
@@ -182,7 +182,7 @@ describe("get run loader", () => {
     vi.mocked(db.dataSourceRun.findFirst).mockResolvedValue(mockRun as never);
 
     const request = new Request("http://localhost/api/data-source/ds-1/run/run-1");
-    const response = await getRunLoader({ request, params: { dataSourceId: "ds-1", runId: "run-1" }, context: {} });
+    const response = (await getRunLoader({ request, params: { dataSourceId: "ds-1", runId: "run-1" }, context: {} } as never)) as unknown as Response;
 
     expect(response.status).toBe(200);
     const body = await response.json();
@@ -214,7 +214,7 @@ describe("get run loader", () => {
     vi.mocked(db.dataSourceRun.findFirst).mockResolvedValue(mockRun as never);
 
     const request = new Request("http://localhost/api/data-source/ds-1/run/run-1");
-    const response = await getRunLoader({ request, params: { dataSourceId: "ds-1", runId: "run-1" }, context: {} });
+    const response = (await getRunLoader({ request, params: { dataSourceId: "ds-1", runId: "run-1" }, context: {} } as never)) as unknown as Response;
 
     expect(response.status).toBe(200);
     const body = await response.json();

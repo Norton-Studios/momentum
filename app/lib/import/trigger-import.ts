@@ -1,6 +1,8 @@
 import { runOrchestrator } from "@crons/orchestrator/runner.js";
 import { db } from "~/db.server";
 
+export type TriggerImportResult = { status: "no_data_sources" } | { status: "already_running"; batchId: string } | { status: "started"; batchId?: string };
+
 export async function triggerImport(triggeredBy: string): Promise<TriggerImportResult> {
   const hasEnabledDataSources = await db.dataSource.count({
     where: { isEnabled: true },
@@ -39,5 +41,3 @@ export async function triggerImport(triggeredBy: string): Promise<TriggerImportR
 
   return { status: "started", batchId: batch?.id };
 }
-
-type TriggerImportResult = { status: "no_data_sources" } | { status: "already_running"; batchId: string } | { status: "started"; batchId?: string };
