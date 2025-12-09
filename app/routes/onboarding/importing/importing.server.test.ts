@@ -34,6 +34,9 @@ const mockRunOrchestrator = vi.hoisted(() =>
     batchId: "batch-1",
     scriptsExecuted: 4,
     scriptsFailed: 0,
+    scriptsSkipped: 0,
+    executionTimeMs: 1234,
+    errors: [],
   })
 );
 

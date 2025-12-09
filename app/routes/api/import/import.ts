@@ -24,8 +24,14 @@ export async function action({ request }: ActionFunctionArgs) {
     });
   }
 
+  // Poll for the newly created batch (fire-and-forget orchestrator creates it async)
+  const newBatch = await db.importBatch.findFirst({
+    where: { status: "RUNNING" },
+    orderBy: { createdAt: "desc" },
+  });
+
   return data({
-    batchId: result.batchId,
+    batchId: newBatch?.id,
     status: "started",
     message: "Import started",
   });

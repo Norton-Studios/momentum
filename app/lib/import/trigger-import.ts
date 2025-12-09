@@ -32,12 +32,5 @@ export async function triggerImport(triggeredBy: string): Promise<TriggerImportR
       console.error("Import failed:", error);
     });
 
-  await new Promise((resolve) => setTimeout(resolve, 100));
-
-  const batch = await db.importBatch.findFirst({
-    where: { status: "RUNNING" },
-    orderBy: { createdAt: "desc" },
-  });
-
-  return { status: "started", batchId: batch?.id };
+  return { status: "started" };
 }

@@ -79,7 +79,22 @@ export async function importingAction({ request }: ActionFunctionArgs) {
 
 async function handleStartImport(userId: string) {
   const result = await triggerImport(userId);
-  return data({ success: true, batchId: result.status !== "no_data_sources" ? result.batchId : undefined });
+
+  if (result.status === "already_running") {
+    return data({ success: true, batchId: result.batchId });
+  }
+
+  if (result.status === "no_data_sources") {
+    return data({ success: true, batchId: undefined });
+  }
+
+  // Poll for the newly created batch (fire-and-forget orchestrator creates it async)
+  const newBatch = await db.importBatch.findFirst({
+    where: { status: "RUNNING" },
+    orderBy: { createdAt: "desc" },
+  });
+
+  return data({ success: true, batchId: newBatch?.id });
 }
 
 function buildImportStatus(dataSources: DataSourceBasic[], runs: RunWithDataSource[]) {
