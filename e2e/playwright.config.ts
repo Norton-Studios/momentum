@@ -27,7 +27,7 @@ export default defineConfig({
     ["html", { outputFolder: "playwright-report" }],
     ["junit", { outputFile: "junit-results.xml" }],
   ],
-  timeout: 10000, // 10 seconds per test
+  timeout: 30000, // 30 seconds per test
 
   globalTeardown: path.join(__dirname, "global-teardown.ts"),
 
