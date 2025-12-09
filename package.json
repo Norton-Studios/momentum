@@ -6,7 +6,7 @@
   "scripts": {
     "build": "react-router build",
     "dev": "run-p dev:db dev:server",
-    "dev:db": "docker compose up -d && npx prisma db push && yarn db:studio",
+    "dev:db": "docker compose up -d && npx prisma db push --config prisma/prisma.config.ts && yarn db:studio",
     "dev:server": "react-router dev",
     "dev:crons": "tsx --watch crons/index.ts",
     "start": "react-router-serve ./build/server/index.js",
@@ -19,17 +19,18 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test -c e2e/playwright.config.ts",
-    "test:e2e:db": "docker compose -f e2e/docker-compose.yml up -d --wait && npx prisma db push",
+    "test:e2e:db": "docker compose -f e2e/docker-compose.yml up -d --wait && npx prisma db push --config prisma/prisma.config.ts",
     "test:e2e:server": "yarn test:e2e:db && react-router dev",
-    "db:push": "prisma db push",
-    "db:migrate": "prisma migrate dev",
-    "db:migrate:deploy": "prisma migrate deploy",
-    "db:studio": "prisma studio --browser none"
+    "db:push": "prisma db push --config prisma/prisma.config.ts",
+    "db:migrate": "prisma migrate dev --config prisma/prisma.config.ts",
+    "db:migrate:deploy": "prisma migrate deploy --config prisma/prisma.config.ts",
+    "db:studio": "prisma studio --config prisma/prisma.config.ts --browser none"
   },
   "dependencies": {
     "@gitbeaker/rest": "43.8.0",
     "@octokit/rest": "22.0.1",
     "@octokit/types": "16.0.0",
+    "@prisma/adapter-pg": "^7.1.0",
     "@prisma/client": "7.1.0",
     "@react-router/node": "7.11.0",
     "@react-router/serve": "7.11.0",
