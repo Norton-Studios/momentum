@@ -358,14 +358,14 @@ function DataSourceCard({ source, isFormActive, isRepositoriesExpanded, onToggle
             {testSuccess && <div className="test-success">Connection successful!</div>}
             {testError && <div className="test-error">{testError}</div>}
             <div className="form-actions">
+              <button type="button" className="btn-cancel" onClick={() => onToggleForm(source.id)}>
+                Cancel
+              </button>
               <button type="submit" name="intent" value="test" className="btn-test">
                 Test Connection
               </button>
               <button type="submit" name="intent" value="connect" className="btn-save">
                 Save Configuration
-              </button>
-              <button type="button" className="btn-cancel" onClick={() => onToggleForm(source.id)}>
-                Cancel
               </button>
             </div>
           </Form>
