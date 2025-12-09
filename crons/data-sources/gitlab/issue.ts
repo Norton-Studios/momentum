@@ -1,6 +1,7 @@
 import type { ExecutionContext } from "@crons/orchestrator/script-loader.js";
 import { Gitlab } from "@gitbeaker/rest";
-import type { IssuePriority, IssueStatus, IssueType, PrismaClient } from "@prisma/client";
+import type { IssuePriority, IssueStatus, IssueType } from "@prisma/client";
+import type { DbClient } from "~/db.server.js";
 
 export const issueScript = {
   dataSourceName: "GITLAB",
@@ -8,7 +9,7 @@ export const issueScript = {
   dependsOn: ["repository", "contributor", "project"],
   importWindowDays: 90,
 
-  async run(db: PrismaClient, context: ExecutionContext) {
+  async run(db: DbClient, context: ExecutionContext) {
     const gitlab = new Gitlab({ token: context.env.GITLAB_TOKEN, host: context.env.GITLAB_HOST || "https://gitlab.com" });
 
     const repos = await db.repository.findMany({
@@ -108,7 +109,7 @@ function transformIssue(issue: GitLabIssue, repoFullName: string): TransformedIs
   };
 }
 
-async function storeIssues(db: PrismaClient, projectId: string, repoFullName: string, issues: GitLabIssue[]): Promise<number> {
+async function storeIssues(db: DbClient, projectId: string, repoFullName: string, issues: GitLabIssue[]): Promise<number> {
   let successCount = 0;
 
   for (const issue of issues) {
@@ -192,7 +193,7 @@ async function storeIssues(db: PrismaClient, projectId: string, repoFullName: st
 
 async function processProjectIssues(
   gitlab: InstanceType<typeof Gitlab>,
-  db: PrismaClient,
+  db: DbClient,
   repo: { id: string; fullName: string },
   startDate: Date,
   endDate: Date

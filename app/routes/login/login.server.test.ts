@@ -29,7 +29,7 @@ describe("loginAction", () => {
       body: formData,
     });
 
-    const response = await loginAction({ request, params: {}, context: {} });
+    const response = (await loginAction({ request, params: {}, context: {} } as never)) as unknown as Response;
 
     expect(response.status).toBe(400);
     expect(login).not.toHaveBeenCalled();
@@ -49,7 +49,7 @@ describe("loginAction", () => {
       body: formData,
     });
 
-    await loginAction({ request, params: {}, context: {} });
+    await loginAction({ request, params: {}, context: {} } as never);
 
     expect(login).toHaveBeenCalledWith({
       email: "test@example.com",
@@ -74,7 +74,7 @@ describe("loginAction", () => {
       body: formData,
     });
 
-    const response = await loginAction({ request, params: {}, context: {} });
+    const response = (await loginAction({ request, params: {}, context: {} } as never)) as unknown as Response;
 
     expect(response.status).toBe(400);
     expect(createUserSession).not.toHaveBeenCalled();

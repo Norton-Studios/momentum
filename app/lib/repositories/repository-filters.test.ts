@@ -20,8 +20,42 @@ describe("getRepositoriesWithFilters", () => {
 
   it("returns repositories with default filters", async () => {
     const mockRepos = [
-      { id: "repo-1", name: "api", fullName: "org/api", description: "API service", language: "TypeScript", stars: 10, isPrivate: false, isEnabled: true, lastSyncAt: new Date() },
-      { id: "repo-2", name: "web", fullName: "org/web", description: "Web app", language: "JavaScript", stars: 5, isPrivate: false, isEnabled: false, lastSyncAt: new Date() },
+      {
+        id: "repo-1",
+        name: "api",
+        fullName: "org/api",
+        description: "API service",
+        language: "TypeScript",
+        stars: 10,
+        isPrivate: false,
+        isEnabled: true,
+        lastSyncAt: new Date(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        provider: "GITHUB" as const,
+        dataSourceId: "ds-1",
+        url: "https://github.com/org/api",
+        forks: 2,
+        isArchived: false,
+      },
+      {
+        id: "repo-2",
+        name: "web",
+        fullName: "org/web",
+        description: "Web app",
+        language: "JavaScript",
+        stars: 5,
+        isPrivate: false,
+        isEnabled: false,
+        lastSyncAt: new Date(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        provider: "GITHUB" as const,
+        dataSourceId: "ds-1",
+        url: "https://github.com/org/web",
+        forks: 1,
+        isArchived: false,
+      },
     ];
     vi.mocked(db.repository.findMany).mockResolvedValue(mockRepos);
     vi.mocked(db.repository.count).mockResolvedValue(2);
@@ -146,6 +180,13 @@ describe("getRepositoriesWithFilters", () => {
       isPrivate: false,
       isEnabled: true,
       lastSyncAt: new Date(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      provider: "GITHUB" as const,
+      dataSourceId: "ds-1",
+      url: `https://github.com/org/repo-${i}`,
+      forks: 0,
+      isArchived: false,
     }));
     vi.mocked(db.repository.findMany).mockResolvedValue(mockRepos);
     vi.mocked(db.repository.count).mockResolvedValue(150);

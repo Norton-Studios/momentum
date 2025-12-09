@@ -1,5 +1,5 @@
 import type { ExecutionContext } from "@crons/orchestrator/script-loader.js";
-import type { PrismaClient } from "@prisma/client";
+import type { DbClient } from "~/db.server.js";
 
 export const projectScript = {
   dataSourceName: "GITLAB",
@@ -7,7 +7,7 @@ export const projectScript = {
   dependsOn: ["repository"],
   importWindowDays: 365,
 
-  async run(db: PrismaClient, context: ExecutionContext) {
+  async run(db: DbClient, context: ExecutionContext) {
     const repos = await db.repository.findMany({
       where: {
         provider: "GITLAB",
@@ -50,7 +50,7 @@ export const projectScript = {
 };
 
 async function processRepositoryProject(
-  db: PrismaClient,
+  db: DbClient,
   repo: { id: string; fullName: string; name: string; url: string | null; description: string | null }
 ): Promise<{ count: number; error?: string }> {
   try {

@@ -1,6 +1,6 @@
 import type { ExecutionContext } from "@crons/orchestrator/script-loader.js";
 import { Gitlab } from "@gitbeaker/rest";
-import type { PrismaClient } from "@prisma/client";
+import type { DbClient } from "~/db.server.js";
 
 export const contributorScript = {
   dataSourceName: "GITLAB",
@@ -8,7 +8,7 @@ export const contributorScript = {
   dependsOn: ["repository"],
   importWindowDays: 365,
 
-  async run(db: PrismaClient, context: ExecutionContext) {
+  async run(db: DbClient, context: ExecutionContext) {
     const gitlab = new Gitlab({ token: context.env.GITLAB_TOKEN, host: context.env.GITLAB_HOST || "https://gitlab.com" });
 
     const repos = await db.repository.findMany({
@@ -61,7 +61,7 @@ async function fetchContributorsForProject(gitlab: InstanceType<typeof Gitlab>, 
   return users as GitLabUser[];
 }
 
-async function upsertContributors(db: PrismaClient, contributors: EnrichedContributor[]): Promise<void> {
+async function upsertContributors(db: DbClient, contributors: EnrichedContributor[]): Promise<void> {
   await Promise.all(
     contributors.map((contributor) =>
       db.contributor.upsert({
@@ -90,11 +90,7 @@ async function upsertContributors(db: PrismaClient, contributors: EnrichedContri
   );
 }
 
-async function processProjectContributors(
-  gitlab: InstanceType<typeof Gitlab>,
-  db: PrismaClient,
-  repo: { id: string; fullName: string }
-): Promise<{ count: number; error?: string }> {
+async function processProjectContributors(gitlab: InstanceType<typeof Gitlab>, db: DbClient, repo: { id: string; fullName: string }): Promise<{ count: number; error?: string }> {
   try {
     const projectPath = repo.fullName;
     const project = await gitlab.Projects.show(projectPath);

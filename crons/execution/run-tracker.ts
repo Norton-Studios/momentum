@@ -1,6 +1,6 @@
-import type { PrismaClient } from "@prisma/client";
+import type { DbClient } from "~/db.server.js";
 
-export async function createRun(db: PrismaClient, dataSourceId: string, scriptName: string, importBatchId?: string): Promise<string | null> {
+export async function createRun(db: DbClient, dataSourceId: string, scriptName: string, importBatchId?: string): Promise<string | null> {
   try {
     const run = await db.dataSourceRun.create({
       data: {
@@ -20,7 +20,7 @@ export async function createRun(db: PrismaClient, dataSourceId: string, scriptNa
   return null;
 }
 
-export async function completeRun(db: PrismaClient, runId: string, recordsImported: number, lastFetchedDataAt: Date): Promise<void> {
+export async function completeRun(db: DbClient, runId: string, recordsImported: number, lastFetchedDataAt: Date): Promise<void> {
   const completedAt = new Date();
   const run = await db.dataSourceRun.findUnique({ where: { id: runId } });
 
@@ -42,7 +42,7 @@ export async function completeRun(db: PrismaClient, runId: string, recordsImport
   });
 }
 
-export async function failRun(db: PrismaClient, runId: string, errorMessage: string): Promise<void> {
+export async function failRun(db: DbClient, runId: string, errorMessage: string): Promise<void> {
   const completedAt = new Date();
   const run = await db.dataSourceRun.findUnique({ where: { id: runId } });
 

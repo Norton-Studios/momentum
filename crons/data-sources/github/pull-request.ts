@@ -1,6 +1,7 @@
 import type { ExecutionContext } from "@crons/orchestrator/script-loader.js";
 import { Octokit } from "@octokit/rest";
-import type { MergeRequestState, PrismaClient } from "@prisma/client";
+import type { PullRequestState } from "@prisma/client";
+import type { DbClient } from "~/db.server.js";
 
 export const pullRequestScript = {
   dataSourceName: "GITHUB",
@@ -8,7 +9,7 @@ export const pullRequestScript = {
   dependsOn: ["repository", "contributor"],
   importWindowDays: 90,
 
-  async run(db: PrismaClient, context: ExecutionContext) {
+  async run(db: DbClient, context: ExecutionContext) {
     const octokit = new Octokit({ auth: context.env.GITHUB_TOKEN });
 
     const repos = await db.repository.findMany({
@@ -41,7 +42,7 @@ export const pullRequestScript = {
   },
 };
 
-function mapGitHubStateToMergeRequestState(state: string, draft: boolean, mergedAt: string | null | undefined): MergeRequestState {
+function mapGitHubStateToPullRequestState(state: string, draft: boolean, mergedAt: string | null | undefined): PullRequestState {
   if (draft) return "DRAFT";
   if (state === "closed" && mergedAt) return "MERGED";
   if (state === "closed") return "CLOSED";
@@ -85,7 +86,7 @@ function transformPullRequest(pr: GitHubPullRequest): TransformedPullRequest {
     number: pr.number,
     title: pr.title,
     description: pr.body,
-    state: mapGitHubStateToMergeRequestState(pr.state, pr.draft ?? false, pr.merged_at),
+    state: mapGitHubStateToPullRequestState(pr.state, pr.draft ?? false, pr.merged_at),
     authorEmail: pr.user?.email || `${pr.user?.login}@github.com`,
     authorName: pr.user?.login || "unknown",
     assigneeEmail: pr.assignee ? pr.assignee.email || `${pr.assignee.login}@github.com` : undefined,
@@ -98,7 +99,7 @@ function transformPullRequest(pr: GitHubPullRequest): TransformedPullRequest {
   };
 }
 
-async function ensureAuthorExists(db: PrismaClient, email: string, name: string, username?: string): Promise<string> {
+async function ensureAuthorExists(db: DbClient, email: string, name: string, username?: string): Promise<string> {
   const author = await db.contributor.upsert({
     where: {
       provider_email: {
@@ -117,7 +118,7 @@ async function ensureAuthorExists(db: PrismaClient, email: string, name: string,
   return author.id;
 }
 
-async function ensureAssigneeExists(db: PrismaClient, email: string, name: string, username: string): Promise<string> {
+async function ensureAssigneeExists(db: DbClient, email: string, name: string, username: string): Promise<string> {
   const assignee = await db.contributor.upsert({
     where: {
       provider_email: {
@@ -136,8 +137,8 @@ async function ensureAssigneeExists(db: PrismaClient, email: string, name: strin
   return assignee.id;
 }
 
-async function upsertPullRequest(db: PrismaClient, repoId: string, transformedPR: TransformedPullRequest, authorId: string, assigneeId?: string): Promise<void> {
-  await db.mergeRequest.upsert({
+async function upsertPullRequest(db: DbClient, repoId: string, transformedPR: TransformedPullRequest, authorId: string, assigneeId?: string): Promise<void> {
+  await db.pullRequest.upsert({
     where: {
       repositoryId_number: {
         repositoryId: repoId,
@@ -177,7 +178,7 @@ async function upsertPullRequest(db: PrismaClient, repoId: string, transformedPR
   });
 }
 
-async function storePullRequests(db: PrismaClient, repoId: string, prs: GitHubPullRequest[]): Promise<number> {
+async function storePullRequests(db: DbClient, repoId: string, prs: GitHubPullRequest[]): Promise<number> {
   let successCount = 0;
 
   for (const pr of prs) {
@@ -202,7 +203,7 @@ async function storePullRequests(db: PrismaClient, repoId: string, prs: GitHubPu
 
 async function processRepositoryPullRequests(
   octokit: Octokit,
-  db: PrismaClient,
+  db: DbClient,
   repo: { id: string; fullName: string },
   startDate: Date,
   endDate: Date,
@@ -222,7 +223,7 @@ async function processRepositoryPullRequests(
   }
 }
 
-async function logPullRequestErrors(db: PrismaClient, runId: string, errors: string[]): Promise<void> {
+async function logPullRequestErrors(db: DbClient, runId: string, errors: string[]): Promise<void> {
   if (errors.length === 0) return;
 
   await Promise.all(
@@ -259,7 +260,7 @@ interface TransformedPullRequest {
   number: number;
   title: string;
   description: string | null | undefined;
-  state: MergeRequestState;
+  state: PullRequestState;
   authorEmail: string;
   authorName: string;
   assigneeEmail?: string;

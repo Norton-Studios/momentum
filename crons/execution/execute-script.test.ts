@@ -26,7 +26,9 @@ describe("executeScript", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    mockDb = {} as PrismaClient;
+    mockDb = {
+      $transaction: vi.fn((fn) => fn(mockDb)),
+    } as unknown as PrismaClient;
   });
 
   it("should skip if lock cannot be acquired", async () => {

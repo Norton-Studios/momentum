@@ -74,7 +74,7 @@ enum VcsProvider {
   @@schema("vcs")
 }
 
-enum MergeRequestState {
+enum PullRequestState {
   OPEN
   MERGED
   CLOSED
@@ -112,7 +112,7 @@ model Repository {
 
   // Relationships
   commits         Commit[]
-  mergeRequests   MergeRequest[]
+  pullRequests    PullRequest[]
   pipelines       Pipeline[]
   qualityScans    QualityScan[]
   vulnerabilities SecurityVulnerability[]
@@ -141,9 +141,9 @@ model Contributor {
   // Relationships
   user                      User?                       @relation(fields: [userId], references: [id], onDelete: SetNull)
   commits                   Commit[]
-  authoredMergeRequests     MergeRequest[]              @relation("MergeRequestAuthor")
-  assignedMergeRequests     MergeRequest[]              @relation("MergeRequestAssignee")
-  reviews                   MergeRequestReview[]
+  authoredPullRequests      PullRequest[]               @relation("PullRequestAuthor")
+  assignedPullRequests      PullRequest[]               @relation("PullRequestAssignee")
+  reviews                   PullRequestReview[]
   assignedIssues            Issue[]                     @relation("IssueAssignee")
   reportedIssues            Issue[]                     @relation("IssueReporter")
 
@@ -181,33 +181,33 @@ model Commit {
   @@schema("vcs")
 }
 
-model MergeRequest {
-  id                String             @id @default(cuid())
-  number            Int                @map("number")
-  title             String             @map("title")
-  description       String?            @map("description")
-  state             MergeRequestState  @map("state")
-  authorId          String             @map("author_id")
-  assigneeId        String?            @map("assignee_id")
-  repositoryId      String             @map("repository_id")
-  sourceBranch      String             @map("source_branch")
-  targetBranch      String             @map("target_branch")
-  url               String             @map("url")
-  linesAdded        Int                @default(0) @map("lines_added")
-  linesRemoved      Int                @default(0) @map("lines_removed")
-  filesChanged      Int                @default(0) @map("files_changed")
-  commitsCount      Int                @default(0) @map("commits_count")
-  iterationCount    Int                @default(0) @map("iteration_count")
-  createdAt         DateTime           @default(now()) @map("created_at")
-  updatedAt         DateTime           @updatedAt @map("updated_at")
-  mergedAt          DateTime?          @map("merged_at")
-  closedAt          DateTime?          @map("closed_at")
+model PullRequest {
+  id                String            @id @default(cuid())
+  number            Int               @map("number")
+  title             String            @map("title")
+  description       String?           @map("description")
+  state             PullRequestState  @map("state")
+  authorId          String            @map("author_id")
+  assigneeId        String?           @map("assignee_id")
+  repositoryId      String            @map("repository_id")
+  sourceBranch      String            @map("source_branch")
+  targetBranch      String            @map("target_branch")
+  url               String            @map("url")
+  linesAdded        Int               @default(0) @map("lines_added")
+  linesRemoved      Int               @default(0) @map("lines_removed")
+  filesChanged      Int               @default(0) @map("files_changed")
+  commitsCount      Int               @default(0) @map("commits_count")
+  iterationCount    Int               @default(0) @map("iteration_count")
+  createdAt         DateTime          @default(now()) @map("created_at")
+  updatedAt         DateTime          @updatedAt @map("updated_at")
+  mergedAt          DateTime?         @map("merged_at")
+  closedAt          DateTime?         @map("closed_at")
 
   // Relationships
-  author     Contributor          @relation("MergeRequestAuthor", fields: [authorId], references: [id], onDelete: Cascade)
-  assignee   Contributor?         @relation("MergeRequestAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
-  repository Repository           @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
-  reviews    MergeRequestReview[]
+  author     Contributor         @relation("PullRequestAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  assignee   Contributor?        @relation("PullRequestAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
+  repository Repository          @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
+  reviews    PullRequestReview[]
 
   @@unique([repositoryId, number])
   @@index([authorId])
@@ -216,29 +216,29 @@ model MergeRequest {
   @@index([state])
   @@index([createdAt])
   @@index([mergedAt])
-  @@map("merge_request")
+  @@map("pull_request")
   @@schema("vcs")
 }
 
-model MergeRequestReview {
-  id             String         @id @default(cuid())
-  mergeRequestId String         @map("merge_request_id")
-  reviewerId     String         @map("reviewer_id")
-  state          ReviewState    @map("state")
-  body           String?        @map("body")
-  commentsCount  Int            @default(0) @map("comments_count")
-  submittedAt    DateTime       @map("submitted_at")
-  createdAt      DateTime       @default(now()) @map("created_at")
-  updatedAt      DateTime       @updatedAt @map("updated_at")
+model PullRequestReview {
+  id            String      @id @default(cuid())
+  pullRequestId String      @map("pull_request_id")
+  reviewerId    String      @map("reviewer_id")
+  state         ReviewState @map("state")
+  body          String?     @map("body")
+  commentsCount Int         @default(0) @map("comments_count")
+  submittedAt   DateTime    @map("submitted_at")
+  createdAt     DateTime    @default(now()) @map("created_at")
+  updatedAt     DateTime    @updatedAt @map("updated_at")
 
   // Relationships
-  mergeRequest MergeRequest @relation(fields: [mergeRequestId], references: [id], onDelete: Cascade)
-  reviewer     Contributor  @relation(fields: [reviewerId], references: [id], onDelete: Cascade)
+  pullRequest PullRequest @relation(fields: [pullRequestId], references: [id], onDelete: Cascade)
+  reviewer    Contributor @relation(fields: [reviewerId], references: [id], onDelete: Cascade)
 
-  @@index([mergeRequestId])
+  @@index([pullRequestId])
   @@index([reviewerId])
   @@index([submittedAt])
-  @@map("merge_request_review")
+  @@map("pull_request_review")
   @@schema("vcs")
 }
 

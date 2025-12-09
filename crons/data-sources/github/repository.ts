@@ -1,6 +1,6 @@
 import type { ExecutionContext } from "@crons/orchestrator/script-loader.js";
 import { Octokit } from "@octokit/rest";
-import type { PrismaClient } from "@prisma/client";
+import type { DbClient } from "~/db.server.js";
 
 export const repositoryScript = {
   dataSourceName: "GITHUB",
@@ -8,7 +8,7 @@ export const repositoryScript = {
   dependsOn: [],
   importWindowDays: 365,
 
-  async run(db: PrismaClient, context: ExecutionContext) {
+  async run(db: DbClient, context: ExecutionContext) {
     const octokit = new Octokit({ auth: context.env.GITHUB_TOKEN });
     const repos = await fetchAllRepositories(octokit, context.env.GITHUB_ORG);
     await upsertRepositories(db, repos, context.runId, context.id);
@@ -23,7 +23,7 @@ async function fetchAllRepositories(octokit: Octokit, org: string) {
   return allRepos;
 }
 
-async function upsertRepositories(db: PrismaClient, repos: Awaited<ReturnType<typeof fetchAllRepositories>>, runId: string, dataSourceId: string) {
+async function upsertRepositories(db: DbClient, repos: Awaited<ReturnType<typeof fetchAllRepositories>>, runId: string, dataSourceId: string) {
   await Promise.all(
     repos.map((repo) =>
       db.repository.upsert({

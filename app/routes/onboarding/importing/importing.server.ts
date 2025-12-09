@@ -1,7 +1,7 @@
-import { runOrchestrator } from "@crons/orchestrator/runner.js";
 import { type ActionFunctionArgs, data, type LoaderFunctionArgs, redirect } from "react-router";
 import { requireAdmin } from "~/auth/auth.server";
 import { db } from "~/db.server";
+import { triggerImport } from "~/lib/import/trigger-import";
 
 const SCRIPT_RESOURCES = ["repository", "contributor", "commit", "pull-request", "project", "issue", "pipeline", "pipeline-run"] as const;
 
@@ -16,7 +16,13 @@ export async function importingLoader({ request }: LoaderFunctionArgs) {
     return redirect("/onboarding/datasources");
   }
 
-  const latestBatch = await db.importBatch.findFirst({
+  const repositoryCount = await db.repository.count({
+    where: { isEnabled: true },
+  });
+
+  // Check if an import is running or recently completed
+  const currentBatch = await db.importBatch.findFirst({
+    where: { status: "RUNNING" },
     orderBy: { createdAt: "desc" },
     include: {
       runs: {
@@ -34,26 +40,21 @@ export async function importingLoader({ request }: LoaderFunctionArgs) {
     },
   });
 
-  const repositoryCount = await db.repository.count({
-    where: { isEnabled: true },
-  });
-
-  const importStatus = buildImportStatus(dataSources, latestBatch?.runs ?? []);
-  const isImportRunning = latestBatch?.status === "RUNNING";
-  const hasStartedImport = latestBatch !== null;
+  const importStatus = buildImportStatus(dataSources, currentBatch?.runs ?? []);
+  const isImportRunning = currentBatch?.status === "RUNNING";
 
   return data({
     dataSources: importStatus,
     repositoryCount,
     isImportRunning,
-    hasStartedImport,
-    currentBatch: latestBatch
+    hasStartedImport: !!currentBatch,
+    currentBatch: currentBatch
       ? {
-          id: latestBatch.id,
-          status: latestBatch.status,
-          totalScripts: latestBatch.totalScripts,
-          completedScripts: latestBatch.completedScripts,
-          failedScripts: latestBatch.failedScripts,
+          id: currentBatch.id,
+          status: currentBatch.status,
+          totalScripts: currentBatch.totalScripts,
+          completedScripts: currentBatch.completedScripts,
+          failedScripts: currentBatch.failedScripts,
         }
       : null,
   });
@@ -65,39 +66,35 @@ export async function importingAction({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
   const intent = formData.get("intent");
 
-  if (intent === "start-import") {
-    console.log("[importing] start-import action triggered");
-
-    const runningBatch = await db.importBatch.findFirst({
-      where: { status: "RUNNING" },
-    });
-
-    if (runningBatch) {
-      console.log("[importing] Found existing running batch:", runningBatch.id);
-      return data({ success: true, batchId: runningBatch.id });
-    }
-
-    console.log("[importing] Starting orchestrator...");
-    runOrchestrator(db, { triggeredBy: user.id })
-      .then((result) => {
-        console.log(`[importing] Import completed: batch=${result.batchId}, ${result.scriptsExecuted} executed, ${result.scriptsFailed} failed`);
-      })
-      .catch((error) => {
-        console.error("[importing] Import failed:", error);
-      });
-
-    console.log("[importing] Waiting for batch creation...");
-    const batchId = await waitForBatchCreation();
-    console.log("[importing] Batch ID after wait:", batchId);
-
-    return data({ success: true, batchId });
-  }
-
   if (intent === "continue") {
     return redirect("/onboarding/complete");
   }
 
+  if (intent === "start-import") {
+    return handleStartImport(user.id);
+  }
+
   return data({ error: "Invalid intent" }, { status: 400 });
+}
+
+async function handleStartImport(userId: string) {
+  const result = await triggerImport(userId);
+
+  if (result.status === "already_running") {
+    return data({ success: true, batchId: result.batchId });
+  }
+
+  if (result.status === "no_data_sources") {
+    return data({ success: true, batchId: undefined });
+  }
+
+  // Poll for the newly created batch (fire-and-forget orchestrator creates it async)
+  const newBatch = await db.importBatch.findFirst({
+    where: { status: "RUNNING" },
+    orderBy: { createdAt: "desc" },
+  });
+
+  return data({ success: true, batchId: newBatch?.id });
 }
 
 function buildImportStatus(dataSources: DataSourceBasic[], runs: RunWithDataSource[]) {
@@ -129,23 +126,6 @@ function buildImportStatus(dataSources: DataSourceBasic[], runs: RunWithDataSour
       tasks,
     };
   });
-}
-
-async function waitForBatchCreation(maxAttempts = 10, delayMs = 100): Promise<string | null> {
-  for (let i = 0; i < maxAttempts; i++) {
-    const batch = await db.importBatch.findFirst({
-      where: { status: "RUNNING" },
-      orderBy: { createdAt: "desc" },
-    });
-
-    if (batch) {
-      return batch.id;
-    }
-
-    await new Promise((resolve) => setTimeout(resolve, delayMs));
-  }
-
-  return null;
 }
 
 function getTaskStatus(run: { status: string } | undefined): "pending" | "running" | "completed" | "failed" {

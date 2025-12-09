@@ -8,7 +8,7 @@ describe("gitlab scripts", () => {
 
   it("should export scripts in correct dependency order", () => {
     const scriptNames = scripts.map((s) => s.resource);
-    expect(scriptNames).toEqual(["repository", "contributor", "project", "commit", "merge-request", "issue", "pipeline", "pipeline-run"]);
+    expect(scriptNames).toEqual(["repository", "contributor", "project", "commit", "pull-request", "issue", "pipeline", "pipeline-run"]);
   });
 
   it("should have all scripts with GITLAB dataSourceName", () => {
@@ -37,9 +37,9 @@ describe("gitlab scripts", () => {
     expect(commitScript?.dependsOn).toEqual(["repository", "contributor"]);
   });
 
-  it("should have merge-request script depending on repository and contributor", () => {
-    const mergeRequestScript = scripts.find((s) => s.resource === "merge-request");
-    expect(mergeRequestScript?.dependsOn).toEqual(["repository", "contributor"]);
+  it("should have pull-request script depending on repository and contributor", () => {
+    const pullRequestScript = scripts.find((s) => s.resource === "pull-request");
+    expect(pullRequestScript?.dependsOn).toEqual(["repository", "contributor"]);
   });
 
   it("should have issue script depending on repository, contributor, and project", () => {

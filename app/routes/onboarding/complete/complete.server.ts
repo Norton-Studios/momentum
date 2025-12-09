@@ -34,7 +34,7 @@ export async function completeLoader({ request }: LoaderFunctionArgs) {
   });
 
   const commits = await db.commit.count();
-  const mergeRequests = await db.mergeRequest.count();
+  const pullRequests = await db.pullRequest.count();
   const contributors = await db.contributor.count();
 
   const dataSourcesSummary = dataSources.map((ds) => ({
@@ -48,7 +48,7 @@ export async function completeLoader({ request }: LoaderFunctionArgs) {
     summary: {
       repositories,
       commits,
-      mergeRequests,
+      pullRequests,
       contributors,
     },
   });

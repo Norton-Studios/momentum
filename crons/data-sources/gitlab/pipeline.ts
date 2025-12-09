@@ -1,6 +1,6 @@
 import type { ExecutionContext } from "@crons/orchestrator/script-loader.js";
 import { Gitlab } from "@gitbeaker/rest";
-import type { PrismaClient } from "@prisma/client";
+import type { DbClient } from "~/db.server.js";
 
 export const pipelineScript = {
   dataSourceName: "GITLAB",
@@ -8,7 +8,7 @@ export const pipelineScript = {
   dependsOn: ["repository"],
   importWindowDays: 365,
 
-  async run(db: PrismaClient, context: ExecutionContext) {
+  async run(db: DbClient, context: ExecutionContext) {
     const gitlab = new Gitlab({ token: context.env.GITLAB_TOKEN, host: context.env.GITLAB_HOST || "https://gitlab.com" });
 
     const repos = await db.repository.findMany({
@@ -57,7 +57,7 @@ async function checkProjectHasPipelines(gitlab: InstanceType<typeof Gitlab>, pro
   return pipelines.length > 0;
 }
 
-async function upsertPipeline(db: PrismaClient, repoId: string, repoFullName: string, hasPipelines: boolean): Promise<void> {
+async function upsertPipeline(db: DbClient, repoId: string, repoFullName: string, hasPipelines: boolean): Promise<void> {
   const configPath = ".gitlab-ci.yml";
 
   const existing = await db.pipeline.findFirst({
@@ -88,11 +88,7 @@ async function upsertPipeline(db: PrismaClient, repoId: string, repoFullName: st
   }
 }
 
-async function processRepositoryPipeline(
-  gitlab: InstanceType<typeof Gitlab>,
-  db: PrismaClient,
-  repo: { id: string; fullName: string }
-): Promise<{ count: number; error?: string }> {
+async function processRepositoryPipeline(gitlab: InstanceType<typeof Gitlab>, db: DbClient, repo: { id: string; fullName: string }): Promise<{ count: number; error?: string }> {
   try {
     const project = await gitlab.Projects.show(repo.fullName);
     const hasPipelines = await checkProjectHasPipelines(gitlab, project.id);

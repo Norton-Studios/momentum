@@ -28,7 +28,7 @@ vi.mock("~/db.server", () => ({
     commit: {
       count: vi.fn(),
     },
-    mergeRequest: {
+    pullRequest: {
       count: vi.fn(),
     },
     contributor: {
@@ -51,7 +51,7 @@ describe("completeLoader", () => {
     vi.mocked(db.organization.findFirst).mockResolvedValue(null);
 
     const request = new Request("http://localhost/onboarding/complete");
-    const response = await completeLoader({ request, params: {}, context: {} });
+    const response = (await completeLoader({ request, params: {}, context: {} } as never)) as unknown as Response;
 
     expect(response.status).toBe(302);
     expect(response.headers.get("Location")).toBe("/onboarding/datasources");
@@ -64,11 +64,11 @@ describe("completeLoader", () => {
     vi.mocked(db.dataSource.findMany).mockResolvedValue([]);
     vi.mocked(db.repository.count).mockResolvedValue(10);
     vi.mocked(db.commit.count).mockResolvedValue(100);
-    vi.mocked(db.mergeRequest.count).mockResolvedValue(50);
+    vi.mocked(db.pullRequest.count).mockResolvedValue(50);
     vi.mocked(db.contributor.count).mockResolvedValue(5);
 
     const request = new Request("http://localhost/onboarding/complete");
-    await completeLoader({ request, params: {}, context: {} });
+    await completeLoader({ request, params: {}, context: {} } as never);
 
     expect(db.organization.update).toHaveBeenCalledWith({
       where: { id: "org-1" },
@@ -83,11 +83,11 @@ describe("completeLoader", () => {
     vi.mocked(db.dataSource.findMany).mockResolvedValue([{ id: "ds-1", provider: "GITHUB", name: "GitHub", configs: [{ key: "GITHUB_ORG", value: "my-org" }] }] as never);
     vi.mocked(db.repository.count).mockResolvedValue(10);
     vi.mocked(db.commit.count).mockResolvedValue(100);
-    vi.mocked(db.mergeRequest.count).mockResolvedValue(50);
+    vi.mocked(db.pullRequest.count).mockResolvedValue(50);
     vi.mocked(db.contributor.count).mockResolvedValue(5);
 
     const request = new Request("http://localhost/onboarding/complete");
-    const response = await completeLoader({ request, params: {}, context: {} });
+    const response = (await completeLoader({ request, params: {}, context: {} } as never)) as unknown as Response;
 
     expect(response.status).toBe(200);
     const body = await response.json();
@@ -95,7 +95,7 @@ describe("completeLoader", () => {
     expect(body.summary).toEqual({
       repositories: 10,
       commits: 100,
-      mergeRequests: 50,
+      pullRequests: 50,
       contributors: 5,
     });
     expect(body.dataSources).toHaveLength(1);
@@ -112,11 +112,11 @@ describe("completeLoader", () => {
     vi.mocked(db.dataSource.findMany).mockResolvedValue([]);
     vi.mocked(db.repository.count).mockResolvedValue(0);
     vi.mocked(db.commit.count).mockResolvedValue(0);
-    vi.mocked(db.mergeRequest.count).mockResolvedValue(0);
+    vi.mocked(db.pullRequest.count).mockResolvedValue(0);
     vi.mocked(db.contributor.count).mockResolvedValue(0);
 
     const request = new Request("http://localhost/onboarding/complete");
-    const response = await completeLoader({ request, params: {}, context: {} });
+    const response = (await completeLoader({ request, params: {}, context: {} } as never)) as unknown as Response;
 
     const body = await response.json();
     expect(body.organization.name).toBe("default-org");
@@ -133,11 +133,11 @@ describe("completeLoader", () => {
     ] as never);
     vi.mocked(db.repository.count).mockResolvedValue(0);
     vi.mocked(db.commit.count).mockResolvedValue(0);
-    vi.mocked(db.mergeRequest.count).mockResolvedValue(0);
+    vi.mocked(db.pullRequest.count).mockResolvedValue(0);
     vi.mocked(db.contributor.count).mockResolvedValue(0);
 
     const request = new Request("http://localhost/onboarding/complete");
-    const response = await completeLoader({ request, params: {}, context: {} });
+    const response = (await completeLoader({ request, params: {}, context: {} } as never)) as unknown as Response;
 
     const body = await response.json();
     expect(body.dataSources).toEqual([
@@ -154,11 +154,11 @@ describe("completeLoader", () => {
     vi.mocked(db.dataSource.findMany).mockResolvedValue([{ id: "ds-1", provider: "GITHUB", name: "Fallback Name", configs: [] }] as never);
     vi.mocked(db.repository.count).mockResolvedValue(0);
     vi.mocked(db.commit.count).mockResolvedValue(0);
-    vi.mocked(db.mergeRequest.count).mockResolvedValue(0);
+    vi.mocked(db.pullRequest.count).mockResolvedValue(0);
     vi.mocked(db.contributor.count).mockResolvedValue(0);
 
     const request = new Request("http://localhost/onboarding/complete");
-    const response = await completeLoader({ request, params: {}, context: {} });
+    const response = (await completeLoader({ request, params: {}, context: {} } as never)) as unknown as Response;
 
     const body = await response.json();
     expect(body.dataSources[0].name).toBe("Fallback Name");

@@ -1,6 +1,6 @@
-import type { PrismaClient } from "@prisma/client";
+import type { DbClient } from "~/db.server.js";
 
-export async function calculateDateRange(db: PrismaClient, dataSourceId: string, scriptName: string, defaultWindowDays: number): Promise<{ startDate: Date; endDate: Date }> {
+export async function calculateDateRange(db: DbClient, dataSourceId: string, scriptName: string, defaultWindowDays: number): Promise<{ startDate: Date; endDate: Date }> {
   const endDate = new Date();
 
   // Find last successful run with data

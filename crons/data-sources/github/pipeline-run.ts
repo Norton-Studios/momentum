@@ -1,6 +1,7 @@
 import type { ExecutionContext } from "@crons/orchestrator/script-loader.js";
 import { Octokit } from "@octokit/rest";
-import type { PipelineStatus, PrismaClient } from "@prisma/client";
+import type { PipelineStatus } from "@prisma/client";
+import type { DbClient } from "~/db.server.js";
 
 export const pipelineRunScript = {
   dataSourceName: "GITHUB",
@@ -8,7 +9,7 @@ export const pipelineRunScript = {
   dependsOn: ["repository", "pipeline"],
   importWindowDays: 90,
 
-  async run(db: PrismaClient, context: ExecutionContext) {
+  async run(db: DbClient, context: ExecutionContext) {
     const octokit = new Octokit({ auth: context.env.GITHUB_TOKEN });
 
     const repos = await db.repository.findMany({
@@ -103,7 +104,7 @@ function calculateDuration(startedAt: string | null, completedAt: string | null)
   return new Date(completedAt).getTime() - new Date(startedAt).getTime();
 }
 
-async function findPipelineByConfigPath(db: PrismaClient, repoId: string, workflowPath: string): Promise<string | null> {
+async function findPipelineByConfigPath(db: DbClient, repoId: string, workflowPath: string): Promise<string | null> {
   const pipeline = await db.pipeline.findFirst({
     where: {
       repositoryId: repoId,
@@ -114,7 +115,7 @@ async function findPipelineByConfigPath(db: PrismaClient, repoId: string, workfl
   return pipeline?.id ?? null;
 }
 
-async function upsertPipelineRun(db: PrismaClient, pipelineId: string, run: GitHubWorkflowRun): Promise<string> {
+async function upsertPipelineRun(db: DbClient, pipelineId: string, run: GitHubWorkflowRun): Promise<string> {
   const status = mapGitHubStatusToPipelineStatus(run.status, run.conclusion);
   const durationMs = calculateDuration(run.run_started_at, run.updated_at);
 
@@ -161,7 +162,7 @@ async function upsertPipelineRun(db: PrismaClient, pipelineId: string, run: GitH
   return created.id;
 }
 
-async function upsertPipelineStages(db: PrismaClient, pipelineRunId: string, jobs: GitHubJob[]): Promise<void> {
+async function upsertPipelineStages(db: DbClient, pipelineRunId: string, jobs: GitHubJob[]): Promise<void> {
   for (const job of jobs) {
     const status = mapGitHubStatusToPipelineStatus(job.status, job.conclusion);
     const durationMs = calculateDuration(job.started_at, job.completed_at);
@@ -200,7 +201,7 @@ async function upsertPipelineStages(db: PrismaClient, pipelineRunId: string, job
 
 async function processRepositoryPipelineRuns(
   octokit: Octokit,
-  db: PrismaClient,
+  db: DbClient,
   repo: { id: string; fullName: string },
   startDate: Date,
   endDate: Date
@@ -239,7 +240,7 @@ async function processRepositoryPipelineRuns(
   }
 }
 
-async function logPipelineRunErrors(db: PrismaClient, runId: string, errors: string[]): Promise<void> {
+async function logPipelineRunErrors(db: DbClient, runId: string, errors: string[]): Promise<void> {
   if (errors.length === 0) return;
 
   await Promise.all(

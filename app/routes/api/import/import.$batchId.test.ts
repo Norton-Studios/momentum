@@ -32,7 +32,7 @@ describe("import batch loader", () => {
 
   it("returns 400 when batchId is missing", async () => {
     const request = new Request("http://localhost/api/import/");
-    const response = await loader({ request, params: {}, context: {} });
+    const response = (await loader({ request, params: {}, context: {} } as never)) as unknown as Response;
 
     expect(response.status).toBe(400);
     const body = await response.json();
@@ -43,7 +43,7 @@ describe("import batch loader", () => {
     vi.mocked(db.importBatch.findUnique).mockResolvedValue(null);
 
     const request = new Request("http://localhost/api/import/nonexistent");
-    const response = await loader({ request, params: { batchId: "nonexistent" }, context: {} });
+    const response = (await loader({ request, params: { batchId: "nonexistent" }, context: {} } as never)) as unknown as Response;
 
     expect(response.status).toBe(404);
     const body = await response.json();
@@ -93,7 +93,7 @@ describe("import batch loader", () => {
     vi.mocked(db.importBatch.findUnique).mockResolvedValue(mockBatch as never);
 
     const request = new Request("http://localhost/api/import/batch-1");
-    const response = await loader({ request, params: { batchId: "batch-1" }, context: {} });
+    const response = (await loader({ request, params: { batchId: "batch-1" }, context: {} } as never)) as unknown as Response;
 
     expect(response.status).toBe(200);
     const body = await response.json();
@@ -122,7 +122,7 @@ describe("import batch loader", () => {
     vi.mocked(db.importBatch.findUnique).mockResolvedValue(mockBatch as never);
 
     const request = new Request("http://localhost/api/import/batch-1");
-    const response = await loader({ request, params: { batchId: "batch-1" }, context: {} });
+    const response = (await loader({ request, params: { batchId: "batch-1" }, context: {} } as never)) as unknown as Response;
 
     const body = await response.json();
     expect(body.startedAt).toBe("2024-01-01T10:00:00.000Z");

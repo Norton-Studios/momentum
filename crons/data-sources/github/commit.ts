@@ -1,6 +1,6 @@
 import type { ExecutionContext } from "@crons/orchestrator/script-loader.js";
 import { Octokit } from "@octokit/rest";
-import type { PrismaClient } from "@prisma/client";
+import type { DbClient } from "~/db.server.js";
 
 export const commitScript = {
   dataSourceName: "GITHUB",
@@ -8,7 +8,7 @@ export const commitScript = {
   dependsOn: ["repository", "contributor"],
   importWindowDays: 90,
 
-  async run(db: PrismaClient, context: ExecutionContext) {
+  async run(db: DbClient, context: ExecutionContext) {
     const octokit = new Octokit({ auth: context.env.GITHUB_TOKEN });
 
     const repos = await db.repository.findMany({
@@ -83,7 +83,7 @@ async function fetchCommitsForRepository(octokit: Octokit, owner: string, repoNa
   return allCommits;
 }
 
-async function ensureContributorExists(db: PrismaClient, email: string, name: string): Promise<string> {
+async function ensureContributorExists(db: DbClient, email: string, name: string): Promise<string> {
   const contributor = await db.contributor.upsert({
     where: {
       provider_email: {
@@ -102,7 +102,7 @@ async function ensureContributorExists(db: PrismaClient, email: string, name: st
   return contributor.id;
 }
 
-async function upsertCommit(db: PrismaClient, repoId: string, transformedCommit: TransformedCommit, authorId: string): Promise<void> {
+async function upsertCommit(db: DbClient, repoId: string, transformedCommit: TransformedCommit, authorId: string): Promise<void> {
   await db.commit.upsert({
     where: {
       repositoryId_sha: {
@@ -129,7 +129,7 @@ async function upsertCommit(db: PrismaClient, repoId: string, transformedCommit:
   });
 }
 
-async function storeCommits(db: PrismaClient, repoId: string, transformedCommits: TransformedCommit[]): Promise<number> {
+async function storeCommits(db: DbClient, repoId: string, transformedCommits: TransformedCommit[]): Promise<number> {
   let successCount = 0;
 
   for (const commit of transformedCommits) {
@@ -147,7 +147,7 @@ async function storeCommits(db: PrismaClient, repoId: string, transformedCommits
 
 async function processRepositoryCommits(
   octokit: Octokit,
-  db: PrismaClient,
+  db: DbClient,
   repo: { id: string; fullName: string },
   startDate: Date,
   endDate: Date
@@ -169,7 +169,7 @@ async function processRepositoryCommits(
   }
 }
 
-async function logCommitErrors(db: PrismaClient, runId: string, errors: string[]): Promise<void> {
+async function logCommitErrors(db: DbClient, runId: string, errors: string[]): Promise<void> {
   if (errors.length === 0) return;
 
   await Promise.all(

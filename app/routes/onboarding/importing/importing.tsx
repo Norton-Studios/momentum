@@ -1,8 +1,8 @@
-import { useCallback, useEffect, useState } from "react";
-import { Form, useActionData, useLoaderData } from "react-router";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Form, useFetcher, useLoaderData } from "react-router";
 import { Button } from "../../../components/button/button";
 import { Logo } from "../../../components/logo/logo";
-import type { importingAction, importingLoader } from "./importing.server";
+import type { importingLoader } from "./importing.server";
 import "./importing.css";
 
 export { importingAction as action, importingLoader as loader } from "./importing.server";
@@ -22,18 +22,34 @@ const POLLING_INTERVAL_MS = 3000;
 
 export default function Importing() {
   const loaderData = useLoaderData<typeof importingLoader>();
-  const actionData = useActionData<typeof importingAction>();
   const [batchStatus, setBatchStatus] = useState<BatchStatus | null>(null);
   const [isPolling, setIsPolling] = useState(loaderData.isImportRunning);
+  const startImportFetcher = useFetcher();
+  const hasTriggeredImport = useRef(false);
 
-  const batchId = actionData?.batchId ?? loaderData.currentBatch?.id;
-  const hasStartedImport = loaderData.hasStartedImport || !!actionData?.batchId;
+  const batchId = batchStatus?.id ?? loaderData.currentBatch?.id;
+
+  // Auto-trigger import if not started
+  useEffect(() => {
+    if (!loaderData.hasStartedImport && !hasTriggeredImport.current && startImportFetcher.state === "idle") {
+      hasTriggeredImport.current = true;
+      startImportFetcher.submit({ intent: "start-import" }, { method: "post" });
+    }
+  }, [loaderData.hasStartedImport, startImportFetcher]);
+
+  // When import is triggered, start polling
+  useEffect(() => {
+    if (startImportFetcher.data && "batchId" in startImportFetcher.data) {
+      setIsPolling(true);
+    }
+  }, [startImportFetcher.data]);
 
   const pollBatchStatus = useCallback(async () => {
-    if (!batchId) return;
+    const currentBatchId = batchId ?? (startImportFetcher.data as { batchId?: string } | undefined)?.batchId;
+    if (!currentBatchId) return;
 
     try {
-      const response = await fetch(`/api/import/${batchId}`);
+      const response = await fetch(`/api/import/${currentBatchId}`);
       if (response.ok) {
         const data = await response.json();
         setBatchStatus(data);
@@ -45,21 +61,21 @@ export default function Importing() {
     } catch (error) {
       console.error("Failed to poll batch status:", error);
     }
-  }, [batchId]);
+  }, [batchId, startImportFetcher.data]);
 
+  // Start polling immediately if import is running
   useEffect(() => {
-    if (actionData?.batchId && !isPolling) {
-      setIsPolling(true);
+    if (loaderData.isImportRunning && batchId) {
       pollBatchStatus();
     }
-  }, [actionData?.batchId, isPolling, pollBatchStatus]);
+  }, [loaderData.isImportRunning, batchId, pollBatchStatus]);
 
   useEffect(() => {
-    if (!isPolling || !batchId) return;
+    if (!isPolling) return;
 
     const interval = setInterval(pollBatchStatus, POLLING_INTERVAL_MS);
     return () => clearInterval(interval);
-  }, [isPolling, batchId, pollBatchStatus]);
+  }, [isPolling, pollBatchStatus]);
 
   const dataSources = batchStatus ? buildDataSourcesFromBatch(loaderData.dataSources, batchStatus.runs) : loaderData.dataSources;
   const isImportRunning = batchStatus ? batchStatus.status === "RUNNING" : loaderData.isImportRunning;
@@ -96,12 +112,8 @@ export default function Importing() {
 
       <main className="onboarding-main">
         <div className="page-header">
-          <h1>{hasStartedImport ? "Import in Progress" : "Start Import"}</h1>
-          <p>
-            {hasStartedImport
-              ? "Background jobs are collecting your data. You can continue to the dashboard while this runs."
-              : "Start the import process to collect data from your connected sources."}
-          </p>
+          <h1>Import in Progress</h1>
+          <p>Background jobs are collecting your data. You can continue to the dashboard while this runs.</p>
         </div>
 
         <div className="import-summary-card">
@@ -147,15 +159,6 @@ export default function Importing() {
           </div>
         ))}
 
-        {!hasStartedImport && (
-          <div className="start-import-section">
-            <Form method="post">
-              <input type="hidden" name="intent" value="start-import" />
-              <Button type="submit">Start Import</Button>
-            </Form>
-          </div>
-        )}
-
         <p className="import-note">You can safely continue to the dashboard — the import will run in the background and data will appear as it becomes available.</p>
 
         <div className="bottom-actions">
@@ -164,19 +167,15 @@ export default function Importing() {
               <>
                 <strong>{runningTasks}</strong> task{runningTasks !== 1 ? "s" : ""} running, <strong>{completedTasks}</strong> of <strong>{totalTasks}</strong> completed
               </>
-            ) : hasStartedImport ? (
-              <>
-                <strong>{completedTasks}</strong> of <strong>{totalTasks}</strong> tasks completed
-              </>
             ) : (
               <>
-                Ready to import from {dataSources.length} data source{dataSources.length !== 1 ? "s" : ""}
+                <strong>{completedTasks}</strong> of <strong>{totalTasks}</strong> tasks completed
               </>
             )}
           </div>
           <div className="action-buttons">
-            <a href="/onboarding/repositories" className="skip-link">
-              Back to Repositories
+            <a href="/onboarding/datasources" className="skip-link">
+              Back to Data Sources
             </a>
             <Form method="post">
               <input type="hidden" name="intent" value="continue" />

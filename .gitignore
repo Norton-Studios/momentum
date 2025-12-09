@@ -22,5 +22,6 @@
 # Logs
 .claude/*.log
 .claude/hooks/*.log
+.claude/settings.local.json
 
 .yarn/
