@@ -5,7 +5,7 @@
   "packageManager": "yarn@4.12.0",
   "scripts": {
     "build": "react-router build",
-    "dev": "docker compose up -d && react-router dev",
+    "dev": "docker compose up -d && npx prisma db push --skip-generate && react-router dev",
     "dev:server": "react-router dev",
     "start": "react-router-serve ./build/server/index.js",
     "typecheck": "react-router typegen && tsc",

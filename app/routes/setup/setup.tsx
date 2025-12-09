@@ -1,6 +1,5 @@
 import { type ActionFunctionArgs, Form, redirect, useActionData } from "react-router";
 import { Button } from "../../components/button/button";
-import { Logo } from "../../components/logo/logo";
 import { setupAction } from "./setup.server";
 import "./setup.css";
 import { db } from "~/db.server";
@@ -38,9 +37,10 @@ export default function Setup() {
   return (
     <div className="setup-container">
       <div className="setup-card">
-        <Logo className="setup-logo" />
         <div className="setup-header">
-          <h1>Welcome to Momentum</h1>
+          <h1 className="logo">
+            Welcome to Momentum<span>.</span>
+          </h1>
           <p>Let's set up your instance by creating an administrator account</p>
         </div>
 
