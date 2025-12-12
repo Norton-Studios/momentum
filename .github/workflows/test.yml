@@ -83,7 +83,7 @@ jobs:
         run: yarn test:coverage
 
       - name: Upload Coverage Artifacts
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         if: always()
         with:
           name: coverage-reports-${{ github.run_id }}
@@ -102,7 +102,7 @@ jobs:
           fetch-depth: 0
 
       - name: Download Coverage Artifacts
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: coverage-reports-${{ github.run_id }}
           path: coverage/
