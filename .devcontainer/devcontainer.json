@@ -4,6 +4,7 @@
   "runArgs": ["--privileged"],
   "remoteUser": "vscode",
   "mounts": [
+    "source=${localEnv:HOME}/.claude,target=/home/vscode/.claude,type=bind",
     "source=${localEnv:HOME}/.bash_history,target=/home/vscode/.bash_history,type=bind",
     "source=${localEnv:HOME}/.zsh_history,target=/home/vscode/.zsh_history,type=bind"
   ],

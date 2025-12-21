@@ -34,6 +34,18 @@ export async function datasourcesAction({ request }: ActionFunctionArgs) {
     return handleToggleRepositoriesBatchIntent(formData);
   }
 
+  if (intent === "fetch-projects") {
+    return handleFetchProjectsIntent(formData);
+  }
+
+  if (intent === "toggle-project") {
+    return handleToggleProjectIntent(formData);
+  }
+
+  if (intent === "toggle-projects-batch") {
+    return handleToggleProjectsBatchIntent(formData);
+  }
+
   if (intent === "continue") {
     return redirect("/onboarding/importing");
   }
@@ -213,6 +225,7 @@ function getProviderEnum(provider: string): DataSourceProviderEnum | null {
     jenkins: "JENKINS",
     circleci: "CIRCLECI",
     sonarqube: "SONARQUBE",
+    jira: "JIRA",
   };
   return providerMap[provider] || null;
 }
@@ -314,6 +327,10 @@ export async function testConnection(provider: string, configs: Record<string, s
     return testGitLabConnection(configs);
   }
 
+  if (provider === "jira") {
+    return testJiraConnection(configs);
+  }
+
   return { success: false, error: "Test connection not implemented for this provider" };
 }
 
@@ -349,4 +366,221 @@ async function testGitLabConnection(configs: Record<string, string>): Promise<{ 
   }
 }
 
-type DataSourceProviderEnum = "GITHUB" | "GITLAB" | "BITBUCKET" | "JENKINS" | "CIRCLECI" | "SONARQUBE";
+async function testJiraConnection(configs: Record<string, string>): Promise<{ success: boolean; error?: string }> {
+  const variant = configs.JIRA_VARIANT;
+  if (!variant) {
+    return { success: false, error: "Jira version is required" };
+  }
+
+  try {
+    const isCloud = variant === "cloud";
+    let baseUrl: string;
+    let headers: Record<string, string>;
+
+    if (isCloud) {
+      const domain = configs.JIRA_DOMAIN;
+      const email = configs.JIRA_EMAIL;
+      const apiToken = configs.JIRA_API_TOKEN;
+
+      if (!domain || !email || !apiToken) {
+        return { success: false, error: "Domain, email, and API token are required for Jira Cloud" };
+      }
+
+      baseUrl = `https://${domain}.atlassian.net`;
+      const credentials = Buffer.from(`${email}:${apiToken}`).toString("base64");
+      headers = {
+        Authorization: `Basic ${credentials}`,
+        Accept: "application/json",
+      };
+    } else {
+      const serverUrl = configs.JIRA_SERVER_URL;
+      const pat = configs.JIRA_PAT;
+
+      if (!serverUrl || !pat) {
+        return { success: false, error: "Server URL and Personal Access Token are required for Jira Data Center" };
+      }
+
+      baseUrl = serverUrl.replace(/\/$/, "");
+      headers = {
+        Authorization: `Bearer ${pat}`,
+        Accept: "application/json",
+      };
+    }
+
+    const apiVersion = isCloud ? "3" : "2";
+    const response = await fetch(`${baseUrl}/rest/api/${apiVersion}/myself`, { headers });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      return { success: false, error: `Jira API returned ${response.status}: ${errorText}` };
+    }
+
+    return { success: true };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Connection failed";
+    return { success: false, error: message };
+  }
+}
+
+async function handleFetchProjectsIntent(formData: FormData) {
+  const provider = formData.get("provider") as string;
+
+  const providerEnum = getProviderEnum(provider);
+  if (!providerEnum) {
+    return data({ error: "Invalid provider" }, { status: 400 });
+  }
+
+  const dataSource = await db.dataSource.findFirst({
+    where: {
+      provider: providerEnum,
+      isEnabled: true,
+    },
+    include: {
+      configs: true,
+    },
+  });
+
+  if (!dataSource) {
+    return data({ error: "Data source not found" }, { status: 404 });
+  }
+
+  const projectCount = await db.project.count({
+    where: { dataSourceId: dataSource.id },
+  });
+
+  if (projectCount === 0) {
+    try {
+      await initializeProjects(dataSource, provider);
+    } catch (error) {
+      console.error("Failed to initialize projects:", error);
+      return data(
+        {
+          error: `Failed to fetch projects: ${error instanceof Error ? error.message : "Unknown error"}`,
+        },
+        { status: 500 }
+      );
+    }
+  }
+
+  const projects = await db.project.findMany({
+    where: { dataSourceId: dataSource.id },
+    select: {
+      id: true,
+      name: true,
+      key: true,
+      isEnabled: true,
+    },
+    orderBy: { name: "asc" },
+  });
+
+  return data({ projects });
+}
+
+async function handleToggleProjectIntent(formData: FormData) {
+  const projectId = formData.get("projectId");
+  const isEnabled = formData.get("isEnabled") === "true";
+
+  if (typeof projectId !== "string" || !projectId) {
+    return data({ error: "Project ID is required" }, { status: 400 });
+  }
+
+  try {
+    await db.project.update({
+      where: { id: projectId },
+      data: { isEnabled },
+    });
+    return data({ success: true });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Failed to toggle project";
+    return data({ error: message }, { status: 404 });
+  }
+}
+
+async function handleToggleProjectsBatchIntent(formData: FormData) {
+  const projectIds = formData.getAll("projectIds") as string[];
+  const isEnabled = formData.get("isEnabled") === "true";
+
+  const result = await db.project.updateMany({
+    where: { id: { in: projectIds } },
+    data: { isEnabled },
+  });
+
+  return data({ success: true, count: result.count });
+}
+
+async function initializeProjects(dataSource: { id: string; provider: string; configs: Array<{ key: string; value: string }> }, provider: string) {
+  if (provider === "jira") {
+    const configMap: Record<string, string> = {};
+    for (const config of dataSource.configs) {
+      configMap[config.key] = config.value;
+    }
+
+    const projects = await fetchJiraProjects(configMap);
+    await saveJiraProjects(dataSource.id, projects);
+  }
+}
+
+async function fetchJiraProjects(configs: Record<string, string>): Promise<JiraProject[]> {
+  const variant = configs.JIRA_VARIANT;
+  const isCloud = variant === "cloud";
+
+  let baseUrl: string;
+  let headers: Record<string, string>;
+
+  if (isCloud) {
+    baseUrl = `https://${configs.JIRA_DOMAIN}.atlassian.net`;
+    const credentials = Buffer.from(`${configs.JIRA_EMAIL}:${configs.JIRA_API_TOKEN}`).toString("base64");
+    headers = {
+      Authorization: `Basic ${credentials}`,
+      Accept: "application/json",
+    };
+  } else {
+    baseUrl = configs.JIRA_SERVER_URL.replace(/\/$/, "");
+    headers = {
+      Authorization: `Bearer ${configs.JIRA_PAT}`,
+      Accept: "application/json",
+    };
+  }
+
+  const apiVersion = isCloud ? "3" : "2";
+  const response = await fetch(`${baseUrl}/rest/api/${apiVersion}/project`, { headers });
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch Jira projects: ${response.status}`);
+  }
+
+  return response.json();
+}
+
+async function saveJiraProjects(dataSourceId: string, projects: JiraProject[]) {
+  for (const project of projects) {
+    await db.project.upsert({
+      where: {
+        dataSourceId_externalId: {
+          dataSourceId,
+          externalId: project.id,
+        },
+      },
+      create: {
+        dataSourceId,
+        externalId: project.id,
+        key: project.key,
+        name: project.name,
+        provider: "JIRA",
+        isEnabled: true,
+      },
+      update: {
+        key: project.key,
+        name: project.name,
+      },
+    });
+  }
+}
+
+type DataSourceProviderEnum = "GITHUB" | "GITLAB" | "BITBUCKET" | "JENKINS" | "CIRCLECI" | "SONARQUBE" | "JIRA";
+
+interface JiraProject {
+  id: string;
+  key: string;
+  name: string;
+}

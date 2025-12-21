@@ -26,14 +26,36 @@ export const PROVIDER_CONFIGS: Record<string, ProviderConfig> = {
       { key: "SONARQUBE_TOKEN", label: "API Token", type: "password", placeholder: "xxxxxxxxxxxx", required: true },
     ],
   },
+  jira: {
+    fields: [
+      {
+        key: "JIRA_VARIANT",
+        label: "Jira Version",
+        type: "select",
+        placeholder: "",
+        required: true,
+        options: [
+          { value: "cloud", label: "Jira Cloud (SaaS)" },
+          { value: "datacenter", label: "Jira Data Center (Self-hosted)" },
+        ],
+      },
+      { key: "JIRA_DOMAIN", label: "Atlassian Domain", type: "text", placeholder: "your-company", required: true, showWhen: { JIRA_VARIANT: "cloud" } },
+      { key: "JIRA_EMAIL", label: "Email", type: "text", placeholder: "user@example.com", required: true, showWhen: { JIRA_VARIANT: "cloud" } },
+      { key: "JIRA_API_TOKEN", label: "API Token", type: "password", placeholder: "xxxxxxxxxxxx", required: true, showWhen: { JIRA_VARIANT: "cloud" } },
+      { key: "JIRA_SERVER_URL", label: "Server URL", type: "text", placeholder: "https://jira.company.com", required: true, showWhen: { JIRA_VARIANT: "datacenter" } },
+      { key: "JIRA_PAT", label: "Personal Access Token", type: "password", placeholder: "xxxxxxxxxxxx", required: true, showWhen: { JIRA_VARIANT: "datacenter" } },
+    ],
+  },
 };
 
 export interface ProviderConfigField {
   key: string;
   label: string;
-  type: "text" | "password";
+  type: "text" | "password" | "select";
   placeholder: string;
   required: boolean;
+  options?: { value: string; label: string }[];
+  showWhen?: Record<string, string>;
 }
 
 export interface ProviderConfig {

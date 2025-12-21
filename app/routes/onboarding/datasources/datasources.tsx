@@ -95,6 +95,14 @@ function SonarQubeIcon() {
   );
 }
 
+function JiraIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M11.571 11.513H0a5.218 5.218 0 0 0 5.232 5.215h2.13v2.057A5.215 5.215 0 0 0 12.575 24V12.518a1.005 1.005 0 0 0-1.005-1.005zm5.723-5.756H5.736a5.215 5.215 0 0 0 5.215 5.214h2.129v2.058a5.218 5.218 0 0 0 5.215 5.214V6.758a1.001 1.001 0 0 0-1.001-1.001zM23.013 0H11.455a5.215 5.215 0 0 0 5.215 5.215h2.129v2.057A5.215 5.215 0 0 0 24 12.483V1.005A1.001 1.001 0 0 0 23.013 0z" />
+    </svg>
+  );
+}
+
 const VCS_PROVIDERS = new Set(["github", "gitlab"]);
 
 export default function OnboardingDataSources() {
@@ -129,6 +137,7 @@ export default function OnboardingDataSources() {
       isConnected: connectedSet.has("github"),
       isRequired: true,
       isVcs: true,
+      isProjectManagement: false,
     },
     {
       id: "gitlab",
@@ -138,6 +147,7 @@ export default function OnboardingDataSources() {
       isConnected: connectedSet.has("gitlab"),
       isRequired: true,
       isVcs: true,
+      isProjectManagement: false,
     },
   ];
 
@@ -150,6 +160,7 @@ export default function OnboardingDataSources() {
       isConnected: connectedSet.has("jenkins"),
       isRequired: false,
       isVcs: false,
+      isProjectManagement: false,
     },
     {
       id: "circleci",
@@ -159,6 +170,7 @@ export default function OnboardingDataSources() {
       isConnected: connectedSet.has("circleci"),
       isRequired: false,
       isVcs: false,
+      isProjectManagement: false,
     },
   ];
 
@@ -171,6 +183,20 @@ export default function OnboardingDataSources() {
       isConnected: connectedSet.has("sonarqube"),
       isRequired: false,
       isVcs: false,
+      isProjectManagement: false,
+    },
+  ];
+
+  const projectManagementSources: DataSource[] = [
+    {
+      id: "jira",
+      name: "Jira",
+      icon: <JiraIcon />,
+      description: "Connect Jira Cloud or Data Center to track projects, sprints, issues, and status transitions. Analyze delivery velocity and cycle time metrics.",
+      isConnected: connectedSet.has("jira"),
+      isRequired: false,
+      isVcs: false,
+      isProjectManagement: true,
     },
   ];
 
@@ -290,6 +316,27 @@ export default function OnboardingDataSources() {
           </div>
         </section>
 
+        <section className="datasource-section">
+          <div className="section-header">
+            <h2 className="section-title">Project Management</h2>
+          </div>
+
+          <div className="datasource-list">
+            {projectManagementSources.map((source) => (
+              <DataSourceCard
+                key={source.id}
+                source={source}
+                isFormActive={activeForm === source.id}
+                isRepositoriesExpanded={expandedRepositories.has(source.id)}
+                onToggleForm={toggleForm}
+                onToggleRepositories={toggleRepositories}
+                actionData={actionData}
+                configs={dataSourceConfigs[source.id] || {}}
+              />
+            ))}
+          </div>
+        </section>
+
         <div className="bottom-actions">
           <div className="connection-summary">
             <strong>{hasRequiredConnections ? "1" : "0"}</strong> of 1 required connection established
@@ -315,6 +362,20 @@ function DataSourceCard({ source, isFormActive, isRepositoriesExpanded, onToggle
   const providerConfig = PROVIDER_CONFIGS[source.id];
   const testSuccess = actionData && "testSuccess" in actionData && actionData.provider === source.id;
   const testError = actionData && "testError" in actionData && actionData.provider === source.id ? actionData.testError : null;
+  const [formValues, setFormValues] = useState<Record<string, string>>(configs);
+
+  useEffect(() => {
+    setFormValues(configs);
+  }, [configs]);
+
+  const handleFieldChange = (key: string, value: string) => {
+    setFormValues((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const shouldShowField = (field: { showWhen?: Record<string, string> }): boolean => {
+    if (!field.showWhen) return true;
+    return Object.entries(field.showWhen).every(([key, value]) => formValues[key] === value);
+  };
 
   return (
     <div className={`datasource-card ${source.isConnected ? "connected" : ""}`} id={`${source.id}Card`}>
@@ -339,22 +400,44 @@ function DataSourceCard({ source, isFormActive, isRepositoriesExpanded, onToggle
         <div className="config-form active">
           <Form method="post" id={`${source.id}-form`}>
             <input type="hidden" name="provider" value={source.id} />
-            {providerConfig?.fields.map((field) => (
-              <div className="form-group" key={field.key}>
-                <label htmlFor={`${source.id}-${field.key}`}>
-                  {field.label}
-                  {field.required && <span className="required">*</span>}
-                </label>
-                <input
-                  type={field.type}
-                  id={`${source.id}-${field.key}`}
-                  name={field.key}
-                  placeholder={field.placeholder}
-                  required={field.required}
-                  defaultValue={configs[field.key] || ""}
-                />
-              </div>
-            ))}
+            {providerConfig?.fields.map((field) => {
+              if (!shouldShowField(field)) return null;
+
+              return (
+                <div className="form-group" key={field.key}>
+                  <label htmlFor={`${source.id}-${field.key}`}>
+                    {field.label}
+                    {field.required && <span className="required">*</span>}
+                  </label>
+                  {field.type === "select" && field.options ? (
+                    <select
+                      id={`${source.id}-${field.key}`}
+                      name={field.key}
+                      required={field.required}
+                      value={formValues[field.key] || ""}
+                      onChange={(e) => handleFieldChange(field.key, e.target.value)}
+                    >
+                      <option value="">Select...</option>
+                      {field.options.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    <input
+                      type={field.type}
+                      id={`${source.id}-${field.key}`}
+                      name={field.key}
+                      placeholder={field.placeholder}
+                      required={field.required}
+                      value={formValues[field.key] || ""}
+                      onChange={(e) => handleFieldChange(field.key, e.target.value)}
+                    />
+                  )}
+                </div>
+              );
+            })}
             {testSuccess && <div className="test-success">Connection successful!</div>}
             {testError && <div className="test-error">{testError}</div>}
             <div className="form-actions">
@@ -373,6 +456,9 @@ function DataSourceCard({ source, isFormActive, isRepositoriesExpanded, onToggle
       )}
 
       {source.isVcs && source.isConnected && <RepositoriesSection provider={source.id} isExpanded={isRepositoriesExpanded} onToggle={() => onToggleRepositories(source.id)} />}
+      {source.isProjectManagement && source.isConnected && (
+        <ProjectsSection provider={source.id} isExpanded={isRepositoriesExpanded} onToggle={() => onToggleRepositories(source.id)} />
+      )}
     </div>
   );
 }
@@ -519,6 +605,166 @@ function RepositoriesSection({ provider, isExpanded, onToggle }: RepositoriesSec
   );
 }
 
+function ProjectsSection({ provider, isExpanded, onToggle }: ProjectsSectionProps) {
+  const fetcher = useFetcher();
+  const [searchValue, setSearchValue] = useState("");
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [allProjects, setAllProjects] = useState<Project[]>([]);
+  const [hasInitialized, setHasInitialized] = useState(false);
+
+  useEffect(() => {
+    if (isExpanded && !hasInitialized) {
+      const formData = new FormData();
+      formData.append("intent", "fetch-projects");
+      formData.append("provider", provider);
+      fetcher.submit(formData, { method: "post" });
+      setHasInitialized(true);
+    }
+  }, [isExpanded, hasInitialized, provider, fetcher]);
+
+  useEffect(() => {
+    if (fetcher.state === "idle" && fetcher.data) {
+      const data = fetcher.data as ProjectsFetcherData;
+      if ("projects" in data) {
+        setAllProjects(data.projects);
+        const enabledIds = new Set(data.projects.filter((p) => p.isEnabled).map((p) => p.id));
+        setSelectedIds(enabledIds);
+      }
+    }
+  }, [fetcher.data, fetcher.state]);
+
+  const handleSearchChange = useCallback((value: string) => {
+    setSearchValue(value);
+  }, []);
+
+  const handleToggle = (projectId: string, isEnabled: boolean) => {
+    const formData = new FormData();
+    formData.append("intent", "toggle-project");
+    formData.append("projectId", projectId);
+    formData.append("isEnabled", String(isEnabled));
+    fetcher.submit(formData, { method: "post" });
+
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (isEnabled) {
+        next.add(projectId);
+      } else {
+        next.delete(projectId);
+      }
+      return next;
+    });
+  };
+
+  const handleSelectAll = () => {
+    const visibleIds = filteredProjects.map((p) => p.id);
+    const formData = new FormData();
+    formData.append("intent", "toggle-projects-batch");
+    for (const id of visibleIds) {
+      formData.append("projectIds", id);
+    }
+    formData.append("isEnabled", "true");
+    fetcher.submit(formData, { method: "post" });
+
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      for (const id of visibleIds) {
+        next.add(id);
+      }
+      return next;
+    });
+  };
+
+  const handleDeselectAll = () => {
+    const visibleIds = filteredProjects.map((p) => p.id);
+    const formData = new FormData();
+    formData.append("intent", "toggle-projects-batch");
+    for (const id of visibleIds) {
+      formData.append("projectIds", id);
+    }
+    formData.append("isEnabled", "false");
+    fetcher.submit(formData, { method: "post" });
+
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      for (const id of visibleIds) {
+        next.delete(id);
+      }
+      return next;
+    });
+  };
+
+  const filteredProjects = useMemo(() => {
+    if (!searchValue) return allProjects;
+    const lowerSearch = searchValue.toLowerCase();
+    return allProjects.filter((p) => p.name.toLowerCase().includes(lowerSearch) || p.key.toLowerCase().includes(lowerSearch));
+  }, [allProjects, searchValue]);
+
+  const selectedCount = selectedIds.size;
+  const isLoading = fetcher.state === "loading" || fetcher.state === "submitting";
+
+  return (
+    <div className="repositories-section">
+      <button type="button" className="repositories-toggle" onClick={onToggle}>
+        <span className={`toggle-icon ${isExpanded ? "expanded" : ""}`}>▶</span>
+        <span className="toggle-label">Projects</span>
+        {selectedCount > 0 && <span className="selection-badge">{selectedCount} selected</span>}
+      </button>
+
+      {isExpanded && (
+        <div className="repositories-content">
+          {isLoading && allProjects.length === 0 ? (
+            <div className="repositories-loading">
+              <div className="loading-skeleton">Loading projects...</div>
+            </div>
+          ) : (
+            <>
+              <div className="repositories-header">
+                <input type="text" placeholder="Search projects..." value={searchValue} onChange={(e) => handleSearchChange(e.target.value)} className="repository-search" />
+                <div className="repository-actions">
+                  <button type="button" onClick={handleSelectAll} className="btn-repo-action">
+                    Select All
+                  </button>
+                  <button type="button" onClick={handleDeselectAll} className="btn-repo-action">
+                    Deselect All
+                  </button>
+                </div>
+              </div>
+
+              <ProjectList projects={filteredProjects} selectedIds={selectedIds} onToggle={handleToggle} />
+
+              <div className="repositories-footer">
+                <span className="selection-count">
+                  {selectedCount} of {allProjects.length} projects selected
+                </span>
+              </div>
+            </>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ProjectList({ projects, selectedIds, onToggle }: ProjectListProps) {
+  if (projects.length === 0) {
+    return <div className="repository-list-empty">No projects found</div>;
+  }
+
+  return (
+    <div className="repository-list">
+      {projects.map((project) => (
+        <label key={project.id} className="repository-item">
+          <input type="checkbox" checked={selectedIds.has(project.id)} onChange={(e) => onToggle(project.id, e.target.checked)} />
+          <div className="repository-info">
+            <span className="repository-name">{project.name}</span>
+            <span className="repository-fullname">{project.key}</span>
+          </div>
+        </label>
+      ))}
+    </div>
+  );
+}
+
 interface DataSource {
   id: string;
   name: string;
@@ -527,6 +773,7 @@ interface DataSource {
   isConnected: boolean;
   isRequired: boolean;
   isVcs: boolean;
+  isProjectManagement: boolean;
 }
 
 interface DataSourceCardProps {
@@ -549,4 +796,27 @@ interface RepositoriesFetcherData {
   repositories: Repository[];
   totalCount: number;
   nextCursor?: string;
+}
+
+interface ProjectsSectionProps {
+  provider: string;
+  isExpanded: boolean;
+  onToggle: () => void;
+}
+
+interface Project {
+  id: string;
+  name: string;
+  key: string;
+  isEnabled: boolean;
+}
+
+interface ProjectListProps {
+  projects: Project[];
+  selectedIds: Set<string>;
+  onToggle: (projectId: string, isEnabled: boolean) => void;
+}
+
+interface ProjectsFetcherData {
+  projects: Project[];
 }
