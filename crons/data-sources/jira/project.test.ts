@@ -156,4 +156,170 @@ describe("projectScript", () => {
       })
     );
   });
+
+  it("should handle errors for individual projects and continue", async () => {
+    const mockProjects = [
+      { id: "10001", key: "PROJ1", name: "Project 1" },
+      { id: "10002", key: "PROJ2", name: "Project 2" },
+    ];
+
+    mockGetProjects.mockResolvedValue(mockProjects);
+
+    const mockDb = {
+      project: {
+        upsert: vi.fn().mockRejectedValueOnce(new Error("Database error")).mockResolvedValueOnce({}),
+      },
+      dataSourceRun: {
+        update: vi.fn().mockResolvedValue({}),
+      },
+      importLog: {
+        create: vi.fn().mockResolvedValue({}),
+      },
+    } as unknown as PrismaClient;
+
+    const context = {
+      id: "ds-123",
+      provider: "JIRA",
+      env: {
+        JIRA_VARIANT: "cloud",
+        JIRA_DOMAIN: "test",
+        JIRA_EMAIL: "user@test.com",
+        JIRA_API_TOKEN: "token",
+      },
+      startDate: new Date("2024-01-01"),
+      endDate: new Date("2024-01-31"),
+      runId: "run-123",
+    };
+
+    await projectScript.run(mockDb, context as never);
+
+    // Should still process second project
+    expect(mockDb.project.upsert).toHaveBeenCalledTimes(2);
+    expect(mockDb.dataSourceRun.update).toHaveBeenCalledWith({
+      where: { id: "run-123" },
+      data: { recordsImported: 1 },
+    });
+  });
+
+  it("should log errors when they occur", async () => {
+    const mockProjects = [{ id: "10001", key: "PROJ", name: "Test Project" }];
+
+    mockGetProjects.mockResolvedValue(mockProjects);
+
+    const mockDb = {
+      project: {
+        upsert: vi.fn().mockRejectedValue(new Error("Connection failed")),
+      },
+      dataSourceRun: {
+        update: vi.fn().mockResolvedValue({}),
+      },
+      importLog: {
+        create: vi.fn().mockResolvedValue({}),
+      },
+    } as unknown as PrismaClient;
+
+    const context = {
+      id: "ds-123",
+      provider: "JIRA",
+      env: {
+        JIRA_VARIANT: "cloud",
+        JIRA_DOMAIN: "test",
+        JIRA_EMAIL: "user@test.com",
+        JIRA_API_TOKEN: "token",
+      },
+      startDate: new Date("2024-01-01"),
+      endDate: new Date("2024-01-31"),
+      runId: "run-123",
+    };
+
+    await projectScript.run(mockDb, context as never);
+
+    expect(mockDb.importLog.create).toHaveBeenCalledWith({
+      data: {
+        dataSourceRunId: "run-123",
+        level: "ERROR",
+        message: "Failed to import project PROJ: Connection failed",
+        details: null,
+      },
+    });
+  });
+
+  it("should handle non-Error objects in catch", async () => {
+    const mockProjects = [{ id: "10001", key: "PROJ", name: "Test Project" }];
+
+    mockGetProjects.mockResolvedValue(mockProjects);
+
+    const mockDb = {
+      project: {
+        upsert: vi.fn().mockRejectedValue("String error"),
+      },
+      dataSourceRun: {
+        update: vi.fn().mockResolvedValue({}),
+      },
+      importLog: {
+        create: vi.fn().mockResolvedValue({}),
+      },
+    } as unknown as PrismaClient;
+
+    const context = {
+      id: "ds-123",
+      provider: "JIRA",
+      env: {
+        JIRA_VARIANT: "cloud",
+        JIRA_DOMAIN: "test",
+        JIRA_EMAIL: "user@test.com",
+        JIRA_API_TOKEN: "token",
+      },
+      startDate: new Date("2024-01-01"),
+      endDate: new Date("2024-01-31"),
+      runId: "run-123",
+    };
+
+    await projectScript.run(mockDb, context as never);
+
+    expect(mockDb.importLog.create).toHaveBeenCalledWith({
+      data: {
+        dataSourceRunId: "run-123",
+        level: "ERROR",
+        message: "Failed to import project PROJ: String error",
+        details: null,
+      },
+    });
+  });
+
+  it("should not log errors when none occur", async () => {
+    const mockProjects = [{ id: "10001", key: "PROJ", name: "Test Project" }];
+
+    mockGetProjects.mockResolvedValue(mockProjects);
+
+    const mockDb = {
+      project: {
+        upsert: vi.fn().mockResolvedValue({}),
+      },
+      dataSourceRun: {
+        update: vi.fn().mockResolvedValue({}),
+      },
+      importLog: {
+        create: vi.fn(),
+      },
+    } as unknown as PrismaClient;
+
+    const context = {
+      id: "ds-123",
+      provider: "JIRA",
+      env: {
+        JIRA_VARIANT: "cloud",
+        JIRA_DOMAIN: "test",
+        JIRA_EMAIL: "user@test.com",
+        JIRA_API_TOKEN: "token",
+      },
+      startDate: new Date("2024-01-01"),
+      endDate: new Date("2024-01-31"),
+      runId: "run-123",
+    };
+
+    await projectScript.run(mockDb, context as never);
+
+    expect(mockDb.importLog.create).not.toHaveBeenCalled();
+  });
 });
