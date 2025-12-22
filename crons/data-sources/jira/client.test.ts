@@ -180,12 +180,167 @@ describe("createJiraClient", () => {
       mockFetch.mockResolvedValueOnce({
         ok: false,
         status: 401,
+        statusText: "Unauthorized",
         text: async () => "Unauthorized",
       });
 
       const client = createJiraClient(cloudEnv);
 
       await expect(client.getMyself()).rejects.toThrow("Jira API error:");
+    });
+
+    it("getSprints should paginate through all sprints", async () => {
+      mockFetch
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({
+            values: [{ id: 1, name: "Sprint 1", state: "closed" }],
+            isLast: false,
+            total: 2,
+          }),
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({
+            values: [{ id: 2, name: "Sprint 2", state: "active" }],
+            isLast: true,
+            total: 2,
+          }),
+        });
+
+      const client = createJiraClient(cloudEnv);
+      const result = await client.getSprints(101);
+
+      expect(result).toHaveLength(2);
+      expect(mockFetch).toHaveBeenCalledTimes(2);
+    });
+
+    it("getAllIssues should paginate through all issues", async () => {
+      mockFetch
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({
+            issues: [{ id: "1", key: "PROJ-1" }],
+            startAt: 0,
+            maxResults: 100,
+            total: 2,
+          }),
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({
+            issues: [{ id: "2", key: "PROJ-2" }],
+            startAt: 100,
+            maxResults: 100,
+            total: 2,
+          }),
+        });
+
+      const client = createJiraClient(cloudEnv);
+      const result = await client.getAllIssues('project = "PROJ"');
+
+      expect(result).toHaveLength(2);
+      expect(mockFetch).toHaveBeenCalledTimes(2);
+    });
+
+    it("getIssueChangelog should paginate through all changelogs", async () => {
+      mockFetch
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({
+            values: [{ id: "cl-1", items: [] }],
+            isLast: false,
+            total: 2,
+          }),
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({
+            values: [{ id: "cl-2", items: [] }],
+            isLast: true,
+            total: 2,
+          }),
+        });
+
+      const client = createJiraClient(cloudEnv);
+      const result = await client.getIssueChangelog("PROJ-1");
+
+      expect(result.values).toHaveLength(2);
+      expect(mockFetch).toHaveBeenCalledTimes(2);
+    });
+
+    it("getBoards should handle pagination without total", async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          values: [{ id: 1, name: "Board 1" }],
+          isLast: true,
+        }),
+      });
+
+      const client = createJiraClient(cloudEnv);
+      const result = await client.getBoards();
+
+      expect(result).toHaveLength(1);
+    });
+
+    it("getSprints should handle pagination without total", async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          values: [{ id: 1, name: "Sprint 1", state: "active" }],
+          isLast: true,
+        }),
+      });
+
+      const client = createJiraClient(cloudEnv);
+      const result = await client.getSprints(101);
+
+      expect(result).toHaveLength(1);
+    });
+
+    it("getProjects should call /project endpoint for Data Center", async () => {
+      const dcEnv = {
+        JIRA_VARIANT: "datacenter",
+        JIRA_SERVER_URL: "https://jira.company.com",
+        JIRA_PAT: "token",
+      };
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => [{ id: "1", key: "PROJ", name: "Project" }],
+      });
+
+      const client = createJiraClient(dcEnv);
+      const result = await client.getProjects();
+
+      expect(result).toHaveLength(1);
+      expect(mockFetch).toHaveBeenCalledWith(expect.stringContaining("/rest/api/2/project"), expect.any(Object));
+    });
+
+    it("getProjectsPaginated should handle multiple pages", async () => {
+      mockFetch
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({
+            values: [{ id: "1", key: "PROJ1" }],
+            isLast: false,
+            total: 2,
+          }),
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({
+            values: [{ id: "2", key: "PROJ2" }],
+            isLast: true,
+            total: 2,
+          }),
+        });
+
+      const client = createJiraClient(cloudEnv);
+      const result = await client.getProjectsPaginated();
+
+      expect(result).toHaveLength(2);
+      expect(mockFetch).toHaveBeenCalledTimes(2);
     });
   });
 });
