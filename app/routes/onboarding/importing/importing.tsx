@@ -13,7 +13,10 @@ const TASK_LABELS: Record<string, string> = {
   commit: "Commit history",
   "pull-request": "Pull requests",
   project: "Projects",
+  board: "Boards",
+  sprint: "Sprints",
   issue: "Issues",
+  "status-transition": "Status transitions",
   pipeline: "CI/CD Pipelines",
   "pipeline-run": "Pipeline runs",
 };

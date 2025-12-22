@@ -233,6 +233,13 @@ function getProviderEnum(provider: string): DataSourceProviderEnum | null {
 function validateRequiredFields(provider: string, configs: Record<string, string>): Record<string, string> | null {
   const providerConfig = PROVIDER_CONFIGS[provider];
   for (const field of providerConfig.fields) {
+    // Skip fields that have showWhen conditions that aren't met
+    if (field.showWhen) {
+      const conditionMet = Object.entries(field.showWhen).every(([key, value]) => configs[key] === value);
+      if (!conditionMet) {
+        continue;
+      }
+    }
     if (field.required && !configs[field.key]) {
       return { [field.key]: `${field.label} is required` };
     }

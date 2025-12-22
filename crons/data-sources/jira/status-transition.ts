@@ -30,7 +30,8 @@ export const statusTransitionScript = {
     let totalTransitions = 0;
 
     for (const issue of issues) {
-      const issueKey = issue.externalId || issue.key;
+      // Use the issue key (e.g., VIBE-301) as it's more reliable across Jira versions
+      const issueKey = issue.key;
 
       try {
         const changelog = await client.getIssueChangelog(issueKey);
@@ -42,6 +43,10 @@ export const statusTransitionScript = {
           totalTransitions++;
         }
       } catch (error) {
+        // Skip 404 errors silently - issue may have been deleted or changelog unavailable
+        if (error instanceof Error && error.message.includes("404")) {
+          continue;
+        }
         const errorMessage = error instanceof Error ? error.message : String(error);
         errors.push(`Failed to import transitions for issue ${issue.key}: ${errorMessage}`);
       }

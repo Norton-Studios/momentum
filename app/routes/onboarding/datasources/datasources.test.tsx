@@ -333,10 +333,14 @@ describe("OnboardingDataSources with connected providers", () => {
   });
 });
 
-describe("OnboardingDataSources with action data", () => {
+describe("OnboardingDataSources with fetcher data", () => {
   it("shows test success message", async () => {
     const user = userEvent.setup();
-    mockUseActionData.mockReturnValue({ testSuccess: true, provider: "github" });
+    mockUseFetcher.mockReturnValue({
+      state: "idle",
+      data: { testSuccess: true, provider: "github" },
+      submit: mockFetcherSubmit,
+    });
 
     render(
       <MemoryRouter>
@@ -351,7 +355,11 @@ describe("OnboardingDataSources with action data", () => {
 
   it("shows test error message", async () => {
     const user = userEvent.setup();
-    mockUseActionData.mockReturnValue({ testError: "Invalid token", provider: "github" });
+    mockUseFetcher.mockReturnValue({
+      state: "idle",
+      data: { testError: "Invalid token", provider: "github" },
+      submit: mockFetcherSubmit,
+    });
 
     render(
       <MemoryRouter>
@@ -365,7 +373,11 @@ describe("OnboardingDataSources with action data", () => {
   });
 
   it("adds provider to connected set on successful connection", () => {
-    mockUseActionData.mockReturnValue({ success: true, provider: "gitlab" });
+    mockUseFetcher.mockReturnValue({
+      state: "idle",
+      data: { success: true, provider: "gitlab" },
+      submit: mockFetcherSubmit,
+    });
 
     render(
       <MemoryRouter>
@@ -373,6 +385,7 @@ describe("OnboardingDataSources with action data", () => {
       </MemoryRouter>
     );
 
+    // When saveSuccess is true for gitlab, the card should have connected class
     const gitlabCard = document.getElementById("gitlabCard");
     expect(gitlabCard).toHaveClass("connected");
   });

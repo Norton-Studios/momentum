@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
-import { Form, Link, useActionData, useFetcher, useLoaderData } from "react-router";
+import { Form, Link, useFetcher, useLoaderData } from "react-router";
 import { requireAdmin } from "~/auth/auth.server";
 import { type Repository, RepositoryList } from "~/components/repository-list/repository-list";
 import { db } from "~/db.server";
@@ -104,29 +104,28 @@ function JiraIcon() {
 }
 
 const VCS_PROVIDERS = new Set(["github", "gitlab"]);
+const PROJECT_MANAGEMENT_PROVIDERS = new Set(["jira"]);
 
 export default function OnboardingDataSources() {
   const { connectedProviders, dataSourceConfigs } = useLoaderData<typeof loader>();
-  const actionData = useActionData<typeof action>();
   const [activeForm, setActiveForm] = useState<string | null>(null);
   const [expandedRepositories, setExpandedRepositories] = useState<Set<string>>(new Set());
+  const [newlyConnectedProviders, setNewlyConnectedProviders] = useState<Set<string>>(new Set());
 
-  const successfulProvider = actionData && "success" in actionData && actionData.success && "provider" in actionData ? actionData.provider : null;
-  const connectedSet = new Set([...connectedProviders, ...(successfulProvider ? [successfulProvider] : [])]);
+  const connectedSet = new Set([...connectedProviders, ...newlyConnectedProviders]);
 
-  useEffect(() => {
-    if (successfulProvider) {
-      setActiveForm(null);
-      // Auto-expand repositories for VCS providers after successful connection
-      if (VCS_PROVIDERS.has(successfulProvider as string)) {
-        setExpandedRepositories((prev) => new Set([...prev, successfulProvider as string]));
-      }
-      const cardElement = document.getElementById(`${successfulProvider}Card`);
-      if (cardElement) {
-        cardElement.scrollIntoView({ behavior: "smooth", block: "nearest" });
-      }
+  const handleConnectionSuccess = useCallback((provider: string) => {
+    setNewlyConnectedProviders((prev) => new Set([...prev, provider]));
+    setActiveForm(null);
+    // Auto-expand repositories/projects after successful connection
+    if (VCS_PROVIDERS.has(provider) || PROJECT_MANAGEMENT_PROVIDERS.has(provider)) {
+      setExpandedRepositories((prev) => new Set([...prev, provider]));
     }
-  }, [successfulProvider]);
+    const cardElement = document.getElementById(`${provider}Card`);
+    if (cardElement) {
+      cardElement.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+  }, []);
 
   const versionControlSources: DataSource[] = [
     {
@@ -267,7 +266,7 @@ export default function OnboardingDataSources() {
                 isRepositoriesExpanded={expandedRepositories.has(source.id)}
                 onToggleForm={toggleForm}
                 onToggleRepositories={toggleRepositories}
-                actionData={actionData}
+                onConnectionSuccess={handleConnectionSuccess}
                 configs={dataSourceConfigs[source.id] || {}}
               />
             ))}
@@ -288,7 +287,7 @@ export default function OnboardingDataSources() {
                 isRepositoriesExpanded={false}
                 onToggleForm={toggleForm}
                 onToggleRepositories={toggleRepositories}
-                actionData={actionData}
+                onConnectionSuccess={handleConnectionSuccess}
                 configs={dataSourceConfigs[source.id] || {}}
               />
             ))}
@@ -309,7 +308,7 @@ export default function OnboardingDataSources() {
                 isRepositoriesExpanded={false}
                 onToggleForm={toggleForm}
                 onToggleRepositories={toggleRepositories}
-                actionData={actionData}
+                onConnectionSuccess={handleConnectionSuccess}
                 configs={dataSourceConfigs[source.id] || {}}
               />
             ))}
@@ -330,7 +329,7 @@ export default function OnboardingDataSources() {
                 isRepositoriesExpanded={expandedRepositories.has(source.id)}
                 onToggleForm={toggleForm}
                 onToggleRepositories={toggleRepositories}
-                actionData={actionData}
+                onConnectionSuccess={handleConnectionSuccess}
                 configs={dataSourceConfigs[source.id] || {}}
               />
             ))}
@@ -358,15 +357,34 @@ export default function OnboardingDataSources() {
   );
 }
 
-function DataSourceCard({ source, isFormActive, isRepositoriesExpanded, onToggleForm, onToggleRepositories, actionData, configs }: DataSourceCardProps) {
+function DataSourceCard({ source, isFormActive, isRepositoriesExpanded, onToggleForm, onToggleRepositories, configs, onConnectionSuccess }: DataSourceCardProps) {
   const providerConfig = PROVIDER_CONFIGS[source.id];
-  const testSuccess = actionData && "testSuccess" in actionData && actionData.provider === source.id;
-  const testError = actionData && "testError" in actionData && actionData.provider === source.id ? actionData.testError : null;
-  const [formValues, setFormValues] = useState<Record<string, string>>(configs);
+  const fetcher = useFetcher();
+  // Initialize with configs, but only use saved configs if they have content
+  const [formValues, setFormValues] = useState<Record<string, string>>(() => {
+    return Object.keys(configs).length > 0 ? configs : {};
+  });
+  const [hasInitialized, setHasInitialized] = useState(false);
+
+  const fetcherData = fetcher.data as { testSuccess?: boolean; testError?: string; success?: boolean; provider?: string } | undefined;
+  const testSuccess = fetcherData?.testSuccess && fetcherData?.provider === source.id;
+  const testError = fetcherData?.testError && fetcherData?.provider === source.id ? fetcherData.testError : null;
+  const saveSuccess = fetcherData?.success && fetcherData?.provider === source.id;
+
+  // Only sync configs to formValues once when configs first becomes non-empty
+  // This prevents loader revalidation from overwriting user input
+  useEffect(() => {
+    if (!hasInitialized && Object.keys(configs).length > 0) {
+      setFormValues(configs);
+      setHasInitialized(true);
+    }
+  }, [configs, hasInitialized]);
 
   useEffect(() => {
-    setFormValues(configs);
-  }, [configs]);
+    if (saveSuccess) {
+      onConnectionSuccess(source.id);
+    }
+  }, [saveSuccess, source.id, onConnectionSuccess]);
 
   const handleFieldChange = (key: string, value: string) => {
     setFormValues((prev) => ({ ...prev, [key]: value }));
@@ -377,8 +395,20 @@ function DataSourceCard({ source, isFormActive, isRepositoriesExpanded, onToggle
     return Object.entries(field.showWhen).every(([key, value]) => formValues[key] === value);
   };
 
+  const handleSubmit = (intent: string) => {
+    const formData = new FormData();
+    formData.append("intent", intent);
+    formData.append("provider", source.id);
+    for (const [key, value] of Object.entries(formValues)) {
+      formData.append(key, value);
+    }
+    fetcher.submit(formData, { method: "post" });
+  };
+
+  const isSubmitting = fetcher.state === "submitting";
+
   return (
-    <div className={`datasource-card ${source.isConnected ? "connected" : ""}`} id={`${source.id}Card`}>
+    <div className={`datasource-card ${source.isConnected || saveSuccess ? "connected" : ""}`} id={`${source.id}Card`}>
       <div className="card-header">
         <div className="datasource-info">
           <div className="datasource-title">
@@ -387,76 +417,76 @@ function DataSourceCard({ source, isFormActive, isRepositoriesExpanded, onToggle
           </div>
           <p>{source.description}</p>
         </div>
-        <span className={`status-badge ${source.isConnected ? "connected" : ""}`} id={`${source.id}Status`}>
-          {source.isConnected ? "Connected" : "Not Connected"}
+        <span className={`status-badge ${source.isConnected || saveSuccess ? "connected" : ""}`} id={`${source.id}Status`}>
+          {source.isConnected || saveSuccess ? "Connected" : "Not Connected"}
         </span>
       </div>
 
       <button type="button" className="btn-configure" onClick={() => onToggleForm(source.id)}>
-        {source.isConnected ? `Edit ${source.name} Configuration` : `Configure ${source.name}`}
+        {source.isConnected || saveSuccess ? `Edit ${source.name} Configuration` : `Configure ${source.name}`}
       </button>
 
       {isFormActive && (
         <div className="config-form active">
-          <Form method="post" id={`${source.id}-form`}>
-            <input type="hidden" name="provider" value={source.id} />
-            {providerConfig?.fields.map((field) => {
-              if (!shouldShowField(field)) return null;
+          <input type="hidden" name="provider" value={source.id} />
+          {providerConfig?.fields.map((field) => {
+            if (!shouldShowField(field)) return null;
 
-              return (
-                <div className="form-group" key={field.key}>
-                  <label htmlFor={`${source.id}-${field.key}`}>
-                    {field.label}
-                    {field.required && <span className="required">*</span>}
-                  </label>
-                  {field.type === "select" && field.options ? (
-                    <select
-                      id={`${source.id}-${field.key}`}
-                      name={field.key}
-                      required={field.required}
-                      value={formValues[field.key] || ""}
-                      onChange={(e) => handleFieldChange(field.key, e.target.value)}
-                    >
-                      <option value="">Select...</option>
-                      {field.options.map((option) => (
-                        <option key={option.value} value={option.value}>
-                          {option.label}
-                        </option>
-                      ))}
-                    </select>
-                  ) : (
-                    <input
-                      type={field.type}
-                      id={`${source.id}-${field.key}`}
-                      name={field.key}
-                      placeholder={field.placeholder}
-                      required={field.required}
-                      value={formValues[field.key] || ""}
-                      onChange={(e) => handleFieldChange(field.key, e.target.value)}
-                    />
-                  )}
-                </div>
-              );
-            })}
-            {testSuccess && <div className="test-success">Connection successful!</div>}
-            {testError && <div className="test-error">{testError}</div>}
-            <div className="form-actions">
-              <button type="button" className="btn-cancel" onClick={() => onToggleForm(source.id)}>
-                Cancel
-              </button>
-              <button type="submit" name="intent" value="test" className="btn-test">
-                Test Connection
-              </button>
-              <button type="submit" name="intent" value="connect" className="btn-save">
-                Save Configuration
-              </button>
-            </div>
-          </Form>
+            return (
+              <div className="form-group" key={field.key}>
+                <label htmlFor={`${source.id}-${field.key}`}>
+                  {field.label}
+                  {field.required && <span className="required">*</span>}
+                </label>
+                {field.type === "select" && field.options ? (
+                  <select
+                    id={`${source.id}-${field.key}`}
+                    name={field.key}
+                    required={field.required}
+                    value={formValues[field.key] || ""}
+                    onChange={(e) => handleFieldChange(field.key, e.target.value)}
+                  >
+                    <option value="">Select...</option>
+                    {field.options.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <input
+                    type={field.type}
+                    id={`${source.id}-${field.key}`}
+                    name={field.key}
+                    placeholder={field.placeholder}
+                    required={field.required}
+                    value={formValues[field.key] || ""}
+                    onChange={(e) => handleFieldChange(field.key, e.target.value)}
+                  />
+                )}
+              </div>
+            );
+          })}
+          {testSuccess && <div className="test-success">Connection successful!</div>}
+          {testError && <div className="test-error">{testError}</div>}
+          <div className="form-actions">
+            <button type="button" className="btn-cancel" onClick={() => onToggleForm(source.id)}>
+              Cancel
+            </button>
+            <button type="button" className="btn-test" onClick={() => handleSubmit("test")} disabled={isSubmitting}>
+              {isSubmitting ? "Testing..." : "Test Connection"}
+            </button>
+            <button type="button" className="btn-save" onClick={() => handleSubmit("connect")} disabled={isSubmitting}>
+              {isSubmitting ? "Saving..." : "Save Configuration"}
+            </button>
+          </div>
         </div>
       )}
 
-      {source.isVcs && source.isConnected && <RepositoriesSection provider={source.id} isExpanded={isRepositoriesExpanded} onToggle={() => onToggleRepositories(source.id)} />}
-      {source.isProjectManagement && source.isConnected && (
+      {source.isVcs && (source.isConnected || saveSuccess) && (
+        <RepositoriesSection provider={source.id} isExpanded={isRepositoriesExpanded} onToggle={() => onToggleRepositories(source.id)} />
+      )}
+      {source.isProjectManagement && (source.isConnected || saveSuccess) && (
         <ProjectsSection provider={source.id} isExpanded={isRepositoriesExpanded} onToggle={() => onToggleRepositories(source.id)} />
       )}
     </div>
@@ -782,7 +812,7 @@ interface DataSourceCardProps {
   isRepositoriesExpanded: boolean;
   onToggleForm: (id: string) => void;
   onToggleRepositories: (id: string) => void;
-  actionData: ReturnType<typeof useActionData<typeof action>>;
+  onConnectionSuccess: (provider: string) => void;
   configs: Record<string, string>;
 }
 
