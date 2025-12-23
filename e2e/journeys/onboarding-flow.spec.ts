@@ -58,7 +58,7 @@ test.describe
 
       // Repository section should auto-expand after successful connection
       // Wait for repositories to load
-      await page.waitForSelector('[data-testid="repository-item"]', {
+      await page.waitForSelector('[data-testid="selectable-item"]', {
         timeout: 30000,
       });
 
@@ -66,7 +66,7 @@ test.describe
       await expect(page.getByText(/repositories selected/i)).toBeVisible();
 
       // Toggle a repository if needed (repos may be pre-selected based on activity)
-      const firstCheckbox = page.locator('[data-testid="repository-item"] input[type="checkbox"]').first();
+      const firstCheckbox = page.locator('[data-testid="selectable-item"] input[type="checkbox"]').first();
       const isChecked = await firstCheckbox.isChecked();
       if (!isChecked) {
         await firstCheckbox.check();

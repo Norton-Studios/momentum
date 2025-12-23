@@ -2,7 +2,6 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { Form, Link, useFetcher, useLoaderData } from "react-router";
 import { requireAdmin } from "~/auth/auth.server";
-import { type Repository, RepositoryList } from "~/components/repository-list/repository-list";
 import { SelectableList } from "~/components/selectable-list/selectable-list";
 import { db } from "~/db.server";
 import { Button } from "../../../components/button/button";
@@ -621,7 +620,29 @@ function RepositoriesSection({ provider, isExpanded, onToggle }: RepositoriesSec
                 </div>
               </div>
 
-              <RepositoryList repositories={filteredRepositories} selectedIds={selectedIds} onToggle={handleToggle} />
+              <SelectableList
+                items={filteredRepositories}
+                selectedIds={selectedIds}
+                onToggle={handleToggle}
+                emptyMessage="No repositories found"
+                renderItem={(repo) => {
+                  const lastActive = repo.lastSyncAt ? new Date(repo.lastSyncAt) : null;
+                  const daysAgo = lastActive ? Math.floor((Date.now() - lastActive.getTime()) / (1000 * 60 * 60 * 24)) : null;
+                  return (
+                    <div className="repository-info">
+                      <div className="repository-details">
+                        <div className="repository-name">{repo.name}</div>
+                      </div>
+                      <div className="repository-meta">
+                        {repo.language && <span className="language">{repo.language}</span>}
+                        {repo.isPrivate && <span className="private-badge">Private</span>}
+                        {repo.stars > 0 && <span className="stars">★ {repo.stars}</span>}
+                        {daysAgo !== null && <span className="last-active">Updated {daysAgo}d ago</span>}
+                      </div>
+                    </div>
+                  );
+                }}
+              />
 
               <div className="repositories-footer">
                 <span className="selection-count">
@@ -835,4 +856,16 @@ interface Project {
 
 interface ProjectsFetcherData {
   projects: Project[];
+}
+
+interface Repository {
+  id: string;
+  name: string;
+  fullName: string;
+  description: string | null;
+  language: string | null;
+  stars: number;
+  isPrivate: boolean;
+  isEnabled: boolean;
+  lastSyncAt: Date | null;
 }
