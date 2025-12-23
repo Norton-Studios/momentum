@@ -82,6 +82,7 @@ test.describe
       await page.getByRole("button", { name: "Sign In" }).click();
       await page.waitForURL(/\/(dashboard|onboarding)/);
 
+      await page.goto("/onboarding/datasources");
       await page.waitForLoadState("networkidle");
       await expect(page.getByRole("heading", { name: "Connect Your Tools" })).toBeVisible();
 
