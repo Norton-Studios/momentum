@@ -39,9 +39,10 @@ The project structure and documentation are optimized for development assisted b
 
 ### Multi-Level Metrics
 - **Organization View**: High-level insights across all teams and repositories
-  - Security dashboard (CVE tracking)
-  - Pipeline stability and delivery velocity
+  - Delivery: commit frequency, time in column, wip count 
+  - Pipeline stability
   - Commit activity patterns and heatmaps
+  - Code quality metrics 
 
 - **Individual View**: Personal productivity metrics
   - Commit activity and patterns
@@ -73,13 +74,6 @@ Modern, responsive web application built with Remix providing:
 - Team and repository management
 - Data source configuration
 - User authentication and settings
-
-### API Server (Express)
-RESTful API providing:
-- CRUD operations for all resources
-- Data source configuration management
-- Authentication and authorization
-- Dynamic route loading
 
 ### Data Collection Engine (Crons)
 Automated scheduler that:

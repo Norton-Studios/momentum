@@ -285,11 +285,11 @@ Each data source shows a card with:
 
 The Organization Dashboard provides high-level metrics across all repositories, teams, and contributors. It's designed for engineering managers and team leads to understand overall productivity trends and identify areas for improvement.
 
-**URL**: `/dashboard/organization` or `/dashboard` (default)
+**URL**: `/dashboard` (default)
 
 ---
 
-### Page Layout
+### Example Page Layout
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -315,7 +315,7 @@ The Organization Dashboard provides high-level metrics across all repositories, 
 │                                                                 │
 │ Delivery                                                        │
 │ ┌─────────────────────────────────────────────────────────────┐ │
-│ │ Deployment Velocity                              [View All] │ │
+│ │ GitHub Velocity                              [View All] │ │
 │ │                                                             │ │
 │ │ Deployments This Week: 12 (↑ 33%)                          │ │
 │ │ Average Cycle Time: 2.1 days (↓ 0.3)                       │ │
@@ -326,12 +326,12 @@ The Organization Dashboard provides high-level metrics across all repositories, 
 │ └─────────────────────────────────────────────────────────────┘ │
 │                                                                 │
 │ ┌─────────────────────────────────────────────────────────────┐ │
-│ │ Commit & PR Activity                             [View All] │ │
+│ │ JIRA Velocity                             [View All] │ │
 │ │                                                             │ │
-│ │ Commits This Week: 287 (↑ 12%)                             │ │
-│ │ PRs Merged: 45 (↑ 8%)                                      │ │
+│ │ Tickets This Week: 287 (↑ 12%)                             │ │
 │ │                                                             │ │
-│ │ [Line Chart: Commit & PR trends]                           │ │
+│ │                                                             │ │
+│ │ [Line Chart: JIRAs closed       ]                           │ │
 │ │                                                             │ │
 │ │ Avg Time to Merge: 18.2 hours                              │ │
 │ └─────────────────────────────────────────────────────────────┘ │
@@ -423,11 +423,7 @@ The Organization Dashboard provides high-level metrics across all repositories, 
 ### Navigation Structure
 
 **Top Navigation Bar**:
-- **Organization**: Four sections: 
-  - Overview
-  - Security
-  - Delivery
-  - Activity
+- **Organization**: Organisation wide and team metrics
 - **Individual**: Link to individual metrics view
 - **Settings (⚙️)**: Configuration and data sources
 - **Profile (👤)**: User account and logout
@@ -487,6 +483,34 @@ Each metric card follows a consistent pattern:
 
 ### Delivery Metrics
 
+#### Delivery Velocity
+
+Work in progress:
+  - bar chart showing for each day: total JIRA tickets in an in progress status
+  - bar chart showing for each day: total number of GitHub/GitLab PRs/MRs
+
+
+**Primary Metric**: Deployment frequency (deployments per week)
+
+**Visualization**: Bar chart showing deployment counts over time
+
+**Data Displayed**:
+- Current week deployment count
+- Change from previous period
+- Average cycle time (commit to production)
+- Lead time for changes
+- Deployment success rate
+
+**Actions**:
+- Click to view deployment history
+- Filter by environment
+- View deployment details
+- Export deployment report
+
+---
+
+### Operational Metrics
+
 #### Pipeline Stability
 
 **Primary Metric**: 30-day rolling average success rate
@@ -506,24 +530,6 @@ Each metric card follows a consistent pattern:
 - View failure logs
 - Identify problematic pipelines
 
-#### Delivery Velocity
-
-**Primary Metric**: Deployment frequency (deployments per week)
-
-**Visualization**: Bar chart showing deployment counts over time
-
-**Data Displayed**:
-- Current week deployment count
-- Change from previous period
-- Average cycle time (commit to production)
-- Lead time for changes
-- Deployment success rate
-
-**Actions**:
-- Click to view deployment history
-- Filter by environment
-- View deployment details
-- Export deployment report
 
 ---
 
@@ -593,7 +599,7 @@ Each metric card follows a consistent pattern:
 
 The Individual Dashboard provides personal productivity metrics for each contributor. It's designed to help developers understand their own work patterns, contributions, and collaboration effectiveness.
 
-**URL**: `/dashboard/individual` or `/dashboard/individual/:contributorId`
+**URL**: `/dashboard/individual` 
 
 **Access Control**:
 - Users can view their own metrics by default
