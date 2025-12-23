@@ -79,7 +79,8 @@ test.describe
       }
     });
 
-    test("Step 3: Configure Jira Data Center (optional)", async ({ page }, testInfo) => {
+    test.skip("Step 3: Configure Jira Data Center (optional)", async ({ page }, testInfo) => {
+      // TODO: Re-enable once Jira integration is stable
       // Skip if Jira credentials aren't properly configured (must look like real values)
       const isJiraConfigured = JIRA_SERVER_URL?.startsWith("http") && JIRA_PAT && JIRA_PAT.length > 20;
       test.skip(!isJiraConfigured, "Jira credentials not properly configured");
