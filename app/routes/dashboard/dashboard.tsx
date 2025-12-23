@@ -85,7 +85,7 @@ export default function Dashboard() {
           <Link to="#" className="nav-item">
             Individual
           </Link>
-          <Link to="#" className="nav-item">
+          <Link to="/settings" className="nav-item">
             Settings
           </Link>
         </nav>

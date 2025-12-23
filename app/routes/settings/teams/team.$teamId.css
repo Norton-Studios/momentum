@@ -1,0 +1,179 @@
+.team-detail-header {
+  margin-bottom: 1.5rem;
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  color: var(--primary-color, #0066cc);
+  text-decoration: none;
+  font-size: 0.95rem;
+  padding: 0.5rem 0;
+}
+
+.back-link:hover {
+  text-decoration: underline;
+}
+
+.team-info-section {
+  background: var(--bg-primary, #ffffff);
+  border: 1px solid var(--border-color, #e0e0e0);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.team-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.team-info h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1.5rem;
+}
+
+.team-description {
+  color: var(--text-muted, #6c757d);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.team-edit-form .form-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.team-edit-form h2 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--text-muted, #6c757d);
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: background-color 0.15s ease;
+}
+
+.close-btn:hover {
+  background: var(--bg-hover, #f0f0f0);
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: var(--text-primary, #212529);
+}
+
+.form-group input[type="text"],
+.form-group textarea {
+  width: 100%;
+  padding: 0.625rem 0.75rem;
+  border: 1px solid var(--border-color, #e0e0e0);
+  border-radius: 6px;
+  font-size: 0.95rem;
+  transition: border-color 0.15s ease;
+}
+
+.form-group input[type="text"]:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: var(--primary-color, #0066cc);
+}
+
+.form-group textarea {
+  resize: vertical;
+  font-family: inherit;
+}
+
+.form-error {
+  color: var(--error-color, #dc3545);
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+.form-error-banner {
+  background: var(--error-bg, #f8d7da);
+  color: var(--error-color, #721c24);
+  padding: 0.75rem;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+}
+
+.form-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+  margin-top: 1.5rem;
+}
+
+.team-assignments {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.assignment-section {
+  background: var(--bg-primary, #ffffff);
+  border: 1px solid var(--border-color, #e0e0e0);
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.assignment-section h3 {
+  margin: 0 0 0.25rem;
+  font-size: 1.125rem;
+}
+
+.section-subtitle {
+  color: var(--text-muted, #6c757d);
+  font-size: 0.875rem;
+  margin: 0 0 1rem;
+}
+
+.assignment-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.assignment-name {
+  font-weight: 500;
+  color: var(--text-primary, #212529);
+}
+
+.project-key {
+  color: var(--text-muted, #6c757d);
+  font-weight: normal;
+  font-size: 0.875rem;
+}
+
+.assignment-description {
+  color: var(--text-muted, #6c757d);
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+@media (max-width: 768px) {
+  .team-assignments {
+    grid-template-columns: 1fr;
+  }
+}
