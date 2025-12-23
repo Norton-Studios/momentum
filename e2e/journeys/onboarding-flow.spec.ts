@@ -2,26 +2,13 @@ import { expect, type Page, test } from "@playwright/test";
 
 const GITHUB_TOKEN = process.env.E2E_GITHUB_TOKEN;
 const GITHUB_ORG = process.env.E2E_GITHUB_ORG;
-const JIRA_SERVER_URL = process.env.E2E_JIRA_SERVER_URL;
-const JIRA_PAT = process.env.E2E_JIRA_PAT;
 
 async function login(page: Page) {
   await page.goto("/login");
-  await page.waitForLoadState("load");
-  // Small delay to ensure React is hydrated
-  await page.waitForTimeout(500);
-  // Use JavaScript to set form values directly
-  await page.evaluate(() => {
-    const email = document.getElementById("email") as HTMLInputElement;
-    const password = document.getElementById("password") as HTMLInputElement;
-    if (email) email.value = "admin@test.com";
-    if (password) password.value = "TestPassword123!";
-    // Trigger input events for React
-    email?.dispatchEvent(new Event("input", { bubbles: true }));
-    password?.dispatchEvent(new Event("input", { bubbles: true }));
-  });
+  await page.locator("#email").fill("admin@test.com");
+  await page.locator("#password").fill("TestPassword123!");
   await page.locator('button[type="submit"]').click();
-  await page.waitForURL(/\/(dashboard|onboarding)/, { timeout: 15000 });
+  await page.waitForURL(/\/(dashboard|onboarding)/);
 }
 
 test.describe
