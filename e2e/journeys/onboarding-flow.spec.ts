@@ -12,6 +12,8 @@ async function login(page: Page) {
   await page.locator("#password").fill("TestPassword123!");
   await page.locator('button[type="submit"]').click();
   await page.waitForURL(/\/(dashboard|onboarding)/);
+  // Wait for session to be fully established
+  await page.waitForLoadState("networkidle");
 }
 
 test.describe
