@@ -84,7 +84,11 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 async function handleTestIntent(formData: FormData) {
-  const provider = formData.get("provider") as string;
+  const provider = formData.get("provider");
+  if (typeof provider !== "string" || !provider) {
+    return data({ testError: "Provider is required" }, { status: 400 });
+  }
+
   const configs = extractConfigsFromForm(formData, provider);
 
   const testResult = await testConnection(provider, configs);
@@ -158,9 +162,15 @@ async function handleToggleEnabledIntent(formData: FormData) {
 }
 
 async function handleFetchRepositoriesIntent(formData: FormData) {
-  const provider = formData.get("provider") as string;
-  const search = formData.get("search") as string | undefined;
-  const cursor = formData.get("cursor") as string | undefined;
+  const provider = formData.get("provider");
+  if (typeof provider !== "string" || !provider) {
+    return data({ error: "Provider is required" }, { status: 400 });
+  }
+
+  const searchValue = formData.get("search");
+  const search = typeof searchValue === "string" ? searchValue : undefined;
+  const cursorValue = formData.get("cursor");
+  const cursor = typeof cursorValue === "string" ? cursorValue : undefined;
 
   const providerEnum = getProviderEnum(provider);
   if (!providerEnum) {
@@ -239,7 +249,10 @@ async function handleToggleRepositoriesBatchIntent(formData: FormData) {
 }
 
 async function handleFetchProjectsIntent(formData: FormData) {
-  const provider = formData.get("provider") as string;
+  const provider = formData.get("provider");
+  if (typeof provider !== "string" || !provider) {
+    return data({ error: "Provider is required" }, { status: 400 });
+  }
 
   const providerEnum = getProviderEnum(provider);
   if (!providerEnum) {
@@ -419,28 +432,30 @@ async function fetchJiraProjects(configs: Record<string, string>): Promise<JiraP
 }
 
 async function saveJiraProjects(dataSourceId: string, projects: JiraProject[]) {
-  for (const project of projects) {
-    await db.project.upsert({
-      where: {
-        dataSourceId_externalId: {
+  await Promise.all(
+    projects.map((project) =>
+      db.project.upsert({
+        where: {
+          dataSourceId_externalId: {
+            dataSourceId,
+            externalId: project.id,
+          },
+        },
+        create: {
           dataSourceId,
           externalId: project.id,
+          key: project.key,
+          name: project.name,
+          provider: "JIRA",
+          isEnabled: true,
         },
-      },
-      create: {
-        dataSourceId,
-        externalId: project.id,
-        key: project.key,
-        name: project.name,
-        provider: "JIRA",
-        isEnabled: true,
-      },
-      update: {
-        key: project.key,
-        name: project.name,
-      },
-    });
-  }
+        update: {
+          key: project.key,
+          name: project.name,
+        },
+      })
+    )
+  );
 }
 
 function getProviderEnum(provider: string): DataSourceProviderEnum | null {
@@ -526,14 +541,16 @@ async function upsertDataSource(organizationId: string, provider: string, provid
 }
 
 async function saveDataSourceConfigs(dataSourceId: string, configs: Record<string, string>) {
-  for (const [key, value] of Object.entries(configs)) {
-    const isSecret = key.toLowerCase().includes("token") || key.toLowerCase().includes("password");
-    await db.dataSourceConfig.upsert({
-      where: { dataSourceId_key: { dataSourceId, key } },
-      create: { dataSourceId, key, value, isSecret },
-      update: { value },
-    });
-  }
+  await Promise.all(
+    Object.entries(configs).map(([key, value]) => {
+      const isSecret = key.toLowerCase().includes("token") || key.toLowerCase().includes("password");
+      return db.dataSourceConfig.upsert({
+        where: { dataSourceId_key: { dataSourceId, key } },
+        create: { dataSourceId, key, value, isSecret },
+        update: { value },
+      });
+    })
+  );
 }
 
 type DataSourceProviderEnum = "GITHUB" | "GITLAB" | "BITBUCKET" | "JENKINS" | "CIRCLECI" | "SONARQUBE" | "JIRA";

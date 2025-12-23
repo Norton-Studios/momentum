@@ -67,7 +67,8 @@
 }
 
 .form-input:focus {
-  outline: none;
+  outline: 2px solid var(--black);
+  outline-offset: 2px;
   border-color: var(--black);
 }
 

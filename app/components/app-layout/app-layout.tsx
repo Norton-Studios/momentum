@@ -42,7 +42,7 @@ export function AppLayout({ children, activeNav, user }: AppLayoutProps) {
                   <Link to="/profile" className="dropdown-item" onClick={() => setIsDropdownOpen(false)}>
                     Profile
                   </Link>
-                  <Form method="post">
+                  <Form method="post" action="/logout">
                     <button type="submit" className="dropdown-item">
                       Log Out
                     </button>

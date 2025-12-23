@@ -95,8 +95,10 @@ describe("Teams", () => {
     const table = screen.getByRole("table");
     expect(table).toBeInTheDocument();
 
-    const rows = screen.getAllByRole("row");
-    expect(rows.length).toBeGreaterThan(2);
+    expect(screen.getByText("5")).toBeInTheDocument();
+    expect(screen.getByText("2")).toBeInTheDocument();
+    expect(screen.getByText("3")).toBeInTheDocument();
+    expect(screen.getByText("1")).toBeInTheDocument();
   });
 
   it("displays no description when description is null", () => {
