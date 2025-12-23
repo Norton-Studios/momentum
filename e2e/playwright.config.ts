@@ -29,12 +29,11 @@ export default defineConfig({
   ],
   timeout: 30000, // 30 seconds per test
 
-  globalSetup: path.join(__dirname, "global-setup.ts"),
   globalTeardown: path.join(__dirname, "global-teardown.ts"),
 
   use: {
     baseURL: BASE_URL,
-    trace: "retain-on-failure",
+    trace: "on-first-retry",
     screenshot: {
       mode: "only-on-failure",
       fullPage: true,
