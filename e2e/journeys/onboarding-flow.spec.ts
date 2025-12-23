@@ -7,13 +7,14 @@ const JIRA_PAT = process.env.E2E_JIRA_PAT;
 
 async function login(page: Page) {
   await page.goto("/login");
-  // Use direct selectors for more reliable form filling
+  // Wait for page to be fully hydrated
+  await page.waitForLoadState("domcontentloaded");
+  await page.locator("#email").waitFor({ state: "visible" });
+  // Use direct selectors for form filling
   await page.locator("#email").fill("admin@test.com");
   await page.locator("#password").fill("TestPassword123!");
   await page.locator('button[type="submit"]').click();
   await page.waitForURL(/\/(dashboard|onboarding)/);
-  // Wait for session to be fully established
-  await page.waitForLoadState("networkidle");
 }
 
 test.describe
