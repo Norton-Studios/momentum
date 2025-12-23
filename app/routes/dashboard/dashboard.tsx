@@ -1,8 +1,14 @@
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import type { LoaderFunctionArgs } from "react-router";
 import { Link, useLoaderData } from "react-router";
 import { requireUser } from "~/auth/auth.server";
 import { logout } from "~/auth/session.server";
 import { AppLayout } from "~/components/app-layout/app-layout";
+import { TrendBarChart } from "~/components/dashboard/charts/trend-bar-chart.js";
+import { TrendLineChart } from "~/components/dashboard/charts/trend-line-chart.js";
+import { DatePicker } from "~/components/dashboard/date-picker/date-picker.js";
+import { OverviewCard } from "~/components/dashboard/overview-card/overview-card.js";
+import { formatDuration, formatHours, formatTrendString, getPreviousPeriod, parseDateRange } from "~/lib/dashboard/date-range.js";
+import { type DashboardData, fetchDeliveryMetrics, fetchOperationalMetrics, fetchOverviewMetrics, fetchQualityMetrics } from "~/lib/dashboard/metrics.server.js";
 import "./dashboard.css";
 
 export function meta() {
@@ -17,15 +23,35 @@ export function meta() {
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const user = await requireUser(request);
-  return { user };
+  const url = new URL(request.url);
+  const dateRange = parseDateRange(url.searchParams);
+  const previousRange = getPreviousPeriod(dateRange);
+
+  const [overview, delivery, operational, quality] = await Promise.all([
+    fetchOverviewMetrics(dateRange, previousRange),
+    fetchDeliveryMetrics(dateRange, previousRange),
+    fetchOperationalMetrics(dateRange, previousRange),
+    fetchQualityMetrics(dateRange),
+  ]);
+
+  return {
+    user,
+    dateRange: {
+      startDate: dateRange.startDate.toISOString(),
+      endDate: dateRange.endDate.toISOString(),
+      preset: dateRange.preset,
+    },
+    data: { overview, delivery, operational, quality },
+  };
 }
 
-export async function action({ request }: ActionFunctionArgs) {
+export async function action({ request }: LoaderFunctionArgs) {
   return logout(request);
 }
 
 export default function Dashboard() {
-  const { user } = useLoaderData<typeof loader>();
+  const { user, data } = useLoaderData<typeof loader>();
+  const { overview, delivery, operational, quality } = data as DashboardData;
 
   return (
     <AppLayout activeNav="organization" user={user}>
@@ -34,46 +60,14 @@ export default function Dashboard() {
           <h1 className="page-title">Organization Overview</h1>
           <p className="page-subtitle">Comprehensive metrics across all teams and repositories</p>
         </div>
-        <div className="date-selector">
-          <button type="button" className="date-btn">
-            7d
-          </button>
-          <button type="button" className="date-btn active">
-            30d
-          </button>
-          <button type="button" className="date-btn">
-            60d
-          </button>
-          <button type="button" className="date-btn">
-            90d
-          </button>
-          <button type="button" className="date-btn">
-            Custom
-          </button>
-        </div>
+        <DatePicker />
       </div>
 
       <div className="overview-grid">
-        <div className="overview-card">
-          <div className="overview-label">Repositories</div>
-          <div className="overview-value">50</div>
-          <div className="overview-change">Active projects</div>
-        </div>
-        <div className="overview-card">
-          <div className="overview-label">Contributors</div>
-          <div className="overview-value">23</div>
-          <div className="overview-change positive">↑ 2 this month</div>
-        </div>
-        <div className="overview-card">
-          <div className="overview-label">Commits</div>
-          <div className="overview-value">1,098</div>
-          <div className="overview-change negative">↓ 12% from last period</div>
-        </div>
-        <div className="overview-card">
-          <div className="overview-label">Pull Requests</div>
-          <div className="overview-value">156</div>
-          <div className="overview-change negative">↓ 8% from last period</div>
-        </div>
+        <OverviewCard label="Repositories" value={overview.repositories} subtitle="Active projects" />
+        <OverviewCard label="Contributors" value={overview.contributors.count} trend={overview.contributors.trend} />
+        <OverviewCard label="Commits" value={overview.commits.count} trend={overview.commits.trend} />
+        <OverviewCard label="Pull Requests" value={overview.pullRequests.count} trend={overview.pullRequests.trend} />
       </div>
 
       <section className="metric-section">
@@ -85,27 +79,28 @@ export default function Dashboard() {
         <div className="metric-grid">
           <MetricCard
             title="Deployment Velocity"
-            value="12"
-            trend="↑ 33%"
-            trendType="positive"
-            label="Deployments this week"
+            value={delivery.deployments.count.toString()}
+            trend={formatTrendString(delivery.deployments.trend)}
+            trendType={delivery.deployments.trend.type === "positive" ? "positive" : "negative"}
+            label="Deployments in period"
             stats={[
-              { value: "2.1d", label: "Cycle Time" },
-              { value: "3.5d", label: "Lead Time" },
-              { value: "18h", label: "Time to Merge" },
+              { value: formatHours(delivery.cycleTime.avgTimeToMergeHours), label: "Time to Merge" },
+              { value: delivery.prActivity.open.toString(), label: "Open PRs" },
+              { value: delivery.prActivity.waitingReview.toString(), label: "Waiting Review" },
             ]}
           />
 
           <MetricCard
             title="Commit & PR Activity"
-            value="287"
-            trend="↑ 12%"
-            trendType="positive"
-            label="Commits this week"
+            value={overview.commits.count.toLocaleString()}
+            trend={formatTrendString(overview.commits.trend)}
+            trendType={overview.commits.trend.type === "positive" ? "positive" : "negative"}
+            label="Commits in period"
+            chart={<TrendBarChart data={delivery.commitTrend} />}
             stats={[
-              { value: "45", label: "PRs Merged" },
-              { value: "18.2h", label: "Avg Time to Merge" },
-              { value: "23", label: "Open PRs" },
+              { value: delivery.prActivity.merged.toString(), label: "PRs Merged" },
+              { value: formatHours(delivery.cycleTime.avgTimeToMergeHours), label: "Avg Time to Merge" },
+              { value: delivery.prActivity.open.toString(), label: "Open PRs" },
             ]}
           />
         </div>
@@ -118,19 +113,22 @@ export default function Dashboard() {
         </div>
 
         <div className="metric-grid-two">
-          <MetricCard title="Pipeline Success Rate" value="92.2%" trend="↓ 2.3%" trendType="negative" label="30-day average" />
+          <MetricCard
+            title="Pipeline Success Rate"
+            value={operational.successRate.value !== null ? `${operational.successRate.value.toFixed(1)}%` : "N/A"}
+            trend={formatTrendString(operational.successRate.trend)}
+            trendType={operational.successRate.trend.type === "positive" ? "positive" : "negative"}
+            label="Average success rate"
+          />
 
           <MetricCard
             title="Pipeline Duration"
-            value="12.5m"
-            trend="↓ 1.2m"
-            trendType="positive"
+            value={formatDuration(operational.avgDurationMs)}
             label="Average duration"
-            stats={[
-              { value: "8m", label: "Build" },
-              { value: "3m", label: "Test" },
-              { value: "1.5m", label: "Deploy" },
-            ]}
+            stats={operational.stageBreakdown.slice(0, 3).map((stage) => ({
+              value: formatDuration(stage.avgDurationMs),
+              label: stage.name,
+            }))}
           />
         </div>
       </section>
@@ -141,81 +139,28 @@ export default function Dashboard() {
           <div className="section-divider" />
         </div>
 
-        <div className="metric-grid-two">
+        <div className="metric-grid">
           <MetricCard
             title="Code Coverage"
-            value="76%"
-            trend="↓ 2%"
-            trendType="negative"
+            value={quality.overallCoverage !== null ? `${quality.overallCoverage}%` : "N/A"}
             label="Overall coverage"
+            chart={quality.coverageTrend.length > 0 ? <TrendLineChart data={quality.coverageTrend} unit="%" /> : undefined}
             stats={[
-              { value: "85%", label: "New Code" },
+              { value: quality.newCodeCoverage !== null ? `${quality.newCodeCoverage}%` : "N/A", label: "New Code" },
               { value: "80%", label: "Target" },
-              { value: "2%", label: "Gap" },
+              {
+                value: quality.overallCoverage !== null ? `${Math.max(0, 80 - quality.overallCoverage).toFixed(1)}%` : "N/A",
+                label: "Gap",
+              },
             ]}
           />
-
-          <div className="metric-card">
-            <div className="metric-header">
-              <h3 className="metric-title">Security Vulnerabilities</h3>
-              <Link to="#" className="metric-link">
-                View All
-              </Link>
-            </div>
-            <div className="metric-primary">
-              <div className="metric-value">
-                31
-                <span className="metric-trend negative">↑ 8</span>
-              </div>
-              <div className="metric-label">Total vulnerabilities</div>
-            </div>
-            <div className="severity-bars">
-              <div className="severity-item">
-                <span className="severity-label">Critical</span>
-                <div className="severity-bar">
-                  <div className="severity-fill" style={{ width: "20%" }} />
-                </div>
-                <span className="severity-count">2</span>
-              </div>
-              <div className="severity-item">
-                <span className="severity-label">High</span>
-                <div className="severity-bar">
-                  <div className="severity-fill" style={{ width: "40%" }} />
-                </div>
-                <span className="severity-count">8</span>
-              </div>
-              <div className="severity-item">
-                <span className="severity-label">Medium</span>
-                <div className="severity-bar">
-                  <div className="severity-fill" style={{ width: "50%" }} />
-                </div>
-                <span className="severity-count">10</span>
-              </div>
-              <div className="severity-item">
-                <span className="severity-label">Low</span>
-                <div className="severity-bar">
-                  <div className="severity-fill" style={{ width: "15%" }} />
-                </div>
-                <span className="severity-count">3</span>
-              </div>
-            </div>
-          </div>
         </div>
       </section>
     </AppLayout>
   );
 }
 
-interface MetricCardProps {
-  title: string;
-  value: string;
-  trend?: string;
-  trendType?: "positive" | "negative";
-  label: string;
-  stats?: Array<{ value: string; label: string }>;
-}
-
-function MetricCard({ title, value, trend, trendType, label, stats }: MetricCardProps) {
+function MetricCard({ title, value, trend, trendType, label, chart, stats }: MetricCardProps) {
   return (
     <div className="metric-card">
       <div className="metric-header">
@@ -231,15 +176,7 @@ function MetricCard({ title, value, trend, trendType, label, stats }: MetricCard
         </div>
         <div className="metric-label">{label}</div>
       </div>
-      <div className="metric-chart">
-        <div className="chart-bar" style={{ height: "45%" }} />
-        <div className="chart-bar" style={{ height: "60%" }} />
-        <div className="chart-bar" style={{ height: "55%" }} />
-        <div className="chart-bar" style={{ height: "70%" }} />
-        <div className="chart-bar" style={{ height: "85%" }} />
-        <div className="chart-bar" style={{ height: "75%" }} />
-        <div className="chart-bar" style={{ height: "100%" }} />
-      </div>
+      {chart}
       {stats && (
         <div className="metric-stats">
           {stats.map((stat) => (
@@ -252,4 +189,14 @@ function MetricCard({ title, value, trend, trendType, label, stats }: MetricCard
       )}
     </div>
   );
+}
+
+interface MetricCardProps {
+  title: string;
+  value: string;
+  trend?: string;
+  trendType?: "positive" | "negative";
+  label: string;
+  chart?: React.ReactNode;
+  stats?: Array<{ value: string; label: string }>;
 }

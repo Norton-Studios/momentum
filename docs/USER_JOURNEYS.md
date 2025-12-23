@@ -92,6 +92,9 @@ Set up Momentum for the first time, connecting development tools and preparing t
 3. **Code Quality**
    - SonarQube
 
+4. **Project Management**
+   - Jira (Cloud and Data Center)
+
 #### Data Source Card Pattern
 
 Each data source displays as a card with:
@@ -100,14 +103,41 @@ Each data source displays as a card with:
 - Status badge: "Connected" or "Not Connected"
 - "Configure [Provider]" button (or "Edit [Provider] Configuration" if connected)
 
-**Configuration Form** (expands when clicking Configure):
+**Configuration Forms** (expand when clicking Configure):
+
+Provider-specific form fields:
+
+**GitHub**:
+- Personal Access Token (required)
+- Organization Name (required)
+
+**GitLab**:
+- Personal Access Token (required)
+- Host URL (optional, defaults to gitlab.com)
+
+**Jenkins**:
+- Jenkins URL (required)
+- API Token (required)
+
+**CircleCI**:
+- API Token (required)
+
+**SonarQube**:
+- SonarQube URL (required)
+- API Token (required)
+
+**Jira Cloud**:
+- Jira Domain (required, e.g., "mycompany.atlassian.net")
+- Email Address (required)
+- API Token (required)
+
+**Jira Data Center**:
+- Server URL (required)
+- Personal Access Token (required)
+
 ```
 ┌─────────────────────────────────────────────────┐
-│ Personal Access Token *                         │
-│ [________________________________]              │
-│                                                 │
-│ Organization Name *                             │
-│ [________________________________]              │
+│ [Provider-specific fields]                      │
 │                                                 │
 │ [Test Connection]  [Save Configuration]  [Cancel]│
 └─────────────────────────────────────────────────┘
@@ -125,6 +155,55 @@ Each data source displays as a card with:
 1. After successful test, click "Save Configuration"
 2. Configuration stored in database
 3. Card updates to show "Connected" status
+4. For VCS providers: Repositories section appears below the card
+5. For Jira: Projects section appears below the card
+
+#### Repository Selection (VCS Providers)
+
+After connecting GitHub or GitLab, a collapsible "Repositories" section appears within the data source card:
+
+```
+┌─────────────────────────────────────────────────┐
+│ ▼ Repositories                    X of Y enabled│
+├─────────────────────────────────────────────────┤
+│ [Search repositories...]                        │
+│ [Select All] [Deselect All]                     │
+├─────────────────────────────────────────────────┤
+│ ☑ api-service        TypeScript  Private  ★ 12 │
+│ ☑ frontend-web       TypeScript  Private  ★ 8  │
+│ ☐ legacy-app         JavaScript           ★ 2  │
+│ ☑ shared-lib         TypeScript  Private       │
+└─────────────────────────────────────────────────┘
+```
+
+**Repository Row Details**:
+- Checkbox for enabling/disabling tracking
+- Repository name
+- Language badge (if available)
+- "Private" badge (if private)
+- Star count (if > 0)
+- Last active timestamp
+
+**Pre-selection Logic**:
+- Repositories with recent activity are pre-selected
+- User can override any selection
+
+#### Project Selection (Jira)
+
+After connecting Jira, a collapsible "Projects" section appears within the data source card:
+
+```
+┌─────────────────────────────────────────────────┐
+│ ▼ Projects                        X of Y enabled│
+├─────────────────────────────────────────────────┤
+│ [Search by name or key...]                      │
+│ [Select All] [Deselect All]                     │
+├─────────────────────────────────────────────────┤
+│ ☑ Platform Team (PLAT)                          │
+│ ☑ API Development (API)                         │
+│ ☐ Legacy Support (LEG)                          │
+└─────────────────────────────────────────────────┘
+```
 
 **Bottom Actions**:
 - Connection summary: "1 of 1 required connection established"
@@ -133,45 +212,7 @@ Each data source displays as a card with:
 
 ---
 
-### Step 4: Repository Selection
-
-**Page**: Select Repositories (`/onboarding/repositories`)
-
-**Page Header**:
-- Heading: "Select Repositories"
-- Subheading: "Choose which repositories you want to monitor. We've pre-selected the ones we recommend."
-
-**List Controls**:
-- Search box: "Search repositories..."
-- "Select All" button
-- "Deselect All" button
-
-**List Header**:
-- Checkbox (with indeterminate state for partial selection)
-- "Repository" column header
-- Selected count display: "X selected"
-
-**Repository List** (virtualized for performance):
-Each row displays:
-- Checkbox for selection
-- Repository name
-- Language badge (if available)
-- "Private" badge (if private)
-- Star count (if > 0)
-- Last active: "Updated Xd ago"
-
-**Pre-selection Logic**:
-- Repositories with recent activity are pre-selected
-- User can override any selection
-
-**Footer**:
-- Selection summary: "X of Y repositories selected"
-- "Back" link → `/onboarding/datasources`
-- "Continue" button → `/onboarding/importing`
-
----
-
-### Step 5: Data Import
+### Step 4: Data Import
 
 **Page**: Import Data (`/onboarding/importing`)
 
@@ -228,14 +269,14 @@ Each data source shows a card with:
 
 **Bottom Actions**:
 - Progress summary: "X tasks running, Y of Z completed"
-- "Back to Repositories" link
+- "Back to Data Sources" link → `/onboarding/datasources`
 - "Continue to Dashboard" button → `/onboarding/complete`
 
 **Polling**: Page polls for import status updates every 3 seconds while import is running
 
 ---
 
-### Step 6: Onboarding Complete
+### Step 5: Onboarding Complete
 
 **Page**: Complete (`/onboarding/complete`)
 
@@ -285,11 +326,11 @@ Each data source shows a card with:
 
 The Organization Dashboard provides high-level metrics across all repositories, teams, and contributors. It's designed for engineering managers and team leads to understand overall productivity trends and identify areas for improvement.
 
-**URL**: `/dashboard/organization` or `/dashboard` (default)
+**URL**: `/dashboard` (default)
 
 ---
 
-### Page Layout
+### Example Page Layout
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -315,7 +356,7 @@ The Organization Dashboard provides high-level metrics across all repositories, 
 │                                                                 │
 │ Delivery                                                        │
 │ ┌─────────────────────────────────────────────────────────────┐ │
-│ │ Deployment Velocity                              [View All] │ │
+│ │ GitHub Velocity                              [View All] │ │
 │ │                                                             │ │
 │ │ Deployments This Week: 12 (↑ 33%)                          │ │
 │ │ Average Cycle Time: 2.1 days (↓ 0.3)                       │ │
@@ -326,12 +367,12 @@ The Organization Dashboard provides high-level metrics across all repositories, 
 │ └─────────────────────────────────────────────────────────────┘ │
 │                                                                 │
 │ ┌─────────────────────────────────────────────────────────────┐ │
-│ │ Commit & PR Activity                             [View All] │ │
+│ │ JIRA Velocity                             [View All] │ │
 │ │                                                             │ │
-│ │ Commits This Week: 287 (↑ 12%)                             │ │
-│ │ PRs Merged: 45 (↑ 8%)                                      │ │
+│ │ Tickets This Week: 287 (↑ 12%)                             │ │
 │ │                                                             │ │
-│ │ [Line Chart: Commit & PR trends]                           │ │
+│ │                                                             │ │
+│ │ [Line Chart: JIRAs closed       ]                           │ │
 │ │                                                             │ │
 │ │ Avg Time to Merge: 18.2 hours                              │ │
 │ └─────────────────────────────────────────────────────────────┘ │
@@ -423,11 +464,7 @@ The Organization Dashboard provides high-level metrics across all repositories, 
 ### Navigation Structure
 
 **Top Navigation Bar**:
-- **Organization**: Four sections: 
-  - Overview
-  - Security
-  - Delivery
-  - Activity
+- **Organization**: Organisation wide and team metrics
 - **Individual**: Link to individual metrics view
 - **Settings (⚙️)**: Configuration and data sources
 - **Profile (👤)**: User account and logout
@@ -487,6 +524,34 @@ Each metric card follows a consistent pattern:
 
 ### Delivery Metrics
 
+#### Delivery Velocity
+
+Work in progress:
+  - bar chart showing for each day: total JIRA tickets in an in progress status
+  - bar chart showing for each day: total number of GitHub/GitLab PRs/MRs
+
+
+**Primary Metric**: Deployment frequency (deployments per week)
+
+**Visualization**: Bar chart showing deployment counts over time
+
+**Data Displayed**:
+- Current week deployment count
+- Change from previous period
+- Average cycle time (commit to production)
+- Lead time for changes
+- Deployment success rate
+
+**Actions**:
+- Click to view deployment history
+- Filter by environment
+- View deployment details
+- Export deployment report
+
+---
+
+### Operational Metrics
+
 #### Pipeline Stability
 
 **Primary Metric**: 30-day rolling average success rate
@@ -506,24 +571,6 @@ Each metric card follows a consistent pattern:
 - View failure logs
 - Identify problematic pipelines
 
-#### Delivery Velocity
-
-**Primary Metric**: Deployment frequency (deployments per week)
-
-**Visualization**: Bar chart showing deployment counts over time
-
-**Data Displayed**:
-- Current week deployment count
-- Change from previous period
-- Average cycle time (commit to production)
-- Lead time for changes
-- Deployment success rate
-
-**Actions**:
-- Click to view deployment history
-- Filter by environment
-- View deployment details
-- Export deployment report
 
 ---
 
@@ -593,7 +640,7 @@ Each metric card follows a consistent pattern:
 
 The Individual Dashboard provides personal productivity metrics for each contributor. It's designed to help developers understand their own work patterns, contributions, and collaboration effectiveness.
 
-**URL**: `/dashboard/individual` or `/dashboard/individual/:contributorId`
+**URL**: `/dashboard/individual` 
 
 **Access Control**:
 - Users can view their own metrics by default
