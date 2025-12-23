@@ -127,6 +127,7 @@ test.describe
       await page.getByLabel("Password").fill("TestPassword123!");
       await page.getByRole("button", { name: "Sign In" }).click();
       await page.waitForURL(/\/(dashboard|onboarding)/);
+      await page.waitForLoadState("networkidle");
 
       await page.goto("/onboarding/datasources");
       await page.waitForLoadState("networkidle");
@@ -144,6 +145,7 @@ test.describe
       await page.getByLabel("Password").fill("TestPassword123!");
       await page.getByRole("button", { name: "Sign In" }).click();
       await page.waitForURL(/\/(dashboard|onboarding)/);
+      await page.waitForLoadState("networkidle");
 
       await page.goto("/onboarding/importing");
       await page.waitForLoadState("networkidle");
@@ -165,6 +167,7 @@ test.describe
       await page.getByLabel("Password").fill("TestPassword123!");
       await page.getByRole("button", { name: "Sign In" }).click();
       await page.waitForURL(/\/(dashboard|onboarding)/);
+      await page.waitForLoadState("networkidle");
 
       await page.goto("/onboarding/complete");
       await page.waitForLoadState("networkidle");
