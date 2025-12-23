@@ -10,7 +10,7 @@ import { PROVIDER_CONFIGS } from "~/routes/onboarding/datasources/datasources.co
 import { extractConfigsFromForm, testConnection } from "~/routes/onboarding/datasources/datasources.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  await requireAdmin(request);
+  const user = await requireAdmin(request);
 
   const dataSources = await db.dataSource.findMany({
     include: {
@@ -32,7 +32,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     },
   });
 
-  return data({ dataSources });
+  return data({ dataSources, user: { name: user.name, email: user.email } });
 }
 
 export async function action({ request }: ActionFunctionArgs) {

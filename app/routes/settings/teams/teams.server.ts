@@ -4,11 +4,11 @@ import { requireAdmin } from "~/auth/auth.server";
 import { db } from "~/db.server";
 
 export async function teamsLoader({ request }: LoaderFunctionArgs) {
-  await requireAdmin(request);
+  const user = await requireAdmin(request);
 
   const teams = await fetchTeams();
 
-  return { teams };
+  return { teams, user: { name: user.name, email: user.email } };
 }
 
 export async function teamsAction({ request }: ActionFunctionArgs) {

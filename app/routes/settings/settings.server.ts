@@ -13,7 +13,7 @@ const updateOrganizationSchema = z.object({
 });
 
 export async function settingsLoader({ request }: LoaderFunctionArgs) {
-  await requireAdmin(request);
+  const user = await requireAdmin(request);
 
   const organization = await db.organization.findFirst({
     select: {
@@ -30,7 +30,7 @@ export async function settingsLoader({ request }: LoaderFunctionArgs) {
     return data({ error: "Organization not found" }, { status: 404 });
   }
 
-  return data({ organization });
+  return data({ organization, user: { name: user.name, email: user.email } });
 }
 
 export async function settingsAction({ request }: ActionFunctionArgs) {

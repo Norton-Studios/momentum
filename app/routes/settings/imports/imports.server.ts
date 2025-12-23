@@ -62,6 +62,7 @@ export async function importsLoader({ request }: LoaderFunctionArgs) {
     })),
     isRunning,
     userName: user.name,
+    user: { name: user.name, email: user.email },
   });
 }
 

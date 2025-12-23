@@ -85,6 +85,7 @@ vi.mock("react-router", async () => {
       team: mockTeam,
       allRepositories: mockAllRepositories,
       allProjects: mockAllProjects,
+      user: { name: "Test User", email: "test@example.com" },
     }),
     useFetcher: () => ({
       submit: vi.fn(),

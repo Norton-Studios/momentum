@@ -29,6 +29,7 @@ vi.mock("react-router", async () => {
           },
         },
       ],
+      user: { name: "Test User", email: "test@example.com" },
     }),
     Form: ({ children, ...props }: { children: React.ReactNode; [key: string]: unknown }) => <form {...props}>{children}</form>,
   };

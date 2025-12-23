@@ -49,12 +49,14 @@ const mockLoaderData = {
   ],
   isRunning: true,
   userName: "John Doe",
+  user: { name: "John Doe", email: "john@example.com" },
 };
 
 const mockEmptyLoaderData = {
   batches: [],
   isRunning: false,
   userName: "John Doe",
+  user: { name: "John Doe", email: "john@example.com" },
 };
 
 describe("Imports Component", () => {
@@ -133,7 +135,7 @@ describe("Imports Component", () => {
 
     await waitFor(() => {
       expect(screen.getByText("Import History")).toBeInTheDocument();
-      expect(screen.getByText("John Doe")).toBeInTheDocument();
+      expect(screen.getAllByText("John Doe").length).toBeGreaterThan(0);
       expect(screen.getByText("System")).toBeInTheDocument();
       expect(screen.getByText("10/10")).toBeInTheDocument();
       expect(screen.getByText("2/5")).toBeInTheDocument();

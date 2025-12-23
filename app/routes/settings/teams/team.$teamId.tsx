@@ -26,7 +26,7 @@ export async function action(args: ActionFunctionArgs) {
 }
 
 export default function TeamDetail() {
-  const { team, allRepositories, allProjects } = useLoaderData<typeof loader>();
+  const { team, allRepositories, allProjects, user } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
   const errors = actionData?.errors;
   const [isEditing, setIsEditing] = useState(false);
@@ -37,7 +37,7 @@ export default function TeamDetail() {
   const selectedProjectIds = useMemo(() => new Set(team.projects.map((p) => p.project.id)), [team.projects]);
 
   return (
-    <SettingsLayout activeTab="teams">
+    <SettingsLayout activeTab="teams" user={user}>
       <div className="team-detail-header">
         <Link to="/settings/teams" className="back-link">
           ← Back to Teams

@@ -16,6 +16,7 @@ vi.mock("react-router", async () => {
         website: "https://test.com",
         logoUrl: "https://test.com/logo.png",
       },
+      user: { name: "Test User", email: "test@example.com" },
     }),
     useActionData: () => undefined,
     Form: ({ children, ...props }: { children: React.ReactNode; [key: string]: unknown }) => <form {...props}>{children}</form>,
@@ -38,7 +39,7 @@ describe("Settings", () => {
       </MemoryRouter>
     );
 
-    const activeTab = container.querySelector(".settings-tab.active");
+    const activeTab = container.querySelector(".sub-nav-item.active");
     expect(activeTab).toBeInTheDocument();
     expect(activeTab).toHaveTextContent("General");
   });

@@ -25,13 +25,13 @@ export async function action(args: ActionFunctionArgs) {
 }
 
 export default function Teams() {
-  const { teams } = useLoaderData<typeof loader>();
+  const { teams, user } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
   const errors = actionData?.errors;
   const [isCreating, setIsCreating] = useState(false);
 
   return (
-    <SettingsLayout activeTab="teams">
+    <SettingsLayout activeTab="teams" user={user}>
       <div className="teams-header">
         <div>
           <h2>Teams</h2>

@@ -22,18 +22,18 @@ export default function Settings() {
 
   if ("error" in loaderData) {
     return (
-      <SettingsLayout activeTab="general">
+      <SettingsLayout activeTab="general" user={{ name: null, email: "" }}>
         <div className="message message-error">{loaderData.error}</div>
       </SettingsLayout>
     );
   }
 
-  const { organization } = loaderData;
+  const { organization, user } = loaderData;
   const errors = actionData && "errors" in actionData ? actionData.errors : undefined;
   const success = actionData && "success" in actionData ? actionData.success : false;
 
   return (
-    <SettingsLayout activeTab="general">
+    <SettingsLayout activeTab="general" user={user}>
       {success && <div className="message message-success">Organization details updated successfully</div>}
 
       {actionData && "error" in actionData && <div className="message message-error">{actionData.error}</div>}

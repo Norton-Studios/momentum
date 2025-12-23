@@ -1,58 +1,41 @@
-/* Settings Layout */
-
-.settings-page {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 48px 60px;
-}
-
-.settings-header {
-  margin-bottom: 32px;
-}
-
-.settings-title {
-  font-size: 42px;
-  letter-spacing: -1px;
-  margin-bottom: 8px;
-}
-
-.settings-subtitle {
-  font-size: 16px;
-  color: var(--dark-gray);
-}
-
-/* Tab Navigation */
-.settings-tabs {
+/* Settings Sub-Navigation */
+.settings-sub-nav {
   display: flex;
   gap: 32px;
   border-bottom: 1px solid var(--light-gray);
-  margin-bottom: 48px;
+  background: var(--white);
+  /* Break out of container to full width */
+  width: 100vw;
+  margin-left: calc(-50vw + 50%);
+  margin-top: -60px;
+  /* Inner padding to align content with page container */
+  padding: 0 max(60px, calc((100vw - 1600px) / 2 + 60px));
 }
 
-.settings-tab {
+.sub-nav-item {
   padding: 16px 0;
   color: var(--mid-gray);
   text-decoration: none;
-  font-size: 14px;
+  font-size: 13px;
   text-transform: uppercase;
-  letter-spacing: 1.5px;
+  letter-spacing: 1px;
   border-bottom: 2px solid transparent;
   margin-bottom: -1px;
   transition: all 0.3s ease;
 }
 
-.settings-tab.active {
+.sub-nav-item.active {
   color: var(--black);
   border-bottom-color: var(--gold);
 }
 
-.settings-tab:hover {
+.sub-nav-item:hover {
   color: var(--black);
 }
 
 /* Settings Content */
 .settings-content {
-  min-height: 400px;
+  padding-top: 48px;
 }
 
 /* Form Styles */
@@ -292,19 +275,21 @@
 }
 
 @media (max-width: 768px) {
-  .settings-page {
-    padding: 32px 24px;
-  }
-
-  .settings-tabs {
+  .settings-sub-nav {
     gap: 16px;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+    padding: 0 24px;
+    margin-top: -40px;
   }
 
-  .settings-tab {
+  .sub-nav-item {
     white-space: nowrap;
     font-size: 12px;
+  }
+
+  .settings-content {
+    padding-top: 32px;
   }
 
   .settings-form {

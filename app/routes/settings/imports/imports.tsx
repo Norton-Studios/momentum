@@ -62,7 +62,7 @@ export default function Imports() {
   const displayBatches = polledBatch ? [polledBatch, ...loaderData.batches.filter((b) => b.id !== polledBatch.id)] : loaderData.batches;
 
   return (
-    <SettingsLayout activeTab="imports">
+    <SettingsLayout activeTab="imports" user={loaderData.user}>
       {actionData && "error" in actionData && <div className="message message-error">{actionData.error}</div>}
 
       {actionData && "alreadyRunning" in actionData && <div className="message message-warning">An import is already running. Please wait for it to complete.</div>}

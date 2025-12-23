@@ -4,7 +4,7 @@ import { requireAdmin } from "~/auth/auth.server";
 import { db } from "~/db.server";
 
 export async function teamDetailLoader({ request, params }: LoaderFunctionArgs) {
-  await requireAdmin(request);
+  const user = await requireAdmin(request);
 
   const teamId = params.teamId;
 
@@ -25,6 +25,7 @@ export async function teamDetailLoader({ request, params }: LoaderFunctionArgs) 
     team,
     allRepositories,
     allProjects,
+    user: { name: user.name, email: user.email },
   };
 }
 
