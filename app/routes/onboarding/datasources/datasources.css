@@ -486,6 +486,78 @@ body {
   color: var(--dark-gray);
 }
 
+/* Project List Styles */
+.project-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.project-name {
+  font-weight: 500;
+  color: var(--black);
+}
+
+.project-key {
+  font-size: 13px;
+  color: var(--mid-gray);
+}
+
+/* Repository List Styles */
+.repository-info {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  overflow: hidden;
+}
+
+.repository-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.repository-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--black);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.repository-meta {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  font-size: 12px;
+  margin-left: auto;
+  flex-shrink: 0;
+  color: var(--mid-gray);
+}
+
+.repository-meta span {
+  white-space: nowrap;
+}
+
+.repository-meta .language {
+  color: var(--dark-gray);
+}
+
+.repository-meta .private-badge {
+  background: var(--black);
+  color: var(--white);
+  padding: 3px 6px;
+  border-radius: 3px;
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.repository-meta .stars {
+  color: var(--gold);
+}
+
 @media (max-width: 768px) {
   .header-content,
   .onboarding-main {

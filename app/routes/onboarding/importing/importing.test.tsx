@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { act, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import Importing from "./importing";
@@ -73,6 +73,20 @@ describe("Importing", () => {
     vi.restoreAllMocks();
   });
 
+  const renderImporting = async () => {
+    await act(async () => {
+      render(
+        <MemoryRouter>
+          <Importing />
+        </MemoryRouter>
+      );
+    });
+    // Flush any pending microtasks from effects
+    await act(async () => {
+      await Promise.resolve();
+    });
+  };
+
   describe("Auto-trigger import", () => {
     it("triggers start-import action when hasStartedImport is false", async () => {
       mockLoaderData = createMockLoaderData({
@@ -81,28 +95,18 @@ describe("Importing", () => {
         currentBatch: null,
       });
 
-      render(
-        <MemoryRouter>
-          <Importing />
-        </MemoryRouter>
-      );
+      await renderImporting();
 
-      await waitFor(() => {
-        expect(mockFetcherSubmit).toHaveBeenCalledWith({ intent: "start-import" }, { method: "post" });
-      });
+      expect(mockFetcherSubmit).toHaveBeenCalledWith({ intent: "start-import" }, { method: "post" });
     });
 
-    it("does not trigger start-import when import has already started", () => {
+    it("does not trigger start-import when import has already started", async () => {
       mockLoaderData = createMockLoaderData({
         hasStartedImport: true,
         isImportRunning: true,
       });
 
-      render(
-        <MemoryRouter>
-          <Importing />
-        </MemoryRouter>
-      );
+      await renderImporting();
 
       expect(mockFetcherSubmit).not.toHaveBeenCalled();
     });
@@ -137,54 +141,29 @@ describe("Importing", () => {
       });
     });
 
-    it("renders Import in Progress title when import is running", () => {
-      render(
-        <MemoryRouter>
-          <Importing />
-        </MemoryRouter>
-      );
-
+    it("renders Import in Progress title when import is running", async () => {
+      await renderImporting();
       expect(screen.getByRole("heading", { level: 1, name: "Import in Progress" })).toBeInTheDocument();
     });
 
-    it("renders in-progress description", () => {
-      render(
-        <MemoryRouter>
-          <Importing />
-        </MemoryRouter>
-      );
-
+    it("renders in-progress description", async () => {
+      await renderImporting();
       expect(screen.getByText(/Background jobs are collecting your data/)).toBeInTheDocument();
     });
 
-    it("does not render Start Import button when import has started", () => {
-      render(
-        <MemoryRouter>
-          <Importing />
-        </MemoryRouter>
-      );
-
+    it("does not render Start Import button when import has started", async () => {
+      await renderImporting();
       expect(screen.queryByRole("button", { name: "Start Import" })).not.toBeInTheDocument();
     });
 
-    it("renders running tasks count", () => {
-      const { container } = render(
-        <MemoryRouter>
-          <Importing />
-        </MemoryRouter>
-      );
-
-      const connectionSummary = container.querySelector(".connection-summary");
+    it("renders running tasks count", async () => {
+      await renderImporting();
+      const connectionSummary = document.querySelector(".connection-summary");
       expect(connectionSummary).toHaveTextContent(/task running/);
     });
 
-    it("renders records imported count for completed tasks", () => {
-      render(
-        <MemoryRouter>
-          <Importing />
-        </MemoryRouter>
-      );
-
+    it("renders records imported count for completed tasks", async () => {
+      await renderImporting();
       expect(screen.getByText("10 records")).toBeInTheDocument();
       expect(screen.getByText("5 records")).toBeInTheDocument();
     });
@@ -219,26 +198,16 @@ describe("Importing", () => {
       });
     });
 
-    it("renders completed tasks count", () => {
-      const { container } = render(
-        <MemoryRouter>
-          <Importing />
-        </MemoryRouter>
-      );
-
-      const connectionSummary = container.querySelector(".connection-summary");
+    it("renders completed tasks count", async () => {
+      await renderImporting();
+      const connectionSummary = document.querySelector(".connection-summary");
       expect(connectionSummary).toHaveTextContent(/4.*of.*4.*tasks completed/);
     });
 
-    it("renders Complete status badges for all tasks", () => {
-      const { container } = render(
-        <MemoryRouter>
-          <Importing />
-        </MemoryRouter>
-      );
-
+    it("renders Complete status badges for all tasks", async () => {
+      await renderImporting();
       // 4 task badges + 1 overall status badge = at least 5 Complete badges
-      const completeBadges = container.querySelectorAll(".task-status-badge.completed, .status-badge.completed");
+      const completeBadges = document.querySelectorAll(".task-status-badge.completed, .status-badge.completed");
       expect(completeBadges.length).toBeGreaterThanOrEqual(5);
     });
   });
@@ -265,41 +234,26 @@ describe("Importing", () => {
       });
     });
 
-    it("renders Failed status badge for failed tasks", () => {
-      render(
-        <MemoryRouter>
-          <Importing />
-        </MemoryRouter>
-      );
-
+    it("renders Failed status badge for failed tasks", async () => {
+      await renderImporting();
       expect(screen.getByText("Failed")).toBeInTheDocument();
     });
 
-    it("renders Partial status badge for data source with failed tasks", () => {
-      render(
-        <MemoryRouter>
-          <Importing />
-        </MemoryRouter>
-      );
-
+    it("renders Partial status badge for data source with failed tasks", async () => {
+      await renderImporting();
       expect(screen.getByText("Partial")).toBeInTheDocument();
     });
 
-    it("renders failed task icon", () => {
-      const { container } = render(
-        <MemoryRouter>
-          <Importing />
-        </MemoryRouter>
-      );
-
-      const failedIcon = container.querySelector(".task-icon.failed");
+    it("renders failed task icon", async () => {
+      await renderImporting();
+      const failedIcon = document.querySelector(".task-icon.failed");
       expect(failedIcon).toBeInTheDocument();
       expect(failedIcon).toHaveTextContent("✕");
     });
   });
 
   describe("Task icons", () => {
-    it("renders completed icon for completed tasks", () => {
+    it("renders completed icon for completed tasks", async () => {
       mockLoaderData = createMockLoaderData({
         dataSources: [
           {
@@ -312,18 +266,14 @@ describe("Importing", () => {
         ],
       });
 
-      const { container } = render(
-        <MemoryRouter>
-          <Importing />
-        </MemoryRouter>
-      );
+      await renderImporting();
 
-      const completedIcon = container.querySelector(".task-icon.completed");
+      const completedIcon = document.querySelector(".task-icon.completed");
       expect(completedIcon).toBeInTheDocument();
       expect(completedIcon).toHaveTextContent("✓");
     });
 
-    it("renders running icon for running tasks", () => {
+    it("renders running icon for running tasks", async () => {
       mockLoaderData = createMockLoaderData({
         dataSources: [
           {
@@ -336,18 +286,14 @@ describe("Importing", () => {
         ],
       });
 
-      const { container } = render(
-        <MemoryRouter>
-          <Importing />
-        </MemoryRouter>
-      );
+      await renderImporting();
 
-      const runningIcon = container.querySelector(".task-icon.running");
+      const runningIcon = document.querySelector(".task-icon.running");
       expect(runningIcon).toBeInTheDocument();
       expect(runningIcon).toHaveTextContent("↻");
     });
 
-    it("renders pending icon for pending tasks", () => {
+    it("renders pending icon for pending tasks", async () => {
       mockLoaderData = createMockLoaderData({
         dataSources: [
           {
@@ -360,25 +306,17 @@ describe("Importing", () => {
         ],
       });
 
-      const { container } = render(
-        <MemoryRouter>
-          <Importing />
-        </MemoryRouter>
-      );
+      await renderImporting();
 
-      const pendingIcon = container.querySelector(".task-icon.pending");
+      const pendingIcon = document.querySelector(".task-icon.pending");
       expect(pendingIcon).toBeInTheDocument();
       expect(pendingIcon).toHaveTextContent("○");
     });
   });
 
   describe("Task labels", () => {
-    it("renders human-readable task labels", () => {
-      render(
-        <MemoryRouter>
-          <Importing />
-        </MemoryRouter>
-      );
+    it("renders human-readable task labels", async () => {
+      await renderImporting();
 
       expect(screen.getByText("Repository metadata")).toBeInTheDocument();
       expect(screen.getByText("Contributors")).toBeInTheDocument();
@@ -386,7 +324,7 @@ describe("Importing", () => {
       expect(screen.getByText("Pull requests")).toBeInTheDocument();
     });
 
-    it("falls back to resource name for unknown tasks", () => {
+    it("falls back to resource name for unknown tasks", async () => {
       mockLoaderData = createMockLoaderData({
         dataSources: [
           {
@@ -399,49 +337,33 @@ describe("Importing", () => {
         ],
       });
 
-      render(
-        <MemoryRouter>
-          <Importing />
-        </MemoryRouter>
-      );
+      await renderImporting();
 
       expect(screen.getByText("unknown-task")).toBeInTheDocument();
     });
   });
 
   describe("Summary stats", () => {
-    it("renders repository count from loader data", () => {
-      render(
-        <MemoryRouter>
-          <Importing />
-        </MemoryRouter>
-      );
+    it("renders repository count from loader data", async () => {
+      await renderImporting();
 
       expect(screen.getByText("25")).toBeInTheDocument();
       expect(screen.getByText("Repositories")).toBeInTheDocument();
       expect(screen.getByText("Selected")).toBeInTheDocument();
     });
 
-    it("renders days of history", () => {
-      render(
-        <MemoryRouter>
-          <Importing />
-        </MemoryRouter>
-      );
+    it("renders days of history", async () => {
+      await renderImporting();
 
       expect(screen.getByText("90")).toBeInTheDocument();
       expect(screen.getByText("Days")).toBeInTheDocument();
       expect(screen.getByText("History")).toBeInTheDocument();
     });
 
-    it("renders connected sources count", () => {
-      const { container } = render(
-        <MemoryRouter>
-          <Importing />
-        </MemoryRouter>
-      );
+    it("renders connected sources count", async () => {
+      await renderImporting();
 
-      const statBoxes = container.querySelectorAll(".stat-box");
+      const statBoxes = document.querySelectorAll(".stat-box");
       const sourcesBox = Array.from(statBoxes).find((box) => box.textContent?.includes("Sources"));
       expect(sourcesBox).toBeInTheDocument();
       expect(sourcesBox).toHaveTextContent("1");
@@ -471,37 +393,25 @@ describe("Importing", () => {
       });
     });
 
-    it("renders all data source cards", () => {
-      render(
-        <MemoryRouter>
-          <Importing />
-        </MemoryRouter>
-      );
+    it("renders all data source cards", async () => {
+      await renderImporting();
 
       expect(screen.getByText("GITHUB")).toBeInTheDocument();
       expect(screen.getByText("GITLAB")).toBeInTheDocument();
     });
 
-    it("renders correct sources count", () => {
-      const { container } = render(
-        <MemoryRouter>
-          <Importing />
-        </MemoryRouter>
-      );
+    it("renders correct sources count", async () => {
+      await renderImporting();
 
-      const statBoxes = container.querySelectorAll(".stat-box");
+      const statBoxes = document.querySelectorAll(".stat-box");
       const sourcesBox = Array.from(statBoxes).find((box) => box.textContent?.includes("Sources"));
       expect(sourcesBox).toHaveTextContent("2");
     });
   });
 
   describe("Progress header", () => {
-    it("renders progress steps in header", () => {
-      render(
-        <MemoryRouter>
-          <Importing />
-        </MemoryRouter>
-      );
+    it("renders progress steps in header", async () => {
+      await renderImporting();
 
       expect(screen.getByText("Welcome")).toBeInTheDocument();
       expect(screen.getByText("Data Sources")).toBeInTheDocument();
@@ -509,58 +419,38 @@ describe("Importing", () => {
       expect(screen.getByText("Complete")).toBeInTheDocument();
     });
 
-    it("marks Import step as active", () => {
-      const { container } = render(
-        <MemoryRouter>
-          <Importing />
-        </MemoryRouter>
-      );
+    it("marks Import step as active", async () => {
+      await renderImporting();
 
-      const activeStep = container.querySelector(".progress-step.active");
+      const activeStep = document.querySelector(".progress-step.active");
       expect(activeStep).toBeInTheDocument();
       expect(activeStep).toHaveTextContent("Import");
     });
 
-    it("marks previous steps as completed", () => {
-      const { container } = render(
-        <MemoryRouter>
-          <Importing />
-        </MemoryRouter>
-      );
+    it("marks previous steps as completed", async () => {
+      await renderImporting();
 
-      const completedSteps = container.querySelectorAll(".progress-step.completed");
+      const completedSteps = document.querySelectorAll(".progress-step.completed");
       expect(completedSteps).toHaveLength(2);
     });
   });
 
   describe("Navigation", () => {
-    it("renders Back to Data Sources link", () => {
-      render(
-        <MemoryRouter>
-          <Importing />
-        </MemoryRouter>
-      );
+    it("renders Back to Data Sources link", async () => {
+      await renderImporting();
 
       const backLink = screen.getByRole("link", { name: "Back to Data Sources" });
       expect(backLink).toHaveAttribute("href", "/onboarding/datasources");
     });
 
-    it("renders Continue to Dashboard button", () => {
-      render(
-        <MemoryRouter>
-          <Importing />
-        </MemoryRouter>
-      );
+    it("renders Continue to Dashboard button", async () => {
+      await renderImporting();
 
       expect(screen.getByRole("button", { name: "Continue to Dashboard" })).toBeInTheDocument();
     });
 
-    it("renders import note about background processing", () => {
-      render(
-        <MemoryRouter>
-          <Importing />
-        </MemoryRouter>
-      );
+    it("renders import note about background processing", async () => {
+      await renderImporting();
 
       expect(screen.getByText(/You can safely continue to the dashboard/)).toBeInTheDocument();
     });
@@ -579,15 +469,20 @@ describe("Importing", () => {
         },
       });
 
-      render(
-        <MemoryRouter>
-          <Importing />
-        </MemoryRouter>
-      );
-
-      await waitFor(() => {
-        expect(global.fetch).toHaveBeenCalledWith("/api/import/batch-123");
+      await act(async () => {
+        render(
+          <MemoryRouter>
+            <Importing />
+          </MemoryRouter>
+        );
       });
+
+      // Flush microtasks for the initial poll
+      await act(async () => {
+        await Promise.resolve();
+      });
+
+      expect(global.fetch).toHaveBeenCalledWith("/api/import/batch-123");
     });
 
     it("stops polling when batch status is not RUNNING", async () => {
@@ -606,15 +501,19 @@ describe("Importing", () => {
         json: () => Promise.resolve({ status: "COMPLETED", runs: [] }),
       } as Response);
 
-      render(
-        <MemoryRouter>
-          <Importing />
-        </MemoryRouter>
-      );
-
-      await waitFor(() => {
-        expect(global.fetch).toHaveBeenCalledWith("/api/import/batch-123");
+      await act(async () => {
+        render(
+          <MemoryRouter>
+            <Importing />
+          </MemoryRouter>
+        );
       });
+
+      await act(async () => {
+        await Promise.resolve();
+      });
+
+      expect(global.fetch).toHaveBeenCalledWith("/api/import/batch-123");
     });
 
     it("handles fetch errors gracefully", async () => {
@@ -631,16 +530,19 @@ describe("Importing", () => {
       const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
       vi.spyOn(global, "fetch").mockRejectedValue(new Error("Network error"));
 
-      render(
-        <MemoryRouter>
-          <Importing />
-        </MemoryRouter>
-      );
-
-      await waitFor(() => {
-        expect(consoleError).toHaveBeenCalledWith("Failed to poll batch status:", expect.any(Error));
+      await act(async () => {
+        render(
+          <MemoryRouter>
+            <Importing />
+          </MemoryRouter>
+        );
       });
 
+      await act(async () => {
+        await Promise.resolve();
+      });
+
+      expect(consoleError).toHaveBeenCalledWith("Failed to poll batch status:", expect.any(Error));
       consoleError.mockRestore();
     });
 
@@ -656,88 +558,79 @@ describe("Importing", () => {
         },
       });
 
-      render(
-        <MemoryRouter>
-          <Importing />
-        </MemoryRouter>
-      );
+      await act(async () => {
+        render(
+          <MemoryRouter>
+            <Importing />
+          </MemoryRouter>
+        );
+      });
 
-      // Wait a bit to ensure no fetch was made
-      await new Promise((resolve) => setTimeout(resolve, 100));
       expect(global.fetch).not.toHaveBeenCalled();
     });
   });
 
   describe("Status badge rendering", () => {
-    it("renders Running status badge", () => {
+    it("renders Running status badge", async () => {
       mockLoaderData = createMockLoaderData({
+        isImportRunning: false,
         dataSources: [
           {
             id: "ds-1",
             provider: "GITHUB",
             name: "GitHub",
             overallStatus: "running",
-            tasks: [],
+            tasks: [{ resource: "repository", status: "running", recordsImported: 0, errorMessage: null, startedAt: null, completedAt: null }],
           },
         ],
       });
 
-      render(
-        <MemoryRouter>
-          <Importing />
-        </MemoryRouter>
-      );
+      await renderImporting();
 
       expect(screen.getByText("Running")).toBeInTheDocument();
     });
 
-    it("renders Pending status badge", () => {
+    it("renders Pending status badge", async () => {
       mockLoaderData = createMockLoaderData({
+        isImportRunning: false,
         dataSources: [
           {
             id: "ds-1",
             provider: "GITHUB",
             name: "GitHub",
             overallStatus: "pending",
-            tasks: [],
+            tasks: [{ resource: "repository", status: "pending", recordsImported: 0, errorMessage: null, startedAt: null, completedAt: null }],
           },
         ],
       });
 
-      render(
-        <MemoryRouter>
-          <Importing />
-        </MemoryRouter>
-      );
+      await renderImporting();
 
       expect(screen.getByText("Pending")).toBeInTheDocument();
     });
 
-    it("falls back to raw status for unknown statuses", () => {
+    it("falls back to raw status for unknown statuses", async () => {
       mockLoaderData = createMockLoaderData({
+        isImportRunning: false,
         dataSources: [
           {
             id: "ds-1",
             provider: "GITHUB",
             name: "GitHub",
             overallStatus: "unknown-status",
-            tasks: [],
+            tasks: [{ resource: "repository", status: "pending", recordsImported: 0, errorMessage: null, startedAt: null, completedAt: null }],
           },
         ],
       });
 
-      render(
-        <MemoryRouter>
-          <Importing />
-        </MemoryRouter>
-      );
+      await renderImporting();
 
       expect(screen.getByText("unknown-status")).toBeInTheDocument();
     });
   });
 
   describe("Task status badge rendering", () => {
-    it("renders In Progress badge for running tasks", () => {
+    it("renders In Progress badge for running tasks", async () => {
       mockLoaderData = createMockLoaderData({
         dataSources: [
           {
@@ -750,16 +643,12 @@ describe("Importing", () => {
         ],
       });
 
-      render(
-        <MemoryRouter>
-          <Importing />
-        </MemoryRouter>
-      );
+      await renderImporting();
 
       expect(screen.getByText("In Progress")).toBeInTheDocument();
     });
 
-    it("renders Queued badge for pending tasks", () => {
+    it("renders Queued badge for pending tasks", async () => {
       mockLoaderData = createMockLoaderData({
         dataSources: [
           {
@@ -772,16 +661,12 @@ describe("Importing", () => {
         ],
       });
 
-      render(
-        <MemoryRouter>
-          <Importing />
-        </MemoryRouter>
-      );
+      await renderImporting();
 
       expect(screen.getByText("Queued")).toBeInTheDocument();
     });
 
-    it("falls back to raw status for unknown task statuses", () => {
+    it("falls back to raw status for unknown task statuses", async () => {
       mockLoaderData = createMockLoaderData({
         dataSources: [
           {
@@ -794,18 +679,14 @@ describe("Importing", () => {
         ],
       });
 
-      render(
-        <MemoryRouter>
-          <Importing />
-        </MemoryRouter>
-      );
+      await renderImporting();
 
       expect(screen.getByText("unknown")).toBeInTheDocument();
     });
   });
 
   describe("Records display", () => {
-    it("does not show records count when zero", () => {
+    it("does not show records count when zero", async () => {
       mockLoaderData = createMockLoaderData({
         dataSources: [
           {
@@ -818,16 +699,12 @@ describe("Importing", () => {
         ],
       });
 
-      render(
-        <MemoryRouter>
-          <Importing />
-        </MemoryRouter>
-      );
+      await renderImporting();
 
       expect(screen.queryByText("0 records")).not.toBeInTheDocument();
     });
 
-    it("shows records count when greater than zero", () => {
+    it("shows records count when greater than zero", async () => {
       mockLoaderData = createMockLoaderData({
         dataSources: [
           {
@@ -840,18 +717,14 @@ describe("Importing", () => {
         ],
       });
 
-      render(
-        <MemoryRouter>
-          <Importing />
-        </MemoryRouter>
-      );
+      await renderImporting();
 
       expect(screen.getByText("42 records")).toBeInTheDocument();
     });
   });
 
   describe("Connection summary pluralization", () => {
-    it("uses singular 'task' when one task is running", () => {
+    it("uses singular 'task' when one task is running", async () => {
       mockLoaderData = createMockLoaderData({
         isImportRunning: true,
         hasStartedImport: true,
@@ -869,16 +742,12 @@ describe("Importing", () => {
         ],
       });
 
-      render(
-        <MemoryRouter>
-          <Importing />
-        </MemoryRouter>
-      );
+      await renderImporting();
 
       expect(screen.getByText(/task running/)).toBeInTheDocument();
     });
 
-    it("uses plural 'tasks' when multiple tasks are running", () => {
+    it("uses plural 'tasks' when multiple tasks are running", async () => {
       mockLoaderData = createMockLoaderData({
         isImportRunning: true,
         hasStartedImport: true,
@@ -896,11 +765,7 @@ describe("Importing", () => {
         ],
       });
 
-      render(
-        <MemoryRouter>
-          <Importing />
-        </MemoryRouter>
-      );
+      await renderImporting();
 
       expect(screen.getByText(/tasks running/)).toBeInTheDocument();
     });
