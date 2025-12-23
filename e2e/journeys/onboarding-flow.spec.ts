@@ -7,14 +7,17 @@ const JIRA_PAT = process.env.E2E_JIRA_PAT;
 
 async function login(page: Page) {
   await page.goto("/login");
-  await page.waitForLoadState("domcontentloaded");
-  // Click and type using keyboard simulation
-  const emailInput = page.locator("#email");
-  await emailInput.click();
-  await page.keyboard.type("admin@test.com");
-  const passwordInput = page.locator("#password");
-  await passwordInput.click();
-  await page.keyboard.type("TestPassword123!");
+  await page.waitForLoadState("load");
+  // Use JavaScript to set form values directly
+  await page.evaluate(() => {
+    const email = document.getElementById("email") as HTMLInputElement;
+    const password = document.getElementById("password") as HTMLInputElement;
+    if (email) email.value = "admin@test.com";
+    if (password) password.value = "TestPassword123!";
+    // Trigger input events for React
+    email?.dispatchEvent(new Event("input", { bubbles: true }));
+    password?.dispatchEvent(new Event("input", { bubbles: true }));
+  });
   await page.locator('button[type="submit"]').click();
   await page.waitForURL(/\/(dashboard|onboarding)/);
 }
