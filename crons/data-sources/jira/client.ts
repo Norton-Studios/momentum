@@ -3,9 +3,24 @@ const MAX_RESULTS = 1000;
 
 export function createJiraClient(env: Record<string, string>): JiraClient {
   const variant = env.JIRA_VARIANT as JiraVariant;
+  if (variant !== "cloud" && variant !== "datacenter") {
+    throw new Error(`Invalid JIRA_VARIANT: ${variant}. Must be 'cloud' or 'datacenter'.`);
+  }
+
   const isCloud = variant === "cloud";
 
-  const baseUrl = isCloud ? `https://${env.JIRA_DOMAIN}.atlassian.net` : env.JIRA_SERVER_URL.replace(/\/$/, "");
+  let baseUrl: string;
+  if (isCloud) {
+    if (!env.JIRA_DOMAIN) {
+      throw new Error("JIRA_DOMAIN is required for Jira Cloud");
+    }
+    baseUrl = `https://${env.JIRA_DOMAIN}.atlassian.net`;
+  } else {
+    if (!env.JIRA_SERVER_URL) {
+      throw new Error("JIRA_SERVER_URL is required for Jira Data Center");
+    }
+    baseUrl = env.JIRA_SERVER_URL.replace(/\/$/, "");
+  }
 
   const headers: Record<string, string> = {
     Accept: "application/json",
@@ -13,9 +28,15 @@ export function createJiraClient(env: Record<string, string>): JiraClient {
   };
 
   if (isCloud) {
+    if (!env.JIRA_EMAIL || !env.JIRA_API_TOKEN) {
+      throw new Error("JIRA_EMAIL and JIRA_API_TOKEN are required for Jira Cloud");
+    }
     const credentials = Buffer.from(`${env.JIRA_EMAIL}:${env.JIRA_API_TOKEN}`).toString("base64");
     headers.Authorization = `Basic ${credentials}`;
   } else {
+    if (!env.JIRA_PAT) {
+      throw new Error("JIRA_PAT is required for Jira Data Center");
+    }
     headers.Authorization = `Bearer ${env.JIRA_PAT}`;
   }
 

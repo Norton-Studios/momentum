@@ -3,6 +3,10 @@ import type { IssuePriority, IssueStatus, IssueType } from "@prisma/client";
 import type { DbClient } from "~/db.server.js";
 import { createJiraClient, formatJiraDate, type JiraAdfDocument, type JiraIssue, type JiraUser } from "./client.js";
 
+// Custom field IDs - defaults are for Jira Cloud, can be overridden via env
+const DEFAULT_STORY_POINTS_FIELD = "customfield_10016";
+const DEFAULT_SPRINT_FIELD = "customfield_10020";
+
 export const issueScript = {
   dataSourceName: "JIRA",
   resource: "issue",
@@ -11,6 +15,10 @@ export const issueScript = {
 
   async run(db: DbClient, context: ExecutionContext) {
     const client = createJiraClient(context.env);
+
+    // Allow custom field IDs to be overridden via environment
+    const storyPointsField = context.env.JIRA_STORY_POINTS_FIELD || DEFAULT_STORY_POINTS_FIELD;
+    const sprintField = context.env.JIRA_SPRINT_FIELD || DEFAULT_SPRINT_FIELD;
 
     const projects = await db.project.findMany({
       where: {
@@ -27,10 +35,10 @@ export const issueScript = {
     for (const project of projects) {
       try {
         const jql = buildJql(project.key, context.startDate, context.endDate);
-        const issues = await client.getAllIssues(jql, ISSUE_FIELDS);
+        const issues = await client.getAllIssues(jql, getIssueFields(storyPointsField));
 
         for (const issue of issues) {
-          await processIssue(db, context.id, project.id, issue, client.baseUrl);
+          await processIssue(db, context.id, project.id, issue, client.baseUrl, storyPointsField, sprintField);
           totalIssues++;
         }
       } catch (error) {
@@ -50,7 +58,9 @@ export const issueScript = {
   },
 };
 
-const ISSUE_FIELDS = ["summary", "description", "issuetype", "status", "priority", "assignee", "reporter", "created", "updated", "resolutiondate", "customfield_10016"];
+function getIssueFields(storyPointsField: string): string[] {
+  return ["summary", "description", "issuetype", "status", "priority", "assignee", "reporter", "created", "updated", "resolutiondate", storyPointsField];
+}
 
 function buildJql(projectKey: string, startDate: Date, endDate: Date): string {
   const start = formatJiraDate(startDate);
@@ -58,12 +68,12 @@ function buildJql(projectKey: string, startDate: Date, endDate: Date): string {
   return `project = "${projectKey}" AND updated >= "${start}" AND updated <= "${end}" ORDER BY updated DESC`;
 }
 
-async function processIssue(db: DbClient, _dataSourceId: string, projectId: string, issue: JiraIssue, baseUrl: string) {
+async function processIssue(db: DbClient, _dataSourceId: string, projectId: string, issue: JiraIssue, baseUrl: string, storyPointsField: string, sprintField: string) {
   const reporterId = await ensureContributor(db, issue.fields.reporter);
   const assigneeId = await ensureContributor(db, issue.fields.assignee);
 
   const boardId = await findBoardForIssue(db, projectId);
-  const sprintId = await findSprintForIssue(db, projectId, issue);
+  const sprintId = await findSprintForIssue(db, projectId, issue, sprintField);
 
   await db.issue.upsert({
     where: { key: issue.key },
@@ -81,7 +91,7 @@ async function processIssue(db: DbClient, _dataSourceId: string, projectId: stri
       priority: mapIssuePriority(issue.fields.priority?.name),
       assigneeId,
       reporterId,
-      storyPoints: extractStoryPoints(issue),
+      storyPoints: extractStoryPoints(issue, storyPointsField),
       url: `${baseUrl}/browse/${issue.key}`,
       resolvedAt: issue.fields.resolutiondate ? new Date(issue.fields.resolutiondate) : null,
     },
@@ -137,11 +147,11 @@ async function findBoardForIssue(db: DbClient, projectId: string): Promise<strin
   return board?.id ?? null;
 }
 
-async function findSprintForIssue(db: DbClient, projectId: string, issue: JiraIssue): Promise<string | null> {
-  const sprintField = issue.fields.customfield_10020 as { id: number }[] | undefined;
-  if (!sprintField || sprintField.length === 0) return null;
+async function findSprintForIssue(db: DbClient, projectId: string, issue: JiraIssue, sprintFieldName: string): Promise<string | null> {
+  const sprintFieldValue = issue.fields[sprintFieldName] as { id: number }[] | undefined;
+  if (!sprintFieldValue || sprintFieldValue.length === 0) return null;
 
-  const latestSprintId = String(sprintField[sprintField.length - 1].id);
+  const latestSprintId = String(sprintFieldValue[sprintFieldValue.length - 1].id);
 
   const sprint = await db.sprint.findFirst({
     where: {
@@ -188,8 +198,8 @@ function extractTextFromAdf(content: unknown[]): string {
   return texts.join(" ");
 }
 
-function extractStoryPoints(issue: JiraIssue): number | null {
-  const points = issue.fields.customfield_10016;
+function extractStoryPoints(issue: JiraIssue, storyPointsField: string): number | null {
+  const points = issue.fields[storyPointsField];
   if (typeof points === "number") {
     return points;
   }

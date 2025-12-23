@@ -486,6 +486,23 @@ body {
   color: var(--dark-gray);
 }
 
+/* Project List Styles */
+.project-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.project-name {
+  font-weight: 500;
+  color: var(--black);
+}
+
+.project-key {
+  font-size: 13px;
+  color: var(--mid-gray);
+}
+
 @media (max-width: 768px) {
   .header-content,
   .onboarding-main {

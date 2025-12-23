@@ -1,3 +1,4 @@
+import type { JiraProject } from "@crons/data-sources/jira/client.js";
 import { Gitlab } from "@gitbeaker/rest";
 import { Octokit } from "@octokit/rest";
 import type { ActionFunctionArgs } from "react-router";
@@ -419,7 +420,8 @@ async function testJiraConnection(configs: Record<string, string>): Promise<{ su
 
     if (!response.ok) {
       const errorText = await response.text();
-      return { success: false, error: `Jira API returned ${response.status}: ${errorText}` };
+      console.error(`Jira API error ${response.status}:`, errorText);
+      return { success: false, error: `Jira API returned ${response.status}. Please check your credentials.` };
     }
 
     return { success: true };
@@ -498,8 +500,11 @@ async function handleToggleProjectIntent(formData: FormData) {
     });
     return data({ success: true });
   } catch (error) {
+    if (error instanceof Error && error.message.includes("Record to update not found")) {
+      return data({ error: "Project not found" }, { status: 404 });
+    }
     const message = error instanceof Error ? error.message : "Failed to toggle project";
-    return data({ error: message }, { status: 404 });
+    return data({ error: message }, { status: 500 });
   }
 }
 
@@ -585,9 +590,3 @@ async function saveJiraProjects(dataSourceId: string, projects: JiraProject[]) {
 }
 
 type DataSourceProviderEnum = "GITHUB" | "GITLAB" | "BITBUCKET" | "JENKINS" | "CIRCLECI" | "SONARQUBE" | "JIRA";
-
-interface JiraProject {
-  id: string;
-  key: string;
-  name: string;
-}

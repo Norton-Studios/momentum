@@ -212,8 +212,8 @@ describe("sprintScript", () => {
     it("should update recordsImported count", async () => {
       mockDb.board.findMany.mockResolvedValue([{ id: "board-1", externalId: "101", projectId: "proj-1" }]);
       mockClient.getSprints.mockResolvedValue([
-        { id: 1001, name: "Sprint 1", state: "active" },
-        { id: 1002, name: "Sprint 2", state: "closed" },
+        { id: 1001, name: "Sprint 1", state: "active", startDate: "2024-02-01T00:00:00.000Z" },
+        { id: 1002, name: "Sprint 2", state: "closed", startDate: "2024-02-15T00:00:00.000Z" },
       ]);
       mockDb.sprint.findFirst.mockResolvedValue(null);
 
@@ -230,7 +230,9 @@ describe("sprintScript", () => {
         { id: "board-1", externalId: "101", projectId: "proj-1" },
         { id: "board-2", externalId: "102", projectId: "proj-2" },
       ]);
-      mockClient.getSprints.mockRejectedValueOnce(new Error("Board not found")).mockResolvedValueOnce([{ id: 2001, name: "Sprint", state: "active" }]);
+      mockClient.getSprints
+        .mockRejectedValueOnce(new Error("Board not found"))
+        .mockResolvedValueOnce([{ id: 2001, name: "Sprint", state: "active", startDate: "2024-02-01T00:00:00.000Z" }]);
       mockDb.sprint.findFirst.mockResolvedValue(null);
 
       await sprintScript.run(mockDb as never, mockContext);
@@ -276,7 +278,7 @@ describe("sprintScript", () => {
 
     it("should not log errors when none occur", async () => {
       mockDb.board.findMany.mockResolvedValue([{ id: "board-1", externalId: "101", projectId: "proj-1" }]);
-      mockClient.getSprints.mockResolvedValue([{ id: 1001, name: "Sprint", state: "active" }]);
+      mockClient.getSprints.mockResolvedValue([{ id: 1001, name: "Sprint", state: "active", startDate: "2024-02-01T00:00:00.000Z" }]);
       mockDb.sprint.findFirst.mockResolvedValue(null);
 
       await sprintScript.run(mockDb as never, mockContext);

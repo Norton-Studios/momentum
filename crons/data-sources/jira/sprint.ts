@@ -30,10 +30,28 @@ export const sprintScript = {
       if (!board.externalId) continue;
 
       try {
-        const sprints = await client.getSprints(Number(board.externalId));
+        const allSprints = await client.getSprints(Number(board.externalId));
+        // Filter sprints to the import window for incremental sync
+        const sprints = allSprints.filter((sprint) => {
+          // Always include active and future sprints
+          if (sprint.state === "active" || sprint.state === "future") {
+            return true;
+          }
+
+          const sprintStart = sprint.startDate ? new Date(sprint.startDate) : null;
+          const sprintEnd = sprint.endDate ? new Date(sprint.endDate) : null;
+
+          // Include closed sprints if they overlap with the import window
+          return (
+            (sprintStart && sprintStart >= context.startDate && sprintStart <= context.endDate) ||
+            (sprintEnd && sprintEnd >= context.startDate && sprintEnd <= context.endDate) ||
+            (sprintStart && sprintEnd && sprintStart <= context.startDate && sprintEnd >= context.endDate)
+          );
+        });
+
         for (const sprint of sprints) {
-          await upsertSprint(db, board.projectId, board.id, sprint);
-          totalSprints++;
+          const wasUpserted = await upsertSprint(db, board.projectId, board.id, sprint);
+          if (wasUpserted) totalSprints++;
         }
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
@@ -52,7 +70,7 @@ export const sprintScript = {
   },
 };
 
-async function upsertSprint(db: DbClient, projectId: string, boardId: string, sprint: JiraSprint) {
+async function upsertSprint(db: DbClient, projectId: string, boardId: string, sprint: JiraSprint): Promise<boolean> {
   const existingSprint = await db.sprint.findFirst({
     where: {
       projectId,
@@ -60,8 +78,9 @@ async function upsertSprint(db: DbClient, projectId: string, boardId: string, sp
     },
   });
 
-  const startDate = sprint.startDate ? new Date(sprint.startDate) : new Date();
-  const endDate = sprint.endDate ? new Date(sprint.endDate) : new Date(startDate.getTime() + 14 * 24 * 60 * 60 * 1000);
+  // Handle dates - future sprints may not have dates yet
+  const startDate = sprint.startDate ? new Date(sprint.startDate) : null;
+  const endDate = sprint.endDate ? new Date(sprint.endDate) : startDate ? new Date(startDate.getTime() + 14 * 24 * 60 * 60 * 1000) : null;
   const completedAt = sprint.completeDate ? new Date(sprint.completeDate) : null;
 
   if (existingSprint) {
@@ -91,6 +110,8 @@ async function upsertSprint(db: DbClient, projectId: string, boardId: string, sp
       },
     });
   }
+
+  return true;
 }
 
 async function logErrors(db: DbClient, runId: string, errors: string[]) {

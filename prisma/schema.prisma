@@ -524,7 +524,8 @@ model Board {
   updatedAt  DateTime @updatedAt @map("updated_at")
 
   // Relationships
-  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  project Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  sprints Sprint[]
   issues  Issue[]
 
   @@index([projectId])
@@ -548,6 +549,7 @@ model Sprint {
 
   // Relationships
   project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  board   Board?  @relation(fields: [boardId], references: [id], onDelete: SetNull)
   issues  Issue[]
 
   @@index([projectId])

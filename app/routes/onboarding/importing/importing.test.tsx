@@ -3,8 +3,6 @@ import { MemoryRouter } from "react-router";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import Importing from "./importing";
 
-vi.useFakeTimers();
-
 const createMockLoaderData = (
   overrides: Partial<{
     dataSources: DataSourceStatus[];
@@ -71,11 +69,7 @@ describe("Importing", () => {
     } as Response);
   });
 
-  afterEach(async () => {
-    // Clear all timers and flush pending updates
-    await act(async () => {
-      vi.runOnlyPendingTimers();
-    });
+  afterEach(() => {
     vi.restoreAllMocks();
   });
 

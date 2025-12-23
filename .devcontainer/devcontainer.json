@@ -22,7 +22,7 @@
       "nvmInstallPath": "/usr/local/share/nvm"
     }
   },
-  "initializeCommand": "touch ~/.bash_history ~/.zsh_history",
+  "initializeCommand": "mkdir -p ~/.claude && touch ~/.bash_history ~/.zsh_history",
   "postCreateCommand": "bash .devcontainer/install.sh",
   "customizations": {
     "vscode": {

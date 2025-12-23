@@ -35,11 +35,9 @@ describe("Jira scripts", () => {
     const transitionScript = scripts.find((s) => s.resource === "status-transition");
 
     expect(projectScript?.dependsOn).toEqual([]);
-    expect(boardScript?.dependsOn).toContain("project");
-    expect(sprintScript?.dependsOn).toContain("project");
-    expect(sprintScript?.dependsOn).toContain("board");
-    expect(issueScript?.dependsOn).toContain("project");
-    expect(transitionScript?.dependsOn).toContain("project");
-    expect(transitionScript?.dependsOn).toContain("issue");
+    expect(boardScript?.dependsOn).toEqual(["project"]);
+    expect(sprintScript?.dependsOn).toEqual(["project", "board"]);
+    expect(issueScript?.dependsOn).toEqual(["project", "board", "sprint"]);
+    expect(transitionScript?.dependsOn).toEqual(["project", "issue"]);
   });
 });

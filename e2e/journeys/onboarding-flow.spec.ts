@@ -110,11 +110,11 @@ test.describe
       await expect(page.locator("#jiraStatus")).toHaveText("Connected");
 
       // Projects section should auto-expand - wait for projects to load
-      await page.waitForSelector(".repository-item", { timeout: 30000 });
+      await page.waitForSelector("[data-testid='selectable-item']", { timeout: 30000 });
       await expect(page.getByText(/projects selected/i)).toBeVisible();
 
       // Toggle a project if needed
-      const firstProjectCheckbox = page.locator(".repository-item input[type='checkbox']").first();
+      const firstProjectCheckbox = page.locator("[data-testid='selectable-item'] input[type='checkbox']").first();
       const isProjectChecked = await firstProjectCheckbox.isChecked();
       if (!isProjectChecked) {
         await firstProjectCheckbox.check();

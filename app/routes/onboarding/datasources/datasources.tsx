@@ -3,6 +3,7 @@ import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { Form, Link, useFetcher, useLoaderData } from "react-router";
 import { requireAdmin } from "~/auth/auth.server";
 import { type Repository, RepositoryList } from "~/components/repository-list/repository-list";
+import { SelectableList } from "~/components/selectable-list/selectable-list";
 import { db } from "~/db.server";
 import { Button } from "../../../components/button/button";
 import { Logo } from "../../../components/logo/logo";
@@ -760,7 +761,18 @@ function ProjectsSection({ provider, isExpanded, onToggle }: ProjectsSectionProp
                 </div>
               </div>
 
-              <ProjectList projects={filteredProjects} selectedIds={selectedIds} onToggle={handleToggle} />
+              <SelectableList
+                items={filteredProjects}
+                selectedIds={selectedIds}
+                onToggle={handleToggle}
+                emptyMessage="No projects found"
+                renderItem={(project) => (
+                  <div className="project-info">
+                    <span className="project-name">{project.name}</span>
+                    <span className="project-key">{project.key}</span>
+                  </div>
+                )}
+              />
 
               <div className="repositories-footer">
                 <span className="selection-count">
@@ -771,26 +783,6 @@ function ProjectsSection({ provider, isExpanded, onToggle }: ProjectsSectionProp
           )}
         </div>
       )}
-    </div>
-  );
-}
-
-function ProjectList({ projects, selectedIds, onToggle }: ProjectListProps) {
-  if (projects.length === 0) {
-    return <div className="repository-list-empty">No projects found</div>;
-  }
-
-  return (
-    <div className="repository-list">
-      {projects.map((project) => (
-        <label key={project.id} className="repository-item">
-          <input type="checkbox" checked={selectedIds.has(project.id)} onChange={(e) => onToggle(project.id, e.target.checked)} />
-          <div className="repository-info">
-            <span className="repository-name">{project.name}</span>
-            <span className="repository-fullname">{project.key}</span>
-          </div>
-        </label>
-      ))}
     </div>
   );
 }
@@ -839,12 +831,6 @@ interface Project {
   name: string;
   key: string;
   isEnabled: boolean;
-}
-
-interface ProjectListProps {
-  projects: Project[];
-  selectedIds: Set<string>;
-  onToggle: (projectId: string, isEnabled: boolean) => void;
 }
 
 interface ProjectsFetcherData {
