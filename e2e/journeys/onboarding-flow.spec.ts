@@ -1,9 +1,20 @@
-import { expect, test } from "@playwright/test";
+import { expect, type Page, test } from "@playwright/test";
 
 const GITHUB_TOKEN = process.env.E2E_GITHUB_TOKEN;
 const GITHUB_ORG = process.env.E2E_GITHUB_ORG;
 const JIRA_SERVER_URL = process.env.E2E_JIRA_SERVER_URL;
 const JIRA_PAT = process.env.E2E_JIRA_PAT;
+
+async function login(page: Page) {
+  await page.goto("/login");
+  // Wait for email input to be attached to DOM (React hydrated)
+  const emailInput = page.getByLabel("Email Address");
+  await emailInput.waitFor({ state: "attached" });
+  await emailInput.fill("admin@test.com");
+  await page.getByLabel("Password").fill("TestPassword123!");
+  await page.getByRole("button", { name: "Sign In" }).click();
+  await page.waitForURL(/\/(dashboard|onboarding)/);
+}
 
 test.describe
   .serial("Onboarding Journey", () => {
@@ -30,12 +41,7 @@ test.describe
 
     test("Step 2: Configure GitHub data source and select repositories", async ({ page }, testInfo) => {
       testInfo.setTimeout(90000); // Extended timeout for GitHub API calls
-      await page.goto("/login");
-      await page.getByLabel("Email Address").fill("admin@test.com");
-      await page.getByLabel("Password").fill("TestPassword123!");
-      await page.getByRole("button", { name: "Sign In" }).click();
-      await page.waitForURL(/\/(dashboard|onboarding)/);
-
+      await login(page);
       await page.goto("/onboarding/datasources");
       await page.waitForLoadState("networkidle");
       await expect(page.getByRole("heading", { name: "Connect Your Tools" })).toBeVisible();
@@ -74,16 +80,12 @@ test.describe
     });
 
     test("Step 3: Configure Jira Data Center (optional)", async ({ page }, testInfo) => {
-      test.skip(!JIRA_SERVER_URL || !JIRA_PAT, "Jira credentials not configured");
+      // Skip if Jira credentials aren't properly configured (must look like real values)
+      const isJiraConfigured = JIRA_SERVER_URL?.startsWith("http") && JIRA_PAT && JIRA_PAT.length > 20;
+      test.skip(!isJiraConfigured, "Jira credentials not properly configured");
       testInfo.setTimeout(90000);
 
-      await page.goto("/login");
-      await page.waitForLoadState("networkidle");
-      await page.getByLabel("Email Address").fill("admin@test.com");
-      await page.getByLabel("Password").fill("TestPassword123!");
-      await page.getByRole("button", { name: "Sign In" }).click();
-      await page.waitForURL(/\/(dashboard|onboarding)/, { timeout: 30000 });
-
+      await login(page);
       await page.goto("/onboarding/datasources");
       await page.waitForLoadState("networkidle");
       await expect(page.getByRole("heading", { name: "Connect Your Tools" })).toBeVisible();
@@ -123,13 +125,7 @@ test.describe
     });
 
     test("Step 4: Continue to import", async ({ page }) => {
-      await page.goto("/login");
-      await page.getByLabel("Email Address").fill("admin@test.com");
-      await page.getByLabel("Password").fill("TestPassword123!");
-      await page.getByRole("button", { name: "Sign In" }).click();
-      await page.waitForURL(/\/(dashboard|onboarding)/);
-      await page.waitForLoadState("networkidle");
-
+      await login(page);
       await page.goto("/onboarding/datasources");
       await page.waitForLoadState("networkidle");
       await expect(page.getByRole("heading", { name: "Connect Your Tools" })).toBeVisible();
@@ -141,13 +137,7 @@ test.describe
 
     test("Step 5: Wait for import and complete onboarding", async ({ page }, testInfo) => {
       testInfo.setTimeout(60000); // Extended timeout for import auto-start
-      await page.goto("/login");
-      await page.getByLabel("Email Address").fill("admin@test.com");
-      await page.getByLabel("Password").fill("TestPassword123!");
-      await page.getByRole("button", { name: "Sign In" }).click();
-      await page.waitForURL(/\/(dashboard|onboarding)/);
-      await page.waitForLoadState("networkidle");
-
+      await login(page);
       await page.goto("/onboarding/importing");
       await page.waitForLoadState("networkidle");
 
@@ -163,13 +153,7 @@ test.describe
     });
 
     test("Step 6: Navigate to dashboard", async ({ page }) => {
-      await page.goto("/login");
-      await page.getByLabel("Email Address").fill("admin@test.com");
-      await page.getByLabel("Password").fill("TestPassword123!");
-      await page.getByRole("button", { name: "Sign In" }).click();
-      await page.waitForURL(/\/(dashboard|onboarding)/);
-      await page.waitForLoadState("networkidle");
-
+      await login(page);
       await page.goto("/onboarding/complete");
       await page.waitForLoadState("networkidle");
 
