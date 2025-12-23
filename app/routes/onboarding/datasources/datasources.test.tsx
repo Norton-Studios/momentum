@@ -333,10 +333,14 @@ describe("OnboardingDataSources with connected providers", () => {
   });
 });
 
-describe("OnboardingDataSources with action data", () => {
+describe("OnboardingDataSources with fetcher data", () => {
   it("shows test success message", async () => {
     const user = userEvent.setup();
-    mockUseActionData.mockReturnValue({ testSuccess: true, provider: "github" });
+    mockUseFetcher.mockReturnValue({
+      state: "idle",
+      data: { testSuccess: true, provider: "github" },
+      submit: mockFetcherSubmit,
+    });
 
     render(
       <MemoryRouter>
@@ -351,7 +355,11 @@ describe("OnboardingDataSources with action data", () => {
 
   it("shows test error message", async () => {
     const user = userEvent.setup();
-    mockUseActionData.mockReturnValue({ testError: "Invalid token", provider: "github" });
+    mockUseFetcher.mockReturnValue({
+      state: "idle",
+      data: { testError: "Invalid token", provider: "github" },
+      submit: mockFetcherSubmit,
+    });
 
     render(
       <MemoryRouter>
@@ -365,7 +373,11 @@ describe("OnboardingDataSources with action data", () => {
   });
 
   it("adds provider to connected set on successful connection", () => {
-    mockUseActionData.mockReturnValue({ success: true, provider: "gitlab" });
+    mockUseFetcher.mockReturnValue({
+      state: "idle",
+      data: { success: true, provider: "gitlab" },
+      submit: mockFetcherSubmit,
+    });
 
     render(
       <MemoryRouter>
@@ -373,6 +385,7 @@ describe("OnboardingDataSources with action data", () => {
       </MemoryRouter>
     );
 
+    // When saveSuccess is true for gitlab, the card should have connected class
     const gitlabCard = document.getElementById("gitlabCard");
     expect(gitlabCard).toHaveClass("connected");
   });
@@ -684,5 +697,532 @@ describe("OnboardingDataSources form switching", () => {
 
     expect(screen.queryByPlaceholderText("ghp_xxxxxxxxxxxx")).not.toBeInTheDocument();
     expect(screen.getByPlaceholderText("glpat-xxxxxxxxxxxx")).toBeInTheDocument();
+  });
+});
+
+describe("Project Management section", () => {
+  it("renders Jira data source", () => {
+    render(
+      <MemoryRouter>
+        <OnboardingDataSources />
+      </MemoryRouter>
+    );
+
+    expect(screen.getByRole("heading", { level: 2, name: "Project Management" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 3, name: "Jira" })).toBeInTheDocument();
+    expect(screen.getByText(/Connect Jira Cloud or Data Center/)).toBeInTheDocument();
+  });
+
+  it("shows Configure Jira button", () => {
+    render(
+      <MemoryRouter>
+        <OnboardingDataSources />
+      </MemoryRouter>
+    );
+
+    expect(screen.getByRole("button", { name: "Configure Jira" })).toBeInTheDocument();
+  });
+});
+
+describe("Jira configuration form", () => {
+  it("shows Jira version dropdown", async () => {
+    const user = userEvent.setup();
+
+    render(
+      <MemoryRouter>
+        <OnboardingDataSources />
+      </MemoryRouter>
+    );
+
+    await user.click(screen.getByRole("button", { name: "Configure Jira" }));
+
+    expect(screen.getByLabelText(/Jira Version/)).toBeInTheDocument();
+    expect(screen.getByRole("combobox")).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: "Select..." })).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: "Jira Cloud (SaaS)" })).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: "Jira Data Center (Self-hosted)" })).toBeInTheDocument();
+  });
+
+  it("shows cloud-specific fields when cloud variant is selected", async () => {
+    const user = userEvent.setup();
+
+    render(
+      <MemoryRouter>
+        <OnboardingDataSources />
+      </MemoryRouter>
+    );
+
+    await user.click(screen.getByRole("button", { name: "Configure Jira" }));
+    await user.selectOptions(screen.getByRole("combobox"), "cloud");
+
+    expect(screen.getByLabelText(/Atlassian Domain/)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Email/)).toBeInTheDocument();
+    expect(screen.getByLabelText(/API Token/)).toBeInTheDocument();
+    expect(screen.queryByLabelText(/Server URL/)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/Personal Access Token/)).not.toBeInTheDocument();
+  });
+
+  it("shows datacenter-specific fields when datacenter variant is selected", async () => {
+    const user = userEvent.setup();
+
+    render(
+      <MemoryRouter>
+        <OnboardingDataSources />
+      </MemoryRouter>
+    );
+
+    await user.click(screen.getByRole("button", { name: "Configure Jira" }));
+    await user.selectOptions(screen.getByRole("combobox"), "datacenter");
+
+    expect(screen.getByLabelText(/Server URL/)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Personal Access Token/)).toBeInTheDocument();
+    expect(screen.queryByLabelText(/Atlassian Domain/)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/Email/)).not.toBeInTheDocument();
+  });
+
+  it("hides all conditional fields when no variant is selected", async () => {
+    const user = userEvent.setup();
+
+    render(
+      <MemoryRouter>
+        <OnboardingDataSources />
+      </MemoryRouter>
+    );
+
+    await user.click(screen.getByRole("button", { name: "Configure Jira" }));
+
+    // Only Jira Version should be visible initially
+    expect(screen.getByLabelText(/Jira Version/)).toBeInTheDocument();
+    expect(screen.queryByLabelText(/Atlassian Domain/)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/Server URL/)).not.toBeInTheDocument();
+  });
+
+  it("switches fields when changing variant", async () => {
+    const user = userEvent.setup();
+
+    render(
+      <MemoryRouter>
+        <OnboardingDataSources />
+      </MemoryRouter>
+    );
+
+    await user.click(screen.getByRole("button", { name: "Configure Jira" }));
+
+    // Select cloud first
+    await user.selectOptions(screen.getByRole("combobox"), "cloud");
+    expect(screen.getByLabelText(/Atlassian Domain/)).toBeInTheDocument();
+
+    // Switch to datacenter
+    await user.selectOptions(screen.getByRole("combobox"), "datacenter");
+    expect(screen.queryByLabelText(/Atlassian Domain/)).not.toBeInTheDocument();
+    expect(screen.getByLabelText(/Server URL/)).toBeInTheDocument();
+  });
+});
+
+describe("GitLab configuration form", () => {
+  it("shows GitLab fields when form is opened", async () => {
+    const user = userEvent.setup();
+
+    render(
+      <MemoryRouter>
+        <OnboardingDataSources />
+      </MemoryRouter>
+    );
+
+    await user.click(screen.getByRole("button", { name: "Configure GitLab" }));
+
+    expect(screen.getByLabelText(/Personal Access Token/)).toBeInTheDocument();
+    expect(screen.getByLabelText(/GitLab URL/)).toBeInTheDocument();
+    expect(screen.getByPlaceholderText("glpat-xxxxxxxxxxxx")).toBeInTheDocument();
+    expect(screen.getByPlaceholderText("https://gitlab.com")).toBeInTheDocument();
+  });
+
+  it("shows GitLab URL as optional", async () => {
+    const user = userEvent.setup();
+
+    render(
+      <MemoryRouter>
+        <OnboardingDataSources />
+      </MemoryRouter>
+    );
+
+    await user.click(screen.getByRole("button", { name: "Configure GitLab" }));
+
+    const urlLabel = screen.getByText("GitLab URL");
+    // GitLab URL should NOT have the required asterisk
+    expect(urlLabel.querySelector(".required")).not.toBeInTheDocument();
+  });
+
+  it("allows typing in GitLab fields", async () => {
+    const user = userEvent.setup();
+
+    render(
+      <MemoryRouter>
+        <OnboardingDataSources />
+      </MemoryRouter>
+    );
+
+    await user.click(screen.getByRole("button", { name: "Configure GitLab" }));
+
+    const tokenInput = screen.getByPlaceholderText("glpat-xxxxxxxxxxxx");
+    const urlInput = screen.getByPlaceholderText("https://gitlab.com");
+
+    await user.type(tokenInput, "glpat-test123");
+    await user.type(urlInput, "https://gitlab.company.com");
+
+    expect(tokenInput).toHaveValue("glpat-test123");
+    expect(urlInput).toHaveValue("https://gitlab.company.com");
+  });
+});
+
+describe("ProjectsSection", () => {
+  beforeEach(() => {
+    mockUseLoaderData.mockReturnValue({
+      user: { id: "1", email: "test@example.com", name: "Test User", role: "ADMIN" },
+      connectedProviders: ["jira"],
+      dataSourceConfigs: {
+        jira: { JIRA_VARIANT: "cloud", JIRA_DOMAIN: "my-company" },
+      },
+    });
+  });
+
+  it("renders Projects toggle button for connected Jira", () => {
+    render(
+      <MemoryRouter>
+        <OnboardingDataSources />
+      </MemoryRouter>
+    );
+
+    expect(screen.getByRole("button", { name: /Projects/ })).toBeInTheDocument();
+  });
+
+  it("fetches projects when expanded", async () => {
+    const user = userEvent.setup();
+
+    render(
+      <MemoryRouter>
+        <OnboardingDataSources />
+      </MemoryRouter>
+    );
+
+    await user.click(screen.getByRole("button", { name: /Projects/ }));
+
+    expect(mockFetcherSubmit).toHaveBeenCalledWith(expect.any(FormData), { method: "post" });
+  });
+
+  it("shows loading state while fetching projects", async () => {
+    const user = userEvent.setup();
+    mockUseFetcher.mockReturnValue({
+      state: "loading",
+      data: null,
+      submit: mockFetcherSubmit,
+    });
+
+    render(
+      <MemoryRouter>
+        <OnboardingDataSources />
+      </MemoryRouter>
+    );
+
+    await user.click(screen.getByRole("button", { name: /Projects/ }));
+
+    expect(screen.getByText("Loading projects...")).toBeInTheDocument();
+  });
+
+  it("renders project list after loading", async () => {
+    const user = userEvent.setup();
+    const mockProjects = [
+      { id: "proj-1", name: "Project Alpha", key: "PA", isEnabled: true },
+      { id: "proj-2", name: "Project Beta", key: "PB", isEnabled: false },
+    ];
+
+    mockUseFetcher.mockReturnValue({
+      state: "idle",
+      data: { projects: mockProjects },
+      submit: mockFetcherSubmit,
+    });
+
+    render(
+      <MemoryRouter>
+        <OnboardingDataSources />
+      </MemoryRouter>
+    );
+
+    await user.click(screen.getByRole("button", { name: /Projects/ }));
+
+    expect(screen.getByText("Project Alpha")).toBeInTheDocument();
+    expect(screen.getByText("Project Beta")).toBeInTheDocument();
+    expect(screen.getByText("PA")).toBeInTheDocument();
+    expect(screen.getByText("PB")).toBeInTheDocument();
+  });
+
+  it("shows selected count badge for projects", async () => {
+    const user = userEvent.setup();
+    const mockProjects = [
+      { id: "proj-1", name: "Project Alpha", key: "PA", isEnabled: true },
+      { id: "proj-2", name: "Project Beta", key: "PB", isEnabled: true },
+    ];
+
+    mockUseFetcher.mockReturnValue({
+      state: "idle",
+      data: { projects: mockProjects },
+      submit: mockFetcherSubmit,
+    });
+
+    render(
+      <MemoryRouter>
+        <OnboardingDataSources />
+      </MemoryRouter>
+    );
+
+    await user.click(screen.getByRole("button", { name: /Projects/ }));
+
+    expect(screen.getByText("2 selected")).toBeInTheDocument();
+    expect(screen.getByText("2 of 2 projects selected")).toBeInTheDocument();
+  });
+
+  it("filters projects by search", async () => {
+    const user = userEvent.setup();
+    const mockProjects = [
+      { id: "proj-1", name: "Alpha Project", key: "AP", isEnabled: true },
+      { id: "proj-2", name: "Beta Project", key: "BP", isEnabled: false },
+    ];
+
+    mockUseFetcher.mockReturnValue({
+      state: "idle",
+      data: { projects: mockProjects },
+      submit: mockFetcherSubmit,
+    });
+
+    render(
+      <MemoryRouter>
+        <OnboardingDataSources />
+      </MemoryRouter>
+    );
+
+    await user.click(screen.getByRole("button", { name: /Projects/ }));
+    await user.type(screen.getByPlaceholderText("Search projects..."), "Alpha");
+
+    expect(screen.getByText("Alpha Project")).toBeInTheDocument();
+    expect(screen.queryByText("Beta Project")).not.toBeInTheDocument();
+  });
+
+  it("filters projects by key", async () => {
+    const user = userEvent.setup();
+    const mockProjects = [
+      { id: "proj-1", name: "Alpha Project", key: "AP", isEnabled: true },
+      { id: "proj-2", name: "Beta Project", key: "BP", isEnabled: false },
+    ];
+
+    mockUseFetcher.mockReturnValue({
+      state: "idle",
+      data: { projects: mockProjects },
+      submit: mockFetcherSubmit,
+    });
+
+    render(
+      <MemoryRouter>
+        <OnboardingDataSources />
+      </MemoryRouter>
+    );
+
+    await user.click(screen.getByRole("button", { name: /Projects/ }));
+    await user.type(screen.getByPlaceholderText("Search projects..."), "BP");
+
+    expect(screen.queryByText("Alpha Project")).not.toBeInTheDocument();
+    expect(screen.getByText("Beta Project")).toBeInTheDocument();
+  });
+
+  it("toggles individual project", async () => {
+    const user = userEvent.setup();
+    const mockProjects = [{ id: "proj-1", name: "Test Project", key: "TP", isEnabled: false }];
+
+    mockUseFetcher.mockReturnValue({
+      state: "idle",
+      data: { projects: mockProjects },
+      submit: mockFetcherSubmit,
+    });
+
+    render(
+      <MemoryRouter>
+        <OnboardingDataSources />
+      </MemoryRouter>
+    );
+
+    await user.click(screen.getByRole("button", { name: /Projects/ }));
+
+    const checkbox = screen.getByRole("checkbox");
+    await user.click(checkbox);
+
+    expect(mockFetcherSubmit).toHaveBeenCalled();
+  });
+
+  it("selects all visible projects", async () => {
+    const user = userEvent.setup();
+    const mockProjects = [
+      { id: "proj-1", name: "Project A", key: "PA", isEnabled: false },
+      { id: "proj-2", name: "Project B", key: "PB", isEnabled: false },
+    ];
+
+    mockUseFetcher.mockReturnValue({
+      state: "idle",
+      data: { projects: mockProjects },
+      submit: mockFetcherSubmit,
+    });
+
+    render(
+      <MemoryRouter>
+        <OnboardingDataSources />
+      </MemoryRouter>
+    );
+
+    await user.click(screen.getByRole("button", { name: /Projects/ }));
+    await user.click(screen.getByRole("button", { name: "Select All" }));
+
+    expect(mockFetcherSubmit).toHaveBeenCalled();
+  });
+
+  it("deselects all visible projects", async () => {
+    const user = userEvent.setup();
+    const mockProjects = [
+      { id: "proj-1", name: "Project A", key: "PA", isEnabled: true },
+      { id: "proj-2", name: "Project B", key: "PB", isEnabled: true },
+    ];
+
+    mockUseFetcher.mockReturnValue({
+      state: "idle",
+      data: { projects: mockProjects },
+      submit: mockFetcherSubmit,
+    });
+
+    render(
+      <MemoryRouter>
+        <OnboardingDataSources />
+      </MemoryRouter>
+    );
+
+    await user.click(screen.getByRole("button", { name: /Projects/ }));
+    await user.click(screen.getByRole("button", { name: "Deselect All" }));
+
+    expect(mockFetcherSubmit).toHaveBeenCalled();
+  });
+
+  it("shows empty state when no projects", async () => {
+    const user = userEvent.setup();
+
+    mockUseFetcher.mockReturnValue({
+      state: "idle",
+      data: { projects: [] },
+      submit: mockFetcherSubmit,
+    });
+
+    render(
+      <MemoryRouter>
+        <OnboardingDataSources />
+      </MemoryRouter>
+    );
+
+    await user.click(screen.getByRole("button", { name: /Projects/ }));
+
+    expect(screen.getByText("No projects found")).toBeInTheDocument();
+  });
+
+  it("collapses projects section when toggled again", async () => {
+    const user = userEvent.setup();
+    const mockProjects = [{ id: "proj-1", name: "Test Project", key: "TP", isEnabled: true }];
+
+    mockUseFetcher.mockReturnValue({
+      state: "idle",
+      data: { projects: mockProjects },
+      submit: mockFetcherSubmit,
+    });
+
+    render(
+      <MemoryRouter>
+        <OnboardingDataSources />
+      </MemoryRouter>
+    );
+
+    const projectsButton = screen.getByRole("button", { name: /Projects/ });
+
+    await user.click(projectsButton);
+    expect(screen.getByText("Test Project")).toBeInTheDocument();
+
+    await user.click(projectsButton);
+    expect(screen.queryByText("Test Project")).not.toBeInTheDocument();
+  });
+});
+
+describe("Form submission", () => {
+  it("submits test connection request", async () => {
+    const user = userEvent.setup();
+
+    render(
+      <MemoryRouter>
+        <OnboardingDataSources />
+      </MemoryRouter>
+    );
+
+    await user.click(screen.getByRole("button", { name: "Configure GitHub" }));
+    await user.type(screen.getByPlaceholderText("ghp_xxxxxxxxxxxx"), "ghp_test123");
+    await user.type(screen.getByPlaceholderText("my-organization"), "my-org");
+    await user.click(screen.getByRole("button", { name: "Test Connection" }));
+
+    expect(mockFetcherSubmit).toHaveBeenCalled();
+  });
+
+  it("submits save configuration request", async () => {
+    const user = userEvent.setup();
+
+    render(
+      <MemoryRouter>
+        <OnboardingDataSources />
+      </MemoryRouter>
+    );
+
+    await user.click(screen.getByRole("button", { name: "Configure GitHub" }));
+    await user.type(screen.getByPlaceholderText("ghp_xxxxxxxxxxxx"), "ghp_test123");
+    await user.type(screen.getByPlaceholderText("my-organization"), "my-org");
+    await user.click(screen.getByRole("button", { name: "Save Configuration" }));
+
+    expect(mockFetcherSubmit).toHaveBeenCalled();
+  });
+
+  it("shows Testing... text while submitting test", async () => {
+    const user = userEvent.setup();
+    mockUseFetcher.mockReturnValue({
+      state: "submitting",
+      data: null,
+      submit: mockFetcherSubmit,
+    });
+
+    render(
+      <MemoryRouter>
+        <OnboardingDataSources />
+      </MemoryRouter>
+    );
+
+    await user.click(screen.getByRole("button", { name: "Configure GitHub" }));
+
+    expect(screen.getByRole("button", { name: "Testing..." })).toBeDisabled();
+  });
+
+  it("shows Saving... text while submitting save", async () => {
+    const user = userEvent.setup();
+    mockUseFetcher.mockReturnValue({
+      state: "submitting",
+      data: null,
+      submit: mockFetcherSubmit,
+    });
+
+    render(
+      <MemoryRouter>
+        <OnboardingDataSources />
+      </MemoryRouter>
+    );
+
+    await user.click(screen.getByRole("button", { name: "Configure GitHub" }));
+
+    expect(screen.getByRole("button", { name: "Saving..." })).toBeDisabled();
   });
 });
