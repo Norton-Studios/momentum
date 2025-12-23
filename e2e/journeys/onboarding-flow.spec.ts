@@ -76,7 +76,12 @@ test.describe
     test("Step 3: Configure Jira Data Center (optional)", async ({ page }, testInfo) => {
       test.skip(!JIRA_SERVER_URL || !JIRA_PAT, "Jira credentials not configured");
 
-      await page.goto("/onboarding/datasources");
+      await page.goto("/login");
+      await page.getByLabel("Email Address").fill("admin@test.com");
+      await page.getByLabel("Password").fill("TestPassword123!");
+      await page.getByRole("button", { name: "Sign In" }).click();
+      await page.waitForURL(/\/(dashboard|onboarding)/);
+
       await page.waitForLoadState("networkidle");
       await expect(page.getByRole("heading", { name: "Connect Your Tools" })).toBeVisible();
 
