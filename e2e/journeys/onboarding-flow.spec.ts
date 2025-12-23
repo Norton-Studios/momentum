@@ -8,6 +8,8 @@ const JIRA_PAT = process.env.E2E_JIRA_PAT;
 async function login(page: Page) {
   await page.goto("/login");
   await page.waitForLoadState("load");
+  // Small delay to ensure React is hydrated
+  await page.waitForTimeout(500);
   // Use JavaScript to set form values directly
   await page.evaluate(() => {
     const email = document.getElementById("email") as HTMLInputElement;
@@ -19,7 +21,7 @@ async function login(page: Page) {
     password?.dispatchEvent(new Event("input", { bubbles: true }));
   });
   await page.locator('button[type="submit"]').click();
-  await page.waitForURL(/\/(dashboard|onboarding)/);
+  await page.waitForURL(/\/(dashboard|onboarding)/, { timeout: 15000 });
 }
 
 test.describe
