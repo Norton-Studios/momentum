@@ -847,3 +847,123 @@ describe("data-sources action - delete intent validation", () => {
     expect(data.error).toBe("Data source ID is required");
   });
 });
+
+describe("data-sources action - test intent validation", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("returns error when provider is missing", async () => {
+    const formData = new FormData();
+    formData.append("intent", "test");
+
+    const request = new Request("http://localhost/settings/data-sources", {
+      method: "POST",
+      body: formData,
+    });
+
+    const result = (await action({
+      request,
+      params: {},
+      context: {},
+    })) as unknown as Response;
+
+    expect(result.status).toBe(400);
+    const data = await result.json();
+    expect(data.testError).toBe("Provider is required");
+  });
+});
+
+describe("data-sources action - fetch-repositories intent validation", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("returns error when provider is missing", async () => {
+    const formData = new FormData();
+    formData.append("intent", "fetch-repositories");
+
+    const request = new Request("http://localhost/settings/data-sources", {
+      method: "POST",
+      body: formData,
+    });
+
+    const result = (await action({
+      request,
+      params: {},
+      context: {},
+    })) as unknown as Response;
+
+    expect(result.status).toBe(400);
+    const data = await result.json();
+    expect(data.error).toBe("Provider is required");
+  });
+
+  it("returns error when provider is invalid", async () => {
+    const formData = new FormData();
+    formData.append("intent", "fetch-repositories");
+    formData.append("provider", "invalid-provider");
+
+    const request = new Request("http://localhost/settings/data-sources", {
+      method: "POST",
+      body: formData,
+    });
+
+    const result = (await action({
+      request,
+      params: {},
+      context: {},
+    })) as unknown as Response;
+
+    expect(result.status).toBe(400);
+    const data = await result.json();
+    expect(data.error).toBe("Invalid provider");
+  });
+});
+
+describe("data-sources action - fetch-projects intent validation", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("returns error when provider is missing", async () => {
+    const formData = new FormData();
+    formData.append("intent", "fetch-projects");
+
+    const request = new Request("http://localhost/settings/data-sources", {
+      method: "POST",
+      body: formData,
+    });
+
+    const result = (await action({
+      request,
+      params: {},
+      context: {},
+    })) as unknown as Response;
+
+    expect(result.status).toBe(400);
+    const data = await result.json();
+    expect(data.error).toBe("Provider is required");
+  });
+
+  it("returns error when provider is invalid", async () => {
+    const formData = new FormData();
+    formData.append("intent", "fetch-projects");
+    formData.append("provider", "invalid-provider");
+
+    const request = new Request("http://localhost/settings/data-sources", {
+      method: "POST",
+      body: formData,
+    });
+
+    const result = (await action({
+      request,
+      params: {},
+      context: {},
+    })) as unknown as Response;
+
+    expect(result.status).toBe(400);
+    const data = await result.json();
+    expect(data.error).toBe("Invalid provider");
+  });
+});

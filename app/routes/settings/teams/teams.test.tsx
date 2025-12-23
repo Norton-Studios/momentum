@@ -85,20 +85,27 @@ describe("Teams", () => {
     expect(screen.getByText("Backend Team")).toBeInTheDocument();
   });
 
-  it("displays repository and project counts", () => {
+  it("displays repository and project counts for each team", () => {
     render(
       <MemoryRouter>
         <Teams />
       </MemoryRouter>
     );
 
-    const table = screen.getByRole("table");
-    expect(table).toBeInTheDocument();
+    const rows = screen.getAllByRole("row");
+    const frontendRow = rows.find((row) => row.textContent?.includes("Frontend Team"));
+    const backendRow = rows.find((row) => row.textContent?.includes("Backend Team"));
 
-    expect(screen.getByText("5")).toBeInTheDocument();
-    expect(screen.getByText("2")).toBeInTheDocument();
-    expect(screen.getByText("3")).toBeInTheDocument();
-    expect(screen.getByText("1")).toBeInTheDocument();
+    expect(frontendRow).toBeDefined();
+    expect(backendRow).toBeDefined();
+
+    const frontendCells = frontendRow!.querySelectorAll("td");
+    expect(frontendCells[2].textContent).toBe("5");
+    expect(frontendCells[3].textContent).toBe("2");
+
+    const backendCells = backendRow!.querySelectorAll("td");
+    expect(backendCells[2].textContent).toBe("3");
+    expect(backendCells[3].textContent).toBe("1");
   });
 
   it("displays no description when description is null", () => {

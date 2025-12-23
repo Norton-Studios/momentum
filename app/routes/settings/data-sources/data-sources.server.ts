@@ -84,8 +84,8 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 async function handleTestIntent(formData: FormData) {
-  const provider = formData.get("provider");
-  if (typeof provider !== "string" || !provider) {
+  const provider = getRequiredString(formData, "provider");
+  if (!provider) {
     return data({ testError: "Provider is required" }, { status: 400 });
   }
 
@@ -99,9 +99,8 @@ async function handleTestIntent(formData: FormData) {
 }
 
 async function handleConnectIntent(formData: FormData) {
-  const provider = formData.get("provider");
-
-  if (typeof provider !== "string" || !provider) {
+  const provider = getRequiredString(formData, "provider");
+  if (!provider) {
     return data({ errors: { provider: "Provider is required" } }, { status: 400 });
   }
 
@@ -124,9 +123,8 @@ async function handleConnectIntent(formData: FormData) {
 }
 
 async function handleDeleteIntent(formData: FormData) {
-  const dataSourceId = formData.get("dataSourceId");
-
-  if (typeof dataSourceId !== "string" || !dataSourceId) {
+  const dataSourceId = getRequiredString(formData, "dataSourceId");
+  if (!dataSourceId) {
     return data({ error: "Data source ID is required" }, { status: 400 });
   }
 
@@ -142,10 +140,10 @@ async function handleDeleteIntent(formData: FormData) {
 }
 
 async function handleToggleEnabledIntent(formData: FormData) {
-  const dataSourceId = formData.get("dataSourceId");
+  const dataSourceId = getRequiredString(formData, "dataSourceId");
   const isEnabled = formData.get("isEnabled") === "true";
 
-  if (typeof dataSourceId !== "string" || !dataSourceId) {
+  if (!dataSourceId) {
     return data({ error: "Data source ID is required" }, { status: 400 });
   }
 
@@ -162,15 +160,13 @@ async function handleToggleEnabledIntent(formData: FormData) {
 }
 
 async function handleFetchRepositoriesIntent(formData: FormData) {
-  const provider = formData.get("provider");
-  if (typeof provider !== "string" || !provider) {
+  const provider = getRequiredString(formData, "provider");
+  if (!provider) {
     return data({ error: "Provider is required" }, { status: 400 });
   }
 
-  const searchValue = formData.get("search");
-  const search = typeof searchValue === "string" ? searchValue : undefined;
-  const cursorValue = formData.get("cursor");
-  const cursor = typeof cursorValue === "string" ? cursorValue : undefined;
+  const search = getOptionalString(formData, "search");
+  const cursor = getOptionalString(formData, "cursor");
 
   const providerEnum = getProviderEnum(provider);
   if (!providerEnum) {
@@ -223,10 +219,10 @@ async function handleFetchRepositoriesIntent(formData: FormData) {
 }
 
 async function handleToggleRepositoryIntent(formData: FormData) {
-  const repositoryId = formData.get("repositoryId");
+  const repositoryId = getRequiredString(formData, "repositoryId");
   const isEnabled = formData.get("isEnabled") === "true";
 
-  if (typeof repositoryId !== "string" || !repositoryId) {
+  if (!repositoryId) {
     return data({ error: "Repository ID is required" }, { status: 400 });
   }
 
@@ -249,8 +245,8 @@ async function handleToggleRepositoriesBatchIntent(formData: FormData) {
 }
 
 async function handleFetchProjectsIntent(formData: FormData) {
-  const provider = formData.get("provider");
-  if (typeof provider !== "string" || !provider) {
+  const provider = getRequiredString(formData, "provider");
+  if (!provider) {
     return data({ error: "Provider is required" }, { status: 400 });
   }
 
@@ -306,10 +302,10 @@ async function handleFetchProjectsIntent(formData: FormData) {
 }
 
 async function handleToggleProjectIntent(formData: FormData) {
-  const projectId = formData.get("projectId");
+  const projectId = getRequiredString(formData, "projectId");
   const isEnabled = formData.get("isEnabled") === "true";
 
-  if (typeof projectId !== "string" || !projectId) {
+  if (!projectId) {
     return data({ error: "Project ID is required" }, { status: 400 });
   }
 
@@ -456,6 +452,16 @@ async function saveJiraProjects(dataSourceId: string, projects: JiraProject[]) {
       })
     )
   );
+}
+
+function getRequiredString(formData: FormData, key: string): string | null {
+  const value = formData.get(key);
+  return typeof value === "string" && value ? value : null;
+}
+
+function getOptionalString(formData: FormData, key: string): string | undefined {
+  const value = formData.get(key);
+  return typeof value === "string" ? value : undefined;
 }
 
 function getProviderEnum(provider: string): DataSourceProviderEnum | null {
