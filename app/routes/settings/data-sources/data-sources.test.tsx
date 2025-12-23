@@ -12,6 +12,22 @@ vi.mock("~/auth/auth.server", () => ({
   }),
 }));
 
+const mockFetcherData = { testSuccess: false, testError: null, success: false, provider: null };
+const mockFetcherSubmit = vi.fn();
+const mockFetcher = {
+  state: "idle",
+  data: mockFetcherData,
+  submit: mockFetcherSubmit,
+};
+
+vi.mock("react-router", async () => {
+  const actual = await vi.importActual("react-router");
+  return {
+    ...actual,
+    useFetcher: () => mockFetcher,
+  };
+});
+
 const mockLoaderData = {
   dataSources: [
     {
@@ -216,5 +232,175 @@ describe("DataSourcesSettings", () => {
 
     const notConnectedBadges = screen.getAllByText("Not Connected");
     expect(notConnectedBadges.length).toBe(6);
+  });
+
+  it("closes form when cancel button is clicked", async () => {
+    const user = userEvent.setup();
+    const DataSourcesPage = await import("./data-sources");
+
+    const router = createMemoryRouter(
+      [
+        {
+          path: "/settings/data-sources",
+          element: <DataSourcesPage.default />,
+          loader: () => mockLoaderData,
+        },
+      ],
+      {
+        initialEntries: ["/settings/data-sources"],
+      }
+    );
+
+    render(<RouterProvider router={router} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Configure GitLab")).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByText("Configure GitLab"));
+
+    await waitFor(() => {
+      expect(screen.getByText("Cancel")).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByText("Cancel"));
+
+    await waitFor(() => {
+      expect(screen.queryByText("Test Connection")).not.toBeInTheDocument();
+    });
+  });
+
+  it("pre-populates form with existing config values for connected data source", async () => {
+    const user = userEvent.setup();
+    const DataSourcesPage = await import("./data-sources");
+
+    const router = createMemoryRouter(
+      [
+        {
+          path: "/settings/data-sources",
+          element: <DataSourcesPage.default />,
+          loader: () => mockLoaderData,
+        },
+      ],
+      {
+        initialEntries: ["/settings/data-sources"],
+      }
+    );
+
+    render(<RouterProvider router={router} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Edit GitHub Configuration")).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByText("Edit GitHub Configuration"));
+
+    await waitFor(() => {
+      const orgInput = screen.getByLabelText(/organization/i) as HTMLInputElement;
+      expect(orgInput.value).toBe("test-org");
+    });
+  });
+
+  it("shows test success message when connection test succeeds", async () => {
+    mockFetcher.data = { testSuccess: true, provider: "github" };
+
+    const user = userEvent.setup();
+    const DataSourcesPage = await import("./data-sources");
+
+    const router = createMemoryRouter(
+      [
+        {
+          path: "/settings/data-sources",
+          element: <DataSourcesPage.default />,
+          loader: () => mockLoaderData,
+        },
+      ],
+      {
+        initialEntries: ["/settings/data-sources"],
+      }
+    );
+
+    render(<RouterProvider router={router} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Edit GitHub Configuration")).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByText("Edit GitHub Configuration"));
+
+    await waitFor(() => {
+      expect(screen.getByText("Connection successful!")).toBeInTheDocument();
+    });
+
+    mockFetcher.data = mockFetcherData;
+  });
+
+  it("shows test error message when connection test fails", async () => {
+    mockFetcher.data = { testError: "Invalid credentials", provider: "gitlab" };
+
+    const user = userEvent.setup();
+    const DataSourcesPage = await import("./data-sources");
+
+    const router = createMemoryRouter(
+      [
+        {
+          path: "/settings/data-sources",
+          element: <DataSourcesPage.default />,
+          loader: () => ({ dataSources: [], user: { name: "Test User", email: "test@example.com" } }),
+        },
+      ],
+      {
+        initialEntries: ["/settings/data-sources"],
+      }
+    );
+
+    render(<RouterProvider router={router} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Configure GitLab")).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByText("Configure GitLab"));
+
+    await waitFor(() => {
+      expect(screen.getByText("Invalid credentials")).toBeInTheDocument();
+    });
+
+    mockFetcher.data = mockFetcherData;
+  });
+
+  it("disables buttons while form is submitting", async () => {
+    mockFetcher.state = "submitting";
+
+    const user = userEvent.setup();
+    const DataSourcesPage = await import("./data-sources");
+
+    const router = createMemoryRouter(
+      [
+        {
+          path: "/settings/data-sources",
+          element: <DataSourcesPage.default />,
+          loader: () => ({ dataSources: [], user: { name: "Test User", email: "test@example.com" } }),
+        },
+      ],
+      {
+        initialEntries: ["/settings/data-sources"],
+      }
+    );
+
+    render(<RouterProvider router={router} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Configure GitLab")).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByText("Configure GitLab"));
+
+    await waitFor(() => {
+      expect(screen.getByText("Testing...")).toBeInTheDocument();
+      expect(screen.getByText("Saving...")).toBeInTheDocument();
+    });
+
+    mockFetcher.state = "idle";
   });
 });

@@ -170,13 +170,18 @@ test.describe
       await page.waitForLoadState("networkidle");
 
       await expect(page).toHaveTitle(/Data Sources - Settings - Momentum/);
-      await expect(page.getByRole("heading", { name: "Data Sources" })).toBeVisible();
 
-      // Verify GitHub data source is configured from onboarding
+      // Verify section headers are visible
+      await expect(page.getByText("Version Control")).toBeVisible();
+      await expect(page.getByText("CI/CD Platforms")).toBeVisible();
+
+      // Verify GitHub data source card is visible and connected from onboarding
       await expect(page.getByRole("heading", { name: "GitHub" })).toBeVisible();
+      await expect(page.getByText("Connected").first()).toBeVisible();
 
-      // Verify the Add Data Source button is present
-      await expect(page.getByRole("button", { name: "Add Data Source" })).toBeVisible();
+      // Verify configure buttons are present
+      await expect(page.getByRole("button", { name: "Edit GitHub Configuration" })).toBeVisible();
+      await expect(page.getByRole("button", { name: "Configure GitLab" })).toBeVisible();
     });
 
     test("Step 10: View imports and trigger manual import", async ({ page }, testInfo) => {

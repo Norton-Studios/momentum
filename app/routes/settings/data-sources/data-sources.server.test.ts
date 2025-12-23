@@ -58,7 +58,40 @@ vi.mock("~/db.server", () => ({
       findFirst: vi.fn(),
       create: vi.fn(),
     },
+    repository: {
+      count: vi.fn(),
+      findMany: vi.fn(),
+      update: vi.fn(),
+      updateMany: vi.fn(),
+    },
+    project: {
+      count: vi.fn(),
+      findMany: vi.fn(),
+      update: vi.fn(),
+      updateMany: vi.fn(),
+    },
   },
+}));
+
+vi.mock("~/lib/repositories/fetch-repositories", () => ({
+  fetchGithubRepositories: vi.fn().mockResolvedValue([]),
+  fetchGitlabRepositories: vi.fn().mockResolvedValue([]),
+  saveRepositories: vi.fn().mockResolvedValue(undefined),
+}));
+
+vi.mock("~/lib/repositories/repository-filters", () => ({
+  getRepositoriesWithFilters: vi.fn().mockResolvedValue({
+    repositories: [],
+    totalCount: 0,
+    nextCursor: undefined,
+  }),
+}));
+
+vi.mock("~/lib/repositories/toggle-repositories", () => ({
+  REPOSITORY_PAGE_SIZE: 50,
+  DEFAULT_ACTIVE_THRESHOLD_DAYS: 90,
+  toggleRepository: vi.fn().mockResolvedValue({ success: true }),
+  toggleRepositoriesBatch: vi.fn().mockResolvedValue({ count: 0 }),
 }));
 
 import { db } from "~/db.server";
@@ -323,5 +356,494 @@ describe("data-sources action - toggle-enabled intent", () => {
       where: { id: "ds-1" },
       data: { isEnabled: false },
     });
+  });
+
+  it("returns error when dataSourceId is missing", async () => {
+    const formData = new FormData();
+    formData.append("intent", "toggle-enabled");
+    formData.append("isEnabled", "false");
+
+    const request = new Request("http://localhost/settings/data-sources", {
+      method: "POST",
+      body: formData,
+    });
+
+    const result = (await action({
+      request,
+      params: {},
+      context: {},
+    })) as unknown as Response;
+
+    expect(result.status).toBe(400);
+  });
+
+  it("returns error when toggle fails", async () => {
+    vi.mocked(db.dataSource.update).mockRejectedValue(new Error("Database error"));
+
+    const formData = new FormData();
+    formData.append("intent", "toggle-enabled");
+    formData.append("dataSourceId", "ds-1");
+    formData.append("isEnabled", "false");
+
+    const request = new Request("http://localhost/settings/data-sources", {
+      method: "POST",
+      body: formData,
+    });
+
+    const result = (await action({
+      request,
+      params: {},
+      context: {},
+    })) as unknown as Response;
+
+    expect(result.status).toBe(500);
+  });
+});
+
+describe("data-sources action - fetch-repositories intent", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("fetches repositories for a connected data source", async () => {
+    const { getRepositoriesWithFilters } = await import("~/lib/repositories/repository-filters");
+
+    vi.mocked(db.dataSource.findFirst).mockResolvedValue({
+      id: "ds-1",
+      provider: "GITHUB",
+      isEnabled: true,
+      configs: [{ key: "GITHUB_TOKEN", value: "token" }],
+    } as never);
+    vi.mocked(db.repository.count).mockResolvedValue(10);
+    vi.mocked(getRepositoriesWithFilters).mockResolvedValue({
+      repositories: [{ id: "repo-1", name: "test-repo" }],
+      totalCount: 1,
+      nextCursor: undefined,
+    } as never);
+
+    const formData = new FormData();
+    formData.append("intent", "fetch-repositories");
+    formData.append("provider", "github");
+
+    const request = new Request("http://localhost/settings/data-sources", {
+      method: "POST",
+      body: formData,
+    });
+
+    const result = (await action({
+      request,
+      params: {},
+      context: {},
+    })) as unknown as Response;
+    const data = await result.json();
+
+    expect(data.repositories).toBeDefined();
+    expect(data.totalCount).toBe(1);
+  });
+
+  it("returns error for invalid provider", async () => {
+    const formData = new FormData();
+    formData.append("intent", "fetch-repositories");
+    formData.append("provider", "invalid");
+
+    const request = new Request("http://localhost/settings/data-sources", {
+      method: "POST",
+      body: formData,
+    });
+
+    const result = (await action({
+      request,
+      params: {},
+      context: {},
+    })) as unknown as Response;
+
+    expect(result.status).toBe(400);
+  });
+
+  it("returns error when data source not found", async () => {
+    vi.mocked(db.dataSource.findFirst).mockResolvedValue(null);
+
+    const formData = new FormData();
+    formData.append("intent", "fetch-repositories");
+    formData.append("provider", "github");
+
+    const request = new Request("http://localhost/settings/data-sources", {
+      method: "POST",
+      body: formData,
+    });
+
+    const result = (await action({
+      request,
+      params: {},
+      context: {},
+    })) as unknown as Response;
+
+    expect(result.status).toBe(404);
+  });
+});
+
+describe("data-sources action - toggle-repository intent", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("toggles repository enabled state", async () => {
+    const { toggleRepository } = await import("~/lib/repositories/toggle-repositories");
+    vi.mocked(toggleRepository).mockResolvedValue(undefined as never);
+
+    const formData = new FormData();
+    formData.append("intent", "toggle-repository");
+    formData.append("repositoryId", "repo-1");
+    formData.append("isEnabled", "true");
+
+    const request = new Request("http://localhost/settings/data-sources", {
+      method: "POST",
+      body: formData,
+    });
+
+    const result = (await action({
+      request,
+      params: {},
+      context: {},
+    })) as unknown as Response;
+    const data = await result.json();
+
+    expect(data.success).toBe(true);
+  });
+
+  it("returns error when repositoryId is missing", async () => {
+    const formData = new FormData();
+    formData.append("intent", "toggle-repository");
+    formData.append("isEnabled", "true");
+
+    const request = new Request("http://localhost/settings/data-sources", {
+      method: "POST",
+      body: formData,
+    });
+
+    const result = (await action({
+      request,
+      params: {},
+      context: {},
+    })) as unknown as Response;
+
+    expect(result.status).toBe(400);
+  });
+});
+
+describe("data-sources action - toggle-repositories-batch intent", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("toggles multiple repositories", async () => {
+    const { toggleRepositoriesBatch } = await import("~/lib/repositories/toggle-repositories");
+    vi.mocked(toggleRepositoriesBatch).mockResolvedValue({ count: 3 });
+
+    const formData = new FormData();
+    formData.append("intent", "toggle-repositories-batch");
+    formData.append("repositoryIds", "repo-1");
+    formData.append("repositoryIds", "repo-2");
+    formData.append("repositoryIds", "repo-3");
+    formData.append("isEnabled", "true");
+
+    const request = new Request("http://localhost/settings/data-sources", {
+      method: "POST",
+      body: formData,
+    });
+
+    const result = (await action({
+      request,
+      params: {},
+      context: {},
+    })) as unknown as Response;
+    const data = await result.json();
+
+    expect(data.success).toBe(true);
+    expect(data.count).toBe(3);
+  });
+});
+
+describe("data-sources action - fetch-projects intent", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("fetches projects for a connected data source", async () => {
+    vi.mocked(db.dataSource.findFirst).mockResolvedValue({
+      id: "ds-1",
+      provider: "JIRA",
+      isEnabled: true,
+      configs: [
+        { key: "JIRA_VARIANT", value: "cloud" },
+        { key: "JIRA_DOMAIN", value: "test" },
+        { key: "JIRA_EMAIL", value: "test@example.com" },
+        { key: "JIRA_API_TOKEN", value: "token" },
+      ],
+    } as never);
+    vi.mocked(db.project.count).mockResolvedValue(5);
+    vi.mocked(db.project.findMany).mockResolvedValue([{ id: "proj-1", name: "Project 1", key: "PROJ1", isEnabled: true }] as never);
+
+    const formData = new FormData();
+    formData.append("intent", "fetch-projects");
+    formData.append("provider", "jira");
+
+    const request = new Request("http://localhost/settings/data-sources", {
+      method: "POST",
+      body: formData,
+    });
+
+    const result = (await action({
+      request,
+      params: {},
+      context: {},
+    })) as unknown as Response;
+    const data = await result.json();
+
+    expect(data.projects).toBeDefined();
+    expect(data.projects).toHaveLength(1);
+  });
+
+  it("returns error for invalid provider", async () => {
+    const formData = new FormData();
+    formData.append("intent", "fetch-projects");
+    formData.append("provider", "invalid");
+
+    const request = new Request("http://localhost/settings/data-sources", {
+      method: "POST",
+      body: formData,
+    });
+
+    const result = (await action({
+      request,
+      params: {},
+      context: {},
+    })) as unknown as Response;
+
+    expect(result.status).toBe(400);
+  });
+
+  it("returns error when data source not found", async () => {
+    vi.mocked(db.dataSource.findFirst).mockResolvedValue(null);
+
+    const formData = new FormData();
+    formData.append("intent", "fetch-projects");
+    formData.append("provider", "jira");
+
+    const request = new Request("http://localhost/settings/data-sources", {
+      method: "POST",
+      body: formData,
+    });
+
+    const result = (await action({
+      request,
+      params: {},
+      context: {},
+    })) as unknown as Response;
+
+    expect(result.status).toBe(404);
+  });
+});
+
+describe("data-sources action - toggle-project intent", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("toggles project enabled state", async () => {
+    vi.mocked(db.project.update).mockResolvedValue({
+      id: "proj-1",
+      isEnabled: true,
+    } as never);
+
+    const formData = new FormData();
+    formData.append("intent", "toggle-project");
+    formData.append("projectId", "proj-1");
+    formData.append("isEnabled", "true");
+
+    const request = new Request("http://localhost/settings/data-sources", {
+      method: "POST",
+      body: formData,
+    });
+
+    const result = (await action({
+      request,
+      params: {},
+      context: {},
+    })) as unknown as Response;
+    const data = await result.json();
+
+    expect(data.success).toBe(true);
+  });
+
+  it("returns error when projectId is missing", async () => {
+    const formData = new FormData();
+    formData.append("intent", "toggle-project");
+    formData.append("isEnabled", "true");
+
+    const request = new Request("http://localhost/settings/data-sources", {
+      method: "POST",
+      body: formData,
+    });
+
+    const result = (await action({
+      request,
+      params: {},
+      context: {},
+    })) as unknown as Response;
+
+    expect(result.status).toBe(400);
+  });
+
+  it("returns 404 when project not found", async () => {
+    vi.mocked(db.project.update).mockRejectedValue(new Error("Record to update not found"));
+
+    const formData = new FormData();
+    formData.append("intent", "toggle-project");
+    formData.append("projectId", "non-existent");
+    formData.append("isEnabled", "true");
+
+    const request = new Request("http://localhost/settings/data-sources", {
+      method: "POST",
+      body: formData,
+    });
+
+    const result = (await action({
+      request,
+      params: {},
+      context: {},
+    })) as unknown as Response;
+
+    expect(result.status).toBe(404);
+  });
+});
+
+describe("data-sources action - toggle-projects-batch intent", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("toggles multiple projects", async () => {
+    vi.mocked(db.project.updateMany).mockResolvedValue({ count: 2 });
+
+    const formData = new FormData();
+    formData.append("intent", "toggle-projects-batch");
+    formData.append("projectIds", "proj-1");
+    formData.append("projectIds", "proj-2");
+    formData.append("isEnabled", "true");
+
+    const request = new Request("http://localhost/settings/data-sources", {
+      method: "POST",
+      body: formData,
+    });
+
+    const result = (await action({
+      request,
+      params: {},
+      context: {},
+    })) as unknown as Response;
+    const data = await result.json();
+
+    expect(data.success).toBe(true);
+    expect(data.count).toBe(2);
+  });
+});
+
+describe("data-sources action - invalid intent", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("returns error for unknown intent", async () => {
+    const formData = new FormData();
+    formData.append("intent", "unknown-intent");
+
+    const request = new Request("http://localhost/settings/data-sources", {
+      method: "POST",
+      body: formData,
+    });
+
+    const result = (await action({
+      request,
+      params: {},
+      context: {},
+    })) as unknown as Response;
+
+    expect(result.status).toBe(400);
+    const data = await result.json();
+    expect(data.errors.form).toBe("Invalid action");
+  });
+});
+
+describe("data-sources action - connect intent validation", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("returns error when provider is missing", async () => {
+    const formData = new FormData();
+    formData.append("intent", "connect");
+
+    const request = new Request("http://localhost/settings/data-sources", {
+      method: "POST",
+      body: formData,
+    });
+
+    const result = (await action({
+      request,
+      params: {},
+      context: {},
+    })) as unknown as Response;
+
+    expect(result.status).toBe(400);
+    const data = await result.json();
+    expect(data.errors.provider).toBe("Provider is required");
+  });
+
+  it("returns error when provider is invalid", async () => {
+    const formData = new FormData();
+    formData.append("intent", "connect");
+    formData.append("provider", "invalid-provider");
+
+    const request = new Request("http://localhost/settings/data-sources", {
+      method: "POST",
+      body: formData,
+    });
+
+    const result = (await action({
+      request,
+      params: {},
+      context: {},
+    })) as unknown as Response;
+
+    expect(result.status).toBe(400);
+    const data = await result.json();
+    expect(data.errors.provider).toBe("Invalid provider");
+  });
+});
+
+describe("data-sources action - delete intent validation", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("returns error when dataSourceId is missing", async () => {
+    const formData = new FormData();
+    formData.append("intent", "delete");
+
+    const request = new Request("http://localhost/settings/data-sources", {
+      method: "POST",
+      body: formData,
+    });
+
+    const result = (await action({
+      request,
+      params: {},
+      context: {},
+    })) as unknown as Response;
+
+    expect(result.status).toBe(400);
+    const data = await result.json();
+    expect(data.error).toBe("Data source ID is required");
   });
 });
