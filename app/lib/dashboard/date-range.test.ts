@@ -1,6 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { buildSearchParams, calculateTrend, formatDateRange, formatDuration, formatHours, formatTrendString, getPreviousPeriod, parseDateRange } from "./date-range.js";
 
+function toLocalDateString(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
 describe("parseDateRange", () => {
   beforeEach(() => {
     vi.useFakeTimers();
@@ -12,8 +19,8 @@ describe("parseDateRange", () => {
     const result = parseDateRange(params);
 
     expect(result.preset).toBe("30d");
-    expect(result.startDate.toISOString().split("T")[0]).toBe("2024-12-16");
-    expect(result.endDate.toISOString().split("T")[0]).toBe("2025-01-15");
+    expect(toLocalDateString(result.startDate)).toBe("2024-12-16");
+    expect(toLocalDateString(result.endDate)).toBe("2025-01-15");
   });
 
   it("parses 7d preset correctly", () => {
@@ -21,7 +28,7 @@ describe("parseDateRange", () => {
     const result = parseDateRange(params);
 
     expect(result.preset).toBe("7d");
-    expect(result.startDate.toISOString().split("T")[0]).toBe("2025-01-08");
+    expect(toLocalDateString(result.startDate)).toBe("2025-01-08");
   });
 
   it("parses 60d preset correctly", () => {
@@ -29,7 +36,7 @@ describe("parseDateRange", () => {
     const result = parseDateRange(params);
 
     expect(result.preset).toBe("60d");
-    expect(result.startDate.toISOString().split("T")[0]).toBe("2024-11-16");
+    expect(toLocalDateString(result.startDate)).toBe("2024-11-16");
   });
 
   it("parses 90d preset correctly", () => {
@@ -37,7 +44,7 @@ describe("parseDateRange", () => {
     const result = parseDateRange(params);
 
     expect(result.preset).toBe("90d");
-    expect(result.startDate.toISOString().split("T")[0]).toBe("2024-10-16");
+    expect(toLocalDateString(result.startDate)).toBe("2024-10-17");
   });
 
   it("parses custom date range from start/end params", () => {
@@ -48,8 +55,8 @@ describe("parseDateRange", () => {
     const result = parseDateRange(params);
 
     expect(result.preset).toBe("custom");
-    expect(result.startDate.toISOString().split("T")[0]).toBe("2025-01-01");
-    expect(result.endDate.toISOString().split("T")[0]).toBe("2025-01-10");
+    expect(toLocalDateString(result.startDate)).toBe("2025-01-01");
+    expect(toLocalDateString(result.endDate)).toBe("2025-01-10");
   });
 
   it("falls back to default when invalid dates provided", () => {
@@ -92,7 +99,7 @@ describe("getPreviousPeriod", () => {
     };
     const result = getPreviousPeriod(range);
 
-    expect(result.endDate.toISOString().split("T")[0]).toBe("2024-12-15");
+    expect(toLocalDateString(result.endDate)).toBe("2024-12-15");
   });
 });
 
