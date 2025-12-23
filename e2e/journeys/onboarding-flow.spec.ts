@@ -7,11 +7,13 @@ const JIRA_PAT = process.env.E2E_JIRA_PAT;
 
 async function login(page: Page) {
   await page.goto("/login");
-  // Wait for email input to be attached to DOM (React hydrated)
+  // Wait for form to be interactive (React hydrated)
   const emailInput = page.getByLabel("Email Address");
-  await emailInput.waitFor({ state: "attached" });
-  await emailInput.fill("admin@test.com");
-  await page.getByLabel("Password").fill("TestPassword123!");
+  await emailInput.click();
+  await emailInput.pressSequentially("admin@test.com", { delay: 10 });
+  const passwordInput = page.getByLabel("Password");
+  await passwordInput.click();
+  await passwordInput.pressSequentially("TestPassword123!", { delay: 10 });
   await page.getByRole("button", { name: "Sign In" }).click();
   await page.waitForURL(/\/(dashboard|onboarding)/);
 }
