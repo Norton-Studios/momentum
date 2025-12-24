@@ -24,16 +24,6 @@ vi.mock("react-router", async () => {
 });
 
 describe("Complete", () => {
-  it("renders success icon", () => {
-    render(
-      <MemoryRouter>
-        <Complete />
-      </MemoryRouter>
-    );
-
-    expect(screen.getByText("🎉")).toBeInTheDocument();
-  });
-
   it("renders page title", () => {
     render(
       <MemoryRouter>
@@ -41,7 +31,7 @@ describe("Complete", () => {
       </MemoryRouter>
     );
 
-    expect(screen.getByRole("heading", { level: 1, name: "You're All Set!" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 1, name: "You're All Set" })).toBeInTheDocument();
   });
 
   it("renders completion message", () => {
@@ -61,11 +51,11 @@ describe("Complete", () => {
       </MemoryRouter>
     );
 
-    expect(screen.getByRole("heading", { level: 3, name: "Connected Data Sources:" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "Connected Data Sources" })).toBeInTheDocument();
     expect(screen.getByText("GITHUB")).toBeInTheDocument();
-    expect(screen.getByText("(my-org)")).toBeInTheDocument();
+    expect(screen.getByText("my-org")).toBeInTheDocument();
     expect(screen.getByText("GITLAB")).toBeInTheDocument();
-    expect(screen.getByText("(my-group)")).toBeInTheDocument();
+    expect(screen.getByText("my-group")).toBeInTheDocument();
   });
 
   it("renders data collection summary section", () => {
@@ -75,7 +65,7 @@ describe("Complete", () => {
       </MemoryRouter>
     );
 
-    expect(screen.getByRole("heading", { level: 3, name: "Data Collection Summary:" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "Data Collection Summary" })).toBeInTheDocument();
   });
 
   it("renders repository count", () => {
@@ -85,9 +75,8 @@ describe("Complete", () => {
       </MemoryRouter>
     );
 
-    expect(screen.getByText("📦")).toBeInTheDocument();
     expect(screen.getByText("25")).toBeInTheDocument();
-    expect(screen.getByText("repositories tracked")).toBeInTheDocument();
+    expect(screen.getByText("Repositories")).toBeInTheDocument();
   });
 
   it("renders commit count", () => {
@@ -97,9 +86,8 @@ describe("Complete", () => {
       </MemoryRouter>
     );
 
-    expect(screen.getByText("💾")).toBeInTheDocument();
     expect(screen.getByText("1500")).toBeInTheDocument();
-    expect(screen.getByText("commits imported")).toBeInTheDocument();
+    expect(screen.getByText("Commits")).toBeInTheDocument();
   });
 
   it("renders pull request count", () => {
@@ -109,9 +97,8 @@ describe("Complete", () => {
       </MemoryRouter>
     );
 
-    expect(screen.getByText("🔀")).toBeInTheDocument();
     expect(screen.getByText("200")).toBeInTheDocument();
-    expect(screen.getByText("pull requests imported")).toBeInTheDocument();
+    expect(screen.getByText("Pull Requests")).toBeInTheDocument();
   });
 
   it("renders contributor count", () => {
@@ -121,9 +108,8 @@ describe("Complete", () => {
       </MemoryRouter>
     );
 
-    expect(screen.getByText("👥")).toBeInTheDocument();
     expect(screen.getByText("15")).toBeInTheDocument();
-    expect(screen.getByText("contributors identified")).toBeInTheDocument();
+    expect(screen.getByText("Contributors")).toBeInTheDocument();
   });
 
   it("renders next steps section", () => {
@@ -133,14 +119,14 @@ describe("Complete", () => {
       </MemoryRouter>
     );
 
-    expect(screen.getByRole("heading", { level: 3, name: "Next Steps:" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "Next Steps" })).toBeInTheDocument();
     expect(screen.getByText(/Explore your organization metrics/)).toBeInTheDocument();
     expect(screen.getByText(/View individual contributor metrics/)).toBeInTheDocument();
     expect(screen.getByText(/Configure additional data sources/)).toBeInTheDocument();
     expect(screen.getByText(/Invite team members/)).toBeInTheDocument();
   });
 
-  it("renders Go to Dashboard link", () => {
+  it("renders Go to Dashboard button", () => {
     render(
       <MemoryRouter>
         <Complete />
@@ -149,18 +135,57 @@ describe("Complete", () => {
 
     const dashboardLink = screen.getByRole("link", { name: "Go to Dashboard" });
     expect(dashboardLink).toHaveAttribute("href", "/dashboard");
-    expect(dashboardLink).toHaveClass("btn-primary");
+    expect(dashboardLink.querySelector("button")).toHaveClass("btn-primary");
   });
 
-  it("renders within onboarding container", () => {
+  it("renders Add More Sources link", () => {
+    render(
+      <MemoryRouter>
+        <Complete />
+      </MemoryRouter>
+    );
+
+    const addSourcesLink = screen.getByRole("link", { name: "Add More Sources" });
+    expect(addSourcesLink).toHaveAttribute("href", "/onboarding/datasources");
+  });
+
+  it("renders within onboarding layout", () => {
     const { container } = render(
       <MemoryRouter>
         <Complete />
       </MemoryRouter>
     );
 
-    expect(container.querySelector(".onboarding-container")).toBeInTheDocument();
-    expect(container.querySelector(".complete-content")).toBeInTheDocument();
+    expect(container.querySelector(".onboarding-header")).toBeInTheDocument();
+    expect(container.querySelector(".onboarding-main")).toBeInTheDocument();
+  });
+
+  it("renders progress indicator with step 4 active", () => {
+    const { container } = render(
+      <MemoryRouter>
+        <Complete />
+      </MemoryRouter>
+    );
+
+    const progressSteps = container.querySelectorAll(".progress-step");
+    expect(progressSteps).toHaveLength(4);
+    expect(progressSteps[0]).toHaveClass("completed");
+    expect(progressSteps[1]).toHaveClass("completed");
+    expect(progressSteps[2]).toHaveClass("completed");
+    expect(progressSteps[3]).toHaveClass("active");
+  });
+
+  it("renders connection summary", () => {
+    const { container } = render(
+      <MemoryRouter>
+        <Complete />
+      </MemoryRouter>
+    );
+
+    const connectionSummary = container.querySelector(".connection-summary");
+    expect(connectionSummary).toBeInTheDocument();
+    expect(connectionSummary?.textContent).toContain("2");
+    expect(connectionSummary?.textContent).toContain("data source");
   });
 });
 
