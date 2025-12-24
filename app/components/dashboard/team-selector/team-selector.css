@@ -1,0 +1,81 @@
+.team-selector {
+  position: relative;
+}
+
+.team-selector-trigger {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border: 1px solid var(--light-gray);
+  background: var(--white);
+  color: var(--dark-gray);
+  font-size: 13px;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  transition: all 0.3s ease;
+}
+
+.team-selector-trigger:hover {
+  border-color: var(--black);
+}
+
+.team-selector-label {
+  color: var(--mid-gray);
+}
+
+.team-selector-value {
+  color: var(--black);
+  font-weight: 500;
+}
+
+.team-selector-arrow {
+  font-size: 10px;
+  color: var(--mid-gray);
+  margin-left: 4px;
+}
+
+.team-selector-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  min-width: 180px;
+  background: var(--white);
+  border: 1px solid var(--light-gray);
+  list-style: none;
+  margin: 0;
+  padding: 8px 0;
+  z-index: 1000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.team-selector-option {
+  display: block;
+  width: 100%;
+  padding: 10px 16px;
+  border: none;
+  background: transparent;
+  color: var(--dark-gray);
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.team-selector-option:hover {
+  background: var(--off-white);
+}
+
+.team-selector-option.active {
+  color: var(--black);
+  font-weight: 500;
+  background: var(--off-white);
+}
+
+.team-selector-empty {
+  padding: 10px 16px;
+  color: var(--mid-gray);
+  font-size: 13px;
+  font-style: italic;
+}

@@ -22,8 +22,23 @@ export const PROVIDER_CONFIGS: Record<string, ProviderConfig> = {
   },
   sonarqube: {
     fields: [
-      { key: "SONARQUBE_URL", label: "SonarQube URL", type: "text", placeholder: "https://sonarqube.example.com", required: true },
-      { key: "SONARQUBE_TOKEN", label: "API Token", type: "password", placeholder: "xxxxxxxxxxxx", required: true },
+      {
+        key: "SONARQUBE_VARIANT",
+        label: "SonarQube Version",
+        type: "select",
+        placeholder: "",
+        required: true,
+        options: [
+          { value: "cloud", label: "SonarCloud (SaaS)" },
+          { value: "selfhosted", label: "Self-Hosted" },
+        ],
+      },
+      // SonarCloud fields
+      { key: "SONARQUBE_ORGANIZATION", label: "Organization", type: "text", placeholder: "my-organization", required: true, showWhen: { SONARQUBE_VARIANT: "cloud" } },
+      { key: "SONARQUBE_TOKEN_CLOUD", label: "API Token", type: "password", placeholder: "xxxxxxxxxxxx", required: true, showWhen: { SONARQUBE_VARIANT: "cloud" } },
+      // Self-hosted fields
+      { key: "SONARQUBE_URL", label: "SonarQube URL", type: "text", placeholder: "https://sonarqube.example.com", required: true, showWhen: { SONARQUBE_VARIANT: "selfhosted" } },
+      { key: "SONARQUBE_TOKEN", label: "API Token", type: "password", placeholder: "xxxxxxxxxxxx", required: true, showWhen: { SONARQUBE_VARIANT: "selfhosted" } },
     ],
   },
   jira: {

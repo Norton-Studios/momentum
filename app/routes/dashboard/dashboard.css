@@ -13,6 +13,12 @@
   flex: 1;
 }
 
+.page-header-controls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
 .page-title {
   font-size: 48px;
   margin-bottom: 12px;
@@ -240,6 +246,26 @@
   gap: 32px;
 }
 
+/* Chart cells within metric grids */
+.chart-cell {
+  background: var(--white);
+  padding: 24px;
+  border-left: 4px solid var(--light-gray);
+  transition: border-color 0.2s ease;
+}
+
+.chart-cell:hover {
+  border-left-color: var(--gold);
+}
+
+.chart-cell-label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--mid-gray);
+  margin-bottom: 16px;
+}
+
 /* Security Vulnerability Card */
 .severity-bars {
   margin: 24px 0;
@@ -296,6 +322,13 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 24px;
+  }
+
+  .page-header-controls {
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+    gap: 12px;
   }
 
   .date-selector {

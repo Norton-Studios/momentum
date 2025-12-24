@@ -158,12 +158,13 @@ model Repository {
   updatedAt    DateTime    @updatedAt @map("updated_at")
 
   // Relationships
-  commits         Commit[]
-  pullRequests    PullRequest[]
-  pipelines       Pipeline[]
-  qualityScans    QualityScan[]
-  vulnerabilities SecurityVulnerability[]
-  teams           TeamRepository[]
+  commits                   Commit[]
+  pullRequests              PullRequest[]
+  pipelines                 Pipeline[]
+  qualityScans              QualityScan[]
+  vulnerabilities           SecurityVulnerability[]
+  teams                     TeamRepository[]
+  sonarQubeProjectMappings  SonarQubeProjectMapping[]
 
   @@index([provider])
   @@index([lastSyncAt])
@@ -435,6 +436,7 @@ model QualityScan {
   repository      Repository       @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
   coverageMetrics CoverageMetric[]
 
+  @@unique([repositoryId, scannedAt])
   @@index([repositoryId])
   @@index([scannedAt])
   @@map("quality_scan")
@@ -480,11 +482,30 @@ model SecurityVulnerability {
   // Relationships
   repository Repository @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
 
+  @@unique([repositoryId, title])
   @@index([repositoryId])
   @@index([severity])
   @@index([status])
   @@index([discoveredAt])
   @@map("security_vulnerability")
+  @@schema("analysis")
+}
+
+model SonarQubeProjectMapping {
+  id           String   @id @default(cuid())
+  dataSourceId String   @map("data_source_id")
+  projectKey   String   @map("project_key")
+  projectName  String   @map("project_name")
+  repositoryId String?  @map("repository_id")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  // Relationships
+  repository Repository? @relation(fields: [repositoryId], references: [id], onDelete: SetNull)
+
+  @@unique([dataSourceId, projectKey])
+  @@index([repositoryId])
+  @@map("sonarqube_project_mapping")
   @@schema("analysis")
 }
 

@@ -2,6 +2,8 @@ import { expect, type Page, test } from "@playwright/test";
 
 const GITHUB_TOKEN = process.env.E2E_GITHUB_TOKEN;
 const GITHUB_ORG = process.env.E2E_GITHUB_ORG;
+const SONAR_TOKEN = process.env.E2E_SONAR_TOKEN;
+const SONAR_ORG = process.env.E2E_SONAR_ORG;
 
 async function login(page: Page) {
   await page.goto("/login");
@@ -184,7 +186,52 @@ test.describe
       await expect(page.getByRole("button", { name: "Configure GitLab" })).toBeVisible();
     });
 
-    test("Step 10: View imports and trigger manual import", async ({ page }, testInfo) => {
+    test("Step 10: Configure SonarCloud data source", async ({ page }, testInfo) => {
+      testInfo.setTimeout(60000);
+
+      // Skip if SonarCloud credentials not configured
+      if (!SONAR_TOKEN || !SONAR_ORG) {
+        test.skip();
+        return;
+      }
+
+      await page.goto("/login");
+      await page.getByLabel("Email Address").fill("admin@test.com");
+      await page.getByLabel("Password").fill("TestPassword123!");
+      await page.getByRole("button", { name: "Sign In" }).click();
+      await page.waitForURL(/\/(dashboard|onboarding)/);
+
+      await page.goto("/settings/data-sources");
+      await page.waitForLoadState("networkidle");
+
+      // Click Configure SonarQube button
+      await page.getByRole("button", { name: "Configure SonarQube" }).click();
+
+      // Wait for the configuration form to appear
+      await page.locator("#sonarqube-SONARQUBE_VARIANT").waitFor({ state: "visible" });
+
+      // Select SonarCloud variant
+      await page.locator("#sonarqube-SONARQUBE_VARIANT").selectOption("cloud");
+
+      // Fill in SonarCloud credentials
+      await page.locator("#sonarqube-SONARQUBE_ORGANIZATION").fill(SONAR_ORG);
+      await page.locator("#sonarqube-SONARQUBE_TOKEN_CLOUD").fill(SONAR_TOKEN);
+
+      // Test connection
+      await page.getByRole("button", { name: "Test Connection" }).click();
+
+      await expect(page.getByText("Connection successful!")).toBeVisible({
+        timeout: 30000,
+      });
+
+      // Save configuration
+      await page.getByRole("button", { name: "Save Configuration" }).click();
+
+      // Verify SonarQube shows as connected
+      await expect(page.locator("#sonarqubeStatus")).toHaveText("Connected");
+    });
+
+    test("Step 11: View imports and trigger manual import", async ({ page }, testInfo) => {
       testInfo.setTimeout(60000);
 
       await page.goto("/login");
@@ -222,7 +269,7 @@ test.describe
       await expect(page.getByText(/Batch ID:/)).toBeVisible();
     });
 
-    test("Step 11: Delete the test team", async ({ page }) => {
+    test("Step 12: Delete the test team", async ({ page }) => {
       await page.goto("/login");
       await page.getByLabel("Email Address").fill("admin@test.com");
       await page.getByLabel("Password").fill("TestPassword123!");

@@ -58,9 +58,6 @@ export function AppLayout({ children, activeNav, user }: AppLayoutProps) {
           <Link to="/dashboard" className={`nav-item ${activeNav === "organization" ? "active" : ""}`}>
             Organization
           </Link>
-          <Link to="#" className={`nav-item ${activeNav === "team" ? "active" : ""}`}>
-            Team
-          </Link>
           <Link to="#" className={`nav-item ${activeNav === "individual" ? "active" : ""}`}>
             Individual
           </Link>
@@ -76,7 +73,7 @@ export function AppLayout({ children, activeNav, user }: AppLayoutProps) {
 
 interface AppLayoutProps {
   children: React.ReactNode;
-  activeNav: "organization" | "team" | "individual" | "settings";
+  activeNav: "organization" | "individual" | "settings";
   user: {
     name: string | null;
     email: string;

@@ -1,0 +1,48 @@
+.stat-cell {
+  background: var(--white);
+  padding: 24px;
+  border-left: 4px solid var(--light-gray);
+  transition: border-color 0.2s ease;
+}
+
+.stat-cell:hover {
+  border-left-color: var(--gold);
+}
+
+.stat-cell-label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--mid-gray);
+  margin-bottom: 12px;
+}
+
+.stat-cell-value {
+  font-family: Georgia, serif;
+  font-size: 32px;
+  color: var(--black);
+  line-height: 1.2;
+}
+
+.stat-cell-trend {
+  font-size: 13px;
+  margin-top: 8px;
+}
+
+.stat-cell-trend.positive {
+  color: var(--green);
+}
+
+.stat-cell-trend.negative {
+  color: var(--red);
+}
+
+.stat-cell-trend.neutral {
+  color: var(--mid-gray);
+}
+
+.stat-cell-subtitle {
+  font-size: 13px;
+  color: var(--mid-gray);
+  margin-top: 8px;
+}

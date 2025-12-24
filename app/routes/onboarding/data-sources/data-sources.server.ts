@@ -294,6 +294,10 @@ export async function testConnection(provider: string, configs: Record<string, s
     return testJiraConnection(configs);
   }
 
+  if (provider === "sonarqube") {
+    return testSonarQubeConnection(configs);
+  }
+
   return { success: false, error: "Test connection not implemented for this provider" };
 }
 
@@ -377,6 +381,68 @@ async function testJiraConnection(configs: Record<string, string>): Promise<{ su
       const errorText = await response.text();
       console.error(`Jira API error ${response.status}:`, errorText);
       return { success: false, error: `Jira API returned ${response.status}. Please check your credentials.` };
+    }
+
+    return { success: true };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Connection failed";
+    return { success: false, error: message };
+  }
+}
+
+async function testSonarQubeConnection(configs: Record<string, string>): Promise<{ success: boolean; error?: string }> {
+  const variant = configs.SONARQUBE_VARIANT;
+  if (!variant) {
+    return { success: false, error: "SonarQube version is required" };
+  }
+
+  try {
+    const isCloud = variant === "cloud";
+    let baseUrl: string;
+    let token: string;
+
+    if (isCloud) {
+      const organization = configs.SONARQUBE_ORGANIZATION;
+      token = configs.SONARQUBE_TOKEN_CLOUD;
+
+      if (!organization) {
+        return { success: false, error: "Organization is required for SonarCloud" };
+      }
+      if (!token) {
+        return { success: false, error: "API Token is required" };
+      }
+
+      baseUrl = "https://sonarcloud.io";
+    } else {
+      const serverUrl = configs.SONARQUBE_URL;
+      token = configs.SONARQUBE_TOKEN;
+
+      if (!serverUrl) {
+        return { success: false, error: "Server URL is required for Self-Hosted SonarQube" };
+      }
+      if (!token) {
+        return { success: false, error: "API Token is required" };
+      }
+
+      baseUrl = serverUrl.replace(/\/$/, "");
+    }
+
+    // SonarQube uses token as username with empty password for Basic auth
+    const credentials = Buffer.from(`${token}:`).toString("base64");
+    const headers = {
+      Authorization: `Basic ${credentials}`,
+      Accept: "application/json",
+    };
+
+    const response = await fetch(`${baseUrl}/api/authentication/validate`, { headers });
+
+    if (!response.ok) {
+      return { success: false, error: `SonarQube API returned ${response.status}. Please check your credentials.` };
+    }
+
+    const data = await response.json();
+    if (!data.valid) {
+      return { success: false, error: "Authentication token is invalid" };
     }
 
     return { success: true };
