@@ -3,7 +3,11 @@ import { requireAdmin } from "~/auth/auth.server";
 import { db } from "~/db.server";
 import { triggerImport } from "~/lib/import/trigger-import";
 
-const SCRIPT_RESOURCES = ["repository", "contributor", "commit", "pull-request", "project", "issue", "pipeline", "pipeline-run"] as const;
+const PROVIDER_SCRIPTS: Record<string, readonly string[]> = {
+  GITHUB: ["repository", "contributor", "commit", "pull-request", "project", "issue", "pipeline", "pipeline-run"],
+  GITLAB: ["repository", "contributor", "commit", "merge-request", "project", "issue", "pipeline", "pipeline-run"],
+  JIRA: ["project", "board", "sprint", "issue", "status-transition"],
+};
 
 export async function importingLoader({ request }: LoaderFunctionArgs) {
   await requireAdmin(request);
@@ -100,8 +104,9 @@ async function handleStartImport(userId: string) {
 function buildImportStatus(dataSources: DataSourceBasic[], runs: RunWithDataSource[]) {
   return dataSources.map((ds) => {
     const dsRuns = runs.filter((run) => run.dataSourceId === ds.id);
+    const scriptResources = PROVIDER_SCRIPTS[ds.provider] ?? [];
 
-    const tasks = SCRIPT_RESOURCES.map((resource) => {
+    const tasks = scriptResources.map((resource) => {
       const latestRun = dsRuns.find((run) => run.scriptName === resource);
 
       return {

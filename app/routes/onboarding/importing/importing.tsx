@@ -12,6 +12,7 @@ const TASK_LABELS: Record<string, string> = {
   contributor: "Contributors",
   commit: "Commit history",
   "pull-request": "Pull requests",
+  "merge-request": "Merge requests",
   project: "Projects",
   board: "Boards",
   sprint: "Sprints",
