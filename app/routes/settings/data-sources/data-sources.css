@@ -1,0 +1,14 @@
+/* Data Sources Settings - Overrides for settings page context */
+
+.data-sources-settings-page {
+  /* Override onboarding page width to use full settings width */
+  max-width: none;
+}
+
+.data-sources-settings-page .datasource-section {
+  margin-bottom: 60px;
+}
+
+.data-sources-settings-page .datasource-section:last-child {
+  margin-bottom: 0;
+}

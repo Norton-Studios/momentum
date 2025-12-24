@@ -27,7 +27,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   });
 
   if (!vcsDataSource) {
-    throw redirect("/onboarding/datasources");
+    throw redirect("/onboarding/data-sources");
   }
 
   throw redirect("/dashboard");

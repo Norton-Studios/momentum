@@ -61,6 +61,52 @@ model Organization {
   @@schema("org")
 }
 
+model Team {
+  id          String   @id @default(cuid())
+  name        String   @map("name")
+  description String?  @map("description")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  repositories TeamRepository[]
+  projects     TeamProject[]
+
+  @@map("team")
+  @@schema("org")
+}
+
+model TeamRepository {
+  id           String   @id @default(cuid())
+  teamId       String   @map("team_id")
+  repositoryId String   @map("repository_id")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  team       Team       @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  repository Repository @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, repositoryId])
+  @@index([teamId])
+  @@index([repositoryId])
+  @@map("team_repository")
+  @@schema("org")
+}
+
+model TeamProject {
+  id        String   @id @default(cuid())
+  teamId    String   @map("team_id")
+  projectId String   @map("project_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  team    Team    @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, projectId])
+  @@index([teamId])
+  @@index([projectId])
+  @@map("team_project")
+  @@schema("org")
+}
+
 // ============================================================================
 // VCS DOMAIN
 // ============================================================================
@@ -117,6 +163,7 @@ model Repository {
   pipelines       Pipeline[]
   qualityScans    QualityScan[]
   vulnerabilities SecurityVulnerability[]
+  teams           TeamRepository[]
 
   @@index([provider])
   @@index([lastSyncAt])
@@ -505,6 +552,7 @@ model Project {
   boards  Board[]
   sprints Sprint[]
   issues  Issue[]
+  teams   TeamProject[]
 
   @@unique([dataSourceId, externalId])
   @@index([provider])

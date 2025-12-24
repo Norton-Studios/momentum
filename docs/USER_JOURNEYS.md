@@ -41,7 +41,7 @@ Set up Momentum for the first time, connecting development tools and preparing t
 2. Click "Create Admin Account"
 3. System creates organization and admin user
 4. User is automatically logged in
-5. Redirect to `/onboarding/datasources`
+5. Redirect to `/onboarding/data-sources`
 
 **Guard**: If an admin user already exists, visiting `/setup` redirects to `/`
 
@@ -67,7 +67,7 @@ Set up Momentum for the first time, connecting development tools and preparing t
 
 ### Step 3: Data Source Configuration
 
-**Page**: Connect Data Sources (`/onboarding/datasources`)
+**Page**: Connect Data Sources (`/onboarding/data-sources`)
 
 **Title**: "Connect Data Sources - Momentum"
 
@@ -269,7 +269,7 @@ Each data source shows a card with:
 
 **Bottom Actions**:
 - Progress summary: "X tasks running, Y of Z completed"
-- "Back to Data Sources" link → `/onboarding/datasources`
+- "Back to Data Sources" link → `/onboarding/data-sources`
 - "Continue to Dashboard" button → `/onboarding/complete`
 
 **Polling**: Page polls for import status updates every 3 seconds while import is running

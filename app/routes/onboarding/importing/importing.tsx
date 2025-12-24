@@ -12,6 +12,7 @@ const TASK_LABELS: Record<string, string> = {
   contributor: "Contributors",
   commit: "Commit history",
   "pull-request": "Pull requests",
+  "merge-request": "Merge requests",
   project: "Projects",
   board: "Boards",
   sprint: "Sprints",
@@ -177,7 +178,7 @@ export default function Importing() {
             )}
           </div>
           <div className="action-buttons">
-            <a href="/onboarding/datasources" className="skip-link">
+            <a href="/onboarding/data-sources" className="skip-link">
               Back to Data Sources
             </a>
             <Form method="post">

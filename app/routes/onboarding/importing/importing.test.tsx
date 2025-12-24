@@ -440,7 +440,7 @@ describe("Importing", () => {
       await renderImporting();
 
       const backLink = screen.getByRole("link", { name: "Back to Data Sources" });
-      expect(backLink).toHaveAttribute("href", "/onboarding/datasources");
+      expect(backLink).toHaveAttribute("href", "/onboarding/data-sources");
     });
 
     it("renders Continue to Dashboard button", async () => {

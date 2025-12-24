@@ -61,7 +61,7 @@ describe("importingLoader", () => {
     const response = (await importingLoader({ request, params: {}, context: {} } as never)) as unknown as Response;
 
     expect(response.status).toBe(302);
-    expect(response.headers.get("Location")).toBe("/onboarding/datasources");
+    expect(response.headers.get("Location")).toBe("/onboarding/data-sources");
   });
 
   it("returns hasStartedImport false when no batch is running", async () => {
@@ -118,6 +118,48 @@ describe("importingLoader", () => {
     expect(db.dataSource.findMany).toHaveBeenCalledWith({
       where: { isEnabled: true },
     });
+  });
+
+  it("returns GitHub-specific tasks for GitHub data source", async () => {
+    const mockDataSources = [{ id: "ds-1", provider: "GITHUB", name: "GitHub", isEnabled: true }];
+    vi.mocked(db.dataSource.findMany).mockResolvedValue(mockDataSources as never);
+    vi.mocked(db.importBatch.findFirst).mockResolvedValue(null);
+    vi.mocked(db.repository.count).mockResolvedValue(10);
+
+    const request = new Request("http://localhost/onboarding/importing");
+    const response = (await importingLoader({ request, params: {}, context: {} } as never)) as unknown as Response;
+
+    const body = await response.json();
+    const githubTasks = body.dataSources[0].tasks.map((t: { resource: string }) => t.resource);
+    expect(githubTasks).toEqual(["repository", "contributor", "commit", "pull-request", "project", "issue", "pipeline", "pipeline-run"]);
+  });
+
+  it("returns Jira-specific tasks for Jira data source", async () => {
+    const mockDataSources = [{ id: "ds-2", provider: "JIRA", name: "Jira", isEnabled: true }];
+    vi.mocked(db.dataSource.findMany).mockResolvedValue(mockDataSources as never);
+    vi.mocked(db.importBatch.findFirst).mockResolvedValue(null);
+    vi.mocked(db.repository.count).mockResolvedValue(0);
+
+    const request = new Request("http://localhost/onboarding/importing");
+    const response = (await importingLoader({ request, params: {}, context: {} } as never)) as unknown as Response;
+
+    const body = await response.json();
+    const jiraTasks = body.dataSources[0].tasks.map((t: { resource: string }) => t.resource);
+    expect(jiraTasks).toEqual(["project", "board", "sprint", "issue", "status-transition"]);
+  });
+
+  it("returns GitLab-specific tasks for GitLab data source", async () => {
+    const mockDataSources = [{ id: "ds-3", provider: "GITLAB", name: "GitLab", isEnabled: true }];
+    vi.mocked(db.dataSource.findMany).mockResolvedValue(mockDataSources as never);
+    vi.mocked(db.importBatch.findFirst).mockResolvedValue(null);
+    vi.mocked(db.repository.count).mockResolvedValue(5);
+
+    const request = new Request("http://localhost/onboarding/importing");
+    const response = (await importingLoader({ request, params: {}, context: {} } as never)) as unknown as Response;
+
+    const body = await response.json();
+    const gitlabTasks = body.dataSources[0].tasks.map((t: { resource: string }) => t.resource);
+    expect(gitlabTasks).toEqual(["repository", "contributor", "commit", "merge-request", "project", "issue", "pipeline", "pipeline-run"]);
   });
 });
 

@@ -1,0 +1,145 @@
+/* App Layout - Shared header and navigation */
+
+body {
+  background: var(--off-white);
+}
+
+/* Header */
+.app-header {
+  background: var(--white);
+  border-bottom: 1px solid var(--light-gray);
+}
+
+.header-top {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 24px 60px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header-actions {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.user-profile-container {
+  position: relative;
+}
+
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--dark-gray);
+  text-decoration: none;
+  font-size: 15px;
+  cursor: pointer;
+  transition: color 0.3s ease;
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: inherit;
+}
+
+.user-profile:hover {
+  color: var(--black);
+}
+
+.user-icon {
+  width: 32px;
+  height: 32px;
+  background: var(--black);
+  color: var(--white);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.user-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: var(--white);
+  border: 1px solid var(--light-gray);
+  min-width: 180px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+}
+
+.dropdown-item {
+  display: block;
+  width: 100%;
+  padding: 12px 20px;
+  color: var(--dark-gray);
+  text-decoration: none;
+  font-size: 14px;
+  text-align: left;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+
+.dropdown-item:hover {
+  background: var(--off-white);
+  color: var(--black);
+}
+
+.dropdown-item:not(:last-child) {
+  border-bottom: 1px solid var(--light-gray);
+}
+
+/* Main Navigation */
+.main-nav {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 0 60px;
+  display: flex;
+  gap: 48px;
+}
+
+.nav-item {
+  padding: 20px 0;
+  color: var(--mid-gray);
+  text-decoration: none;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  border-bottom: 2px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.nav-item.active {
+  color: var(--black);
+  border-bottom-color: var(--gold);
+}
+
+.nav-item:hover {
+  color: var(--black);
+}
+
+/* Page Content */
+.page-container {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 60px 60px;
+}
+
+@media (max-width: 768px) {
+  .page-container {
+    padding: 40px 24px;
+  }
+
+  .header-top,
+  .main-nav {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+}

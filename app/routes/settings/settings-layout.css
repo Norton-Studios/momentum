@@ -1,0 +1,303 @@
+/* Settings Sub-Navigation */
+.settings-sub-nav {
+  display: flex;
+  gap: 32px;
+  border-bottom: 1px solid var(--light-gray);
+  background: var(--white);
+  /* Break out of container to full width */
+  width: 100vw;
+  margin-left: calc(-50vw + 50%);
+  margin-top: -60px;
+  /* Inner padding to align content with page container */
+  padding: 0 max(60px, calc((100vw - 1600px) / 2 + 60px));
+}
+
+.sub-nav-item {
+  padding: 16px 0;
+  color: var(--mid-gray);
+  text-decoration: none;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  transition: all 0.3s ease;
+}
+
+.sub-nav-item.active {
+  color: var(--black);
+  border-bottom-color: var(--gold);
+}
+
+.sub-nav-item:hover {
+  color: var(--black);
+}
+
+/* Settings Content */
+.settings-content {
+  padding-top: 48px;
+}
+
+/* Form Styles */
+.settings-form {
+  max-width: 600px;
+}
+
+.form-group {
+  margin-bottom: 24px;
+}
+
+.form-label {
+  display: block;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--dark-gray);
+  margin-bottom: 8px;
+}
+
+.form-input {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid var(--light-gray);
+  background: var(--white);
+  font-size: 15px;
+  font-family: inherit;
+  transition: border-color 0.3s ease;
+}
+
+.form-input:focus {
+  outline: 2px solid var(--black);
+  outline-offset: 2px;
+  border-color: var(--black);
+}
+
+.form-input::placeholder {
+  color: var(--mid-gray);
+}
+
+.form-textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.form-hint {
+  font-size: 13px;
+  color: var(--mid-gray);
+  margin-top: 6px;
+}
+
+/* Save Button */
+.save-button {
+  padding: 14px 32px;
+  background: var(--black);
+  color: var(--white);
+  border: none;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.save-button:hover {
+  background: var(--dark-gray);
+}
+
+.save-button:disabled {
+  background: var(--mid-gray);
+  cursor: not-allowed;
+}
+
+/* Success/Error Messages */
+.message {
+  padding: 16px 20px;
+  margin-bottom: 24px;
+  font-size: 14px;
+}
+
+.message-success {
+  background: #e8f5e9;
+  color: #2e7d32;
+  border-left: 4px solid #2e7d32;
+}
+
+.message-error {
+  background: #ffebee;
+  color: #c62828;
+  border-left: 4px solid #c62828;
+}
+
+/* Cards/Sections */
+.settings-section {
+  background: var(--white);
+  padding: 32px;
+  margin-bottom: 32px;
+  border-left: 4px solid var(--light-gray);
+}
+
+.settings-section:hover {
+  border-left-color: var(--gold);
+}
+
+.section-title {
+  font-size: 24px;
+  margin-bottom: 8px;
+  letter-spacing: -0.5px;
+}
+
+.section-description {
+  font-size: 14px;
+  color: var(--dark-gray);
+  margin-bottom: 24px;
+}
+
+/* Table Styles */
+.settings-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.settings-table th {
+  text-align: left;
+  padding: 12px 16px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--mid-gray);
+  border-bottom: 1px solid var(--light-gray);
+  font-weight: 500;
+}
+
+.settings-table td {
+  padding: 16px;
+  border-bottom: 1px solid var(--light-gray);
+  font-size: 14px;
+}
+
+.settings-table tr:hover td {
+  background: var(--off-white);
+}
+
+/* Action Buttons */
+.action-button {
+  padding: 8px 16px;
+  background: transparent;
+  border: 1px solid var(--light-gray);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.action-button:hover {
+  border-color: var(--black);
+  background: var(--black);
+  color: var(--white);
+}
+
+.action-button-primary {
+  background: var(--black);
+  color: var(--white);
+  border-color: var(--black);
+}
+
+.action-button-primary:hover {
+  background: var(--dark-gray);
+  border-color: var(--dark-gray);
+}
+
+.action-button-danger {
+  color: var(--red);
+  border-color: var(--red);
+}
+
+.action-button-danger:hover {
+  background: var(--red);
+  color: var(--white);
+}
+
+/* Status Badges */
+.status-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-radius: 2px;
+}
+
+.status-badge-success {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.status-badge-error {
+  background: #ffebee;
+  color: #c62828;
+}
+
+.status-badge-warning {
+  background: #fff3e0;
+  color: #e65100;
+}
+
+.status-badge-running {
+  background: #e3f2fd;
+  color: #1565c0;
+}
+
+.status-badge-pending {
+  background: var(--off-white);
+  color: var(--mid-gray);
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 64px 32px;
+  color: var(--mid-gray);
+}
+
+.empty-state-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+
+.empty-state-title {
+  font-size: 18px;
+  color: var(--dark-gray);
+  margin-bottom: 8px;
+}
+
+.empty-state-description {
+  font-size: 14px;
+  margin-bottom: 24px;
+}
+
+@media (max-width: 768px) {
+  .settings-sub-nav {
+    gap: 16px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 0 24px;
+    margin-top: -40px;
+  }
+
+  .sub-nav-item {
+    white-space: nowrap;
+    font-size: 12px;
+  }
+
+  .settings-content {
+    padding-top: 32px;
+  }
+
+  .settings-form {
+    max-width: 100%;
+  }
+
+  .settings-section {
+    padding: 24px;
+  }
+}

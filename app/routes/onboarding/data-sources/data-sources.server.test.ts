@@ -83,7 +83,7 @@ import { db } from "~/db.server";
 import { fetchGithubRepositories, fetchGitlabRepositories, saveRepositories } from "~/lib/repositories/fetch-repositories";
 import { getRepositoriesWithFilters } from "~/lib/repositories/repository-filters";
 import { toggleRepositoriesBatch, toggleRepository } from "~/lib/repositories/toggle-repositories";
-import { datasourcesAction, extractConfigsFromForm, testConnection } from "./datasources.server";
+import { datasourcesAction, extractConfigsFromForm, testConnection } from "./data-sources.server";
 
 describe("extractConfigsFromForm", () => {
   it("extracts GitHub config fields from FormData", () => {
@@ -137,7 +137,7 @@ describe("datasourcesAction", () => {
       formData.append("GITHUB_TOKEN", "ghp_test123");
       formData.append("GITHUB_ORG", "my-org");
 
-      const request = new Request("http://localhost/onboarding/datasources", {
+      const request = new Request("http://localhost/onboarding/data-sources", {
         method: "POST",
         body: formData,
       });
@@ -159,7 +159,7 @@ describe("datasourcesAction", () => {
       formData.append("GITHUB_TOKEN", "ghp_test123");
       formData.append("GITHUB_ORG", "my-org");
 
-      const request = new Request("http://localhost/onboarding/datasources", {
+      const request = new Request("http://localhost/onboarding/data-sources", {
         method: "POST",
         body: formData,
       });
@@ -177,7 +177,7 @@ describe("datasourcesAction", () => {
       formData.append("GITHUB_TOKEN", "ghp_test123");
       // Missing GITHUB_ORG
 
-      const request = new Request("http://localhost/onboarding/datasources", {
+      const request = new Request("http://localhost/onboarding/data-sources", {
         method: "POST",
         body: formData,
       });
@@ -192,7 +192,7 @@ describe("datasourcesAction", () => {
       const formData = new FormData();
       formData.append("intent", "connect");
 
-      const request = new Request("http://localhost/onboarding/datasources", {
+      const request = new Request("http://localhost/onboarding/data-sources", {
         method: "POST",
         body: formData,
       });
@@ -209,7 +209,7 @@ describe("datasourcesAction", () => {
       formData.append("intent", "connect");
       formData.append("provider", "invalid-provider");
 
-      const request = new Request("http://localhost/onboarding/datasources", {
+      const request = new Request("http://localhost/onboarding/data-sources", {
         method: "POST",
         body: formData,
       });
@@ -229,7 +229,7 @@ describe("datasourcesAction", () => {
       formData.append("JIRA_DOMAIN", "my-company");
       // Missing JIRA_EMAIL and JIRA_API_TOKEN
 
-      const request = new Request("http://localhost/onboarding/datasources", {
+      const request = new Request("http://localhost/onboarding/data-sources", {
         method: "POST",
         body: formData,
       });
@@ -255,7 +255,7 @@ describe("datasourcesAction", () => {
       formData.append("JIRA_API_TOKEN", "token123");
       // Not providing JIRA_SERVER_URL or JIRA_PAT should be fine
 
-      const request = new Request("http://localhost/onboarding/datasources", {
+      const request = new Request("http://localhost/onboarding/data-sources", {
         method: "POST",
         body: formData,
       });
@@ -273,7 +273,7 @@ describe("datasourcesAction", () => {
       formData.append("JIRA_SERVER_URL", "https://jira.company.com");
       // Missing JIRA_PAT
 
-      const request = new Request("http://localhost/onboarding/datasources", {
+      const request = new Request("http://localhost/onboarding/data-sources", {
         method: "POST",
         body: formData,
       });
@@ -296,7 +296,7 @@ describe("datasourcesAction", () => {
       formData.append("GITLAB_TOKEN", "glpat-test123");
       formData.append("GITLAB_HOST", "https://gitlab.company.com");
 
-      const request = new Request("http://localhost/onboarding/datasources", {
+      const request = new Request("http://localhost/onboarding/data-sources", {
         method: "POST",
         body: formData,
       });
@@ -317,7 +317,7 @@ describe("datasourcesAction", () => {
       const formData = new FormData();
       formData.append("intent", "continue");
 
-      const request = new Request("http://localhost/onboarding/datasources", {
+      const request = new Request("http://localhost/onboarding/data-sources", {
         method: "POST",
         body: formData,
       });
@@ -344,7 +344,7 @@ describe("datasourcesAction", () => {
       formData.append("GITHUB_TOKEN", "ghp_test123");
       formData.append("GITHUB_ORG", "my-org");
 
-      const request = new Request("http://localhost/onboarding/datasources", {
+      const request = new Request("http://localhost/onboarding/data-sources", {
         method: "POST",
         body: formData,
       });
@@ -366,7 +366,7 @@ describe("datasourcesAction", () => {
       formData.append("GITHUB_TOKEN", "invalid-token");
       formData.append("GITHUB_ORG", "my-org");
 
-      const request = new Request("http://localhost/onboarding/datasources", {
+      const request = new Request("http://localhost/onboarding/data-sources", {
         method: "POST",
         body: formData,
       });
@@ -386,7 +386,7 @@ describe("datasourcesAction", () => {
       formData.append("provider", "gitlab");
       formData.append("GITLAB_TOKEN", "glpat-test123");
 
-      const request = new Request("http://localhost/onboarding/datasources", {
+      const request = new Request("http://localhost/onboarding/data-sources", {
         method: "POST",
         body: formData,
       });
@@ -404,7 +404,7 @@ describe("datasourcesAction", () => {
       formData.append("provider", "github");
       formData.append("GITHUB_ORG", "my-org");
 
-      const request = new Request("http://localhost/onboarding/datasources", {
+      const request = new Request("http://localhost/onboarding/data-sources", {
         method: "POST",
         body: formData,
       });
@@ -423,7 +423,7 @@ describe("datasourcesAction", () => {
       formData.append("intent", "fetch-repositories");
       formData.append("provider", "invalid");
 
-      const request = new Request("http://localhost/onboarding/datasources", {
+      const request = new Request("http://localhost/onboarding/data-sources", {
         method: "POST",
         body: formData,
       });
@@ -442,7 +442,7 @@ describe("datasourcesAction", () => {
       formData.append("intent", "fetch-repositories");
       formData.append("provider", "github");
 
-      const request = new Request("http://localhost/onboarding/datasources", {
+      const request = new Request("http://localhost/onboarding/data-sources", {
         method: "POST",
         body: formData,
       });
@@ -476,7 +476,7 @@ describe("datasourcesAction", () => {
       formData.append("intent", "fetch-repositories");
       formData.append("provider", "github");
 
-      const request = new Request("http://localhost/onboarding/datasources", {
+      const request = new Request("http://localhost/onboarding/data-sources", {
         method: "POST",
         body: formData,
       });
@@ -514,7 +514,7 @@ describe("datasourcesAction", () => {
       formData.append("intent", "fetch-repositories");
       formData.append("provider", "github");
 
-      const request = new Request("http://localhost/onboarding/datasources", {
+      const request = new Request("http://localhost/onboarding/data-sources", {
         method: "POST",
         body: formData,
       });
@@ -544,7 +544,7 @@ describe("datasourcesAction", () => {
       formData.append("intent", "fetch-repositories");
       formData.append("provider", "github");
 
-      const request = new Request("http://localhost/onboarding/datasources", {
+      const request = new Request("http://localhost/onboarding/data-sources", {
         method: "POST",
         body: formData,
       });
@@ -578,7 +578,7 @@ describe("datasourcesAction", () => {
       formData.append("intent", "fetch-repositories");
       formData.append("provider", "gitlab");
 
-      const request = new Request("http://localhost/onboarding/datasources", {
+      const request = new Request("http://localhost/onboarding/data-sources", {
         method: "POST",
         body: formData,
       });
@@ -614,7 +614,7 @@ describe("datasourcesAction", () => {
       formData.append("intent", "fetch-repositories");
       formData.append("provider", "gitlab");
 
-      const request = new Request("http://localhost/onboarding/datasources", {
+      const request = new Request("http://localhost/onboarding/data-sources", {
         method: "POST",
         body: formData,
       });
@@ -639,7 +639,7 @@ describe("datasourcesAction", () => {
       formData.append("intent", "fetch-repositories");
       formData.append("provider", "gitlab");
 
-      const request = new Request("http://localhost/onboarding/datasources", {
+      const request = new Request("http://localhost/onboarding/data-sources", {
         method: "POST",
         body: formData,
       });
@@ -665,7 +665,7 @@ describe("datasourcesAction", () => {
       formData.append("intent", "fetch-repositories");
       formData.append("provider", "github");
 
-      const request = new Request("http://localhost/onboarding/datasources", {
+      const request = new Request("http://localhost/onboarding/data-sources", {
         method: "POST",
         body: formData,
       });
@@ -684,7 +684,7 @@ describe("datasourcesAction", () => {
       formData.append("intent", "toggle-repository");
       formData.append("isEnabled", "true");
 
-      const request = new Request("http://localhost/onboarding/datasources", {
+      const request = new Request("http://localhost/onboarding/data-sources", {
         method: "POST",
         body: formData,
       });
@@ -704,7 +704,7 @@ describe("datasourcesAction", () => {
       formData.append("repositoryId", "repo-1");
       formData.append("isEnabled", "true");
 
-      const request = new Request("http://localhost/onboarding/datasources", {
+      const request = new Request("http://localhost/onboarding/data-sources", {
         method: "POST",
         body: formData,
       });
@@ -725,7 +725,7 @@ describe("datasourcesAction", () => {
       formData.append("repositoryId", "repo-1");
       formData.append("isEnabled", "false");
 
-      const request = new Request("http://localhost/onboarding/datasources", {
+      const request = new Request("http://localhost/onboarding/data-sources", {
         method: "POST",
         body: formData,
       });
@@ -744,7 +744,7 @@ describe("datasourcesAction", () => {
       formData.append("repositoryId", "non-existent");
       formData.append("isEnabled", "true");
 
-      const request = new Request("http://localhost/onboarding/datasources", {
+      const request = new Request("http://localhost/onboarding/data-sources", {
         method: "POST",
         body: formData,
       });
@@ -768,7 +768,7 @@ describe("datasourcesAction", () => {
       formData.append("repositoryIds", "repo-3");
       formData.append("isEnabled", "true");
 
-      const request = new Request("http://localhost/onboarding/datasources", {
+      const request = new Request("http://localhost/onboarding/data-sources", {
         method: "POST",
         body: formData,
       });
@@ -791,7 +791,7 @@ describe("datasourcesAction", () => {
       formData.append("repositoryIds", "repo-2");
       formData.append("isEnabled", "false");
 
-      const request = new Request("http://localhost/onboarding/datasources", {
+      const request = new Request("http://localhost/onboarding/data-sources", {
         method: "POST",
         body: formData,
       });
@@ -811,7 +811,7 @@ describe("datasourcesAction", () => {
       formData.append("intent", "toggle-repositories-batch");
       formData.append("isEnabled", "true");
 
-      const request = new Request("http://localhost/onboarding/datasources", {
+      const request = new Request("http://localhost/onboarding/data-sources", {
         method: "POST",
         body: formData,
       });
@@ -834,7 +834,7 @@ describe("datasourcesAction", () => {
       formData.append("intent", "fetch-projects");
       formData.append("provider", "invalid");
 
-      const request = new Request("http://localhost/onboarding/datasources", {
+      const request = new Request("http://localhost/onboarding/data-sources", {
         method: "POST",
         body: formData,
       });
@@ -853,7 +853,7 @@ describe("datasourcesAction", () => {
       formData.append("intent", "fetch-projects");
       formData.append("provider", "jira");
 
-      const request = new Request("http://localhost/onboarding/datasources", {
+      const request = new Request("http://localhost/onboarding/data-sources", {
         method: "POST",
         body: formData,
       });
@@ -884,7 +884,7 @@ describe("datasourcesAction", () => {
       formData.append("intent", "fetch-projects");
       formData.append("provider", "jira");
 
-      const request = new Request("http://localhost/onboarding/datasources", {
+      const request = new Request("http://localhost/onboarding/data-sources", {
         method: "POST",
         body: formData,
       });
@@ -923,7 +923,7 @@ describe("datasourcesAction", () => {
       formData.append("intent", "fetch-projects");
       formData.append("provider", "jira");
 
-      const request = new Request("http://localhost/onboarding/datasources", {
+      const request = new Request("http://localhost/onboarding/data-sources", {
         method: "POST",
         body: formData,
       });
@@ -960,7 +960,7 @@ describe("datasourcesAction", () => {
       formData.append("intent", "fetch-projects");
       formData.append("provider", "jira");
 
-      const request = new Request("http://localhost/onboarding/datasources", {
+      const request = new Request("http://localhost/onboarding/data-sources", {
         method: "POST",
         body: formData,
       });
@@ -995,7 +995,7 @@ describe("datasourcesAction", () => {
       formData.append("intent", "fetch-projects");
       formData.append("provider", "jira");
 
-      const request = new Request("http://localhost/onboarding/datasources", {
+      const request = new Request("http://localhost/onboarding/data-sources", {
         method: "POST",
         body: formData,
       });
@@ -1014,7 +1014,7 @@ describe("datasourcesAction", () => {
       formData.append("intent", "toggle-project");
       formData.append("isEnabled", "true");
 
-      const request = new Request("http://localhost/onboarding/datasources", {
+      const request = new Request("http://localhost/onboarding/data-sources", {
         method: "POST",
         body: formData,
       });
@@ -1034,7 +1034,7 @@ describe("datasourcesAction", () => {
       formData.append("projectId", "proj-1");
       formData.append("isEnabled", "true");
 
-      const request = new Request("http://localhost/onboarding/datasources", {
+      const request = new Request("http://localhost/onboarding/data-sources", {
         method: "POST",
         body: formData,
       });
@@ -1058,7 +1058,7 @@ describe("datasourcesAction", () => {
       formData.append("projectId", "proj-1");
       formData.append("isEnabled", "false");
 
-      const request = new Request("http://localhost/onboarding/datasources", {
+      const request = new Request("http://localhost/onboarding/data-sources", {
         method: "POST",
         body: formData,
       });
@@ -1080,7 +1080,7 @@ describe("datasourcesAction", () => {
       formData.append("projectId", "non-existent");
       formData.append("isEnabled", "true");
 
-      const request = new Request("http://localhost/onboarding/datasources", {
+      const request = new Request("http://localhost/onboarding/data-sources", {
         method: "POST",
         body: formData,
       });
@@ -1104,7 +1104,7 @@ describe("datasourcesAction", () => {
       formData.append("projectIds", "proj-3");
       formData.append("isEnabled", "true");
 
-      const request = new Request("http://localhost/onboarding/datasources", {
+      const request = new Request("http://localhost/onboarding/data-sources", {
         method: "POST",
         body: formData,
       });
@@ -1130,7 +1130,7 @@ describe("datasourcesAction", () => {
       formData.append("projectIds", "proj-2");
       formData.append("isEnabled", "false");
 
-      const request = new Request("http://localhost/onboarding/datasources", {
+      const request = new Request("http://localhost/onboarding/data-sources", {
         method: "POST",
         body: formData,
       });
@@ -1153,7 +1153,7 @@ describe("datasourcesAction", () => {
       formData.append("intent", "toggle-projects-batch");
       formData.append("isEnabled", "true");
 
-      const request = new Request("http://localhost/onboarding/datasources", {
+      const request = new Request("http://localhost/onboarding/data-sources", {
         method: "POST",
         body: formData,
       });
@@ -1171,7 +1171,7 @@ describe("datasourcesAction", () => {
       const formData = new FormData();
       formData.append("intent", "unknown");
 
-      const request = new Request("http://localhost/onboarding/datasources", {
+      const request = new Request("http://localhost/onboarding/data-sources", {
         method: "POST",
         body: formData,
       });
