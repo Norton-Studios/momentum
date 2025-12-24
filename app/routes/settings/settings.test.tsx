@@ -1,27 +1,22 @@
 import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
-import { describe, expect, it, vi } from "vitest";
-import Settings, { meta } from "./settings";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { meta } from "./settings";
+
+const mockLoaderData = vi.fn();
+const mockActionData = vi.fn();
 
 vi.mock("react-router", async () => {
   const actual = await vi.importActual("react-router");
   return {
     ...actual,
-    useLoaderData: () => ({
-      organization: {
-        id: "org-1",
-        name: "Test Organization",
-        displayName: "Test Org Display",
-        description: "Test description",
-        website: "https://test.com",
-        logoUrl: "https://test.com/logo.png",
-      },
-      user: { name: "Test User", email: "test@example.com" },
-    }),
-    useActionData: () => undefined,
+    useLoaderData: () => mockLoaderData(),
+    useActionData: () => mockActionData(),
     Form: ({ children, ...props }: { children: React.ReactNode; [key: string]: unknown }) => <form {...props}>{children}</form>,
   };
 });
+
+import Settings from "./settings";
 
 describe("Settings meta", () => {
   it("exports correct title and description meta tags", () => {
@@ -32,6 +27,21 @@ describe("Settings meta", () => {
 });
 
 describe("Settings", () => {
+  beforeEach(() => {
+    mockLoaderData.mockReturnValue({
+      organization: {
+        id: "org-1",
+        name: "Test Organization",
+        displayName: "Test Org Display",
+        description: "Test description",
+        website: "https://test.com",
+        logoUrl: "https://test.com/logo.png",
+      },
+      user: { name: "Test User", email: "test@example.com" },
+    });
+    mockActionData.mockReturnValue(undefined);
+  });
+
   it("renders settings layout with general tab active", () => {
     const { container } = render(
       <MemoryRouter>
@@ -136,5 +146,99 @@ describe("Settings", () => {
     expect(intentInput).toBeInTheDocument();
     expect(intentInput.value).toBe("update-organization");
     expect(intentInput.type).toBe("hidden");
+  });
+});
+
+describe("Settings error state", () => {
+  beforeEach(() => {
+    mockActionData.mockReturnValue(undefined);
+  });
+
+  it("displays error message when loader returns error", () => {
+    mockLoaderData.mockReturnValue({
+      error: "Organization not found",
+    });
+
+    render(
+      <MemoryRouter>
+        <Settings />
+      </MemoryRouter>
+    );
+
+    expect(screen.getByText("Organization not found")).toBeInTheDocument();
+  });
+});
+
+describe("Settings success state", () => {
+  beforeEach(() => {
+    mockLoaderData.mockReturnValue({
+      organization: {
+        id: "org-1",
+        name: "Test Organization",
+        displayName: "Test Org Display",
+        description: "Test description",
+        website: "https://test.com",
+        logoUrl: "https://test.com/logo.png",
+      },
+      user: { name: "Test User", email: "test@example.com" },
+    });
+  });
+
+  it("displays success message when update succeeds", () => {
+    mockActionData.mockReturnValue({ success: true });
+
+    render(
+      <MemoryRouter>
+        <Settings />
+      </MemoryRouter>
+    );
+
+    expect(screen.getByText("Organization details updated successfully")).toBeInTheDocument();
+  });
+});
+
+describe("Settings action error state", () => {
+  beforeEach(() => {
+    mockLoaderData.mockReturnValue({
+      organization: {
+        id: "org-1",
+        name: "Test Organization",
+        displayName: "Test Org Display",
+        description: "Test description",
+        website: "https://test.com",
+        logoUrl: "https://test.com/logo.png",
+      },
+      user: { name: "Test User", email: "test@example.com" },
+    });
+  });
+
+  it("displays action error message", () => {
+    mockActionData.mockReturnValue({ error: "Failed to update organization" });
+
+    render(
+      <MemoryRouter>
+        <Settings />
+      </MemoryRouter>
+    );
+
+    expect(screen.getByText("Failed to update organization")).toBeInTheDocument();
+  });
+
+  it("displays field validation errors", () => {
+    mockActionData.mockReturnValue({
+      errors: {
+        name: "Name is required",
+        website: "Invalid URL format",
+      },
+    });
+
+    render(
+      <MemoryRouter>
+        <Settings />
+      </MemoryRouter>
+    );
+
+    expect(screen.getByText("Name is required")).toBeInTheDocument();
+    expect(screen.getByText("Invalid URL format")).toBeInTheDocument();
   });
 });

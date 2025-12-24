@@ -186,3 +186,131 @@ describe("TeamDetail", () => {
     expect(screen.getByText("(MOB)")).toBeInTheDocument();
   });
 });
+
+describe("TeamDetail edit mode", () => {
+  it("shows edit form when Edit Team button is clicked", async () => {
+    const user = (await import("@testing-library/user-event")).default;
+    const userEvent = user.setup();
+
+    render(
+      <MemoryRouter>
+        <TeamDetail />
+      </MemoryRouter>
+    );
+
+    const editButton = screen.getByRole("button", { name: "Edit Team" });
+    await userEvent.click(editButton);
+
+    expect(screen.getByRole("heading", { level: 2, name: "Edit Team" })).toBeInTheDocument();
+    expect(screen.getByLabelText("Team Name")).toBeInTheDocument();
+    expect(screen.getByLabelText("Description")).toBeInTheDocument();
+  });
+
+  it("hides edit form when close button is clicked", async () => {
+    const user = (await import("@testing-library/user-event")).default;
+    const userEvent = user.setup();
+
+    render(
+      <MemoryRouter>
+        <TeamDetail />
+      </MemoryRouter>
+    );
+
+    const editButton = screen.getByRole("button", { name: "Edit Team" });
+    await userEvent.click(editButton);
+
+    expect(screen.getByRole("heading", { level: 2, name: "Edit Team" })).toBeInTheDocument();
+
+    const closeButton = screen.getByRole("button", { name: "✕" });
+    await userEvent.click(closeButton);
+
+    expect(screen.queryByRole("heading", { level: 2, name: "Edit Team" })).not.toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "Frontend Team" })).toBeInTheDocument();
+  });
+
+  it("hides edit form when Cancel button is clicked", async () => {
+    const user = (await import("@testing-library/user-event")).default;
+    const userEvent = user.setup();
+
+    render(
+      <MemoryRouter>
+        <TeamDetail />
+      </MemoryRouter>
+    );
+
+    const editButton = screen.getByRole("button", { name: "Edit Team" });
+    await userEvent.click(editButton);
+
+    const cancelButton = screen.getByRole("button", { name: "Cancel" });
+    await userEvent.click(cancelButton);
+
+    expect(screen.queryByRole("heading", { level: 2, name: "Edit Team" })).not.toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "Frontend Team" })).toBeInTheDocument();
+  });
+
+  it("pre-populates form with existing team data", async () => {
+    const user = (await import("@testing-library/user-event")).default;
+    const userEvent = user.setup();
+
+    render(
+      <MemoryRouter>
+        <TeamDetail />
+      </MemoryRouter>
+    );
+
+    const editButton = screen.getByRole("button", { name: "Edit Team" });
+    await userEvent.click(editButton);
+
+    const nameInput = screen.getByLabelText("Team Name") as HTMLInputElement;
+    const descriptionInput = screen.getByLabelText("Description") as HTMLTextAreaElement;
+
+    expect(nameInput.value).toBe("Frontend Team");
+    expect(descriptionInput.value).toBe("Manages frontend repositories");
+  });
+
+  it("includes hidden intent field in edit form", async () => {
+    const user = (await import("@testing-library/user-event")).default;
+    const userEvent = user.setup();
+
+    const { container } = render(
+      <MemoryRouter>
+        <TeamDetail />
+      </MemoryRouter>
+    );
+
+    const editButton = screen.getByRole("button", { name: "Edit Team" });
+    await userEvent.click(editButton);
+
+    const intentInput = container.querySelector('input[name="intent"]') as HTMLInputElement;
+    expect(intentInput).toBeInTheDocument();
+    expect(intentInput.value).toBe("update-team");
+    expect(intentInput.type).toBe("hidden");
+  });
+
+  it("renders Save Changes button in edit form", async () => {
+    const user = (await import("@testing-library/user-event")).default;
+    const userEvent = user.setup();
+
+    render(
+      <MemoryRouter>
+        <TeamDetail />
+      </MemoryRouter>
+    );
+
+    const editButton = screen.getByRole("button", { name: "Edit Team" });
+    await userEvent.click(editButton);
+
+    expect(screen.getByRole("button", { name: "Save Changes" })).toBeInTheDocument();
+  });
+
+  it("renders section subtitles for repositories and projects", () => {
+    render(
+      <MemoryRouter>
+        <TeamDetail />
+      </MemoryRouter>
+    );
+
+    expect(screen.getByText("Assign repositories to this team")).toBeInTheDocument();
+    expect(screen.getByText("Assign projects to this team")).toBeInTheDocument();
+  });
+});

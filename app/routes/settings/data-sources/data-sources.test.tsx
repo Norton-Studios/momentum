@@ -62,6 +62,8 @@ const mockLoaderData = {
 describe("DataSourcesSettings", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockFetcher.state = "idle";
+    mockFetcher.data = mockFetcherData;
   });
 
   it("renders data source sections", async () => {
@@ -402,5 +404,280 @@ describe("DataSourcesSettings", () => {
     });
 
     mockFetcher.state = "idle";
+  });
+
+  it("shows repositories section for connected VCS data source", async () => {
+    const DataSourcesPage = await import("./data-sources");
+
+    const router = createMemoryRouter(
+      [
+        {
+          path: "/settings/data-sources",
+          element: <DataSourcesPage.default />,
+          loader: () => mockLoaderData,
+        },
+      ],
+      {
+        initialEntries: ["/settings/data-sources"],
+      }
+    );
+
+    render(<RouterProvider router={router} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("GitHub")).toBeInTheDocument();
+    });
+
+    const repositoriesToggle = screen.getByRole("button", { name: /Repositories/i });
+    expect(repositoriesToggle).toBeInTheDocument();
+  });
+
+  it("shows projects section for connected Jira data source", async () => {
+    const DataSourcesPage = await import("./data-sources");
+
+    const router = createMemoryRouter(
+      [
+        {
+          path: "/settings/data-sources",
+          element: <DataSourcesPage.default />,
+          loader: () => mockLoaderData,
+        },
+      ],
+      {
+        initialEntries: ["/settings/data-sources"],
+      }
+    );
+
+    render(<RouterProvider router={router} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Jira")).toBeInTheDocument();
+    });
+
+    const projectsToggle = screen.getByRole("button", { name: /Projects/i });
+    expect(projectsToggle).toBeInTheDocument();
+  });
+
+  it("expands repositories section when toggle is clicked", async () => {
+    const user = userEvent.setup();
+
+    mockFetcher.data = {
+      repositories: [
+        {
+          id: "repo-1",
+          name: "test-repo",
+          fullName: "org/test-repo",
+          description: null,
+          language: "TypeScript",
+          stars: 10,
+          isPrivate: false,
+          isEnabled: true,
+          lastSyncAt: new Date(),
+        },
+      ],
+      totalCount: 1,
+      nextCursor: undefined,
+    };
+
+    const DataSourcesPage = await import("./data-sources");
+
+    const router = createMemoryRouter(
+      [
+        {
+          path: "/settings/data-sources",
+          element: <DataSourcesPage.default />,
+          loader: () => mockLoaderData,
+        },
+      ],
+      {
+        initialEntries: ["/settings/data-sources"],
+      }
+    );
+
+    render(<RouterProvider router={router} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("GitHub")).toBeInTheDocument();
+    });
+
+    const repositoriesToggle = screen.getByRole("button", { name: /Repositories/i });
+    await user.click(repositoriesToggle);
+
+    await waitFor(() => {
+      expect(screen.getByPlaceholderText("Search repositories...")).toBeInTheDocument();
+    });
+
+    mockFetcher.data = mockFetcherData;
+  });
+
+  it("shows select all and deselect all buttons in repositories section", async () => {
+    const user = userEvent.setup();
+
+    mockFetcher.data = {
+      repositories: [
+        {
+          id: "repo-1",
+          name: "test-repo",
+          fullName: "org/test-repo",
+          description: null,
+          language: "TypeScript",
+          stars: 10,
+          isPrivate: false,
+          isEnabled: true,
+          lastSyncAt: new Date(),
+        },
+      ],
+      totalCount: 1,
+      nextCursor: undefined,
+    };
+
+    const DataSourcesPage = await import("./data-sources");
+
+    const router = createMemoryRouter(
+      [
+        {
+          path: "/settings/data-sources",
+          element: <DataSourcesPage.default />,
+          loader: () => mockLoaderData,
+        },
+      ],
+      {
+        initialEntries: ["/settings/data-sources"],
+      }
+    );
+
+    render(<RouterProvider router={router} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("GitHub")).toBeInTheDocument();
+    });
+
+    const repositoriesToggle = screen.getByRole("button", { name: /Repositories/i });
+    await user.click(repositoriesToggle);
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "Select All" })).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: "Deselect All" })).toBeInTheDocument();
+    });
+
+    mockFetcher.data = mockFetcherData;
+  });
+
+  it("submits form data when Test Connection is clicked", async () => {
+    const user = userEvent.setup();
+    const DataSourcesPage = await import("./data-sources");
+
+    const router = createMemoryRouter(
+      [
+        {
+          path: "/settings/data-sources",
+          element: <DataSourcesPage.default />,
+          loader: () => ({ dataSources: [], user: { name: "Test User", email: "test@example.com" } }),
+        },
+      ],
+      {
+        initialEntries: ["/settings/data-sources"],
+      }
+    );
+
+    render(<RouterProvider router={router} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Configure GitHub")).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByText("Configure GitHub"));
+
+    await waitFor(() => {
+      expect(screen.getByText("Test Connection")).toBeInTheDocument();
+    });
+
+    const tokenInput = screen.getByLabelText(/Personal Access Token/i);
+    const orgInput = screen.getByLabelText(/Organization/i);
+
+    await user.type(tokenInput, "test-token");
+    await user.type(orgInput, "test-org");
+
+    await user.click(screen.getByText("Test Connection"));
+
+    expect(mockFetcherSubmit).toHaveBeenCalled();
+  });
+
+  it("submits form data when Save Configuration is clicked", async () => {
+    const user = userEvent.setup();
+    const DataSourcesPage = await import("./data-sources");
+
+    const router = createMemoryRouter(
+      [
+        {
+          path: "/settings/data-sources",
+          element: <DataSourcesPage.default />,
+          loader: () => ({ dataSources: [], user: { name: "Test User", email: "test@example.com" } }),
+        },
+      ],
+      {
+        initialEntries: ["/settings/data-sources"],
+      }
+    );
+
+    render(<RouterProvider router={router} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Configure GitHub")).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByText("Configure GitHub"));
+
+    await waitFor(() => {
+      expect(screen.getByText("Save Configuration")).toBeInTheDocument();
+    });
+
+    const tokenInput = screen.getByLabelText(/Personal Access Token/i);
+    const orgInput = screen.getByLabelText(/Organization/i);
+
+    await user.type(tokenInput, "test-token");
+    await user.type(orgInput, "test-org");
+
+    await user.click(screen.getByText("Save Configuration"));
+
+    expect(mockFetcherSubmit).toHaveBeenCalled();
+  });
+
+  it("expands projects section when toggle is clicked", async () => {
+    const user = userEvent.setup();
+
+    mockFetcher.data = {
+      projects: [{ id: "proj-1", name: "Test Project", key: "TP", isEnabled: true }],
+    };
+
+    const DataSourcesPage = await import("./data-sources");
+
+    const router = createMemoryRouter(
+      [
+        {
+          path: "/settings/data-sources",
+          element: <DataSourcesPage.default />,
+          loader: () => mockLoaderData,
+        },
+      ],
+      {
+        initialEntries: ["/settings/data-sources"],
+      }
+    );
+
+    render(<RouterProvider router={router} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Jira")).toBeInTheDocument();
+    });
+
+    const projectsToggle = screen.getByRole("button", { name: /Projects/i });
+    await user.click(projectsToggle);
+
+    await waitFor(() => {
+      expect(screen.getByPlaceholderText("Search projects...")).toBeInTheDocument();
+    });
+
+    mockFetcher.data = mockFetcherData;
   });
 });

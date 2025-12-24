@@ -11,7 +11,9 @@ export function AppLayout({ children, activeNav, user }: AppLayoutProps) {
       ?.split(" ")
       .map((n) => n[0])
       .join("")
-      .toUpperCase() || user.email[0].toUpperCase();
+      .toUpperCase() ||
+    user.email?.[0]?.toUpperCase() ||
+    "?";
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {

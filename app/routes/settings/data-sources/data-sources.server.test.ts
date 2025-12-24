@@ -967,3 +967,315 @@ describe("data-sources action - fetch-projects intent validation", () => {
     expect(data.error).toBe("Invalid provider");
   });
 });
+
+describe("data-sources action - initialize repositories", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("initializes GitHub repositories when none exist", async () => {
+    const { fetchGithubRepositories, saveRepositories } = await import("~/lib/repositories/fetch-repositories");
+    const { getRepositoriesWithFilters } = await import("~/lib/repositories/repository-filters");
+
+    vi.mocked(db.dataSource.findFirst).mockResolvedValue({
+      id: "ds-1",
+      provider: "GITHUB",
+      isEnabled: true,
+      configs: [
+        { key: "GITHUB_TOKEN", value: "test-token" },
+        { key: "GITHUB_ORG", value: "test-org" },
+      ],
+    } as never);
+
+    vi.mocked(db.repository.count).mockResolvedValue(0);
+    vi.mocked(fetchGithubRepositories).mockResolvedValue([
+      { id: "1", name: "repo1", fullName: "org/repo1", isPrivate: false, language: "TypeScript", stars: 10, updatedAt: new Date() },
+    ] as never);
+    vi.mocked(saveRepositories).mockResolvedValue(undefined);
+    vi.mocked(db.repository.updateMany).mockResolvedValue({ count: 1 });
+    vi.mocked(getRepositoriesWithFilters).mockResolvedValue({
+      repositories: [{ id: "repo-1", name: "test-repo" }],
+      totalCount: 1,
+      nextCursor: undefined,
+    } as never);
+
+    const formData = new FormData();
+    formData.append("intent", "fetch-repositories");
+    formData.append("provider", "github");
+
+    const request = new Request("http://localhost/settings/data-sources", {
+      method: "POST",
+      body: formData,
+    });
+
+    const result = (await action({
+      request,
+      params: {},
+      context: {},
+    })) as unknown as Response;
+    const data = await result.json();
+
+    expect(fetchGithubRepositories).toHaveBeenCalledWith({
+      token: "test-token",
+      organization: "test-org",
+    });
+    expect(saveRepositories).toHaveBeenCalled();
+    expect(data.repositories).toBeDefined();
+  });
+
+  it("initializes GitLab repositories when none exist", async () => {
+    const { fetchGitlabRepositories, saveRepositories } = await import("~/lib/repositories/fetch-repositories");
+    const { getRepositoriesWithFilters } = await import("~/lib/repositories/repository-filters");
+
+    vi.mocked(db.dataSource.findFirst).mockResolvedValue({
+      id: "ds-1",
+      provider: "GITLAB",
+      isEnabled: true,
+      configs: [
+        { key: "GITLAB_TOKEN", value: "test-token" },
+        { key: "GITLAB_HOST", value: "https://gitlab.example.com" },
+      ],
+    } as never);
+
+    vi.mocked(db.repository.count).mockResolvedValue(0);
+    vi.mocked(fetchGitlabRepositories).mockResolvedValue([
+      { id: "1", name: "repo1", fullName: "org/repo1", isPrivate: false, language: "TypeScript", stars: 10, updatedAt: new Date() },
+    ] as never);
+    vi.mocked(saveRepositories).mockResolvedValue(undefined);
+    vi.mocked(db.repository.updateMany).mockResolvedValue({ count: 1 });
+    vi.mocked(getRepositoriesWithFilters).mockResolvedValue({
+      repositories: [{ id: "repo-1", name: "test-repo" }],
+      totalCount: 1,
+      nextCursor: undefined,
+    } as never);
+
+    const formData = new FormData();
+    formData.append("intent", "fetch-repositories");
+    formData.append("provider", "gitlab");
+
+    const request = new Request("http://localhost/settings/data-sources", {
+      method: "POST",
+      body: formData,
+    });
+
+    const result = (await action({
+      request,
+      params: {},
+      context: {},
+    })) as unknown as Response;
+    const data = await result.json();
+
+    expect(fetchGitlabRepositories).toHaveBeenCalledWith({
+      token: "test-token",
+      host: "https://gitlab.example.com",
+    });
+    expect(data.repositories).toBeDefined();
+  });
+
+  it("returns error when GitHub token is missing", async () => {
+    vi.mocked(db.dataSource.findFirst).mockResolvedValue({
+      id: "ds-1",
+      provider: "GITHUB",
+      isEnabled: true,
+      configs: [{ key: "GITHUB_ORG", value: "test-org" }],
+    } as never);
+
+    vi.mocked(db.repository.count).mockResolvedValue(0);
+
+    const formData = new FormData();
+    formData.append("intent", "fetch-repositories");
+    formData.append("provider", "github");
+
+    const request = new Request("http://localhost/settings/data-sources", {
+      method: "POST",
+      body: formData,
+    });
+
+    const result = (await action({
+      request,
+      params: {},
+      context: {},
+    })) as unknown as Response;
+
+    expect(result.status).toBe(500);
+    const data = await result.json();
+    expect(data.error).toContain("Failed to fetch repositories");
+  });
+
+  it("returns error when GitLab token is missing", async () => {
+    vi.mocked(db.dataSource.findFirst).mockResolvedValue({
+      id: "ds-1",
+      provider: "GITLAB",
+      isEnabled: true,
+      configs: [{ key: "GITLAB_HOST", value: "https://gitlab.example.com" }],
+    } as never);
+
+    vi.mocked(db.repository.count).mockResolvedValue(0);
+
+    const formData = new FormData();
+    formData.append("intent", "fetch-repositories");
+    formData.append("provider", "gitlab");
+
+    const request = new Request("http://localhost/settings/data-sources", {
+      method: "POST",
+      body: formData,
+    });
+
+    const result = (await action({
+      request,
+      params: {},
+      context: {},
+    })) as unknown as Response;
+
+    expect(result.status).toBe(500);
+    const data = await result.json();
+    expect(data.error).toContain("Failed to fetch repositories");
+  });
+});
+
+describe("data-sources action - create organization", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("creates organization when none exists", async () => {
+    vi.mocked(db.organization.findFirst).mockResolvedValue(null);
+    vi.mocked(db.organization.create).mockResolvedValue({
+      id: "org-new",
+      name: "default",
+      displayName: "Default Organization",
+      onboardingCompletedAt: null,
+    } as never);
+    vi.mocked(db.dataSource.findFirst).mockResolvedValue(null);
+    vi.mocked(db.dataSource.create).mockResolvedValue({
+      id: "ds-1",
+      name: "github Integration",
+      provider: "GITHUB",
+      isEnabled: true,
+    } as never);
+
+    const formData = new FormData();
+    formData.append("intent", "connect");
+    formData.append("provider", "github");
+    formData.append("GITHUB_TOKEN", "test_token");
+    formData.append("GITHUB_ORG", "test-org");
+
+    const request = new Request("http://localhost/settings/data-sources", {
+      method: "POST",
+      body: formData,
+    });
+
+    const result = (await action({
+      request,
+      params: {},
+      context: {},
+    })) as unknown as Response;
+    const data = await result.json();
+
+    expect(db.organization.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: {
+          name: "default",
+          displayName: "Default Organization",
+        },
+      })
+    );
+    expect(data.success).toBe(true);
+  });
+});
+
+describe("data-sources action - test connection failure", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("returns error when connection test fails", async () => {
+    const { testConnection } = await import("~/routes/onboarding/datasources/datasources.server");
+    vi.mocked(testConnection).mockResolvedValue({ success: false, error: "Invalid credentials" });
+
+    const formData = new FormData();
+    formData.append("intent", "test");
+    formData.append("provider", "github");
+    formData.append("GITHUB_TOKEN", "invalid_token");
+    formData.append("GITHUB_ORG", "test-org");
+
+    const request = new Request("http://localhost/settings/data-sources", {
+      method: "POST",
+      body: formData,
+    });
+
+    const result = (await action({
+      request,
+      params: {},
+      context: {},
+    })) as unknown as Response;
+
+    expect(result.status).toBe(400);
+    const data = await result.json();
+    expect(data.testError).toBe("Invalid credentials");
+    expect(data.provider).toBe("github");
+
+    vi.mocked(testConnection).mockResolvedValue({ success: true });
+  });
+});
+
+describe("data-sources action - toggle repository error", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("returns error when toggle repository fails", async () => {
+    const { toggleRepository } = await import("~/lib/repositories/toggle-repositories");
+    vi.mocked(toggleRepository).mockRejectedValue(new Error("Repository not found"));
+
+    const formData = new FormData();
+    formData.append("intent", "toggle-repository");
+    formData.append("repositoryId", "non-existent");
+    formData.append("isEnabled", "true");
+
+    const request = new Request("http://localhost/settings/data-sources", {
+      method: "POST",
+      body: formData,
+    });
+
+    const result = (await action({
+      request,
+      params: {},
+      context: {},
+    })) as unknown as Response;
+
+    expect(result.status).toBe(404);
+    const data = await result.json();
+    expect(data.error).toBe("Repository not found");
+  });
+});
+
+describe("data-sources action - toggle project error", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("returns 500 when toggle project fails with generic error", async () => {
+    vi.mocked(db.project.update).mockRejectedValue(new Error("Database connection failed"));
+
+    const formData = new FormData();
+    formData.append("intent", "toggle-project");
+    formData.append("projectId", "proj-1");
+    formData.append("isEnabled", "true");
+
+    const request = new Request("http://localhost/settings/data-sources", {
+      method: "POST",
+      body: formData,
+    });
+
+    const result = (await action({
+      request,
+      params: {},
+      context: {},
+    })) as unknown as Response;
+
+    expect(result.status).toBe(500);
+    const data = await result.json();
+    expect(data.error).toBe("Database connection failed");
+  });
+});
