@@ -15,7 +15,7 @@ import {
 } from "~/lib/data-sources";
 import { getRepositoriesWithFilters } from "~/lib/repositories/repository-filters";
 import { REPOSITORY_PAGE_SIZE, toggleRepositoriesBatch, toggleRepository } from "~/lib/repositories/toggle-repositories";
-import { extractConfigsFromForm, testConnection } from "~/routes/onboarding/datasources/datasources.server";
+import { extractConfigsFromForm, testConnection } from "~/routes/onboarding/data-sources/data-sources.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const user = await requireAdmin(request);

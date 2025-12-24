@@ -17,7 +17,7 @@ export async function importingLoader({ request }: LoaderFunctionArgs) {
   });
 
   if (dataSources.length === 0) {
-    return redirect("/onboarding/datasources");
+    return redirect("/onboarding/data-sources");
   }
 
   const repositoryCount = await db.repository.count({

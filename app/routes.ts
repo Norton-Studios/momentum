@@ -5,7 +5,7 @@ export default [
   route("brochure", "routes/brochure/home.tsx"),
   route("setup", "routes/setup/setup.tsx"),
   route("login", "routes/login/login.tsx"),
-  route("onboarding/datasources", "routes/onboarding/datasources/datasources.tsx"),
+  route("onboarding/data-sources", "routes/onboarding/data-sources/data-sources.tsx"),
   route("onboarding/importing", "routes/onboarding/importing/importing.tsx"),
   route("onboarding/complete", "routes/onboarding/complete/complete.tsx"),
   route("dashboard", "routes/dashboard/dashboard.tsx"),

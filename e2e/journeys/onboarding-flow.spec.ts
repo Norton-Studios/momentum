@@ -31,7 +31,7 @@ test.describe
 
       await page.getByRole("button", { name: "Create Admin Account" }).click();
 
-      await expect(page).toHaveURL(/\/onboarding\/datasources/);
+      await expect(page).toHaveURL(/\/onboarding\/data-sources/);
     });
 
     test("Step 2: Complete onboarding flow", async ({ page }, testInfo) => {
@@ -39,7 +39,7 @@ test.describe
       await login(page);
 
       // Configure GitHub data source
-      await page.goto("/onboarding/datasources");
+      await page.goto("/onboarding/data-sources");
       await page.waitForLoadState("networkidle");
       await expect(page.getByRole("heading", { name: "Connect Your Tools" })).toBeVisible();
 

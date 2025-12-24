@@ -7,7 +7,7 @@ export async function completeLoader({ request }: LoaderFunctionArgs) {
 
   const organization = await db.organization.findFirst();
   if (!organization) {
-    return redirect("/onboarding/datasources");
+    return redirect("/onboarding/data-sources");
   }
 
   await db.organization.update({

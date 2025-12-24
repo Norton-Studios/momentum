@@ -178,7 +178,7 @@ export default function Importing() {
             )}
           </div>
           <div className="action-buttons">
-            <a href="/onboarding/datasources" className="skip-link">
+            <a href="/onboarding/data-sources" className="skip-link">
               Back to Data Sources
             </a>
             <Form method="post">

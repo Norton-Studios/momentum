@@ -9,13 +9,13 @@ import {
   getProviderEnum,
   initializeProjects,
   initializeRepositories,
+  PROVIDER_CONFIGS,
   saveDataSourceConfigs,
   upsertDataSource,
   validateRequiredFields,
 } from "~/lib/data-sources";
 import { getRepositoriesWithFilters } from "~/lib/repositories/repository-filters";
 import { REPOSITORY_PAGE_SIZE, toggleRepositoriesBatch, toggleRepository } from "~/lib/repositories/toggle-repositories";
-import { PROVIDER_CONFIGS } from "./datasources.config";
 
 export async function datasourcesAction({ request }: ActionFunctionArgs) {
   await requireAdmin(request);

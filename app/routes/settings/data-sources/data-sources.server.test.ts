@@ -21,7 +21,7 @@ vi.mock("~/auth/auth.server", () => ({
   }),
 }));
 
-vi.mock("~/routes/onboarding/datasources/datasources.server", () => ({
+vi.mock("~/routes/onboarding/data-sources/data-sources.server", () => ({
   extractConfigsFromForm: vi.fn((formData: FormData, provider: string) => {
     const configs: Record<string, string> = {};
     const providerConfig =
@@ -1190,7 +1190,7 @@ describe("data-sources action - test connection failure", () => {
   });
 
   it("returns error when connection test fails", async () => {
-    const { testConnection } = await import("~/routes/onboarding/datasources/datasources.server");
+    const { testConnection } = await import("~/routes/onboarding/data-sources/data-sources.server");
     vi.mocked(testConnection).mockResolvedValue({ success: false, error: "Invalid credentials" });
 
     const formData = new FormData();

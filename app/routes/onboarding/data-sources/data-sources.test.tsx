@@ -2,7 +2,7 @@ import { render, screen, within } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 import { MemoryRouter } from "react-router";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import OnboardingDataSources, { meta } from "./datasources";
+import OnboardingDataSources, { meta } from "./data-sources";
 
 const mockUseLoaderData = vi.fn();
 const mockUseActionData = vi.fn();

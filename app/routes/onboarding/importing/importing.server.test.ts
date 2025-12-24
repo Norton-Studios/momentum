@@ -61,7 +61,7 @@ describe("importingLoader", () => {
     const response = (await importingLoader({ request, params: {}, context: {} } as never)) as unknown as Response;
 
     expect(response.status).toBe(302);
-    expect(response.headers.get("Location")).toBe("/onboarding/datasources");
+    expect(response.headers.get("Location")).toBe("/onboarding/data-sources");
   });
 
   it("returns hasStartedImport false when no batch is running", async () => {

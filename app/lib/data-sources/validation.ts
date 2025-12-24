@@ -1,4 +1,4 @@
-import { PROVIDER_CONFIGS } from "~/routes/onboarding/datasources/datasources.config";
+import { PROVIDER_CONFIGS } from "./provider-configs";
 
 export type DataSourceProvider = "GITHUB" | "GITLAB" | "BITBUCKET" | "JENKINS" | "CIRCLECI" | "SONARQUBE" | "JIRA";
 

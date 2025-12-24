@@ -66,6 +66,6 @@ export async function setupAction({ request }: ActionFunctionArgs) {
   return createUserSession({
     request,
     userId: user.id,
-    redirectTo: "/onboarding/datasources",
+    redirectTo: "/onboarding/data-sources",
   });
 }

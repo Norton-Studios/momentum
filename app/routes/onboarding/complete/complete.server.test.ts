@@ -54,7 +54,7 @@ describe("completeLoader", () => {
     const response = (await completeLoader({ request, params: {}, context: {} } as never)) as unknown as Response;
 
     expect(response.status).toBe(302);
-    expect(response.headers.get("Location")).toBe("/onboarding/datasources");
+    expect(response.headers.get("Location")).toBe("/onboarding/data-sources");
   });
 
   it("marks onboarding as completed", async () => {
