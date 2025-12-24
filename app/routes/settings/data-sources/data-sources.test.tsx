@@ -2,6 +2,14 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { createMemoryRouter, RouterProvider } from "react-router";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { meta } from "./data-sources";
+
+describe("meta", () => {
+  it("returns correct title and description", () => {
+    const result = meta();
+    expect(result).toEqual([{ title: "Data Sources - Settings - Momentum" }, { name: "description", content: "Manage your data source integrations" }]);
+  });
+});
 
 vi.mock("~/auth/auth.server", () => ({
   requireAdmin: vi.fn().mockResolvedValue({
@@ -676,6 +684,533 @@ describe("DataSourcesSettings", () => {
 
     await waitFor(() => {
       expect(screen.getByPlaceholderText("Search projects...")).toBeInTheDocument();
+    });
+
+    mockFetcher.data = mockFetcherData;
+  });
+
+  it("renders all data source icons", async () => {
+    const DataSourcesPage = await import("./data-sources");
+
+    const router = createMemoryRouter(
+      [
+        {
+          path: "/settings/data-sources",
+          element: <DataSourcesPage.default />,
+          loader: () => ({ dataSources: [], user: { name: "Test User", email: "test@example.com" } }),
+        },
+      ],
+      {
+        initialEntries: ["/settings/data-sources"],
+      }
+    );
+
+    render(<RouterProvider router={router} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("GitHub")).toBeInTheDocument();
+      expect(screen.getByText("GitLab")).toBeInTheDocument();
+      expect(screen.getByText("Jenkins")).toBeInTheDocument();
+      expect(screen.getByText("CircleCI")).toBeInTheDocument();
+      expect(screen.getByText("SonarQube")).toBeInTheDocument();
+      expect(screen.getByText("Jira")).toBeInTheDocument();
+    });
+
+    const icons = document.querySelectorAll("svg");
+    expect(icons.length).toBeGreaterThanOrEqual(6);
+  });
+
+  it("renders all section titles", async () => {
+    const DataSourcesPage = await import("./data-sources");
+
+    const router = createMemoryRouter(
+      [
+        {
+          path: "/settings/data-sources",
+          element: <DataSourcesPage.default />,
+          loader: () => ({ dataSources: [], user: { name: "Test User", email: "test@example.com" } }),
+        },
+      ],
+      {
+        initialEntries: ["/settings/data-sources"],
+      }
+    );
+
+    render(<RouterProvider router={router} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Version Control")).toBeInTheDocument();
+      expect(screen.getByText("CI/CD Platforms")).toBeInTheDocument();
+      expect(screen.getByText("Code Quality")).toBeInTheDocument();
+      expect(screen.getByText("Project Management")).toBeInTheDocument();
+    });
+  });
+
+  it("toggles form open and closed", async () => {
+    const user = userEvent.setup();
+    const DataSourcesPage = await import("./data-sources");
+
+    const router = createMemoryRouter(
+      [
+        {
+          path: "/settings/data-sources",
+          element: <DataSourcesPage.default />,
+          loader: () => ({ dataSources: [], user: { name: "Test User", email: "test@example.com" } }),
+        },
+      ],
+      {
+        initialEntries: ["/settings/data-sources"],
+      }
+    );
+
+    render(<RouterProvider router={router} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Configure GitHub")).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByText("Configure GitHub"));
+
+    await waitFor(() => {
+      expect(screen.getByText("Test Connection")).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByText("Cancel"));
+
+    await waitFor(() => {
+      expect(screen.queryByText("Test Connection")).not.toBeInTheDocument();
+    });
+  });
+
+  it("shows connected status for connected data sources", async () => {
+    const DataSourcesPage = await import("./data-sources");
+
+    const router = createMemoryRouter(
+      [
+        {
+          path: "/settings/data-sources",
+          element: <DataSourcesPage.default />,
+          loader: () => mockLoaderData,
+        },
+      ],
+      {
+        initialEntries: ["/settings/data-sources"],
+      }
+    );
+
+    render(<RouterProvider router={router} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("GitHub")).toBeInTheDocument();
+    });
+
+    const connectedBadges = screen.getAllByText("Connected");
+    expect(connectedBadges.length).toBe(2);
+  });
+
+  it("shows not connected status for disconnected data sources", async () => {
+    const DataSourcesPage = await import("./data-sources");
+
+    const router = createMemoryRouter(
+      [
+        {
+          path: "/settings/data-sources",
+          element: <DataSourcesPage.default />,
+          loader: () => ({ dataSources: [], user: { name: "Test User", email: "test@example.com" } }),
+        },
+      ],
+      {
+        initialEntries: ["/settings/data-sources"],
+      }
+    );
+
+    render(<RouterProvider router={router} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("GitHub")).toBeInTheDocument();
+    });
+
+    const notConnectedBadges = screen.getAllByText("Not Connected");
+    expect(notConnectedBadges.length).toBe(6);
+  });
+
+  it("renders description text for each data source", async () => {
+    const DataSourcesPage = await import("./data-sources");
+
+    const router = createMemoryRouter(
+      [
+        {
+          path: "/settings/data-sources",
+          element: <DataSourcesPage.default />,
+          loader: () => ({ dataSources: [], user: { name: "Test User", email: "test@example.com" } }),
+        },
+      ],
+      {
+        initialEntries: ["/settings/data-sources"],
+      }
+    );
+
+    render(<RouterProvider router={router} />);
+
+    await waitFor(() => {
+      expect(screen.getByText(/Connect your GitHub organization/)).toBeInTheDocument();
+      expect(screen.getByText(/Connect to GitLab/)).toBeInTheDocument();
+      expect(screen.getByText(/Track build pipelines/)).toBeInTheDocument();
+      expect(screen.getByText(/Monitor pipeline performance/)).toBeInTheDocument();
+      expect(screen.getByText(/Import code quality metrics/)).toBeInTheDocument();
+      expect(screen.getByText(/Connect Jira Cloud or Data Center/)).toBeInTheDocument();
+    });
+  });
+
+  it("shows repositories section when connection succeeds", async () => {
+    mockFetcher.data = { success: true, provider: "github" };
+
+    const DataSourcesPage = await import("./data-sources");
+
+    const router = createMemoryRouter(
+      [
+        {
+          path: "/settings/data-sources",
+          element: <DataSourcesPage.default />,
+          loader: () => ({ dataSources: [], user: { name: "Test User", email: "test@example.com" } }),
+        },
+      ],
+      {
+        initialEntries: ["/settings/data-sources"],
+      }
+    );
+
+    render(<RouterProvider router={router} />);
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Repositories/i })).toBeInTheDocument();
+    });
+
+    mockFetcher.data = mockFetcherData;
+  });
+
+  it("shows edit button text for connected data sources", async () => {
+    const DataSourcesPage = await import("./data-sources");
+
+    const router = createMemoryRouter(
+      [
+        {
+          path: "/settings/data-sources",
+          element: <DataSourcesPage.default />,
+          loader: () => mockLoaderData,
+        },
+      ],
+      {
+        initialEntries: ["/settings/data-sources"],
+      }
+    );
+
+    render(<RouterProvider router={router} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Edit GitHub Configuration")).toBeInTheDocument();
+      expect(screen.getByText("Edit Jira Configuration")).toBeInTheDocument();
+    });
+  });
+
+  it("shows configure button text for disconnected data sources", async () => {
+    const DataSourcesPage = await import("./data-sources");
+
+    const router = createMemoryRouter(
+      [
+        {
+          path: "/settings/data-sources",
+          element: <DataSourcesPage.default />,
+          loader: () => ({ dataSources: [], user: { name: "Test User", email: "test@example.com" } }),
+        },
+      ],
+      {
+        initialEntries: ["/settings/data-sources"],
+      }
+    );
+
+    render(<RouterProvider router={router} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Configure GitHub")).toBeInTheDocument();
+      expect(screen.getByText("Configure GitLab")).toBeInTheDocument();
+      expect(screen.getByText("Configure Jenkins")).toBeInTheDocument();
+      expect(screen.getByText("Configure CircleCI")).toBeInTheDocument();
+      expect(screen.getByText("Configure SonarQube")).toBeInTheDocument();
+      expect(screen.getByText("Configure Jira")).toBeInTheDocument();
+    });
+  });
+
+  it("renders cards with correct IDs", async () => {
+    const DataSourcesPage = await import("./data-sources");
+
+    const router = createMemoryRouter(
+      [
+        {
+          path: "/settings/data-sources",
+          element: <DataSourcesPage.default />,
+          loader: () => ({ dataSources: [], user: { name: "Test User", email: "test@example.com" } }),
+        },
+      ],
+      {
+        initialEntries: ["/settings/data-sources"],
+      }
+    );
+
+    const { container } = render(<RouterProvider router={router} />);
+
+    await waitFor(() => {
+      expect(container.querySelector("#githubCard")).toBeInTheDocument();
+      expect(container.querySelector("#gitlabCard")).toBeInTheDocument();
+      expect(container.querySelector("#jenkinsCard")).toBeInTheDocument();
+      expect(container.querySelector("#circleciCard")).toBeInTheDocument();
+      expect(container.querySelector("#sonarqubeCard")).toBeInTheDocument();
+      expect(container.querySelector("#jiraCard")).toBeInTheDocument();
+    });
+  });
+
+  it("displays test success message", async () => {
+    const user = userEvent.setup();
+
+    mockFetcher.data = { testSuccess: true, provider: "github" };
+
+    const DataSourcesPage = await import("./data-sources");
+
+    const router = createMemoryRouter(
+      [
+        {
+          path: "/settings/data-sources",
+          element: <DataSourcesPage.default />,
+          loader: () => ({ dataSources: [], user: { name: "Test User", email: "test@example.com" } }),
+        },
+      ],
+      {
+        initialEntries: ["/settings/data-sources"],
+      }
+    );
+
+    render(<RouterProvider router={router} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Configure GitHub")).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByText("Configure GitHub"));
+
+    await waitFor(() => {
+      expect(screen.getByText("Connection successful!")).toBeInTheDocument();
+    });
+
+    mockFetcher.data = mockFetcherData;
+  });
+
+  it("displays test error message", async () => {
+    const user = userEvent.setup();
+
+    mockFetcher.data = { testError: "Invalid credentials", provider: "github" };
+
+    const DataSourcesPage = await import("./data-sources");
+
+    const router = createMemoryRouter(
+      [
+        {
+          path: "/settings/data-sources",
+          element: <DataSourcesPage.default />,
+          loader: () => ({ dataSources: [], user: { name: "Test User", email: "test@example.com" } }),
+        },
+      ],
+      {
+        initialEntries: ["/settings/data-sources"],
+      }
+    );
+
+    render(<RouterProvider router={router} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Configure GitHub")).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByText("Configure GitHub"));
+
+    await waitFor(() => {
+      expect(screen.getByText("Invalid credentials")).toBeInTheDocument();
+    });
+
+    mockFetcher.data = mockFetcherData;
+  });
+
+  it("pre-populates form with existing config values", async () => {
+    const user = userEvent.setup();
+    const DataSourcesPage = await import("./data-sources");
+
+    const router = createMemoryRouter(
+      [
+        {
+          path: "/settings/data-sources",
+          element: <DataSourcesPage.default />,
+          loader: () => mockLoaderData,
+        },
+      ],
+      {
+        initialEntries: ["/settings/data-sources"],
+      }
+    );
+
+    render(<RouterProvider router={router} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Edit GitHub Configuration")).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByText("Edit GitHub Configuration"));
+
+    await waitFor(() => {
+      const orgInput = screen.getByLabelText(/Organization/i) as HTMLInputElement;
+      expect(orgInput.value).toBe("test-org");
+    });
+  });
+
+  it("renders Jira select field for version", async () => {
+    const user = userEvent.setup();
+    const DataSourcesPage = await import("./data-sources");
+
+    const router = createMemoryRouter(
+      [
+        {
+          path: "/settings/data-sources",
+          element: <DataSourcesPage.default />,
+          loader: () => ({ dataSources: [], user: { name: "Test User", email: "test@example.com" } }),
+        },
+      ],
+      {
+        initialEntries: ["/settings/data-sources"],
+      }
+    );
+
+    render(<RouterProvider router={router} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Configure Jira")).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByText("Configure Jira"));
+
+    await waitFor(() => {
+      const variantSelect = screen.getByLabelText(/Jira Version/i);
+      expect(variantSelect).toBeInTheDocument();
+      expect(variantSelect.tagName).toBe("SELECT");
+    });
+  });
+
+  it("hides conditional fields when showWhen condition is not met", async () => {
+    const user = userEvent.setup();
+    const DataSourcesPage = await import("./data-sources");
+
+    const router = createMemoryRouter(
+      [
+        {
+          path: "/settings/data-sources",
+          element: <DataSourcesPage.default />,
+          loader: () => ({ dataSources: [], user: { name: "Test User", email: "test@example.com" } }),
+        },
+      ],
+      {
+        initialEntries: ["/settings/data-sources"],
+      }
+    );
+
+    render(<RouterProvider router={router} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Configure Jira")).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByText("Configure Jira"));
+
+    await waitFor(() => {
+      expect(screen.getByLabelText(/Jira Version/i)).toBeInTheDocument();
+    });
+
+    expect(screen.queryByLabelText(/Atlassian Domain/i)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/Server URL/i)).not.toBeInTheDocument();
+  });
+
+  it("handles field input changes", async () => {
+    const user = userEvent.setup();
+    const DataSourcesPage = await import("./data-sources");
+
+    const router = createMemoryRouter(
+      [
+        {
+          path: "/settings/data-sources",
+          element: <DataSourcesPage.default />,
+          loader: () => ({ dataSources: [], user: { name: "Test User", email: "test@example.com" } }),
+        },
+      ],
+      {
+        initialEntries: ["/settings/data-sources"],
+      }
+    );
+
+    render(<RouterProvider router={router} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Configure GitHub")).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByText("Configure GitHub"));
+
+    await waitFor(() => {
+      expect(screen.getByLabelText(/Personal Access Token/i)).toBeInTheDocument();
+    });
+
+    const tokenInput = screen.getByLabelText(/Personal Access Token/i) as HTMLInputElement;
+    await user.type(tokenInput, "my-token-123");
+
+    expect(tokenInput.value).toBe("my-token-123");
+  });
+
+  it("toggles repositories section closed when already open", async () => {
+    const user = userEvent.setup();
+
+    mockFetcher.data = {
+      repositories: [],
+      totalCount: 0,
+      nextCursor: undefined,
+    };
+
+    const DataSourcesPage = await import("./data-sources");
+
+    const router = createMemoryRouter(
+      [
+        {
+          path: "/settings/data-sources",
+          element: <DataSourcesPage.default />,
+          loader: () => mockLoaderData,
+        },
+      ],
+      {
+        initialEntries: ["/settings/data-sources"],
+      }
+    );
+
+    render(<RouterProvider router={router} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("GitHub")).toBeInTheDocument();
+    });
+
+    const repositoriesToggle = screen.getByRole("button", { name: /Repositories/i });
+    await user.click(repositoriesToggle);
+
+    await waitFor(() => {
+      expect(screen.getByPlaceholderText("Search repositories...")).toBeInTheDocument();
+    });
+
+    await user.click(repositoriesToggle);
+
+    await waitFor(() => {
+      expect(screen.queryByPlaceholderText("Search repositories...")).not.toBeInTheDocument();
     });
 
     mockFetcher.data = mockFetcherData;
