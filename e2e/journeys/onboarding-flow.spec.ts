@@ -18,10 +18,15 @@ async function login(page: Page) {
   // Fill form and submit
   await emailInput.fill("admin@test.com");
   await passwordInput.fill("TestPassword123!");
-  await submitButton.click();
 
-  // Wait for navigation away from login page
-  await page.waitForURL((url) => !url.pathname.includes("/login"), { timeout: 30000 });
+  // Use navigation promise to ensure we wait for the full redirect chain
+  await Promise.all([page.waitForNavigation({ waitUntil: "networkidle" }), submitButton.click()]);
+
+  // Verify we ended up on a protected route (not login)
+  const currentUrl = page.url();
+  if (currentUrl.includes("/login")) {
+    throw new Error(`Login failed - still on login page: ${currentUrl}`);
+  }
 }
 
 test.describe
