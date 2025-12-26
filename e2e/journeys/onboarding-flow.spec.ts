@@ -7,45 +7,14 @@ const SONAR_ORG = process.env.E2E_SONAR_ORG;
 
 async function login(page: Page) {
   await page.goto("/login");
-  await page.waitForLoadState("networkidle");
-
-  const emailInput = page.locator("#email");
-  const passwordInput = page.locator("#password");
-
-  await emailInput.waitFor({ state: "visible" });
-
-  // Fill and submit form
-  await emailInput.fill("admin@test.com");
-  await passwordInput.fill("TestPassword123!");
-  await passwordInput.press("Enter");
-
-  // Wait for cookie to be set (polling)
-  let sessionCookie = null;
-  for (let i = 0; i < 30; i++) {
-    await page.waitForTimeout(100);
-    const cookies = await page.context().cookies();
-    sessionCookie = cookies.find((c) => c.name === "__session");
-    if (sessionCookie) break;
-  }
-
-  if (!sessionCookie) {
-    const bodyText = await page
-      .locator("body")
-      .textContent()
-      .catch(() => "");
-    throw new Error(`Login failed - no session cookie after 3s. URL: ${page.url()}, Body: ${bodyText.substring(0, 300)}`);
-  }
-
-  // Wait for any redirects to complete
-  await page.waitForLoadState("networkidle");
+  await page.locator("#email").fill("admin@test.com");
+  await page.locator("#password").fill("TestPassword123!");
+  await page.locator('button[type="submit"]').click();
+  await page.waitForURL(/\/(dashboard|onboarding)/);
 }
 
 test.describe
   .serial("Onboarding Journey", () => {
-    // Disable retries for serial tests - retrying from the beginning with
-    // existing database state doesn't work since Step 1 creates the admin user
-    test.describe.configure({ retries: 0 });
-
     test.beforeAll(() => {
       if (!GITHUB_TOKEN || !GITHUB_ORG) {
         throw new Error("E2E_GITHUB_TOKEN and E2E_GITHUB_ORG environment variables must be set");
@@ -119,10 +88,18 @@ test.describe
       await page.getByRole("button", { name: /Continue to Dashboard/i }).click();
       await expect(page).toHaveURL(/\/onboarding\/complete/, { timeout: 30000 });
       await expect(page.getByRole("heading", { name: /You're All Set/i })).toBeVisible();
+
+      // Navigate to dashboard
+      await page.getByRole("link", { name: /Go to Dashboard/i }).click();
+      await expect(page).toHaveURL(/\/dashboard/);
     });
 
     test("Step 7: Navigate to settings and edit organization details", async ({ page }) => {
-      await login(page);
+      await page.goto("/login");
+      await page.getByLabel("Email Address").fill("admin@test.com");
+      await page.getByLabel("Password").fill("TestPassword123!");
+      await page.getByRole("button", { name: "Sign In" }).click();
+      await page.waitForURL(/\/(dashboard|onboarding)/);
 
       await page.goto("/settings");
       await page.waitForLoadState("networkidle");
@@ -147,7 +124,11 @@ test.describe
     });
 
     test("Step 8: Create and manage a team", async ({ page }) => {
-      await login(page);
+      await page.goto("/login");
+      await page.getByLabel("Email Address").fill("admin@test.com");
+      await page.getByLabel("Password").fill("TestPassword123!");
+      await page.getByRole("button", { name: "Sign In" }).click();
+      await page.waitForURL(/\/(dashboard|onboarding)/);
 
       await page.goto("/settings/teams");
       await page.waitForLoadState("networkidle");
@@ -181,7 +162,11 @@ test.describe
     });
 
     test("Step 9: View and verify data sources configuration", async ({ page }) => {
-      await login(page);
+      await page.goto("/login");
+      await page.getByLabel("Email Address").fill("admin@test.com");
+      await page.getByLabel("Password").fill("TestPassword123!");
+      await page.getByRole("button", { name: "Sign In" }).click();
+      await page.waitForURL(/\/(dashboard|onboarding)/);
 
       await page.goto("/settings/data-sources");
       await page.waitForLoadState("networkidle");
@@ -210,7 +195,11 @@ test.describe
         return;
       }
 
-      await login(page);
+      await page.goto("/login");
+      await page.getByLabel("Email Address").fill("admin@test.com");
+      await page.getByLabel("Password").fill("TestPassword123!");
+      await page.getByRole("button", { name: "Sign In" }).click();
+      await page.waitForURL(/\/(dashboard|onboarding)/);
 
       await page.goto("/settings/data-sources");
       await page.waitForLoadState("networkidle");
@@ -245,7 +234,11 @@ test.describe
     test("Step 11: View imports and trigger manual import", async ({ page }, testInfo) => {
       testInfo.setTimeout(60000);
 
-      await login(page);
+      await page.goto("/login");
+      await page.getByLabel("Email Address").fill("admin@test.com");
+      await page.getByLabel("Password").fill("TestPassword123!");
+      await page.getByRole("button", { name: "Sign In" }).click();
+      await page.waitForURL(/\/(dashboard|onboarding)/);
 
       await page.goto("/settings/imports");
       await page.waitForLoadState("networkidle");
@@ -277,7 +270,11 @@ test.describe
     });
 
     test("Step 12: Delete the test team", async ({ page }) => {
-      await login(page);
+      await page.goto("/login");
+      await page.getByLabel("Email Address").fill("admin@test.com");
+      await page.getByLabel("Password").fill("TestPassword123!");
+      await page.getByRole("button", { name: "Sign In" }).click();
+      await page.waitForURL(/\/(dashboard|onboarding)/);
 
       await page.goto("/settings/teams");
       await page.waitForLoadState("networkidle");
