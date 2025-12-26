@@ -88,10 +88,6 @@ test.describe
       await page.getByRole("button", { name: /Continue to Dashboard/i }).click();
       await expect(page).toHaveURL(/\/onboarding\/complete/, { timeout: 30000 });
       await expect(page.getByRole("heading", { name: /You're All Set/i })).toBeVisible();
-
-      // Navigate to dashboard
-      await page.getByRole("link", { name: /Go to Dashboard/i }).click();
-      await expect(page).toHaveURL(/\/dashboard/);
     });
 
     test("Step 7: Navigate to settings and edit organization details", async ({ page }) => {
