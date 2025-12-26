@@ -21,17 +21,36 @@ async function login(page: Page) {
   await emailInput.fill("admin@test.com");
   await passwordInput.fill("TestPassword123!");
 
-  // Click and wait for navigation together
-  await Promise.all([page.waitForURL((url) => !url.pathname.includes("/login"), { timeout: 30000 }), submitButton.click()]);
+  // Click submit
+  await submitButton.click();
 
-  // Wait for page to fully stabilize after redirect chain completes
+  // Wait for either success (URL change) or error message
+  const errorMessage = page.locator(".message-error, .error-message, [role='alert']");
+
+  // Give the form time to respond
   await page.waitForLoadState("networkidle");
+
+  // Check if we got an error
+  const hasError = await errorMessage.isVisible().catch(() => false);
+  if (hasError) {
+    const errorText = await errorMessage.textContent();
+    throw new Error(`Login failed with error: ${errorText}`);
+  }
+
+  // Check if we're still on login page
+  if (page.url().includes("/login")) {
+    const bodyText = await page
+      .locator("body")
+      .textContent()
+      .catch(() => "");
+    throw new Error(`Login did not redirect. URL: ${page.url()}, Body: ${bodyText.substring(0, 500)}`);
+  }
 
   // Verify we have a session cookie
   const cookies = await page.context().cookies();
   const sessionCookie = cookies.find((c) => c.name === "__session");
   if (!sessionCookie) {
-    throw new Error(`Login succeeded but no session cookie found. Current URL: ${page.url()}, Cookies: ${JSON.stringify(cookies.map((c) => c.name))}`);
+    throw new Error(`Login succeeded but no session cookie found. URL: ${page.url()}, Cookies: ${JSON.stringify(cookies.map((c) => c.name))}`);
   }
 }
 
