@@ -7,30 +7,22 @@ const SONAR_ORG = process.env.E2E_SONAR_ORG;
 
 async function login(page: Page) {
   await page.goto("/login");
+  await page.waitForLoadState("networkidle");
 
-  // Wait for form to be ready
+  // Wait for form elements to be ready
   const emailInput = page.locator("#email");
   const passwordInput = page.locator("#password");
   const submitButton = page.locator('button[type="submit"]');
 
   await emailInput.waitFor({ state: "visible" });
+  await submitButton.waitFor({ state: "visible" });
 
-  // Fill form and submit
+  // Fill form
   await emailInput.fill("admin@test.com");
   await passwordInput.fill("TestPassword123!");
-  await submitButton.click();
 
-  // Wait for navigation away from login - use shorter timeout and explicit check
-  try {
-    await page.waitForURL((url) => !url.pathname.includes("/login"), { timeout: 15000 });
-  } catch {
-    // If we're still on login, capture error info
-    const errorText = await page
-      .locator("body")
-      .textContent()
-      .catch(() => "Could not get body text");
-    throw new Error(`Login failed - still on login page. Body text: ${errorText.substring(0, 500)}`);
-  }
+  // Click and wait for navigation together
+  await Promise.all([page.waitForURL((url) => !url.pathname.includes("/login"), { timeout: 30000 }), submitButton.click()]);
 }
 
 test.describe
