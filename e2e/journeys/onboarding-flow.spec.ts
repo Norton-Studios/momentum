@@ -23,6 +23,16 @@ async function login(page: Page) {
 
   // Click and wait for navigation together
   await Promise.all([page.waitForURL((url) => !url.pathname.includes("/login"), { timeout: 30000 }), submitButton.click()]);
+
+  // Wait for page to fully stabilize after redirect chain completes
+  await page.waitForLoadState("networkidle");
+
+  // Verify we have a session cookie
+  const cookies = await page.context().cookies();
+  const sessionCookie = cookies.find((c) => c.name === "__session");
+  if (!sessionCookie) {
+    throw new Error(`Login succeeded but no session cookie found. Current URL: ${page.url()}, Cookies: ${JSON.stringify(cookies.map((c) => c.name))}`);
+  }
 }
 
 test.describe
