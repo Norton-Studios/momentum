@@ -1,5 +1,4 @@
 import { expect, type Page, test } from "@playwright/test";
-import { disconnectDatabase, resetDatabase } from "../db-utils";
 
 const GITHUB_TOKEN = process.env.E2E_GITHUB_TOKEN;
 const GITHUB_ORG = process.env.E2E_GITHUB_ORG;
@@ -8,25 +7,25 @@ const SONAR_ORG = process.env.E2E_SONAR_ORG;
 
 async function login(page: Page) {
   await page.goto("/login");
+  await page.waitForLoadState("networkidle");
+
   await page.locator("#email").fill("admin@test.com");
   await page.locator("#password").fill("TestPassword123!");
   await page.locator('button[type="submit"]').click();
-  await page.waitForURL(/\/(dashboard|onboarding)/);
+
+  await page.waitForURL(/\/(dashboard|onboarding)/, { timeout: 30000 });
 }
 
 test.describe
   .serial("Onboarding Journey", () => {
-    test.beforeAll(async () => {
+    // Disable retries for serial tests - retrying from the beginning with
+    // existing database state doesn't work since Step 1 creates the admin user
+    test.describe.configure({ retries: 0 });
+
+    test.beforeAll(() => {
       if (!GITHUB_TOKEN || !GITHUB_ORG) {
         throw new Error("E2E_GITHUB_TOKEN and E2E_GITHUB_ORG environment variables must be set");
       }
-
-      // Reset database to ensure a clean state for each test run (including retries)
-      await resetDatabase();
-    });
-
-    test.afterAll(async () => {
-      await disconnectDatabase();
     });
 
     test("Step 1: Create admin account via setup", async ({ page }) => {
