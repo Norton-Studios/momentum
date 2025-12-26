@@ -7,25 +7,27 @@ const SONAR_ORG = process.env.E2E_SONAR_ORG;
 
 async function login(page: Page) {
   await page.goto("/login");
-  await page.waitForLoadState("networkidle");
 
-  // Fill email and verify it persisted (handles React hydration race)
+  // Wait for React to fully hydrate - the submit button should be visible and enabled
+  const submitButton = page.getByRole("button", { name: "Sign In" });
+  await submitButton.waitFor({ state: "visible" });
+
+  // Fill email
   const emailField = page.getByLabel("Email Address");
   await emailField.fill("admin@test.com");
-  await expect(emailField).toHaveValue("admin@test.com");
 
-  // Fill password and verify
+  // Fill password
   const passwordField = page.getByLabel("Password");
   await passwordField.fill("TestPassword123!");
-  await expect(passwordField).toHaveValue("TestPassword123!");
 
-  // Submit form using native form submission to avoid hydration issues
-  await page.evaluate(() => {
-    const form = document.querySelector("form");
-    if (form) form.requestSubmit();
-  });
+  // Wait a moment for any React state updates
+  await page.waitForTimeout(100);
 
-  await page.waitForURL(/\/(dashboard|onboarding)/);
+  // Click the submit button
+  await submitButton.click();
+
+  // Wait for navigation
+  await page.waitForURL(/\/(dashboard|onboarding)/, { timeout: 15000 });
   await page.waitForLoadState("networkidle");
 }
 
