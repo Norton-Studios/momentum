@@ -24,6 +24,13 @@ async function login(page: Page) {
 
   // Wait for page to stabilize
   await page.waitForLoadState("networkidle");
+
+  // Verify session cookie is present
+  const cookies = await page.context().cookies();
+  const sessionCookie = cookies.find((c) => c.name === "__session");
+  if (!sessionCookie) {
+    throw new Error(`Login succeeded but no session cookie. URL: ${page.url()}, Cookies: ${cookies.map((c) => c.name).join(", ")}`);
+  }
 }
 
 test.describe

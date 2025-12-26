@@ -58,6 +58,7 @@ export default defineConfig({
     env: {
       DATABASE_URL: TEST_DB_URL,
       PORT: TEST_PORT,
+      NODE_ENV: "development", // Ensure cookies aren't marked as secure-only
     },
   },
 });
