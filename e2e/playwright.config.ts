@@ -13,7 +13,8 @@ if (existsSync(envPath)) {
 }
 
 export const isCI = !!process.env.CI;
-export const TEST_DB_URL = "postgresql://momentum:momentum@localhost:5433/momentum";
+// Increase connection pool to handle concurrent import + test requests
+export const TEST_DB_URL = "postgresql://momentum:momentum@localhost:5433/momentum?connection_limit=20";
 export const TEST_PORT = isCI ? "3000" : "3001";
 export const BASE_URL = `http://localhost:${TEST_PORT}`;
 
