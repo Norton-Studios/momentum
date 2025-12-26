@@ -13,7 +13,10 @@ async function login(page: Page) {
   await page.locator("#password").fill("TestPassword123!");
   await page.locator('button[type="submit"]').click();
 
-  await page.waitForURL(/\/(dashboard|onboarding)/, { timeout: 30000 });
+  // Wait for redirect away from login page
+  // Login redirects to "/" which then redirects based on state
+  await page.waitForURL((url) => !url.pathname.startsWith("/login"), { timeout: 30000 });
+  await page.waitForLoadState("networkidle");
 }
 
 test.describe
