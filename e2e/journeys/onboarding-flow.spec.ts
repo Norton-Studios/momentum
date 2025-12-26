@@ -19,12 +19,14 @@ async function login(page: Page) {
   await passwordField.fill("TestPassword123!");
   await expect(passwordField).toHaveValue("TestPassword123!");
 
-  // Click submit button and wait for redirect to complete
-  await page.getByRole("button", { name: "Sign In" }).click();
+  // Submit form using native form submission to avoid hydration issues
+  await page.evaluate(() => {
+    const form = document.querySelector("form");
+    if (form) form.requestSubmit();
+  });
+
   await page.waitForURL(/\/(dashboard|onboarding)/);
   await page.waitForLoadState("networkidle");
-  // Small delay to ensure cookie is fully processed
-  await page.waitForTimeout(500);
 }
 
 test.describe
