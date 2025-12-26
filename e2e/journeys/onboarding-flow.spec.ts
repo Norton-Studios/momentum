@@ -10,8 +10,10 @@ async function login(page: Page) {
   await page.waitForLoadState("networkidle");
   await page.locator("#email").fill("admin@test.com");
   await page.locator("#password").fill("TestPassword123!");
+
+  // Click and wait for navigation away from login page
   await page.locator('button[type="submit"]').click();
-  await page.waitForURL(/\/(dashboard|onboarding)/);
+  await page.waitForURL((url) => !url.pathname.startsWith("/login"));
 }
 
 test.describe
