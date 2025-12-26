@@ -8,9 +8,19 @@ const SONAR_ORG = process.env.E2E_SONAR_ORG;
 async function login(page: Page) {
   await page.goto("/login");
   await page.waitForLoadState("networkidle");
-  await page.getByLabel("Email Address").fill("admin@test.com");
-  await page.getByLabel("Password").fill("TestPassword123!");
-  await page.getByRole("button", { name: "Sign In" }).click();
+
+  // Fill email and verify it persisted (handles React hydration race)
+  const emailField = page.getByLabel("Email Address");
+  await emailField.fill("admin@test.com");
+  await expect(emailField).toHaveValue("admin@test.com");
+
+  // Fill password and verify
+  const passwordField = page.getByLabel("Password");
+  await passwordField.fill("TestPassword123!");
+  await expect(passwordField).toHaveValue("TestPassword123!");
+
+  // Submit form
+  await passwordField.press("Enter");
   await page.waitForURL(/\/(dashboard|onboarding)/);
 }
 
