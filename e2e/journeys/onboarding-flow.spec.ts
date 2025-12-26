@@ -14,6 +14,9 @@ async function login(page: Page) {
   // Press Enter to submit form - avoids potential React hydration issues
   await page.locator("#password").press("Enter");
   await page.waitForURL((url) => !url.pathname.startsWith("/login"));
+
+  // Wait for the redirect chain to complete and session to be established
+  await page.waitForLoadState("networkidle");
 }
 
 test.describe
