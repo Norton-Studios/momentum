@@ -6,6 +6,14 @@ const SONAR_TOKEN = process.env.E2E_SONAR_TOKEN;
 const SONAR_ORG = process.env.E2E_SONAR_ORG;
 
 async function login(page: Page) {
+  // Capture network responses for debugging
+  const responses: { url: string; status: number }[] = [];
+  page.on("response", (response) => {
+    if (response.url().includes("/login")) {
+      responses.push({ url: response.url(), status: response.status() });
+    }
+  });
+
   await page.goto("/login");
   await page.waitForLoadState("networkidle");
 
@@ -20,7 +28,19 @@ async function login(page: Page) {
   await passwordInput.fill("TestPassword123!");
 
   // Submit form by pressing Enter and wait for navigation
-  await Promise.all([page.waitForURL((url) => !url.pathname.includes("/login"), { timeout: 15000 }), passwordInput.press("Enter")]);
+  try {
+    await Promise.all([page.waitForURL((url) => !url.pathname.includes("/login"), { timeout: 15000 }), passwordInput.press("Enter")]);
+  } catch (e) {
+    // Capture page state for debugging
+    const bodyText = await page
+      .locator("body")
+      .textContent()
+      .catch(() => "");
+    const cookies = await page.context().cookies();
+    throw new Error(
+      `Login navigation failed. URL: ${page.url()}, Responses: ${JSON.stringify(responses)}, Body: ${bodyText.substring(0, 300)}, Cookies: ${cookies.map((c) => c.name).join(", ")}`
+    );
+  }
 
   // Wait for page to stabilize
   await page.waitForLoadState("networkidle");
