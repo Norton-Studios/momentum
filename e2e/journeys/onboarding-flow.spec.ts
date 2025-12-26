@@ -7,17 +7,21 @@ const SONAR_ORG = process.env.E2E_SONAR_ORG;
 
 async function login(page: Page) {
   await page.goto("/login");
-  await page.waitForLoadState("networkidle");
 
-  // Fill form
-  await page.locator("#email").fill("admin@test.com");
-  await page.locator("#password").fill("TestPassword123!");
+  // Wait for form to be ready
+  const emailInput = page.locator("#email");
+  const passwordInput = page.locator("#password");
+  const submitButton = page.locator('button[type="submit"]');
 
-  // Click and wait for navigation response (including Set-Cookie header)
-  await Promise.all([page.waitForResponse((response) => response.status() === 302 || response.status() === 303), page.locator('button[type="submit"]').click()]);
+  await emailInput.waitFor({ state: "visible" });
 
-  // Wait for redirect chain to complete and network to settle
-  await page.waitForLoadState("networkidle");
+  // Fill form and submit
+  await emailInput.fill("admin@test.com");
+  await passwordInput.fill("TestPassword123!");
+  await submitButton.click();
+
+  // Wait for navigation away from login page
+  await page.waitForURL((url) => !url.pathname.includes("/login"), { timeout: 30000 });
 }
 
 test.describe
