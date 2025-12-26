@@ -11,8 +11,8 @@ async function login(page: Page) {
   await page.locator("#email").fill("admin@test.com");
   await page.locator("#password").fill("TestPassword123!");
 
-  // Click and wait for navigation away from login page
-  await page.locator('button[type="submit"]').click();
+  // Press Enter to submit form - avoids potential React hydration issues
+  await page.locator("#password").press("Enter");
   await page.waitForURL((url) => !url.pathname.startsWith("/login"));
 }
 
