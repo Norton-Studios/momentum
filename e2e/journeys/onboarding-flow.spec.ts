@@ -22,6 +22,7 @@ async function login(page: Page) {
   // Click submit button
   await page.getByRole("button", { name: "Sign In" }).click();
   await page.waitForURL(/\/(dashboard|onboarding)/);
+  await page.waitForLoadState("networkidle");
 }
 
 test.describe
