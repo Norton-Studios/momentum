@@ -98,7 +98,7 @@ export async function fetchStreakData(contributorId: string): Promise<StreakData
     orderBy: { committedAt: "desc" },
   });
 
-  const uniqueDates = [...new Set(commits.map((c) => c.committedAt.toISOString().split("T")[0]))].sort().reverse();
+  const uniqueDates = [...new Set(commits.map((c) => c.committedAt.toISOString().split("T")[0]))].sort((a, b) => b.localeCompare(a));
 
   const currentStreak = calculateCurrentStreak(uniqueDates);
   const longestStreak = calculateLongestStreak(uniqueDates);
