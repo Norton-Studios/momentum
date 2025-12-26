@@ -95,11 +95,7 @@ test.describe
     });
 
     test("Step 7: Navigate to settings and edit organization details", async ({ page }) => {
-      await page.goto("/login");
-      await page.getByLabel("Email Address").fill("admin@test.com");
-      await page.getByLabel("Password").fill("TestPassword123!");
-      await page.getByRole("button", { name: "Sign In" }).click();
-      await page.waitForURL(/\/(dashboard|onboarding)/);
+      await login(page);
 
       await page.goto("/settings");
       await page.waitForLoadState("networkidle");
@@ -124,11 +120,7 @@ test.describe
     });
 
     test("Step 8: Create and manage a team", async ({ page }) => {
-      await page.goto("/login");
-      await page.getByLabel("Email Address").fill("admin@test.com");
-      await page.getByLabel("Password").fill("TestPassword123!");
-      await page.getByRole("button", { name: "Sign In" }).click();
-      await page.waitForURL(/\/(dashboard|onboarding)/);
+      await login(page);
 
       await page.goto("/settings/teams");
       await page.waitForLoadState("networkidle");
@@ -162,11 +154,7 @@ test.describe
     });
 
     test("Step 9: View and verify data sources configuration", async ({ page }) => {
-      await page.goto("/login");
-      await page.getByLabel("Email Address").fill("admin@test.com");
-      await page.getByLabel("Password").fill("TestPassword123!");
-      await page.getByRole("button", { name: "Sign In" }).click();
-      await page.waitForURL(/\/(dashboard|onboarding)/);
+      await login(page);
 
       await page.goto("/settings/data-sources");
       await page.waitForLoadState("networkidle");
@@ -195,11 +183,7 @@ test.describe
         return;
       }
 
-      await page.goto("/login");
-      await page.getByLabel("Email Address").fill("admin@test.com");
-      await page.getByLabel("Password").fill("TestPassword123!");
-      await page.getByRole("button", { name: "Sign In" }).click();
-      await page.waitForURL(/\/(dashboard|onboarding)/);
+      await login(page);
 
       await page.goto("/settings/data-sources");
       await page.waitForLoadState("networkidle");
@@ -234,11 +218,7 @@ test.describe
     test("Step 11: View imports and trigger manual import", async ({ page }, testInfo) => {
       testInfo.setTimeout(60000);
 
-      await page.goto("/login");
-      await page.getByLabel("Email Address").fill("admin@test.com");
-      await page.getByLabel("Password").fill("TestPassword123!");
-      await page.getByRole("button", { name: "Sign In" }).click();
-      await page.waitForURL(/\/(dashboard|onboarding)/);
+      await login(page);
 
       await page.goto("/settings/imports");
       await page.waitForLoadState("networkidle");
@@ -270,11 +250,7 @@ test.describe
     });
 
     test("Step 12: Delete the test team", async ({ page }) => {
-      await page.goto("/login");
-      await page.getByLabel("Email Address").fill("admin@test.com");
-      await page.getByLabel("Password").fill("TestPassword123!");
-      await page.getByRole("button", { name: "Sign In" }).click();
-      await page.waitForURL(/\/(dashboard|onboarding)/);
+      await login(page);
 
       await page.goto("/settings/teams");
       await page.waitForLoadState("networkidle");
