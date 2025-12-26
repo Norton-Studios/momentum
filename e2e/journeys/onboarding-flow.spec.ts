@@ -15,6 +15,10 @@ async function login(page: Page) {
 
 test.describe
   .serial("Onboarding Journey", () => {
+    // Disable retries for serial tests - retrying from the beginning with
+    // existing database state doesn't work since Step 1 creates the admin user
+    test.describe.configure({ retries: 0 });
+
     test.beforeAll(() => {
       if (!GITHUB_TOKEN || !GITHUB_ORG) {
         throw new Error("E2E_GITHUB_TOKEN and E2E_GITHUB_ORG environment variables must be set");
