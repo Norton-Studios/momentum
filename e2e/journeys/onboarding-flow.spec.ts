@@ -25,7 +25,13 @@ async function login(page: Page) {
   // Verify we ended up on a protected route (not login)
   const currentUrl = page.url();
   if (currentUrl.includes("/login")) {
-    throw new Error(`Login failed - still on login page: ${currentUrl}`);
+    // Check for error messages on the page
+    const errorMessage = await page
+      .locator('[role="alert"], .error, .text-red-500')
+      .textContent()
+      .catch(() => "No error element found");
+    const pageTitle = await page.title();
+    throw new Error(`Login failed - URL: ${currentUrl}, Page title: ${pageTitle}, Error message: ${errorMessage}`);
   }
 }
 
