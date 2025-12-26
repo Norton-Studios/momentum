@@ -1,6 +1,8 @@
 import type { JiraProject } from "@crons/data-sources/jira/client.js";
 import type { PrismaClient } from "@prisma/client";
 
+const BATCH_SIZE = 10;
+
 interface DataSourceWithConfigs {
   id: string;
   provider: string;
@@ -52,28 +54,32 @@ export async function fetchJiraProjects(configs: Record<string, string>): Promis
 }
 
 export async function saveJiraProjects(db: PrismaClient, dataSourceId: string, projects: JiraProject[]) {
-  await Promise.all(
-    projects.map((project) =>
-      db.project.upsert({
-        where: {
-          dataSourceId_externalId: {
+  // Process in batches to avoid exhausting the connection pool
+  for (let i = 0; i < projects.length; i += BATCH_SIZE) {
+    const batch = projects.slice(i, i + BATCH_SIZE);
+    await Promise.all(
+      batch.map((project) =>
+        db.project.upsert({
+          where: {
+            dataSourceId_externalId: {
+              dataSourceId,
+              externalId: project.id,
+            },
+          },
+          create: {
             dataSourceId,
             externalId: project.id,
+            key: project.key,
+            name: project.name,
+            provider: "JIRA",
+            isEnabled: true,
           },
-        },
-        create: {
-          dataSourceId,
-          externalId: project.id,
-          key: project.key,
-          name: project.name,
-          provider: "JIRA",
-          isEnabled: true,
-        },
-        update: {
-          key: project.key,
-          name: project.name,
-        },
-      })
-    )
-  );
+          update: {
+            key: project.key,
+            name: project.name,
+          },
+        })
+      )
+    );
+  }
 }

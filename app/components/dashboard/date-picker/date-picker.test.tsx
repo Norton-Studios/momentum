@@ -46,15 +46,15 @@ describe("DatePicker", () => {
     expect(screen.getByRole("button", { name: "Custom" })).toBeInTheDocument();
   });
 
-  it("shows 30d as active by default when no preset in URL", () => {
+  it("shows 90d as active by default when no preset in URL", () => {
     render(
       <MemoryRouter>
         <DatePicker />
       </MemoryRouter>
     );
 
-    const button30d = screen.getByRole("button", { name: "30d" });
-    expect(button30d).toHaveClass("active");
+    const button90d = screen.getByRole("button", { name: "90d" });
+    expect(button90d).toHaveClass("active");
   });
 
   it("shows correct preset as active based on URL params", () => {

@@ -610,8 +610,8 @@ model Sprint {
   externalId  String?   @map("external_id") // Provider-specific ID
   goal        String?   @map("goal")
   state       String?   @map("state") // active, closed, future
-  startDate   DateTime  @map("start_date")
-  endDate     DateTime  @map("end_date")
+  startDate   DateTime? @map("start_date")
+  endDate     DateTime? @map("end_date")
   completedAt DateTime? @map("completed_at")
   createdAt   DateTime  @default(now()) @map("created_at")
   updatedAt   DateTime  @updatedAt @map("updated_at")
@@ -808,8 +808,9 @@ model DataSourceRun {
   completedAt       DateTime?           @map("completed_at")
   durationMs        Int?                @map("duration_ms")
   errorMessage      String?             @map("error_message")
-  lastFetchedDataAt DateTime?           @map("last_fetched_data_at") // For incremental sync
-  metadata          String?             @map("metadata") // JSON for additional info
+  lastFetchedDataAt     DateTime?           @map("last_fetched_data_at") // For forward incremental sync
+  earliestFetchedDataAt DateTime?           @map("earliest_fetched_data_at") // For backfill tracking
+  metadata              String?             @map("metadata") // JSON for additional info
   createdAt         DateTime            @default(now()) @map("created_at")
   updatedAt         DateTime            @updatedAt @map("updated_at")
 

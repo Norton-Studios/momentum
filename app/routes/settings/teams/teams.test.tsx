@@ -99,11 +99,13 @@ describe("Teams", () => {
     expect(frontendRow).toBeDefined();
     expect(backendRow).toBeDefined();
 
-    const frontendCells = frontendRow!.querySelectorAll("td");
+    if (!frontendRow || !backendRow) return;
+
+    const frontendCells = frontendRow.querySelectorAll("td");
     expect(frontendCells[2].textContent).toBe("5");
     expect(frontendCells[3].textContent).toBe("2");
 
-    const backendCells = backendRow!.querySelectorAll("td");
+    const backendCells = backendRow.querySelectorAll("td");
     expect(backendCells[2].textContent).toBe("3");
     expect(backendCells[3].textContent).toBe("1");
   });

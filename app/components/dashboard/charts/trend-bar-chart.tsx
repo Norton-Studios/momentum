@@ -12,7 +12,7 @@ export function TrendBarChart({ data, color = "var(--gold)" }: TrendBarChartProp
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
           <XAxis dataKey="date" tickFormatter={formatDateLabel} tick={{ fontSize: 11, fill: "var(--mid-gray)" }} axisLine={false} tickLine={false} interval="preserveStartEnd" />
-          <YAxis tick={{ fontSize: 11, fill: "var(--mid-gray)" }} axisLine={false} tickLine={false} width={35} />
+          <YAxis tick={{ fontSize: 11, fill: "var(--mid-gray)" }} axisLine={false} tickLine={false} width={35} domain={[0, "auto"]} />
           <Tooltip content={<CustomTooltip />} cursor={{ fill: "var(--off-white)" }} />
           <Bar dataKey="value" fill={color} radius={[2, 2, 0, 0]} />
         </BarChart>

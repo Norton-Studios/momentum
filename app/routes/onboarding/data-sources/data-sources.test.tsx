@@ -1124,7 +1124,7 @@ describe("ProjectsSection", () => {
 
     await user.click(screen.getByRole("button", { name: /Projects/ }));
 
-    expect(screen.getByText("No projects found")).toBeInTheDocument();
+    expect(screen.getByText(/No projects found/)).toBeInTheDocument();
   });
 
   it("collapses projects section when toggled again", async () => {

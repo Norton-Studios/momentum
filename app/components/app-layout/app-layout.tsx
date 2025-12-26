@@ -58,7 +58,7 @@ export function AppLayout({ children, activeNav, user }: AppLayoutProps) {
           <Link to="/dashboard" className={`nav-item ${activeNav === "organization" ? "active" : ""}`}>
             Organization
           </Link>
-          <Link to="#" className={`nav-item ${activeNav === "individual" ? "active" : ""}`}>
+          <Link to="/dashboard/individual" className={`nav-item ${activeNav === "individual" ? "active" : ""}`}>
             Individual
           </Link>
           <Link to="/settings" className={`nav-item ${activeNav === "settings" ? "active" : ""}`}>

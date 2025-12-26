@@ -305,7 +305,7 @@ Each data source shows a card with:
 │  → Explore your organization metrics            │
 │  → View individual contributor metrics          │
 │  → Configure additional data sources            │
-│  → Invite team members                          │
+│  → Set up your teams                            │
 │                                                 │
 │           [Go to Dashboard]                     │
 └─────────────────────────────────────────────────┘

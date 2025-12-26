@@ -123,7 +123,7 @@ describe("Complete", () => {
     expect(screen.getByText(/Explore your organization metrics/)).toBeInTheDocument();
     expect(screen.getByText(/View individual contributor metrics/)).toBeInTheDocument();
     expect(screen.getByText(/Configure additional data sources/)).toBeInTheDocument();
-    expect(screen.getByText(/Invite team members/)).toBeInTheDocument();
+    expect(screen.getByText(/Set up your teams/)).toBeInTheDocument();
   });
 
   it("renders Go to Dashboard button", () => {

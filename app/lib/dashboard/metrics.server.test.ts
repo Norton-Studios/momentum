@@ -62,6 +62,7 @@ describe("fetchOverviewMetrics", () => {
     vi.mocked(db.commit.findMany).mockResolvedValue([]);
     vi.mocked(db.commit.count).mockResolvedValue(0);
     vi.mocked(db.pullRequest.count).mockResolvedValue(0);
+    vi.mocked(db.pullRequest.findMany).mockResolvedValue([]);
 
     const result = await fetchOverviewMetrics(currentRange, previousRange, null);
 
@@ -73,9 +74,12 @@ describe("fetchOverviewMetrics", () => {
     vi.mocked(db.repository.count).mockResolvedValue(10);
     vi.mocked(db.commit.findMany)
       .mockResolvedValueOnce([{ authorId: "a1" }, { authorId: "a2" }, { authorId: "a3" }] as never)
-      .mockResolvedValueOnce([{ authorId: "a1" }, { authorId: "a2" }] as never);
+      .mockResolvedValueOnce([{ authorId: "a1" }, { authorId: "a2" }] as never)
+      .mockResolvedValueOnce([{ committedAt: new Date() }] as never)
+      .mockResolvedValueOnce([{ committedAt: new Date(), authorId: "a1" }] as never);
     vi.mocked(db.commit.count).mockResolvedValue(0);
     vi.mocked(db.pullRequest.count).mockResolvedValue(0);
+    vi.mocked(db.pullRequest.findMany).mockResolvedValue([]);
 
     const result = await fetchOverviewMetrics(currentRange, previousRange, null);
 
@@ -89,6 +93,7 @@ describe("fetchOverviewMetrics", () => {
     vi.mocked(db.commit.findMany).mockResolvedValue([]);
     vi.mocked(db.commit.count).mockResolvedValueOnce(150).mockResolvedValueOnce(100);
     vi.mocked(db.pullRequest.count).mockResolvedValue(0);
+    vi.mocked(db.pullRequest.findMany).mockResolvedValue([]);
 
     const result = await fetchOverviewMetrics(currentRange, previousRange, null);
 
@@ -102,6 +107,7 @@ describe("fetchOverviewMetrics", () => {
     vi.mocked(db.commit.findMany).mockResolvedValue([]);
     vi.mocked(db.commit.count).mockResolvedValue(0);
     vi.mocked(db.pullRequest.count).mockResolvedValueOnce(80).mockResolvedValueOnce(100);
+    vi.mocked(db.pullRequest.findMany).mockResolvedValue([]);
 
     const result = await fetchOverviewMetrics(currentRange, previousRange, null);
 
@@ -113,7 +119,6 @@ describe("fetchOverviewMetrics", () => {
 
 describe("fetchDeliveryMetrics", () => {
   const currentRange = createDateRange(30);
-  const previousRange = createDateRange(60, 31);
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -122,10 +127,11 @@ describe("fetchDeliveryMetrics", () => {
   it("returns open PR count", async () => {
     vi.mocked(db.pullRequest.findMany)
       .mockResolvedValueOnce([{ createdAt: new Date() }, { createdAt: new Date() }, { createdAt: new Date() }] as never)
+      .mockResolvedValueOnce([] as never)
       .mockResolvedValueOnce([] as never);
-    vi.mocked(db.commit.count).mockResolvedValue(0);
+    vi.mocked(db.commit.findMany).mockResolvedValue([]);
 
-    const result = await fetchDeliveryMetrics(currentRange, previousRange, null);
+    const result = await fetchDeliveryMetrics(currentRange, null);
 
     expect(result.openPRs).toBe(3);
   });
@@ -134,43 +140,45 @@ describe("fetchDeliveryMetrics", () => {
     const now = Date.now();
     vi.mocked(db.pullRequest.findMany)
       .mockResolvedValueOnce([{ createdAt: new Date(now - 2 * 24 * 60 * 60 * 1000) }, { createdAt: new Date(now - 4 * 24 * 60 * 60 * 1000) }] as never)
+      .mockResolvedValueOnce([] as never)
       .mockResolvedValueOnce([] as never);
-    vi.mocked(db.commit.count).mockResolvedValue(0);
+    vi.mocked(db.commit.findMany).mockResolvedValue([]);
 
-    const result = await fetchDeliveryMetrics(currentRange, previousRange, null);
+    const result = await fetchDeliveryMetrics(currentRange, null);
 
     expect(result.avgPrAgeDays).toBeCloseTo(3, 0);
   });
 
   it("returns null for avgPrAgeDays when no open PRs", async () => {
     vi.mocked(db.pullRequest.findMany).mockResolvedValue([]);
-    vi.mocked(db.commit.count).mockResolvedValue(0);
+    vi.mocked(db.commit.findMany).mockResolvedValue([]);
 
-    const result = await fetchDeliveryMetrics(currentRange, previousRange, null);
+    const result = await fetchDeliveryMetrics(currentRange, null);
 
     expect(result.avgPrAgeDays).toBeNull();
   });
 
   it("returns commits to master count", async () => {
     vi.mocked(db.pullRequest.findMany).mockResolvedValue([]);
-    vi.mocked(db.commit.count).mockResolvedValue(42);
+    vi.mocked(db.commit.findMany).mockResolvedValue([{ committedAt: new Date() }] as never);
 
-    const result = await fetchDeliveryMetrics(currentRange, previousRange, null);
+    const result = await fetchDeliveryMetrics(currentRange, null);
 
-    expect(result.commitsToMaster).toBe(42);
+    expect(result.commitsToMaster).toBe(1);
   });
 
   it("calculates average time to review", async () => {
     const now = Date.now();
     vi.mocked(db.pullRequest.findMany)
       .mockResolvedValueOnce([] as never)
+      .mockResolvedValueOnce([] as never)
       .mockResolvedValueOnce([
         { createdAt: new Date(now - 24 * 60 * 60 * 1000), reviews: [{ submittedAt: new Date(now - 12 * 60 * 60 * 1000) }] },
         { createdAt: new Date(now - 48 * 60 * 60 * 1000), reviews: [{ submittedAt: new Date(now - 24 * 60 * 60 * 1000) }] },
       ] as never);
-    vi.mocked(db.commit.count).mockResolvedValue(0);
+    vi.mocked(db.commit.findMany).mockResolvedValue([]);
 
-    const result = await fetchDeliveryMetrics(currentRange, previousRange, null);
+    const result = await fetchDeliveryMetrics(currentRange, null);
 
     expect(result.avgTimeToReviewHours).toBeCloseTo(18, 0);
   });
@@ -178,6 +186,7 @@ describe("fetchDeliveryMetrics", () => {
 
 describe("fetchOperationalMetrics", () => {
   const currentRange = createDateRange(30);
+  const completedAt = new Date();
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -186,12 +195,12 @@ describe("fetchOperationalMetrics", () => {
   it("calculates master success rate", async () => {
     vi.mocked(db.pipelineRun.findMany)
       .mockResolvedValueOnce([
-        { status: "SUCCESS", durationMs: 1000 },
-        { status: "SUCCESS", durationMs: 2000 },
-        { status: "FAILED", durationMs: 500 },
-        { status: "SUCCESS", durationMs: 1500 },
+        { status: "SUCCESS", durationMs: 1000, completedAt },
+        { status: "SUCCESS", durationMs: 2000, completedAt },
+        { status: "FAILED", durationMs: 500, completedAt },
+        { status: "SUCCESS", durationMs: 1500, completedAt },
       ] as never)
-      .mockResolvedValueOnce([{ status: "SUCCESS", durationMs: 1000 }] as never);
+      .mockResolvedValueOnce([{ status: "SUCCESS", durationMs: 1000, completedAt }] as never);
     vi.mocked(db.pipelineStage.groupBy).mockResolvedValue([]);
 
     const result = await fetchOperationalMetrics(currentRange, null);
@@ -201,10 +210,10 @@ describe("fetchOperationalMetrics", () => {
 
   it("calculates PR success rate", async () => {
     vi.mocked(db.pipelineRun.findMany)
-      .mockResolvedValueOnce([{ status: "SUCCESS", durationMs: 1000 }] as never)
+      .mockResolvedValueOnce([{ status: "SUCCESS", durationMs: 1000, completedAt }] as never)
       .mockResolvedValueOnce([
-        { status: "SUCCESS", durationMs: 1000 },
-        { status: "FAILED", durationMs: 1000 },
+        { status: "SUCCESS", durationMs: 1000, completedAt },
+        { status: "FAILED", durationMs: 1000, completedAt },
       ] as never);
     vi.mocked(db.pipelineStage.groupBy).mockResolvedValue([]);
 
@@ -226,12 +235,12 @@ describe("fetchOperationalMetrics", () => {
   it("calculates average duration for master and PR", async () => {
     vi.mocked(db.pipelineRun.findMany)
       .mockResolvedValueOnce([
-        { status: "SUCCESS", durationMs: 60000 },
-        { status: "SUCCESS", durationMs: 120000 },
+        { status: "SUCCESS", durationMs: 60000, completedAt },
+        { status: "SUCCESS", durationMs: 120000, completedAt },
       ] as never)
       .mockResolvedValueOnce([
-        { status: "SUCCESS", durationMs: 30000 },
-        { status: "SUCCESS", durationMs: 90000 },
+        { status: "SUCCESS", durationMs: 30000, completedAt },
+        { status: "SUCCESS", durationMs: 90000, completedAt },
       ] as never);
     vi.mocked(db.pipelineStage.groupBy).mockResolvedValue([]);
 
@@ -268,10 +277,12 @@ describe("fetchQualityMetrics", () => {
   });
 
   it("calculates overall coverage from latest scans per repository", async () => {
-    vi.mocked(db.$queryRaw).mockResolvedValue([
-      { repositoryId: "repo-1", coveragePercent: 80, bugsCount: 5 },
-      { repositoryId: "repo-2", coveragePercent: 70, bugsCount: 10 },
-    ]);
+    vi.mocked(db.$queryRaw)
+      .mockResolvedValueOnce([
+        { repositoryId: "repo-1", coveragePercent: 80, bugsCount: 5 },
+        { repositoryId: "repo-2", coveragePercent: 70, bugsCount: 10 },
+      ])
+      .mockResolvedValueOnce([]);
 
     const result = await fetchQualityMetrics(currentRange, null);
 
@@ -279,10 +290,12 @@ describe("fetchQualityMetrics", () => {
   });
 
   it("returns total bugs count", async () => {
-    vi.mocked(db.$queryRaw).mockResolvedValue([
-      { repositoryId: "repo-1", coveragePercent: 80, bugsCount: 5 },
-      { repositoryId: "repo-2", coveragePercent: 70, bugsCount: 10 },
-    ]);
+    vi.mocked(db.$queryRaw)
+      .mockResolvedValueOnce([
+        { repositoryId: "repo-1", coveragePercent: 80, bugsCount: 5 },
+        { repositoryId: "repo-2", coveragePercent: 70, bugsCount: 10 },
+      ])
+      .mockResolvedValueOnce([]);
 
     const result = await fetchQualityMetrics(currentRange, null);
 
@@ -290,7 +303,9 @@ describe("fetchQualityMetrics", () => {
   });
 
   it("returns null coverage when no scans have coverage data", async () => {
-    vi.mocked(db.$queryRaw).mockResolvedValue([{ repositoryId: "repo-1", coveragePercent: null, bugsCount: null }]);
+    vi.mocked(db.$queryRaw)
+      .mockResolvedValueOnce([{ repositoryId: "repo-1", coveragePercent: null, bugsCount: null }])
+      .mockResolvedValueOnce([]);
 
     const result = await fetchQualityMetrics(currentRange, null);
 
@@ -298,10 +313,12 @@ describe("fetchQualityMetrics", () => {
   });
 
   it("handles null bugsCount", async () => {
-    vi.mocked(db.$queryRaw).mockResolvedValue([
-      { repositoryId: "repo-1", coveragePercent: 80, bugsCount: null },
-      { repositoryId: "repo-2", coveragePercent: 70, bugsCount: 5 },
-    ]);
+    vi.mocked(db.$queryRaw)
+      .mockResolvedValueOnce([
+        { repositoryId: "repo-1", coveragePercent: 80, bugsCount: null },
+        { repositoryId: "repo-2", coveragePercent: 70, bugsCount: 5 },
+      ])
+      .mockResolvedValueOnce([]);
 
     const result = await fetchQualityMetrics(currentRange, null);
 
@@ -317,8 +334,10 @@ describe("fetchTicketMetrics", () => {
   });
 
   it("returns active ticket count", async () => {
-    vi.mocked(db.issue.findMany).mockResolvedValue([{ id: "1", createdAt: new Date(), status: "IN_PROGRESS" }] as never);
-    vi.mocked(db.issue.count).mockResolvedValue(5);
+    vi.mocked(db.issue.findMany)
+      .mockResolvedValueOnce([{ id: "1", createdAt: new Date(), status: "IN_PROGRESS" }] as never)
+      .mockResolvedValueOnce([] as never)
+      .mockResolvedValueOnce([] as never);
     vi.mocked(db.issueStatusTransition.findMany).mockResolvedValue([]);
 
     const result = await fetchTicketMetrics(currentRange, null);
@@ -327,22 +346,26 @@ describe("fetchTicketMetrics", () => {
   });
 
   it("returns completed ticket count", async () => {
-    vi.mocked(db.issue.findMany).mockResolvedValue([]);
-    vi.mocked(db.issue.count).mockResolvedValue(10);
+    vi.mocked(db.issue.findMany)
+      .mockResolvedValueOnce([] as never)
+      .mockResolvedValueOnce([{ resolvedAt: new Date() }, { resolvedAt: new Date() }, { resolvedAt: new Date() }] as never)
+      .mockResolvedValueOnce([] as never);
     vi.mocked(db.issueStatusTransition.findMany).mockResolvedValue([]);
 
     const result = await fetchTicketMetrics(currentRange, null);
 
-    expect(result.completedCount).toBe(10);
+    expect(result.completedCount).toBe(3);
   });
 
   it("calculates average active ticket age", async () => {
     const now = Date.now();
-    vi.mocked(db.issue.findMany).mockResolvedValue([
-      { id: "1", createdAt: new Date(now - 5 * 24 * 60 * 60 * 1000), status: "IN_PROGRESS" },
-      { id: "2", createdAt: new Date(now - 10 * 24 * 60 * 60 * 1000), status: "IN_PROGRESS" },
-    ] as never);
-    vi.mocked(db.issue.count).mockResolvedValue(0);
+    vi.mocked(db.issue.findMany)
+      .mockResolvedValueOnce([
+        { id: "1", createdAt: new Date(now - 5 * 24 * 60 * 60 * 1000), status: "IN_PROGRESS" },
+        { id: "2", createdAt: new Date(now - 10 * 24 * 60 * 60 * 1000), status: "IN_PROGRESS" },
+      ] as never)
+      .mockResolvedValueOnce([] as never)
+      .mockResolvedValueOnce([] as never);
     vi.mocked(db.issueStatusTransition.findMany).mockResolvedValue([]);
 
     const result = await fetchTicketMetrics(currentRange, null);
@@ -351,8 +374,10 @@ describe("fetchTicketMetrics", () => {
   });
 
   it("returns null for avgActiveTicketAgeDays when no active tickets", async () => {
-    vi.mocked(db.issue.findMany).mockResolvedValue([]);
-    vi.mocked(db.issue.count).mockResolvedValue(0);
+    vi.mocked(db.issue.findMany)
+      .mockResolvedValueOnce([] as never)
+      .mockResolvedValueOnce([] as never)
+      .mockResolvedValueOnce([] as never);
     vi.mocked(db.issueStatusTransition.findMany).mockResolvedValue([]);
 
     const result = await fetchTicketMetrics(currentRange, null);

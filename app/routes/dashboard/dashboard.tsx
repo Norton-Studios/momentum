@@ -5,9 +5,10 @@ import { logout } from "~/auth/session.server";
 import { AppLayout } from "~/components/app-layout/app-layout";
 import { PieChart } from "~/components/dashboard/charts/pie-chart.js";
 import { StackedBarChart } from "~/components/dashboard/charts/stacked-bar-chart.js";
+import { TrendBarChart } from "~/components/dashboard/charts/trend-bar-chart.js";
+import { TrendLineChart } from "~/components/dashboard/charts/trend-line-chart.js";
 import { DatePicker } from "~/components/dashboard/date-picker/date-picker.js";
 import { OverviewCard } from "~/components/dashboard/overview-card/overview-card.js";
-import { StatCell } from "~/components/dashboard/stat-cell/stat-cell.js";
 import { TeamSelector } from "~/components/dashboard/team-selector/team-selector.js";
 import { db } from "~/db.server.js";
 import { getPreviousPeriod, parseDateRange } from "~/lib/dashboard/date-range.js";
@@ -41,7 +42,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const [overview, delivery, tickets, operational, quality, security, teams] = await Promise.all([
     fetchOverviewMetrics(dateRange, previousRange, teamId),
-    fetchDeliveryMetrics(dateRange, previousRange, teamId),
+    fetchDeliveryMetrics(dateRange, teamId),
     fetchTicketMetrics(dateRange, teamId),
     fetchOperationalMetrics(dateRange, teamId),
     fetchQualityMetrics(dateRange, teamId),
@@ -116,14 +117,28 @@ export default function Dashboard() {
         </div>
 
         <div className="metric-grid-two">
-          <StatCell label="Average PR Age" value={formatDays(delivery.avgPrAgeDays)} />
-          <StatCell label="Average Active Ticket Age" value={formatDays(tickets.avgActiveTicketAgeDays)} />
-          <StatCell label="Num PRs Open" value={delivery.openPRs} />
-          <StatCell label="Num Active Tickets" value={tickets.activeCount} />
-          <StatCell label="Commits to Master" value={delivery.commitsToMaster} />
-          <StatCell label="Tickets Completed" value={tickets.completedCount} />
-          <StatCell label="Time to Review" value={formatHoursShort(delivery.avgTimeToReviewHours)} />
-          <StatCell label="Cumulative Time in Column" value={formatHoursShort(tickets.cumulativeTimeInColumnHours)} />
+          <ChartCell label="Average PR Age" value={formatDays(delivery.avgPrAgeDays)} unit="d">
+            <TrendLineChart data={delivery.avgPrAgeChart} unit="d" />
+          </ChartCell>
+          <ChartCell label="Average Active Ticket Age" value={formatDays(tickets.avgActiveTicketAgeDays)} unit="d">
+            <TrendLineChart data={tickets.avgActiveTicketAgeChart} unit="d" />
+          </ChartCell>
+          <ChartCell label="Num PRs Open" value={delivery.openPRs}>
+            <TrendLineChart data={delivery.openPRsChart} />
+          </ChartCell>
+          <ChartCell label="Num Active Tickets" value={tickets.activeCount}>
+            <TrendLineChart data={tickets.activeCountChart} />
+          </ChartCell>
+          <ChartCell label="Commits to Master" value={delivery.commitsToMaster}>
+            <TrendBarChart data={delivery.commitsToMasterChart} />
+          </ChartCell>
+          <ChartCell label="Tickets Completed" value={tickets.completedCount}>
+            <TrendBarChart data={tickets.completedChart} />
+          </ChartCell>
+          <ChartCell label="Time to Review" value={formatHoursShort(delivery.avgTimeToReviewHours)} unit="h">
+            <TrendLineChart data={delivery.timeToReviewChart} unit="h" />
+          </ChartCell>
+          <ChartCell label="Cumulative Time in Column" value={formatHoursShort(tickets.cumulativeTimeInColumnHours)} unit="h" />
         </div>
       </section>
 
@@ -134,10 +149,18 @@ export default function Dashboard() {
         </div>
 
         <div className="metric-grid-two">
-          <StatCell label="Pipeline Success (Master, 7d)" value={formatPercent(operational.masterSuccessRate)} />
-          <StatCell label="Pipeline Success (PR, 7d)" value={formatPercent(operational.prSuccessRate)} />
-          <StatCell label="Pipeline Duration (Master)" value={formatDurationShort(operational.masterAvgDurationMs)} />
-          <StatCell label="Pipeline Duration (PR)" value={formatDurationShort(operational.prAvgDurationMs)} />
+          <ChartCell label="Pipeline Success (Master)" value={formatPercent(operational.masterSuccessRate)}>
+            <TrendLineChart data={operational.masterSuccessRateChart} unit="%" />
+          </ChartCell>
+          <ChartCell label="Pipeline Success (PR)" value={formatPercent(operational.prSuccessRate)}>
+            <TrendLineChart data={operational.prSuccessRateChart} unit="%" />
+          </ChartCell>
+          <ChartCell label="Pipeline Duration (Master)" value={formatDurationShort(operational.masterAvgDurationMs)} unit="m">
+            <TrendLineChart data={operational.masterDurationChart} unit="m" />
+          </ChartCell>
+          <ChartCell label="Pipeline Duration (PR)" value={formatDurationShort(operational.prAvgDurationMs)} unit="m">
+            <TrendLineChart data={operational.prDurationChart} unit="m" />
+          </ChartCell>
           <div className="chart-cell">
             <div className="chart-cell-label">Failure Steps (Master)</div>
             <PieChart data={operational.masterFailureSteps} />
@@ -156,8 +179,12 @@ export default function Dashboard() {
         </div>
 
         <div className="metric-grid-two">
-          <StatCell label="Code Coverage" value={formatPercent(quality.overallCoverage)} />
-          <StatCell label="Sonar Bugs" value={quality.bugsCount} />
+          <ChartCell label="Code Coverage" value={formatPercent(quality.overallCoverage)}>
+            <TrendLineChart data={quality.coverageChart} unit="%" />
+          </ChartCell>
+          <ChartCell label="Sonar Bugs" value={quality.bugsCount}>
+            <TrendLineChart data={quality.bugsChart} />
+          </ChartCell>
         </div>
       </section>
 
@@ -172,7 +199,9 @@ export default function Dashboard() {
             <div className="chart-cell-label">CVEs by Severity</div>
             <StackedBarChart data={cveSeverityData} />
           </div>
-          <StatCell label="Avg Time to Close CVE" value={formatDays(security.avgTimeToCloseDays)} />
+          <ChartCell label="Avg Time to Close CVE" value={formatDays(security.avgTimeToCloseDays)} unit="d">
+            <TrendLineChart data={security.timeToCloseChart} unit="d" />
+          </ChartCell>
         </div>
       </section>
     </AppLayout>
@@ -206,4 +235,29 @@ function formatDurationShort(ms: number | null): string {
   const hours = Math.floor(minutes / 60);
   const remainingMinutes = minutes % 60;
   return remainingMinutes > 0 ? `${hours}h ${remainingMinutes}m` : `${hours}h`;
+}
+
+function ChartCell({ label, value, unit, children }: ChartCellProps) {
+  const formattedValue = typeof value === "number" ? value.toLocaleString() : value;
+  const hasChart = Boolean(children);
+
+  return (
+    <div className={`chart-cell ${hasChart ? "with-chart" : ""}`}>
+      <div className="chart-cell-header">
+        <div className="chart-cell-label">{label}</div>
+        <div className="chart-cell-value">
+          {formattedValue}
+          {unit && <span className="chart-cell-unit">{unit}</span>}
+        </div>
+      </div>
+      {children}
+    </div>
+  );
+}
+
+interface ChartCellProps {
+  label: string;
+  value: number | string;
+  unit?: string;
+  children?: React.ReactNode;
 }

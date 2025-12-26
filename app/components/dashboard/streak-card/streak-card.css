@@ -1,0 +1,52 @@
+.streak-cards {
+  display: flex;
+  gap: 16px;
+}
+
+.streak-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 24px;
+  background: var(--white);
+  border: 1px solid var(--light-gray);
+  text-align: center;
+}
+
+.streak-icon {
+  font-size: 32px;
+  line-height: 1;
+}
+
+.streak-content {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.streak-value {
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--black);
+  line-height: 1;
+}
+
+.streak-label {
+  font-size: 14px;
+  color: var(--mid-gray);
+}
+
+.streak-title {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--mid-gray);
+}
+
+@media (max-width: 600px) {
+  .streak-cards {
+    flex-direction: column;
+  }
+}

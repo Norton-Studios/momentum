@@ -33,6 +33,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     return data({ error: "Batch not found" }, { status: 404 });
   }
 
+  // Calculate counts from actual runs for real-time progress (batch fields only update at end)
+  const completedScripts = batch.runs.filter((run) => run.status === "COMPLETED").length;
+  const failedScripts = batch.runs.filter((run) => run.status === "FAILED").length;
+
   return data({
     id: batch.id,
     status: batch.status,
@@ -41,8 +45,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     completedAt: batch.completedAt?.toISOString() ?? null,
     durationMs: batch.durationMs,
     totalScripts: batch.totalScripts,
-    completedScripts: batch.completedScripts,
-    failedScripts: batch.failedScripts,
+    completedScripts,
+    failedScripts,
     runs: batch.runs.map((run) => ({
       id: run.id,
       dataSourceId: run.dataSourceId,

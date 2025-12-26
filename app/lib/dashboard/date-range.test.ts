@@ -14,12 +14,12 @@ describe("parseDateRange", () => {
     vi.setSystemTime(new Date("2025-01-15T12:00:00Z"));
   });
 
-  it("returns 30d preset as default when no params provided", () => {
+  it("returns 90d preset as default when no params provided", () => {
     const params = new URLSearchParams();
     const result = parseDateRange(params);
 
-    expect(result.preset).toBe("30d");
-    expect(toLocalDateString(result.startDate)).toBe("2024-12-16");
+    expect(result.preset).toBe("90d");
+    expect(toLocalDateString(result.startDate)).toBe("2024-10-17");
     expect(toLocalDateString(result.endDate)).toBe("2025-01-15");
   });
 
@@ -66,14 +66,14 @@ describe("parseDateRange", () => {
     });
     const result = parseDateRange(params);
 
-    expect(result.preset).toBe("30d");
+    expect(result.preset).toBe("90d");
   });
 
   it("falls back to default when invalid preset provided", () => {
     const params = new URLSearchParams({ preset: "invalid" });
     const result = parseDateRange(params);
 
-    expect(result.preset).toBe("30d");
+    expect(result.preset).toBe("90d");
   });
 });
 

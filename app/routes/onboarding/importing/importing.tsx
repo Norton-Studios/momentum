@@ -20,6 +20,9 @@ const TASK_LABELS: Record<string, string> = {
   "status-transition": "Status transitions",
   pipeline: "CI/CD Pipelines",
   "pipeline-run": "Pipeline runs",
+  "sonarqube-project": "Project mappings",
+  "quality-scan": "Quality scans",
+  "sonarqube-issue": "Security vulnerabilities",
 };
 
 const POLLING_INTERVAL_MS = 3000;

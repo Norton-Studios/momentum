@@ -5,8 +5,10 @@
   "packageManager": "yarn@4.12.0",
   "scripts": {
     "build": "react-router build",
-    "dev": "docker compose up -d && npx prisma db push && react-router dev",
+    "dev": "run-p dev:db dev:server",
+    "dev:db": "docker compose up -d && npx prisma db push && yarn db:studio",
     "dev:server": "react-router dev",
+    "dev:crons": "tsx --watch crons/index.ts",
     "start": "react-router-serve ./build/server/index.js",
     "typecheck": "react-router typegen && tsc",
     "lint": "biome check .",
@@ -22,7 +24,7 @@
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
     "db:migrate:deploy": "prisma migrate deploy",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio --browser none"
   },
   "dependencies": {
     "@gitbeaker/rest": "43.8.0",
@@ -59,6 +61,7 @@
     "@vitest/coverage-v8": "4.0.16",
     "dotenv": "^17.2.3",
     "jsdom": "^27.2.0",
+    "npm-run-all": "^4.1.5",
     "prisma": "6.19.1",
     "tailwindcss": "4.1.18",
     "tsx": "4.21.0",

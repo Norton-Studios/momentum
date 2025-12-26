@@ -3,57 +3,75 @@ import { type ChartDataPoint, calculateTrend, type DateRange, type TrendValue } 
 
 const ACTIVE_ISSUE_STATUSES = ["TODO", "IN_PROGRESS", "IN_REVIEW", "BLOCKED"] as const;
 const MAIN_BRANCHES = ["main", "master"] as const;
+const MS_PER_DAY = 1000 * 60 * 60 * 24;
+const MS_PER_HOUR = 1000 * 60 * 60;
 
 export async function fetchOverviewMetrics(dateRange: DateRange, previousRange: DateRange, teamId: string | null): Promise<OverviewMetrics> {
   const repositoryIds = teamId ? await getTeamRepositoryIds(teamId) : null;
   const repoFilter = repositoryIds ? { repositoryId: { in: repositoryIds } } : {};
   const repoIdFilter = repositoryIds ? { id: { in: repositoryIds } } : {};
 
-  const [repositories, currentContributors, previousContributors, currentCommits, previousCommits, currentPRs, previousPRs] = await Promise.all([
-    db.repository.count({ where: { isEnabled: true, ...repoIdFilter } }),
-    db.commit.findMany({
-      where: {
-        committedAt: { gte: dateRange.startDate, lte: dateRange.endDate },
-        ...repoFilter,
-      },
-      select: { authorId: true },
-      distinct: ["authorId"],
-    }),
-    db.commit.findMany({
-      where: {
-        committedAt: { gte: previousRange.startDate, lte: previousRange.endDate },
-        ...repoFilter,
-      },
-      select: { authorId: true },
-      distinct: ["authorId"],
-    }),
-    db.commit.count({
-      where: { committedAt: { gte: dateRange.startDate, lte: dateRange.endDate }, ...repoFilter },
-    }),
-    db.commit.count({
-      where: { committedAt: { gte: previousRange.startDate, lte: previousRange.endDate }, ...repoFilter },
-    }),
-    db.pullRequest.count({
-      where: { createdAt: { gte: dateRange.startDate, lte: dateRange.endDate }, ...repoFilter },
-    }),
-    db.pullRequest.count({
-      where: { createdAt: { gte: previousRange.startDate, lte: previousRange.endDate }, ...repoFilter },
-    }),
-  ]);
+  const [repositories, currentContributors, previousContributors, currentCommits, previousCommits, currentPRs, previousPRs, commitsWithDates, prsWithDates, contributorsByDay] =
+    await Promise.all([
+      db.repository.count({ where: { isEnabled: true, ...repoIdFilter } }),
+      db.commit.findMany({
+        where: {
+          committedAt: { gte: dateRange.startDate, lte: dateRange.endDate },
+          ...repoFilter,
+        },
+        select: { authorId: true },
+        distinct: ["authorId"],
+      }),
+      db.commit.findMany({
+        where: {
+          committedAt: { gte: previousRange.startDate, lte: previousRange.endDate },
+          ...repoFilter,
+        },
+        select: { authorId: true },
+        distinct: ["authorId"],
+      }),
+      db.commit.count({
+        where: { committedAt: { gte: dateRange.startDate, lte: dateRange.endDate }, ...repoFilter },
+      }),
+      db.commit.count({
+        where: { committedAt: { gte: previousRange.startDate, lte: previousRange.endDate }, ...repoFilter },
+      }),
+      db.pullRequest.count({
+        where: { createdAt: { gte: dateRange.startDate, lte: dateRange.endDate }, ...repoFilter },
+      }),
+      db.pullRequest.count({
+        where: { createdAt: { gte: previousRange.startDate, lte: previousRange.endDate }, ...repoFilter },
+      }),
+      db.commit.findMany({
+        where: { committedAt: { gte: dateRange.startDate, lte: dateRange.endDate }, ...repoFilter },
+        select: { committedAt: true },
+      }),
+      db.pullRequest.findMany({
+        where: { createdAt: { gte: dateRange.startDate, lte: dateRange.endDate }, ...repoFilter },
+        select: { createdAt: true },
+      }),
+      db.commit.findMany({
+        where: { committedAt: { gte: dateRange.startDate, lte: dateRange.endDate }, ...repoFilter },
+        select: { committedAt: true, authorId: true },
+      }),
+    ]);
 
   return {
     repositories,
     contributors: {
       count: currentContributors.length,
       trend: calculateTrend(currentContributors.length, previousContributors.length),
+      chart: aggregateUniqueByDay(contributorsByDay, "committedAt", "authorId", dateRange),
     },
     commits: {
       count: currentCommits,
       trend: calculateTrend(currentCommits, previousCommits),
+      chart: aggregateCountByDay(commitsWithDates, "committedAt", dateRange),
     },
     pullRequests: {
       count: currentPRs,
       trend: calculateTrend(currentPRs, previousPRs),
+      chart: aggregateCountByDay(prsWithDates, "createdAt", dateRange),
     },
   };
 }
@@ -74,27 +92,34 @@ async function getTeamProjectIds(teamId: string): Promise<string[]> {
   return teamProjects.map((tp) => tp.projectId);
 }
 
-export async function fetchDeliveryMetrics(dateRange: DateRange, previousRange: DateRange, teamId: string | null): Promise<DeliveryMetrics> {
+export async function fetchDeliveryMetrics(dateRange: DateRange, teamId: string | null): Promise<DeliveryMetrics> {
   const repositoryIds = teamId ? await getTeamRepositoryIds(teamId) : null;
   const repoFilter = repositoryIds ? { repositoryId: { in: repositoryIds } } : {};
-  const pipelineRepoFilter = repositoryIds ? { pipeline: { repositoryId: { in: repositoryIds } } } : {};
   const now = new Date();
 
-  const [openPRsWithAge, commitsToMaster, prsWithFirstReview] = await Promise.all([
+  const [openPRsWithAge, allPRsForHistory, commitsToMasterWithDates, reviewedPRs] = await Promise.all([
     db.pullRequest.findMany({
       where: { state: "OPEN", ...repoFilter },
       select: { createdAt: true },
     }),
-    db.commit.count({
+    db.pullRequest.findMany({
+      where: {
+        createdAt: { lte: dateRange.endDate },
+        ...repoFilter,
+      },
+      select: { createdAt: true, closedAt: true, state: true },
+    }),
+    db.commit.findMany({
       where: {
         committedAt: { gte: dateRange.startDate, lte: dateRange.endDate },
         branch: { in: [...MAIN_BRANCHES] },
         ...repoFilter,
       },
+      select: { committedAt: true },
     }),
     db.pullRequest.findMany({
       where: {
-        state: "OPEN",
+        createdAt: { gte: dateRange.startDate, lte: dateRange.endDate },
         reviews: { some: {} },
         ...repoFilter,
       },
@@ -110,47 +135,89 @@ export async function fetchDeliveryMetrics(dateRange: DateRange, previousRange: 
   ]);
 
   const avgPrAgeDays =
-    openPRsWithAge.length > 0 ? openPRsWithAge.reduce((sum, pr) => sum + (now.getTime() - pr.createdAt.getTime()), 0) / openPRsWithAge.length / (1000 * 60 * 60 * 24) : null;
+    openPRsWithAge.length > 0 ? openPRsWithAge.reduce((sum, pr) => sum + (now.getTime() - pr.createdAt.getTime()), 0) / openPRsWithAge.length / MS_PER_DAY : null;
 
-  const prsWithValidReview = prsWithFirstReview.filter((pr) => pr.reviews.length > 0 && pr.reviews[0].submittedAt);
-  const avgTimeToReviewHours =
-    prsWithValidReview.length > 0
-      ? prsWithValidReview.reduce((sum, pr) => sum + (pr.reviews[0].submittedAt!.getTime() - pr.createdAt.getTime()), 0) / prsWithValidReview.length / (1000 * 60 * 60)
-      : null;
+  const reviewTimes = reviewedPRs
+    .filter((pr): pr is typeof pr & { reviews: [{ submittedAt: Date }] } => pr.reviews.length > 0 && pr.reviews[0].submittedAt !== null)
+    .map((pr) => ({
+      date: pr.createdAt,
+      value: (pr.reviews[0].submittedAt.getTime() - pr.createdAt.getTime()) / MS_PER_HOUR,
+    }));
+
+  const avgTimeToReviewHours = reviewTimes.length > 0 ? reviewTimes.reduce((sum, r) => sum + r.value, 0) / reviewTimes.length : null;
+
+  const timeToReviewChart = aggregateAverageByDay(reviewTimes, dateRange);
+
+  const { openPRsChart, avgPrAgeChart } = computePRHistoryCharts(allPRsForHistory, dateRange);
 
   return {
     avgPrAgeDays: avgPrAgeDays ? Math.round(avgPrAgeDays * 10) / 10 : null,
+    avgPrAgeChart,
     openPRs: openPRsWithAge.length,
-    commitsToMaster,
+    openPRsChart,
+    commitsToMaster: commitsToMasterWithDates.length,
+    commitsToMasterChart: aggregateCountByDay(commitsToMasterWithDates, "committedAt", dateRange),
     avgTimeToReviewHours: avgTimeToReviewHours ? Math.round(avgTimeToReviewHours * 10) / 10 : null,
+    timeToReviewChart,
   };
+}
+
+function computePRHistoryCharts(
+  prs: { createdAt: Date; closedAt: Date | null; state: string }[],
+  dateRange: DateRange
+): { openPRsChart: ChartDataPoint[]; avgPrAgeChart: ChartDataPoint[] } {
+  const openPRsChart: ChartDataPoint[] = [];
+  const avgPrAgeChart: ChartDataPoint[] = [];
+
+  const current = new Date(dateRange.startDate);
+  while (current <= dateRange.endDate) {
+    const dayEnd = new Date(current);
+    dayEnd.setHours(23, 59, 59, 999);
+
+    const openOnDay = prs.filter((pr) => {
+      const wasCreated = pr.createdAt <= dayEnd;
+      const wasOpen = pr.closedAt === null || pr.closedAt > dayEnd;
+      return wasCreated && wasOpen;
+    });
+
+    const count = openOnDay.length;
+    openPRsChart.push({ date: current.toISOString().split("T")[0], value: count });
+
+    if (count > 0) {
+      const totalAgeDays = openOnDay.reduce((sum, pr) => sum + (dayEnd.getTime() - pr.createdAt.getTime()) / MS_PER_DAY, 0);
+      avgPrAgeChart.push({ date: current.toISOString().split("T")[0], value: Math.round((totalAgeDays / count) * 10) / 10 });
+    } else {
+      avgPrAgeChart.push({ date: current.toISOString().split("T")[0], value: 0 });
+    }
+
+    current.setDate(current.getDate() + 1);
+  }
+
+  return { openPRsChart, avgPrAgeChart };
 }
 
 export async function fetchOperationalMetrics(dateRange: DateRange, teamId: string | null): Promise<OperationalMetrics> {
   const repositoryIds = teamId ? await getTeamRepositoryIds(teamId) : null;
   const pipelineRepoFilter = repositoryIds ? { pipeline: { repositoryId: { in: repositoryIds } } } : {};
 
-  const sevenDaysAgo = new Date();
-  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-
   const [masterRuns, prRuns, masterFailedStages, prFailedStages] = await Promise.all([
     db.pipelineRun.findMany({
       where: {
         status: { in: ["SUCCESS", "FAILED"] },
         branch: { in: [...MAIN_BRANCHES] },
-        completedAt: { gte: sevenDaysAgo },
+        completedAt: { gte: dateRange.startDate, lte: dateRange.endDate },
         ...pipelineRepoFilter,
       },
-      select: { status: true, durationMs: true },
+      select: { status: true, durationMs: true, completedAt: true },
     }),
     db.pipelineRun.findMany({
       where: {
         status: { in: ["SUCCESS", "FAILED"] },
         branch: { notIn: [...MAIN_BRANCHES] },
-        completedAt: { gte: sevenDaysAgo },
+        completedAt: { gte: dateRange.startDate, lte: dateRange.endDate },
         ...pipelineRepoFilter,
       },
-      select: { status: true, durationMs: true },
+      select: { status: true, durationMs: true, completedAt: true },
     }),
     db.pipelineStage.groupBy({
       by: ["name"],
@@ -181,17 +248,33 @@ export async function fetchOperationalMetrics(dateRange: DateRange, teamId: stri
   const masterSuccessRate = calculateSuccessRate(masterRuns);
   const prSuccessRate = calculateSuccessRate(prRuns);
 
-  const masterSuccessfulRuns = masterRuns.filter((r) => r.status === "SUCCESS" && r.durationMs !== null);
-  const prSuccessfulRuns = prRuns.filter((r) => r.status === "SUCCESS" && r.durationMs !== null);
+  const masterSuccessfulRuns = masterRuns.filter((r) => r.status === "SUCCESS" && r.durationMs !== null && r.completedAt !== null);
+  const prSuccessfulRuns = prRuns.filter((r) => r.status === "SUCCESS" && r.durationMs !== null && r.completedAt !== null);
 
-  const masterAvgDurationMs = masterSuccessfulRuns.length > 0 ? Math.round(masterSuccessfulRuns.reduce((sum, r) => sum + r.durationMs!, 0) / masterSuccessfulRuns.length) : null;
-  const prAvgDurationMs = prSuccessfulRuns.length > 0 ? Math.round(prSuccessfulRuns.reduce((sum, r) => sum + r.durationMs!, 0) / prSuccessfulRuns.length) : null;
+  const masterDurations = masterSuccessfulRuns.map((r) => r.durationMs as number);
+  const prDurationsArr = prSuccessfulRuns.map((r) => r.durationMs as number);
+
+  const masterAvgDurationMs = masterDurations.length > 0 ? Math.round(masterDurations.reduce((sum, d) => sum + d, 0) / masterDurations.length) : null;
+  const prAvgDurationMs = prDurationsArr.length > 0 ? Math.round(prDurationsArr.reduce((sum, d) => sum + d, 0) / prDurationsArr.length) : null;
+
+  const masterDurationChart = aggregateAverageByDay(
+    masterSuccessfulRuns.map((r) => ({ date: r.completedAt as Date, value: (r.durationMs as number) / 60000 })),
+    dateRange
+  );
+  const prDurationChart = aggregateAverageByDay(
+    prSuccessfulRuns.map((r) => ({ date: r.completedAt as Date, value: (r.durationMs as number) / 60000 })),
+    dateRange
+  );
 
   return {
     masterSuccessRate,
     prSuccessRate,
+    masterSuccessRateChart: aggregateSuccessRateByDay(masterRuns, dateRange),
+    prSuccessRateChart: aggregateSuccessRateByDay(prRuns, dateRange),
     masterAvgDurationMs,
     prAvgDurationMs,
+    masterDurationChart,
+    prDurationChart,
     masterFailureSteps: masterFailedStages.map((s) => ({ name: s.name, value: s._count })).sort((a, b) => b.value - a.value),
     prFailureSteps: prFailedStages.map((s) => ({ name: s.name, value: s._count })).sort((a, b) => b.value - a.value),
   };
@@ -205,37 +288,66 @@ function calculateSuccessRate(runs: { status: string }[]): number | null {
 
 export async function fetchQualityMetrics(dateRange: DateRange, teamId: string | null): Promise<QualityMetrics> {
   const repositoryIds = teamId ? await getTeamRepositoryIds(teamId) : null;
-  const repoFilter = repositoryIds ? { repositoryId: { in: repositoryIds } } : {};
 
-  const latestScans = repositoryIds
-    ? await db.$queryRaw<QualityScanRow[]>`
-		SELECT DISTINCT ON (repository_id)
-			repository_id as "repositoryId",
-			coverage_percent as "coveragePercent",
-			bugs_count as "bugsCount"
-		FROM analysis.quality_scan
-		WHERE scanned_at <= ${dateRange.endDate}
-		AND repository_id = ANY(${repositoryIds})
-		ORDER BY repository_id, scanned_at DESC
-	`
-    : await db.$queryRaw<QualityScanRow[]>`
-		SELECT DISTINCT ON (repository_id)
-			repository_id as "repositoryId",
-			coverage_percent as "coveragePercent",
-			bugs_count as "bugsCount"
-		FROM analysis.quality_scan
-		WHERE scanned_at <= ${dateRange.endDate}
-		ORDER BY repository_id, scanned_at DESC
-	`;
+  const [latestScans, historicalScans] = await Promise.all([
+    repositoryIds
+      ? db.$queryRaw<QualityScanRow[]>`
+			SELECT DISTINCT ON (repository_id)
+				repository_id as "repositoryId",
+				coverage_percent as "coveragePercent",
+				bugs_count as "bugsCount"
+			FROM analysis.quality_scan
+			WHERE scanned_at <= ${dateRange.endDate}
+			AND repository_id = ANY(${repositoryIds})
+			ORDER BY repository_id, scanned_at DESC
+		`
+      : db.$queryRaw<QualityScanRow[]>`
+			SELECT DISTINCT ON (repository_id)
+				repository_id as "repositoryId",
+				coverage_percent as "coveragePercent",
+				bugs_count as "bugsCount"
+			FROM analysis.quality_scan
+			WHERE scanned_at <= ${dateRange.endDate}
+			ORDER BY repository_id, scanned_at DESC
+		`,
+    repositoryIds
+      ? db.$queryRaw<QualityScanHistoryRow[]>`
+			SELECT scanned_at as "scannedAt", coverage_percent as "coveragePercent", bugs_count as "bugsCount"
+			FROM analysis.quality_scan
+			WHERE scanned_at >= ${dateRange.startDate} AND scanned_at <= ${dateRange.endDate}
+			AND repository_id = ANY(${repositoryIds})
+			ORDER BY scanned_at ASC
+		`
+      : db.$queryRaw<QualityScanHistoryRow[]>`
+			SELECT scanned_at as "scannedAt", coverage_percent as "coveragePercent", bugs_count as "bugsCount"
+			FROM analysis.quality_scan
+			WHERE scanned_at >= ${dateRange.startDate} AND scanned_at <= ${dateRange.endDate}
+			ORDER BY scanned_at ASC
+		`,
+  ]);
 
-  const scansWithCoverage = latestScans.filter((s) => s.coveragePercent !== null);
-  const overallCoverage = scansWithCoverage.length > 0 ? scansWithCoverage.reduce((sum, s) => sum + s.coveragePercent!, 0) / scansWithCoverage.length : null;
+  type ScanWithCoverage = QualityScanRow & { coveragePercent: number };
+  const scansWithCoverage = latestScans.filter((s): s is ScanWithCoverage => s.coveragePercent !== null);
+  const overallCoverage = scansWithCoverage.length > 0 ? scansWithCoverage.reduce((sum, s) => sum + s.coveragePercent, 0) / scansWithCoverage.length : null;
 
   const totalBugsCount = latestScans.reduce((sum, s) => sum + (s.bugsCount || 0), 0);
 
+  type HistoricalScanWithCoverage = QualityScanHistoryRow & { coveragePercent: number };
+  const coverageChart = aggregateAverageByDay(
+    historicalScans.filter((s): s is HistoricalScanWithCoverage => s.coveragePercent !== null).map((s) => ({ date: s.scannedAt, value: s.coveragePercent })),
+    dateRange
+  );
+
+  const bugsChart = aggregateSumByDay(
+    historicalScans.map((s) => ({ date: s.scannedAt, value: s.bugsCount || 0 })),
+    dateRange
+  );
+
   return {
     overallCoverage: overallCoverage ? Math.round(overallCoverage * 10) / 10 : null,
+    coverageChart,
     bugsCount: totalBugsCount,
+    bugsChart,
   };
 }
 
@@ -244,7 +356,7 @@ export async function fetchTicketMetrics(dateRange: DateRange, teamId: string | 
   const projectFilter = projectIds ? { projectId: { in: projectIds } } : {};
   const now = new Date();
 
-  const [activeIssues, completedIssues, statusTransitions] = await Promise.all([
+  const [activeIssues, completedIssuesWithDates, allIssuesForHistory, statusTransitions] = await Promise.all([
     db.issue.findMany({
       where: {
         status: { in: [...ACTIVE_ISSUE_STATUSES] },
@@ -252,12 +364,20 @@ export async function fetchTicketMetrics(dateRange: DateRange, teamId: string | 
       },
       select: { id: true, createdAt: true, status: true },
     }),
-    db.issue.count({
+    db.issue.findMany({
       where: {
         status: "DONE",
         resolvedAt: { gte: dateRange.startDate, lte: dateRange.endDate },
         ...projectFilter,
       },
+      select: { resolvedAt: true },
+    }),
+    db.issue.findMany({
+      where: {
+        createdAt: { lte: dateRange.endDate },
+        ...projectFilter,
+      },
+      select: { createdAt: true, resolvedAt: true, status: true },
     }),
     db.issueStatusTransition.findMany({
       where: {
@@ -272,16 +392,62 @@ export async function fetchTicketMetrics(dateRange: DateRange, teamId: string | 
   ]);
 
   const avgActiveTicketAgeDays =
-    activeIssues.length > 0 ? activeIssues.reduce((sum, issue) => sum + (now.getTime() - issue.createdAt.getTime()), 0) / activeIssues.length / (1000 * 60 * 60 * 24) : null;
+    activeIssues.length > 0 ? activeIssues.reduce((sum, issue) => sum + (now.getTime() - issue.createdAt.getTime()), 0) / activeIssues.length / MS_PER_DAY : null;
 
   const cumulativeTimeInColumnHours = calculateCumulativeTimeInColumn(statusTransitions, now);
 
+  type IssueWithResolvedAt = { resolvedAt: Date };
+  const completedChart = aggregateCountByDay(
+    completedIssuesWithDates.filter((i): i is IssueWithResolvedAt => i.resolvedAt !== null),
+    "resolvedAt",
+    dateRange
+  );
+
+  const { activeCountChart, avgActiveTicketAgeChart } = computeTicketHistoryCharts(allIssuesForHistory, dateRange);
+
   return {
     avgActiveTicketAgeDays: avgActiveTicketAgeDays ? Math.round(avgActiveTicketAgeDays * 10) / 10 : null,
+    avgActiveTicketAgeChart,
     activeCount: activeIssues.length,
-    completedCount: completedIssues,
+    activeCountChart,
+    completedCount: completedIssuesWithDates.length,
+    completedChart,
     cumulativeTimeInColumnHours: cumulativeTimeInColumnHours ? Math.round(cumulativeTimeInColumnHours * 10) / 10 : null,
   };
+}
+
+function computeTicketHistoryCharts(
+  issues: { createdAt: Date; resolvedAt: Date | null; status: string }[],
+  dateRange: DateRange
+): { activeCountChart: ChartDataPoint[]; avgActiveTicketAgeChart: ChartDataPoint[] } {
+  const activeCountChart: ChartDataPoint[] = [];
+  const avgActiveTicketAgeChart: ChartDataPoint[] = [];
+
+  const current = new Date(dateRange.startDate);
+  while (current <= dateRange.endDate) {
+    const dayEnd = new Date(current);
+    dayEnd.setHours(23, 59, 59, 999);
+
+    const activeOnDay = issues.filter((issue) => {
+      const wasCreated = issue.createdAt <= dayEnd;
+      const wasActive = issue.resolvedAt === null || issue.resolvedAt > dayEnd;
+      return wasCreated && wasActive;
+    });
+
+    const count = activeOnDay.length;
+    activeCountChart.push({ date: current.toISOString().split("T")[0], value: count });
+
+    if (count > 0) {
+      const totalAgeDays = activeOnDay.reduce((sum, issue) => sum + (dayEnd.getTime() - issue.createdAt.getTime()) / MS_PER_DAY, 0);
+      avgActiveTicketAgeChart.push({ date: current.toISOString().split("T")[0], value: Math.round((totalAgeDays / count) * 10) / 10 });
+    } else {
+      avgActiveTicketAgeChart.push({ date: current.toISOString().split("T")[0], value: 0 });
+    }
+
+    current.setDate(current.getDate() + 1);
+  }
+
+  return { activeCountChart, avgActiveTicketAgeChart };
 }
 
 function calculateCumulativeTimeInColumn(transitions: { issueId: string; toStatus: string; transitionedAt: Date }[], now: Date): number | null {
@@ -343,30 +509,134 @@ export async function fetchSecurityMetrics(dateRange: DateRange, teamId: string 
     }
   }
 
+  type VulnWithResolvedAt = { discoveredAt: Date; resolvedAt: Date };
+  const vulnsWithResolvedAt = resolvedVulnerabilities.filter((v): v is VulnWithResolvedAt => v.resolvedAt !== null);
+
   const avgTimeToCloseDays =
-    resolvedVulnerabilities.length > 0
-      ? resolvedVulnerabilities.reduce((sum, v) => sum + (v.resolvedAt!.getTime() - v.discoveredAt.getTime()), 0) / resolvedVulnerabilities.length / (1000 * 60 * 60 * 24)
+    vulnsWithResolvedAt.length > 0
+      ? vulnsWithResolvedAt.reduce((sum, v) => sum + (v.resolvedAt.getTime() - v.discoveredAt.getTime()), 0) / vulnsWithResolvedAt.length / MS_PER_DAY
       : null;
+
+  const timeToCloseChart = aggregateAverageByDay(
+    vulnsWithResolvedAt.map((v) => ({
+      date: v.resolvedAt,
+      value: (v.resolvedAt.getTime() - v.discoveredAt.getTime()) / MS_PER_DAY,
+    })),
+    dateRange
+  );
 
   return {
     cveBySeverity,
     avgTimeToCloseDays: avgTimeToCloseDays ? Math.round(avgTimeToCloseDays * 10) / 10 : null,
+    timeToCloseChart,
   };
 }
 
-function aggregateByDay(data: { committedAt: Date; _count: number }[], dateRange: DateRange): ChartDataPoint[] {
+function initializeDayMap(dateRange: DateRange): Map<string, number> {
   const dayMap = new Map<string, number>();
-
   const current = new Date(dateRange.startDate);
   while (current <= dateRange.endDate) {
     dayMap.set(current.toISOString().split("T")[0], 0);
     current.setDate(current.getDate() + 1);
   }
+  return dayMap;
+}
+
+function aggregateCountByDay<T extends Record<string, unknown>>(data: T[], dateField: keyof T, dateRange: DateRange): ChartDataPoint[] {
+  const dayMap = initializeDayMap(dateRange);
 
   for (const item of data) {
-    const day = item.committedAt.toISOString().split("T")[0];
+    const dateValue = item[dateField];
+    if (dateValue instanceof Date) {
+      const day = dateValue.toISOString().split("T")[0];
+      if (dayMap.has(day)) {
+        dayMap.set(day, (dayMap.get(day) || 0) + 1);
+      }
+    }
+  }
+
+  return Array.from(dayMap.entries()).map(([date, value]) => ({ date, value }));
+}
+
+function aggregateUniqueByDay<T extends Record<string, unknown>>(data: T[], dateField: keyof T, uniqueField: keyof T, dateRange: DateRange): ChartDataPoint[] {
+  const dayMap = initializeDayMap(dateRange);
+  const uniqueByDay = new Map<string, Set<unknown>>();
+
+  for (const item of data) {
+    const dateValue = item[dateField];
+    if (dateValue instanceof Date) {
+      const day = dateValue.toISOString().split("T")[0];
+      if (dayMap.has(day)) {
+        const existing = uniqueByDay.get(day) ?? new Set();
+        existing.add(item[uniqueField]);
+        uniqueByDay.set(day, existing);
+      }
+    }
+  }
+
+  for (const [day, uniqueSet] of uniqueByDay) {
+    dayMap.set(day, uniqueSet.size);
+  }
+
+  return Array.from(dayMap.entries()).map(([date, value]) => ({ date, value }));
+}
+
+function aggregateAverageByDay(data: { date: Date; value: number }[], dateRange: DateRange): ChartDataPoint[] {
+  const dayValues = new Map<string, number[]>();
+  const dayMap = initializeDayMap(dateRange);
+
+  for (const item of data) {
+    const day = item.date.toISOString().split("T")[0];
     if (dayMap.has(day)) {
-      dayMap.set(day, (dayMap.get(day) || 0) + item._count);
+      const existing = dayValues.get(day) ?? [];
+      existing.push(item.value);
+      dayValues.set(day, existing);
+    }
+  }
+
+  for (const [day, values] of dayValues) {
+    if (values.length > 0) {
+      const avg = values.reduce((sum, v) => sum + v, 0) / values.length;
+      dayMap.set(day, Math.round(avg * 10) / 10);
+    }
+  }
+
+  return Array.from(dayMap.entries()).map(([date, value]) => ({ date, value }));
+}
+
+function aggregateSumByDay(data: { date: Date; value: number }[], dateRange: DateRange): ChartDataPoint[] {
+  const dayMap = initializeDayMap(dateRange);
+
+  for (const item of data) {
+    const day = item.date.toISOString().split("T")[0];
+    if (dayMap.has(day)) {
+      dayMap.set(day, (dayMap.get(day) || 0) + item.value);
+    }
+  }
+
+  return Array.from(dayMap.entries()).map(([date, value]) => ({ date, value }));
+}
+
+function aggregateSuccessRateByDay(runs: { status: string; completedAt: Date | null }[], dateRange: DateRange): ChartDataPoint[] {
+  const dayMap = initializeDayMap(dateRange);
+  const dayRuns = new Map<string, { success: number; total: number }>();
+
+  for (const run of runs) {
+    if (!run.completedAt) continue;
+    const day = run.completedAt.toISOString().split("T")[0];
+    if (dayMap.has(day)) {
+      const stats = dayRuns.get(day) ?? { success: 0, total: 0 };
+      stats.total++;
+      if (run.status === "SUCCESS") {
+        stats.success++;
+      }
+      dayRuns.set(day, stats);
+    }
+  }
+
+  for (const [day, stats] of dayRuns) {
+    if (stats.total > 0) {
+      dayMap.set(day, Math.round((stats.success / stats.total) * 1000) / 10);
     }
   }
 
@@ -375,6 +645,12 @@ function aggregateByDay(data: { committedAt: Date; _count: number }[], dateRange
 
 interface QualityScanRow {
   repositoryId: string;
+  coveragePercent: number | null;
+  bugsCount: number | null;
+}
+
+interface QualityScanHistoryRow {
+  scannedAt: Date;
   coveragePercent: number | null;
   bugsCount: number | null;
 }
@@ -388,42 +664,56 @@ interface SeverityCount {
 
 export interface OverviewMetrics {
   repositories: number;
-  contributors: { count: number; trend: TrendValue };
-  commits: { count: number; trend: TrendValue };
-  pullRequests: { count: number; trend: TrendValue };
+  contributors: { count: number; trend: TrendValue; chart: ChartDataPoint[] };
+  commits: { count: number; trend: TrendValue; chart: ChartDataPoint[] };
+  pullRequests: { count: number; trend: TrendValue; chart: ChartDataPoint[] };
 }
 
 export interface DeliveryMetrics {
   avgPrAgeDays: number | null;
+  avgPrAgeChart: ChartDataPoint[];
   openPRs: number;
+  openPRsChart: ChartDataPoint[];
   commitsToMaster: number;
+  commitsToMasterChart: ChartDataPoint[];
   avgTimeToReviewHours: number | null;
+  timeToReviewChart: ChartDataPoint[];
 }
 
 export interface TicketMetrics {
   avgActiveTicketAgeDays: number | null;
+  avgActiveTicketAgeChart: ChartDataPoint[];
   activeCount: number;
+  activeCountChart: ChartDataPoint[];
   completedCount: number;
+  completedChart: ChartDataPoint[];
   cumulativeTimeInColumnHours: number | null;
 }
 
 export interface OperationalMetrics {
   masterSuccessRate: number | null;
   prSuccessRate: number | null;
+  masterSuccessRateChart: ChartDataPoint[];
+  prSuccessRateChart: ChartDataPoint[];
   masterAvgDurationMs: number | null;
   prAvgDurationMs: number | null;
+  masterDurationChart: ChartDataPoint[];
+  prDurationChart: ChartDataPoint[];
   masterFailureSteps: { name: string; value: number }[];
   prFailureSteps: { name: string; value: number }[];
 }
 
 export interface QualityMetrics {
   overallCoverage: number | null;
+  coverageChart: ChartDataPoint[];
   bugsCount: number;
+  bugsChart: ChartDataPoint[];
 }
 
 export interface SecurityMetrics {
   cveBySeverity: SeverityCount;
   avgTimeToCloseDays: number | null;
+  timeToCloseChart: ChartDataPoint[];
 }
 
 export interface DashboardData {

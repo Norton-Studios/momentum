@@ -3,6 +3,8 @@ import { MemoryRouter } from "react-router";
 import { describe, expect, it, vi } from "vitest";
 import Dashboard, { meta } from "./dashboard";
 
+const mockChartData = [{ date: "2025-01-01", value: 5 }];
+
 const mockDashboardData = {
   user: { id: "1", email: "john@example.com", name: "John Doe", role: "USER" },
   teams: [],
@@ -20,31 +22,45 @@ const mockDashboardData = {
     },
     delivery: {
       avgPrAgeDays: 3.5,
+      avgPrAgeChart: mockChartData,
       openPRs: 34,
+      openPRsChart: mockChartData,
       commitsToMaster: 156,
+      commitsToMasterChart: mockChartData,
       avgTimeToReviewHours: 12.5,
+      timeToReviewChart: mockChartData,
     },
     tickets: {
       avgActiveTicketAgeDays: 5.2,
+      avgActiveTicketAgeChart: mockChartData,
       activeCount: 45,
+      activeCountChart: mockChartData,
       completedCount: 32,
+      completedChart: mockChartData,
       cumulativeTimeInColumnHours: 120.5,
     },
     operational: {
       masterSuccessRate: 92.5,
+      masterSuccessRateChart: mockChartData,
       prSuccessRate: 88.3,
+      prSuccessRateChart: mockChartData,
       masterAvgDurationMs: 750000,
+      masterDurationChart: mockChartData,
       prAvgDurationMs: 650000,
+      prDurationChart: mockChartData,
       masterFailureSteps: [{ name: "Build", value: 5 }],
       prFailureSteps: [{ name: "Test", value: 10 }],
     },
     quality: {
       overallCoverage: 76,
+      coverageChart: mockChartData,
       bugsCount: 12,
+      bugsChart: mockChartData,
     },
     security: {
       cveBySeverity: { critical: 0, high: 2, medium: 5, low: 10 },
       avgTimeToCloseDays: 14.5,
+      timeToCloseChart: mockChartData,
     },
   },
 };
@@ -175,8 +191,8 @@ describe("Dashboard", () => {
     );
 
     expect(screen.getByText("Operational")).toBeInTheDocument();
-    expect(screen.getByText("Pipeline Success (Master, 7d)")).toBeInTheDocument();
-    expect(screen.getByText("Pipeline Success (PR, 7d)")).toBeInTheDocument();
+    expect(screen.getByText("Pipeline Success (Master)")).toBeInTheDocument();
+    expect(screen.getByText("Pipeline Success (PR)")).toBeInTheDocument();
     expect(screen.getByText("Pipeline Duration (Master)")).toBeInTheDocument();
     expect(screen.getByText("Pipeline Duration (PR)")).toBeInTheDocument();
     expect(screen.getByText("Failure Steps (Master)")).toBeInTheDocument();

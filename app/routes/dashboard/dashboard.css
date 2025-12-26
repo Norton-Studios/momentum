@@ -252,10 +252,22 @@
   padding: 24px;
   border-left: 4px solid var(--light-gray);
   transition: border-color 0.2s ease;
+  min-height: 120px;
 }
 
 .chart-cell:hover {
   border-left-color: var(--gold);
+}
+
+.chart-cell.with-chart {
+  min-height: 280px;
+}
+
+.chart-cell-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
 }
 
 .chart-cell-label {
@@ -263,7 +275,19 @@
   text-transform: uppercase;
   letter-spacing: 1.5px;
   color: var(--mid-gray);
-  margin-bottom: 16px;
+}
+
+.chart-cell-value {
+  font-family: Georgia, serif;
+  font-size: 28px;
+  color: var(--black);
+  text-align: right;
+}
+
+.chart-cell-unit {
+  font-size: 14px;
+  color: var(--mid-gray);
+  margin-left: 2px;
 }
 
 /* Security Vulnerability Card */
