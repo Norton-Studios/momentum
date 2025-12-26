@@ -9,13 +9,14 @@ async function login(page: Page) {
   await page.goto("/login");
   await page.waitForLoadState("networkidle");
 
+  // Fill form
   await page.locator("#email").fill("admin@test.com");
   await page.locator("#password").fill("TestPassword123!");
-  await page.locator('button[type="submit"]').click();
 
-  // Wait for redirect away from login page
-  // Login redirects to "/" which then redirects based on state
-  await page.waitForURL((url) => !url.pathname.startsWith("/login"), { timeout: 30000 });
+  // Click and wait for navigation response (including Set-Cookie header)
+  await Promise.all([page.waitForResponse((response) => response.status() === 302 || response.status() === 303), page.locator('button[type="submit"]').click()]);
+
+  // Wait for redirect chain to complete and network to settle
   await page.waitForLoadState("networkidle");
 }
 
