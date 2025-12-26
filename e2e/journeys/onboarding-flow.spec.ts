@@ -7,6 +7,7 @@ const SONAR_ORG = process.env.E2E_SONAR_ORG;
 
 async function login(page: Page) {
   await page.goto("/login");
+  await page.waitForLoadState("networkidle");
   await page.locator("#email").fill("admin@test.com");
   await page.locator("#password").fill("TestPassword123!");
   await page.locator('button[type="submit"]').click();
