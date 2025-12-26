@@ -18,20 +18,18 @@ async function login(page: Page) {
   // Fill form and submit
   await emailInput.fill("admin@test.com");
   await passwordInput.fill("TestPassword123!");
+  await submitButton.click();
 
-  // Use navigation promise to ensure we wait for the full redirect chain
-  await Promise.all([page.waitForNavigation({ waitUntil: "networkidle" }), submitButton.click()]);
-
-  // Verify we ended up on a protected route (not login)
-  const currentUrl = page.url();
-  if (currentUrl.includes("/login")) {
-    // Check for error messages on the page
-    const errorMessage = await page
-      .locator('[role="alert"], .error, .text-red-500')
+  // Wait for navigation away from login - use shorter timeout and explicit check
+  try {
+    await page.waitForURL((url) => !url.pathname.includes("/login"), { timeout: 15000 });
+  } catch {
+    // If we're still on login, capture error info
+    const errorText = await page
+      .locator("body")
       .textContent()
-      .catch(() => "No error element found");
-    const pageTitle = await page.title();
-    throw new Error(`Login failed - URL: ${currentUrl}, Page title: ${pageTitle}, Error message: ${errorMessage}`);
+      .catch(() => "Could not get body text");
+    throw new Error(`Login failed - still on login page. Body text: ${errorText.substring(0, 500)}`);
   }
 }
 
