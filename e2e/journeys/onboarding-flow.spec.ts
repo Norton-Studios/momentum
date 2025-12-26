@@ -6,51 +6,38 @@ const SONAR_TOKEN = process.env.E2E_SONAR_TOKEN;
 const SONAR_ORG = process.env.E2E_SONAR_ORG;
 
 async function login(page: Page) {
-  // Capture network responses for debugging
-  const responses: { url: string; status: number }[] = [];
-  page.on("response", (response) => {
-    if (response.url().includes("/login")) {
-      responses.push({ url: response.url(), status: response.status() });
-    }
-  });
-
   await page.goto("/login");
   await page.waitForLoadState("networkidle");
 
-  // Wait for form to be ready and interactive
   const emailInput = page.locator("#email");
   const passwordInput = page.locator("#password");
 
   await emailInput.waitFor({ state: "visible" });
 
-  // Fill form
+  // Fill and submit form
   await emailInput.fill("admin@test.com");
   await passwordInput.fill("TestPassword123!");
+  await passwordInput.press("Enter");
 
-  // Submit form by pressing Enter and wait for navigation
-  try {
-    await Promise.all([page.waitForURL((url) => !url.pathname.includes("/login"), { timeout: 15000 }), passwordInput.press("Enter")]);
-  } catch (e) {
-    // Capture page state for debugging
+  // Wait for cookie to be set (polling)
+  let sessionCookie = null;
+  for (let i = 0; i < 30; i++) {
+    await page.waitForTimeout(100);
+    const cookies = await page.context().cookies();
+    sessionCookie = cookies.find((c) => c.name === "__session");
+    if (sessionCookie) break;
+  }
+
+  if (!sessionCookie) {
     const bodyText = await page
       .locator("body")
       .textContent()
       .catch(() => "");
-    const cookies = await page.context().cookies();
-    throw new Error(
-      `Login navigation failed. URL: ${page.url()}, Responses: ${JSON.stringify(responses)}, Body: ${bodyText.substring(0, 300)}, Cookies: ${cookies.map((c) => c.name).join(", ")}`
-    );
+    throw new Error(`Login failed - no session cookie after 3s. URL: ${page.url()}, Body: ${bodyText.substring(0, 300)}`);
   }
 
-  // Wait for page to stabilize
+  // Wait for any redirects to complete
   await page.waitForLoadState("networkidle");
-
-  // Verify session cookie is present
-  const cookies = await page.context().cookies();
-  const sessionCookie = cookies.find((c) => c.name === "__session");
-  if (!sessionCookie) {
-    throw new Error(`Login succeeded but no session cookie. URL: ${page.url()}, Cookies: ${cookies.map((c) => c.name).join(", ")}`);
-  }
 }
 
 test.describe
