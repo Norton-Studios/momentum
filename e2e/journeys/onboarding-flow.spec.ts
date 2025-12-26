@@ -19,8 +19,8 @@ async function login(page: Page) {
   await passwordField.fill("TestPassword123!");
   await expect(passwordField).toHaveValue("TestPassword123!");
 
-  // Submit form
-  await passwordField.press("Enter");
+  // Click submit button
+  await page.getByRole("button", { name: "Sign In" }).click();
   await page.waitForURL(/\/(dashboard|onboarding)/);
 }
 
