@@ -59,7 +59,6 @@ export default defineConfig({
     env: {
       DATABASE_URL: TEST_DB_URL,
       PORT: TEST_PORT,
-      NODE_ENV: "development",
     },
   },
 });

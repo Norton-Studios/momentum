@@ -10,12 +10,10 @@ async function login(page: Page) {
   await page.waitForLoadState("networkidle");
   await page.locator("#email").fill("admin@test.com");
   await page.locator("#password").fill("TestPassword123!");
+  await page.locator('button[type="submit"]').click();
 
-  // Press Enter to submit form - avoids potential React hydration issues
-  await page.locator("#password").press("Enter");
-  await page.waitForURL((url) => !url.pathname.startsWith("/login"));
-
-  // Wait for the redirect chain to complete and session to be established
+  // Wait for redirect to authenticated page and verify we're logged in
+  await page.waitForURL(/\/(dashboard|onboarding)/);
   await page.waitForLoadState("networkidle");
 }
 
