@@ -9,6 +9,7 @@ export default [
   route("onboarding/importing", "routes/onboarding/importing/importing.tsx"),
   route("onboarding/complete", "routes/onboarding/complete/complete.tsx"),
   route("dashboard", "routes/dashboard/dashboard.tsx"),
+  route("dashboard/individual", "routes/dashboard/individual/individual.tsx"),
   route("settings", "routes/settings/settings.tsx"),
   route("settings/teams", "routes/settings/teams/teams.tsx"),
   route("settings/teams/:teamId", "routes/settings/teams/team.$teamId.tsx"),

@@ -8,7 +8,7 @@ vi.mock("./advisory-locks.js", () => ({
 }));
 
 vi.mock("./date-calculator.js", () => ({
-  calculateDateRange: vi.fn(),
+  calculateDateRanges: vi.fn(),
 }));
 
 vi.mock("./run-tracker.js", () => ({
@@ -18,7 +18,7 @@ vi.mock("./run-tracker.js", () => ({
 }));
 
 const { acquireAdvisoryLock, releaseAdvisoryLock } = await import("./advisory-locks.js");
-const { calculateDateRange } = await import("./date-calculator.js");
+const { calculateDateRanges } = await import("./date-calculator.js");
 const { createRun, completeRun, failRun } = await import("./run-tracker.js");
 
 describe("executeScript", () => {
@@ -88,13 +88,14 @@ describe("executeScript", () => {
     expect(script.run).not.toHaveBeenCalled();
   });
 
-  it("should execute script successfully", async () => {
+  it("should execute script with forward range only", async () => {
     // Arrange
     vi.mocked(acquireAdvisoryLock).mockResolvedValue(true);
     vi.mocked(createRun).mockResolvedValue("run-123");
-    vi.mocked(calculateDateRange).mockResolvedValue({
-      startDate: new Date("2024-01-01"),
-      endDate: new Date("2024-01-31"),
+    vi.mocked(calculateDateRanges).mockResolvedValue({
+      forward: { startDate: new Date("2024-01-01"), endDate: new Date("2024-01-31") },
+      backfill: null,
+      backfillComplete: true,
     });
 
     const executionContext = {
@@ -120,7 +121,8 @@ describe("executeScript", () => {
     expect(result.skipped).toBe(false);
     expect(acquireAdvisoryLock).toHaveBeenCalledWith(mockDb, "GITHUB:repository");
     expect(createRun).toHaveBeenCalledWith(mockDb, "ds-123", "repository", "batch-1");
-    expect(calculateDateRange).toHaveBeenCalledWith(mockDb, "ds-123", "repository", 365);
+    expect(calculateDateRanges).toHaveBeenCalledWith(mockDb, "ds-123", "repository", 365);
+    expect(mockRunFn).toHaveBeenCalledTimes(1);
     expect(mockRunFn).toHaveBeenCalledWith(mockDb, {
       id: "ds-123",
       provider: "GITHUB",
@@ -129,17 +131,74 @@ describe("executeScript", () => {
       endDate: new Date("2024-01-31"),
       runId: "run-123",
     });
-    expect(completeRun).toHaveBeenCalledWith(mockDb, "run-123", 0, new Date("2024-01-31"));
+    expect(completeRun).toHaveBeenCalledWith(mockDb, "run-123", 0, new Date("2024-01-31"), new Date("2024-01-01"));
     expect(releaseAdvisoryLock).toHaveBeenCalledWith(mockDb, "GITHUB:repository");
+  });
+
+  it("should execute script with both forward and backfill ranges", async () => {
+    // Arrange
+    vi.mocked(acquireAdvisoryLock).mockResolvedValue(true);
+    vi.mocked(createRun).mockResolvedValue("run-123");
+    vi.mocked(calculateDateRanges).mockResolvedValue({
+      forward: { startDate: new Date("2024-01-25"), endDate: new Date("2024-01-31") },
+      backfill: { startDate: new Date("2024-01-01"), endDate: new Date("2024-01-08") },
+      backfillComplete: false,
+    });
+
+    const executionContext = {
+      id: "ds-123",
+      provider: "GITHUB",
+      env: { GITHUB_TOKEN: "token123" },
+    };
+
+    const mockRunFn = vi.fn().mockResolvedValue(undefined);
+    const script = {
+      dataSourceName: "GITHUB",
+      resource: "repository",
+      dependsOn: [],
+      importWindowDays: 90,
+      run: mockRunFn,
+    };
+
+    // Act
+    const result = await executeScript(mockDb, executionContext as never, script as never, "batch-1");
+
+    // Assert
+    expect(result.success).toBe(true);
+    expect(mockRunFn).toHaveBeenCalledTimes(2);
+
+    // First call: forward range
+    expect(mockRunFn).toHaveBeenNthCalledWith(
+      1,
+      mockDb,
+      expect.objectContaining({
+        startDate: new Date("2024-01-25"),
+        endDate: new Date("2024-01-31"),
+      })
+    );
+
+    // Second call: backfill range
+    expect(mockRunFn).toHaveBeenNthCalledWith(
+      2,
+      mockDb,
+      expect.objectContaining({
+        startDate: new Date("2024-01-01"),
+        endDate: new Date("2024-01-08"),
+      })
+    );
+
+    // completeRun gets forward end date and backfill start date
+    expect(completeRun).toHaveBeenCalledWith(mockDb, "run-123", 0, new Date("2024-01-31"), new Date("2024-01-01"));
   });
 
   it("should handle script failure and record error", async () => {
     // Arrange
     vi.mocked(acquireAdvisoryLock).mockResolvedValue(true);
     vi.mocked(createRun).mockResolvedValue("run-123");
-    vi.mocked(calculateDateRange).mockResolvedValue({
-      startDate: new Date("2024-01-01"),
-      endDate: new Date("2024-01-31"),
+    vi.mocked(calculateDateRanges).mockResolvedValue({
+      forward: { startDate: new Date("2024-01-01"), endDate: new Date("2024-01-31") },
+      backfill: null,
+      backfillComplete: true,
     });
 
     const executionContext = {
@@ -174,7 +233,7 @@ describe("executeScript", () => {
     // Arrange
     vi.mocked(acquireAdvisoryLock).mockResolvedValue(true);
     vi.mocked(createRun).mockResolvedValue("run-123");
-    vi.mocked(calculateDateRange).mockRejectedValue(new Error("Date calc failed"));
+    vi.mocked(calculateDateRanges).mockRejectedValue(new Error("Date calc failed"));
 
     const executionContext = {
       id: "ds-123",
@@ -202,9 +261,10 @@ describe("executeScript", () => {
     // Arrange
     vi.mocked(acquireAdvisoryLock).mockResolvedValue(true);
     vi.mocked(createRun).mockResolvedValue("run-123");
-    vi.mocked(calculateDateRange).mockResolvedValue({
-      startDate: new Date("2024-01-01"),
-      endDate: new Date("2024-01-31"),
+    vi.mocked(calculateDateRanges).mockResolvedValue({
+      forward: { startDate: new Date("2024-01-01"), endDate: new Date("2024-01-31") },
+      backfill: null,
+      backfillComplete: true,
     });
 
     const executionContext = {

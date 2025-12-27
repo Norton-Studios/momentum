@@ -103,7 +103,7 @@ export default function Complete() {
             </li>
             <li className="next-step-item">
               <span className="step-arrow">→</span>
-              <span>Invite team members</span>
+              <span>Set up your teams</span>
             </li>
           </ul>
         </div>

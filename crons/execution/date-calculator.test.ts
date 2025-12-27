@@ -1,8 +1,12 @@
 import type { PrismaClient } from "@prisma/client";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { calculateDateRange } from "./date-calculator.js";
+import { calculateDateRanges } from "./date-calculator.js";
 
-describe("calculateDateRange", () => {
+const DAY_MS = 24 * 60 * 60 * 1000;
+const INITIAL_WINDOW_DAYS = 7;
+const BACKFILL_CHUNK_DAYS = 7;
+
+describe("calculateDateRanges", () => {
   let mockDb: PrismaClient;
 
   beforeEach(() => {
@@ -13,45 +17,44 @@ describe("calculateDateRange", () => {
     } as unknown as PrismaClient;
   });
 
-  it("should use default window when no previous run exists", async () => {
+  it("first import: returns initial window only, no backfill", async () => {
     // Arrange
     const dataSourceId = "ds-123";
-    const scriptName = "repository";
-    const defaultWindowDays = 90;
+    const scriptName = "commit";
+    const targetWindowDays = 90;
 
     vi.mocked(mockDb.dataSourceRun.findFirst).mockResolvedValue(null);
 
-    const now = new Date();
-    const expectedStartDate = new Date(now.getTime() - defaultWindowDays * 24 * 60 * 60 * 1000);
+    const beforeCall = new Date();
 
     // Act
-    const result = await calculateDateRange(mockDb, dataSourceId, scriptName, defaultWindowDays);
+    const result = await calculateDateRanges(mockDb, dataSourceId, scriptName, targetWindowDays);
+
+    const afterCall = new Date();
 
     // Assert
-    expect(mockDb.dataSourceRun.findFirst).toHaveBeenCalledWith({
-      where: {
-        dataSourceId,
-        scriptName,
-        status: "COMPLETED",
-        lastFetchedDataAt: { not: null },
-      },
-      orderBy: { completedAt: "desc" },
-    });
+    expect(result.forward).not.toBeNull();
+    expect(result.backfill).toBeNull();
+    expect(result.backfillComplete).toBe(false);
 
-    expect(result.endDate).toBeInstanceOf(Date);
-    expect(result.startDate).toBeInstanceOf(Date);
+    // Forward range should be initial window (7 days)
+    if (!result.forward) throw new Error("Expected forward range");
+    const expectedStartDate = new Date(beforeCall.getTime() - INITIAL_WINDOW_DAYS * DAY_MS);
+    const timeDiff = Math.abs(result.forward.startDate.getTime() - expectedStartDate.getTime());
+    expect(timeDiff).toBeLessThan(1000);
 
-    // Allow some tolerance for execution time
-    const timeDiff = Math.abs(result.startDate.getTime() - expectedStartDate.getTime());
-    expect(timeDiff).toBeLessThan(1000); // Within 1 second
+    expect(result.forward.endDate.getTime()).toBeGreaterThanOrEqual(beforeCall.getTime());
+    expect(result.forward.endDate.getTime()).toBeLessThanOrEqual(afterCall.getTime());
   });
 
-  it("should use lastFetchedDataAt from previous run when available", async () => {
+  it("second import: returns forward range and backfill chunk", async () => {
     // Arrange
     const dataSourceId = "ds-123";
-    const scriptName = "repository";
-    const defaultWindowDays = 90;
-    const lastFetchedAt = new Date("2025-01-01T00:00:00Z");
+    const scriptName = "commit";
+    const targetWindowDays = 90;
+    const now = new Date();
+    const lastFetchedAt = new Date(now.getTime() - DAY_MS); // 1 day ago
+    const earliestFetchedAt = new Date(now.getTime() - 8 * DAY_MS); // 8 days ago (after initial 7-day window)
 
     vi.mocked(mockDb.dataSourceRun.findFirst).mockResolvedValue({
       id: "run-123",
@@ -59,43 +62,179 @@ describe("calculateDateRange", () => {
       scriptName,
       status: "COMPLETED",
       lastFetchedDataAt: lastFetchedAt,
-      completedAt: new Date("2025-01-01T01:00:00Z"),
-      startedAt: new Date("2025-01-01T00:00:00Z"),
+      earliestFetchedDataAt: earliestFetchedAt,
+      completedAt: new Date(),
+      startedAt: new Date(),
       recordsImported: 100,
       recordsFailed: 0,
-      durationMs: 3600000,
+      durationMs: 1000,
       errorMessage: null,
       metadata: null,
       importBatchId: null,
-      createdAt: new Date("2025-01-01T00:00:00Z"),
-      updatedAt: new Date("2025-01-01T01:00:00Z"),
+      createdAt: new Date(),
+      updatedAt: new Date(),
     });
 
     // Act
-    const result = await calculateDateRange(mockDb, dataSourceId, scriptName, defaultWindowDays);
+    const result = await calculateDateRanges(mockDb, dataSourceId, scriptName, targetWindowDays);
 
     // Assert
-    expect(result.startDate).toEqual(lastFetchedAt);
-    expect(result.endDate).toBeInstanceOf(Date);
+    expect(result.forward).not.toBeNull();
+    expect(result.backfill).not.toBeNull();
+    expect(result.backfillComplete).toBe(false);
+
+    // Forward range: from lastFetchedAt to now
+    if (!result.forward || !result.backfill) throw new Error("Expected forward and backfill ranges");
+    expect(result.forward.startDate.getTime()).toBe(lastFetchedAt.getTime());
+
+    // Backfill range: 7 days before earliestFetchedAt
+    const expectedBackfillStart = new Date(earliestFetchedAt.getTime() - BACKFILL_CHUNK_DAYS * DAY_MS);
+    expect(result.backfill.startDate.getTime()).toBe(expectedBackfillStart.getTime());
+    expect(result.backfill.endDate.getTime()).toBe(earliestFetchedAt.getTime());
   });
 
-  it("should return endDate as current time", async () => {
+  it("backfill complete: returns forward range only when 90 days reached", async () => {
     // Arrange
     const dataSourceId = "ds-123";
-    const scriptName = "repository";
-    const defaultWindowDays = 90;
+    const scriptName = "commit";
+    const targetWindowDays = 90;
+    const now = new Date();
+    const lastFetchedAt = new Date(now.getTime() - DAY_MS);
+    // Earliest fetched is more than 90 days ago
+    const earliestFetchedAt = new Date(now.getTime() - 100 * DAY_MS);
+
+    vi.mocked(mockDb.dataSourceRun.findFirst).mockResolvedValue({
+      id: "run-123",
+      dataSourceId,
+      scriptName,
+      status: "COMPLETED",
+      lastFetchedDataAt: lastFetchedAt,
+      earliestFetchedDataAt: earliestFetchedAt,
+      completedAt: new Date(),
+      startedAt: new Date(),
+      recordsImported: 100,
+      recordsFailed: 0,
+      durationMs: 1000,
+      errorMessage: null,
+      metadata: null,
+      importBatchId: null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+
+    // Act
+    const result = await calculateDateRanges(mockDb, dataSourceId, scriptName, targetWindowDays);
+
+    // Assert
+    expect(result.forward).not.toBeNull();
+    expect(result.backfill).toBeNull();
+    expect(result.backfillComplete).toBe(true);
+
+    if (!result.forward) throw new Error("Expected forward range");
+    expect(result.forward.startDate.getTime()).toBe(lastFetchedAt.getTime());
+  });
+
+  it("backfill chunk respects target boundary", async () => {
+    // Arrange
+    const dataSourceId = "ds-123";
+    const scriptName = "commit";
+    const targetWindowDays = 90;
+    const now = new Date();
+    const lastFetchedAt = new Date(now.getTime() - DAY_MS);
+    // Earliest fetched is 88 days ago (only 2 days from target)
+    const earliestFetchedAt = new Date(now.getTime() - 88 * DAY_MS);
+    const targetBoundary = new Date(now.getTime() - targetWindowDays * DAY_MS);
+
+    vi.mocked(mockDb.dataSourceRun.findFirst).mockResolvedValue({
+      id: "run-123",
+      dataSourceId,
+      scriptName,
+      status: "COMPLETED",
+      lastFetchedDataAt: lastFetchedAt,
+      earliestFetchedDataAt: earliestFetchedAt,
+      completedAt: new Date(),
+      startedAt: new Date(),
+      recordsImported: 100,
+      recordsFailed: 0,
+      durationMs: 1000,
+      errorMessage: null,
+      metadata: null,
+      importBatchId: null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+
+    // Act
+    const result = await calculateDateRanges(mockDb, dataSourceId, scriptName, targetWindowDays);
+
+    // Assert
+    expect(result.backfill).not.toBeNull();
+    expect(result.backfillComplete).toBe(false);
+
+    // Backfill should start at target boundary (90 days ago), not 7 days before earliest
+    if (!result.backfill) throw new Error("Expected backfill range");
+    const timeDiff = Math.abs(result.backfill.startDate.getTime() - targetBoundary.getTime());
+    expect(timeDiff).toBeLessThan(1000);
+  });
+
+  it("handles legacy runs without earliestFetchedDataAt", async () => {
+    // Arrange
+    const dataSourceId = "ds-123";
+    const scriptName = "commit";
+    const targetWindowDays = 90;
+    const now = new Date();
+    const lastFetchedAt = new Date(now.getTime() - DAY_MS);
+
+    // Legacy run without earliestFetchedDataAt
+    vi.mocked(mockDb.dataSourceRun.findFirst).mockResolvedValue({
+      id: "run-123",
+      dataSourceId,
+      scriptName,
+      status: "COMPLETED",
+      lastFetchedDataAt: lastFetchedAt,
+      earliestFetchedDataAt: null,
+      completedAt: new Date(),
+      startedAt: new Date(),
+      recordsImported: 100,
+      recordsFailed: 0,
+      durationMs: 1000,
+      errorMessage: null,
+      metadata: null,
+      importBatchId: null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+
+    // Act
+    const result = await calculateDateRanges(mockDb, dataSourceId, scriptName, targetWindowDays);
+
+    // Assert
+    // Should estimate earliest based on initial window
+    expect(result.backfill).not.toBeNull();
+    if (!result.backfill) throw new Error("Expected backfill range");
+    const estimatedEarliest = new Date(lastFetchedAt.getTime() - INITIAL_WINDOW_DAYS * DAY_MS);
+    expect(result.backfill.endDate.getTime()).toBe(estimatedEarliest.getTime());
+  });
+
+  it("queries database with correct parameters", async () => {
+    // Arrange
+    const dataSourceId = "ds-123";
+    const scriptName = "commit";
+    const targetWindowDays = 90;
 
     vi.mocked(mockDb.dataSourceRun.findFirst).mockResolvedValue(null);
 
-    const beforeCall = new Date();
-
     // Act
-    const result = await calculateDateRange(mockDb, dataSourceId, scriptName, defaultWindowDays);
-
-    const afterCall = new Date();
+    await calculateDateRanges(mockDb, dataSourceId, scriptName, targetWindowDays);
 
     // Assert
-    expect(result.endDate.getTime()).toBeGreaterThanOrEqual(beforeCall.getTime());
-    expect(result.endDate.getTime()).toBeLessThanOrEqual(afterCall.getTime());
+    expect(mockDb.dataSourceRun.findFirst).toHaveBeenCalledWith({
+      where: {
+        dataSourceId,
+        scriptName,
+        status: "COMPLETED",
+      },
+      orderBy: { completedAt: "desc" },
+    });
   });
 });

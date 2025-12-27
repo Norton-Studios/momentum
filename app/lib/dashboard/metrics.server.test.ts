@@ -24,13 +24,24 @@ vi.mock("~/db.server", () => ({
     qualityScan: {
       findMany: vi.fn(),
     },
+    issue: {
+      findMany: vi.fn(),
+      count: vi.fn(),
+    },
+    issueStatusTransition: {
+      findMany: vi.fn(),
+    },
+    securityVulnerability: {
+      groupBy: vi.fn(),
+      findMany: vi.fn(),
+    },
     $queryRaw: vi.fn(),
   },
 }));
 
 import { db } from "~/db.server";
 import type { DateRange } from "./date-range.js";
-import { fetchDeliveryMetrics, fetchOperationalMetrics, fetchOverviewMetrics, fetchQualityMetrics } from "./metrics.server";
+import { fetchDeliveryMetrics, fetchOperationalMetrics, fetchOverviewMetrics, fetchQualityMetrics, fetchSecurityMetrics, fetchTicketMetrics } from "./metrics.server";
 
 const createDateRange = (startDaysAgo: number, endDaysAgo = 0): DateRange => ({
   startDate: new Date(Date.now() - startDaysAgo * 24 * 60 * 60 * 1000),
@@ -51,8 +62,9 @@ describe("fetchOverviewMetrics", () => {
     vi.mocked(db.commit.findMany).mockResolvedValue([]);
     vi.mocked(db.commit.count).mockResolvedValue(0);
     vi.mocked(db.pullRequest.count).mockResolvedValue(0);
+    vi.mocked(db.pullRequest.findMany).mockResolvedValue([]);
 
-    const result = await fetchOverviewMetrics(currentRange, previousRange);
+    const result = await fetchOverviewMetrics(currentRange, previousRange, null);
 
     expect(result.repositories).toBe(25);
     expect(db.repository.count).toHaveBeenCalledWith({ where: { isEnabled: true } });
@@ -62,11 +74,14 @@ describe("fetchOverviewMetrics", () => {
     vi.mocked(db.repository.count).mockResolvedValue(10);
     vi.mocked(db.commit.findMany)
       .mockResolvedValueOnce([{ authorId: "a1" }, { authorId: "a2" }, { authorId: "a3" }] as never)
-      .mockResolvedValueOnce([{ authorId: "a1" }, { authorId: "a2" }] as never);
+      .mockResolvedValueOnce([{ authorId: "a1" }, { authorId: "a2" }] as never)
+      .mockResolvedValueOnce([{ committedAt: new Date() }] as never)
+      .mockResolvedValueOnce([{ committedAt: new Date(), authorId: "a1" }] as never);
     vi.mocked(db.commit.count).mockResolvedValue(0);
     vi.mocked(db.pullRequest.count).mockResolvedValue(0);
+    vi.mocked(db.pullRequest.findMany).mockResolvedValue([]);
 
-    const result = await fetchOverviewMetrics(currentRange, previousRange);
+    const result = await fetchOverviewMetrics(currentRange, previousRange, null);
 
     expect(result.contributors.count).toBe(3);
     expect(result.contributors.trend.type).toBe("positive");
@@ -78,8 +93,9 @@ describe("fetchOverviewMetrics", () => {
     vi.mocked(db.commit.findMany).mockResolvedValue([]);
     vi.mocked(db.commit.count).mockResolvedValueOnce(150).mockResolvedValueOnce(100);
     vi.mocked(db.pullRequest.count).mockResolvedValue(0);
+    vi.mocked(db.pullRequest.findMany).mockResolvedValue([]);
 
-    const result = await fetchOverviewMetrics(currentRange, previousRange);
+    const result = await fetchOverviewMetrics(currentRange, previousRange, null);
 
     expect(result.commits.count).toBe(150);
     expect(result.commits.trend.type).toBe("positive");
@@ -91,284 +107,165 @@ describe("fetchOverviewMetrics", () => {
     vi.mocked(db.commit.findMany).mockResolvedValue([]);
     vi.mocked(db.commit.count).mockResolvedValue(0);
     vi.mocked(db.pullRequest.count).mockResolvedValueOnce(80).mockResolvedValueOnce(100);
+    vi.mocked(db.pullRequest.findMany).mockResolvedValue([]);
 
-    const result = await fetchOverviewMetrics(currentRange, previousRange);
+    const result = await fetchOverviewMetrics(currentRange, previousRange, null);
 
     expect(result.pullRequests.count).toBe(80);
     expect(result.pullRequests.trend.type).toBe("negative");
     expect(result.pullRequests.trend.value).toBe(20);
   });
-
-  it("returns neutral trend when counts are equal", async () => {
-    vi.mocked(db.repository.count).mockResolvedValue(10);
-    vi.mocked(db.commit.findMany)
-      .mockResolvedValueOnce([{ authorId: "a1" }] as never)
-      .mockResolvedValueOnce([{ authorId: "a1" }] as never);
-    vi.mocked(db.commit.count).mockResolvedValue(100);
-    vi.mocked(db.pullRequest.count).mockResolvedValue(50);
-
-    const result = await fetchOverviewMetrics(currentRange, previousRange);
-
-    expect(result.commits.trend.type).toBe("neutral");
-    expect(result.pullRequests.trend.type).toBe("neutral");
-  });
-
-  it("handles zero previous values", async () => {
-    vi.mocked(db.repository.count).mockResolvedValue(10);
-    vi.mocked(db.commit.findMany)
-      .mockResolvedValueOnce([{ authorId: "a1" }] as never)
-      .mockResolvedValueOnce([] as never);
-    vi.mocked(db.commit.count).mockResolvedValueOnce(50).mockResolvedValueOnce(0);
-    vi.mocked(db.pullRequest.count).mockResolvedValueOnce(10).mockResolvedValueOnce(0);
-
-    const result = await fetchOverviewMetrics(currentRange, previousRange);
-
-    expect(result.contributors.trend.type).toBe("positive");
-    expect(result.contributors.trend.value).toBe(100);
-    expect(result.commits.trend.type).toBe("positive");
-    expect(result.pullRequests.trend.type).toBe("positive");
-  });
 });
 
 describe("fetchDeliveryMetrics", () => {
   const currentRange = createDateRange(30);
-  const previousRange = createDateRange(60, 31);
 
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it("returns deployment count with trend", async () => {
-    vi.mocked(db.pipelineRun.count).mockResolvedValueOnce(45).mockResolvedValueOnce(30);
-    vi.mocked(db.pullRequest.findMany).mockResolvedValue([]);
-    vi.mocked(db.pullRequest.count).mockResolvedValue(0);
-    vi.mocked(db.commit.groupBy).mockResolvedValue([]);
+  it("returns open PR count", async () => {
+    vi.mocked(db.pullRequest.findMany)
+      .mockResolvedValueOnce([{ createdAt: new Date() }, { createdAt: new Date() }, { createdAt: new Date() }] as never)
+      .mockResolvedValueOnce([] as never)
+      .mockResolvedValueOnce([] as never);
+    vi.mocked(db.commit.findMany).mockResolvedValue([]);
 
-    const result = await fetchDeliveryMetrics(currentRange, previousRange);
+    const result = await fetchDeliveryMetrics(currentRange, null);
 
-    expect(result.deployments.count).toBe(45);
-    expect(result.deployments.trend.type).toBe("positive");
-    expect(result.deployments.trend.value).toBe(50);
-    expect(db.pipelineRun.count).toHaveBeenCalledWith({
-      where: {
-        status: "SUCCESS",
-        branch: { in: ["main", "master"] },
-        triggerEvent: "push",
-        completedAt: { gte: currentRange.startDate, lte: currentRange.endDate },
-      },
-    });
+    expect(result.openPRs).toBe(3);
   });
 
-  it("calculates average time to merge for merged PRs", async () => {
+  it("calculates average PR age for open PRs", async () => {
     const now = Date.now();
-    const mergedPRs = [
-      { createdAt: new Date(now - 48 * 60 * 60 * 1000), mergedAt: new Date(now) },
-      { createdAt: new Date(now - 24 * 60 * 60 * 1000), mergedAt: new Date(now) },
-    ];
+    vi.mocked(db.pullRequest.findMany)
+      .mockResolvedValueOnce([{ createdAt: new Date(now - 2 * 24 * 60 * 60 * 1000) }, { createdAt: new Date(now - 4 * 24 * 60 * 60 * 1000) }] as never)
+      .mockResolvedValueOnce([] as never)
+      .mockResolvedValueOnce([] as never);
+    vi.mocked(db.commit.findMany).mockResolvedValue([]);
 
-    vi.mocked(db.pipelineRun.count).mockResolvedValue(0);
-    vi.mocked(db.pullRequest.findMany).mockResolvedValue(mergedPRs as never);
-    vi.mocked(db.pullRequest.count).mockResolvedValue(0);
-    vi.mocked(db.commit.groupBy).mockResolvedValue([]);
+    const result = await fetchDeliveryMetrics(currentRange, null);
 
-    const result = await fetchDeliveryMetrics(currentRange, previousRange);
-
-    expect(result.cycleTime.avgTimeToMergeHours).toBeCloseTo(36, 0);
+    expect(result.avgPrAgeDays).toBeCloseTo(3, 0);
   });
 
-  it("returns null for time to merge when no merged PRs", async () => {
-    vi.mocked(db.pipelineRun.count).mockResolvedValue(0);
+  it("returns null for avgPrAgeDays when no open PRs", async () => {
     vi.mocked(db.pullRequest.findMany).mockResolvedValue([]);
-    vi.mocked(db.pullRequest.count).mockResolvedValue(0);
-    vi.mocked(db.commit.groupBy).mockResolvedValue([]);
+    vi.mocked(db.commit.findMany).mockResolvedValue([]);
 
-    const result = await fetchDeliveryMetrics(currentRange, previousRange);
+    const result = await fetchDeliveryMetrics(currentRange, null);
 
-    expect(result.cycleTime.avgTimeToMergeHours).toBeNull();
+    expect(result.avgPrAgeDays).toBeNull();
   });
 
-  it("excludes invalid merged PRs where mergedAt is before createdAt", async () => {
+  it("returns commits to master count", async () => {
+    vi.mocked(db.pullRequest.findMany).mockResolvedValue([]);
+    vi.mocked(db.commit.findMany).mockResolvedValue([{ committedAt: new Date() }] as never);
+
+    const result = await fetchDeliveryMetrics(currentRange, null);
+
+    expect(result.commitsToMaster).toBe(1);
+  });
+
+  it("calculates average time to review", async () => {
     const now = Date.now();
-    const mergedPRs = [
-      { createdAt: new Date(now - 24 * 60 * 60 * 1000), mergedAt: new Date(now) },
-      { createdAt: new Date(now), mergedAt: new Date(now - 48 * 60 * 60 * 1000) },
-    ];
+    vi.mocked(db.pullRequest.findMany)
+      .mockResolvedValueOnce([] as never)
+      .mockResolvedValueOnce([] as never)
+      .mockResolvedValueOnce([
+        { createdAt: new Date(now - 24 * 60 * 60 * 1000), reviews: [{ submittedAt: new Date(now - 12 * 60 * 60 * 1000) }] },
+        { createdAt: new Date(now - 48 * 60 * 60 * 1000), reviews: [{ submittedAt: new Date(now - 24 * 60 * 60 * 1000) }] },
+      ] as never);
+    vi.mocked(db.commit.findMany).mockResolvedValue([]);
 
-    vi.mocked(db.pipelineRun.count).mockResolvedValue(0);
-    vi.mocked(db.pullRequest.findMany).mockResolvedValue(mergedPRs as never);
-    vi.mocked(db.pullRequest.count).mockResolvedValue(0);
-    vi.mocked(db.commit.groupBy).mockResolvedValue([]);
+    const result = await fetchDeliveryMetrics(currentRange, null);
 
-    const result = await fetchDeliveryMetrics(currentRange, previousRange);
-
-    expect(result.cycleTime.avgTimeToMergeHours).toBeCloseTo(24, 0);
-  });
-
-  it("returns PR activity metrics", async () => {
-    vi.mocked(db.pipelineRun.count).mockResolvedValue(0);
-    vi.mocked(db.pullRequest.findMany).mockResolvedValue([
-      { createdAt: new Date(), mergedAt: new Date() },
-      { createdAt: new Date(), mergedAt: new Date() },
-      { createdAt: new Date(), mergedAt: new Date() },
-    ] as never);
-    vi.mocked(db.pullRequest.count).mockResolvedValueOnce(5).mockResolvedValueOnce(2);
-    vi.mocked(db.commit.groupBy).mockResolvedValue([]);
-
-    const result = await fetchDeliveryMetrics(currentRange, previousRange);
-
-    expect(result.prActivity.merged).toBe(3);
-    expect(result.prActivity.open).toBe(5);
-    expect(result.prActivity.waitingReview).toBe(2);
-  });
-
-  it("aggregates commits by day for trend chart", async () => {
-    const startDate = new Date("2025-01-01T00:00:00Z");
-    const endDate = new Date("2025-01-03T23:59:59Z");
-    const range: DateRange = { startDate, endDate, preset: "custom" };
-
-    vi.mocked(db.pipelineRun.count).mockResolvedValue(0);
-    vi.mocked(db.pullRequest.findMany).mockResolvedValue([]);
-    vi.mocked(db.pullRequest.count).mockResolvedValue(0);
-    vi.mocked(db.commit.groupBy).mockResolvedValue([
-      { committedAt: new Date("2025-01-01T10:00:00Z"), _count: 5 },
-      { committedAt: new Date("2025-01-01T15:00:00Z"), _count: 3 },
-      { committedAt: new Date("2025-01-03T12:00:00Z"), _count: 7 },
-    ] as never);
-
-    const result = await fetchDeliveryMetrics(range, previousRange);
-
-    expect(result.commitTrend).toHaveLength(3);
-    expect(result.commitTrend[0]).toEqual({ date: "2025-01-01", value: 8 });
-    expect(result.commitTrend[1]).toEqual({ date: "2025-01-02", value: 0 });
-    expect(result.commitTrend[2]).toEqual({ date: "2025-01-03", value: 7 });
+    expect(result.avgTimeToReviewHours).toBeCloseTo(18, 0);
   });
 });
 
 describe("fetchOperationalMetrics", () => {
   const currentRange = createDateRange(30);
-  const previousRange = createDateRange(60, 31);
+  const completedAt = new Date();
 
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it("calculates pipeline success rate", async () => {
+  it("calculates master success rate", async () => {
     vi.mocked(db.pipelineRun.findMany)
       .mockResolvedValueOnce([
-        { status: "SUCCESS", durationMs: 1000 },
-        { status: "SUCCESS", durationMs: 2000 },
-        { status: "FAILED", durationMs: 500 },
-        { status: "SUCCESS", durationMs: 1500 },
+        { status: "SUCCESS", durationMs: 1000, completedAt },
+        { status: "SUCCESS", durationMs: 2000, completedAt },
+        { status: "FAILED", durationMs: 500, completedAt },
+        { status: "SUCCESS", durationMs: 1500, completedAt },
       ] as never)
-      .mockResolvedValueOnce([{ status: "SUCCESS" }, { status: "FAILED" }] as never);
+      .mockResolvedValueOnce([{ status: "SUCCESS", durationMs: 1000, completedAt }] as never);
     vi.mocked(db.pipelineStage.groupBy).mockResolvedValue([]);
 
-    const result = await fetchOperationalMetrics(currentRange, previousRange);
+    const result = await fetchOperationalMetrics(currentRange, null);
 
-    expect(result.successRate.value).toBe(75);
+    expect(result.masterSuccessRate).toBe(75);
   });
 
-  it("calculates success rate trend", async () => {
+  it("calculates PR success rate", async () => {
     vi.mocked(db.pipelineRun.findMany)
+      .mockResolvedValueOnce([{ status: "SUCCESS", durationMs: 1000, completedAt }] as never)
       .mockResolvedValueOnce([
-        { status: "SUCCESS", durationMs: 1000 },
-        { status: "SUCCESS", durationMs: 1000 },
-        { status: "SUCCESS", durationMs: 1000 },
-        { status: "FAILED", durationMs: 1000 },
-      ] as never)
-      .mockResolvedValueOnce([{ status: "SUCCESS" }, { status: "FAILED" }] as never);
+        { status: "SUCCESS", durationMs: 1000, completedAt },
+        { status: "FAILED", durationMs: 1000, completedAt },
+      ] as never);
     vi.mocked(db.pipelineStage.groupBy).mockResolvedValue([]);
 
-    const result = await fetchOperationalMetrics(currentRange, previousRange);
+    const result = await fetchOperationalMetrics(currentRange, null);
 
-    expect(result.successRate.value).toBe(75);
-    expect(result.successRate.trend.type).toBe("positive");
-    expect(result.successRate.trend.value).toBe(50);
+    expect(result.prSuccessRate).toBe(50);
   });
 
   it("returns null success rate when no pipeline runs", async () => {
     vi.mocked(db.pipelineRun.findMany).mockResolvedValue([]);
     vi.mocked(db.pipelineStage.groupBy).mockResolvedValue([]);
 
-    const result = await fetchOperationalMetrics(currentRange, previousRange);
+    const result = await fetchOperationalMetrics(currentRange, null);
 
-    expect(result.successRate.value).toBeNull();
-    expect(result.successRate.trend.type).toBe("neutral");
+    expect(result.masterSuccessRate).toBeNull();
+    expect(result.prSuccessRate).toBeNull();
   });
 
-  it("calculates average duration from successful runs", async () => {
+  it("calculates average duration for master and PR", async () => {
     vi.mocked(db.pipelineRun.findMany)
       .mockResolvedValueOnce([
-        { status: "SUCCESS", durationMs: 60000 },
-        { status: "SUCCESS", durationMs: 120000 },
-        { status: "FAILED", durationMs: 30000 },
+        { status: "SUCCESS", durationMs: 60000, completedAt },
+        { status: "SUCCESS", durationMs: 120000, completedAt },
       ] as never)
-      .mockResolvedValueOnce([]);
+      .mockResolvedValueOnce([
+        { status: "SUCCESS", durationMs: 30000, completedAt },
+        { status: "SUCCESS", durationMs: 90000, completedAt },
+      ] as never);
     vi.mocked(db.pipelineStage.groupBy).mockResolvedValue([]);
 
-    const result = await fetchOperationalMetrics(currentRange, previousRange);
+    const result = await fetchOperationalMetrics(currentRange, null);
 
-    expect(result.avgDurationMs).toBe(90000);
+    expect(result.masterAvgDurationMs).toBe(90000);
+    expect(result.prAvgDurationMs).toBe(60000);
   });
 
-  it("returns null average duration when no successful runs", async () => {
-    vi.mocked(db.pipelineRun.findMany)
-      .mockResolvedValueOnce([{ status: "FAILED", durationMs: 30000 }] as never)
-      .mockResolvedValueOnce([]);
-    vi.mocked(db.pipelineStage.groupBy).mockResolvedValue([]);
-
-    const result = await fetchOperationalMetrics(currentRange, previousRange);
-
-    expect(result.avgDurationMs).toBeNull();
-  });
-
-  it("returns stage breakdown sorted by duration", async () => {
+  it("returns failure steps for master and PR", async () => {
     vi.mocked(db.pipelineRun.findMany).mockResolvedValue([]);
-    vi.mocked(db.pipelineStage.groupBy).mockResolvedValue([
-      { name: "build", _avg: { durationMs: 30000 }, _count: 10 },
-      { name: "test", _avg: { durationMs: 120000 }, _count: 10 },
-      { name: "deploy", _avg: { durationMs: 60000 }, _count: 10 },
-    ] as never);
+    vi.mocked(db.pipelineStage.groupBy)
+      .mockResolvedValueOnce([{ name: "build", _count: 5 }] as never)
+      .mockResolvedValueOnce([
+        { name: "test", _count: 10 },
+        { name: "lint", _count: 3 },
+      ] as never);
 
-    const result = await fetchOperationalMetrics(currentRange, previousRange);
+    const result = await fetchOperationalMetrics(currentRange, null);
 
-    expect(result.stageBreakdown).toHaveLength(3);
-    expect(result.stageBreakdown[0].name).toBe("test");
-    expect(result.stageBreakdown[0].avgDurationMs).toBe(120000);
-    expect(result.stageBreakdown[1].name).toBe("deploy");
-    expect(result.stageBreakdown[2].name).toBe("build");
-  });
-
-  it("limits stage breakdown to top 5 slowest stages", async () => {
-    vi.mocked(db.pipelineRun.findMany).mockResolvedValue([]);
-    vi.mocked(db.pipelineStage.groupBy).mockResolvedValue([
-      { name: "stage1", _avg: { durationMs: 10000 }, _count: 1 },
-      { name: "stage2", _avg: { durationMs: 20000 }, _count: 1 },
-      { name: "stage3", _avg: { durationMs: 30000 }, _count: 1 },
-      { name: "stage4", _avg: { durationMs: 40000 }, _count: 1 },
-      { name: "stage5", _avg: { durationMs: 50000 }, _count: 1 },
-      { name: "stage6", _avg: { durationMs: 60000 }, _count: 1 },
-      { name: "stage7", _avg: { durationMs: 70000 }, _count: 1 },
-    ] as never);
-
-    const result = await fetchOperationalMetrics(currentRange, previousRange);
-
-    expect(result.stageBreakdown).toHaveLength(5);
-    expect(result.stageBreakdown[0].name).toBe("stage7");
-    expect(result.stageBreakdown[4].name).toBe("stage3");
-  });
-
-  it("filters out stages with null duration", async () => {
-    vi.mocked(db.pipelineRun.findMany).mockResolvedValue([]);
-    vi.mocked(db.pipelineStage.groupBy).mockResolvedValue([
-      { name: "build", _avg: { durationMs: 30000 }, _count: 10 },
-      { name: "unknown", _avg: { durationMs: null }, _count: 5 },
-    ] as never);
-
-    const result = await fetchOperationalMetrics(currentRange, previousRange);
-
-    expect(result.stageBreakdown).toHaveLength(1);
-    expect(result.stageBreakdown[0].name).toBe("build");
+    expect(result.masterFailureSteps).toEqual([{ name: "build", value: 5 }]);
+    expect(result.prFailureSteps).toEqual([
+      { name: "test", value: 10 },
+      { name: "lint", value: 3 },
+    ]);
   });
 });
 
@@ -380,85 +277,157 @@ describe("fetchQualityMetrics", () => {
   });
 
   it("calculates overall coverage from latest scans per repository", async () => {
-    vi.mocked(db.$queryRaw).mockResolvedValue([
-      { repositoryId: "repo-1", coveragePercent: 80, newCodeCoveragePercent: 90, scannedAt: new Date() },
-      { repositoryId: "repo-2", coveragePercent: 70, newCodeCoveragePercent: 85, scannedAt: new Date() },
-    ]);
-    vi.mocked(db.qualityScan.findMany).mockResolvedValue([]);
+    vi.mocked(db.$queryRaw)
+      .mockResolvedValueOnce([
+        { repositoryId: "repo-1", coveragePercent: 80, bugsCount: 5 },
+        { repositoryId: "repo-2", coveragePercent: 70, bugsCount: 10 },
+      ])
+      .mockResolvedValueOnce([]);
 
-    const result = await fetchQualityMetrics(currentRange);
+    const result = await fetchQualityMetrics(currentRange, null);
 
     expect(result.overallCoverage).toBe(75);
   });
 
-  it("calculates new code coverage average", async () => {
-    vi.mocked(db.$queryRaw).mockResolvedValue([
-      { repositoryId: "repo-1", coveragePercent: 80, newCodeCoveragePercent: 95, scannedAt: new Date() },
-      { repositoryId: "repo-2", coveragePercent: 70, newCodeCoveragePercent: 85, scannedAt: new Date() },
-    ]);
-    vi.mocked(db.qualityScan.findMany).mockResolvedValue([]);
+  it("returns total bugs count", async () => {
+    vi.mocked(db.$queryRaw)
+      .mockResolvedValueOnce([
+        { repositoryId: "repo-1", coveragePercent: 80, bugsCount: 5 },
+        { repositoryId: "repo-2", coveragePercent: 70, bugsCount: 10 },
+      ])
+      .mockResolvedValueOnce([]);
 
-    const result = await fetchQualityMetrics(currentRange);
+    const result = await fetchQualityMetrics(currentRange, null);
 
-    expect(result.newCodeCoverage).toBe(90);
+    expect(result.bugsCount).toBe(15);
   });
 
   it("returns null coverage when no scans have coverage data", async () => {
-    vi.mocked(db.$queryRaw).mockResolvedValue([{ repositoryId: "repo-1", coveragePercent: null, newCodeCoveragePercent: null, scannedAt: new Date() }]);
-    vi.mocked(db.qualityScan.findMany).mockResolvedValue([]);
+    vi.mocked(db.$queryRaw)
+      .mockResolvedValueOnce([{ repositoryId: "repo-1", coveragePercent: null, bugsCount: null }])
+      .mockResolvedValueOnce([]);
 
-    const result = await fetchQualityMetrics(currentRange);
+    const result = await fetchQualityMetrics(currentRange, null);
 
     expect(result.overallCoverage).toBeNull();
-    expect(result.newCodeCoverage).toBeNull();
   });
 
-  it("returns coverage trend data", async () => {
-    vi.mocked(db.$queryRaw).mockResolvedValue([]);
-    vi.mocked(db.qualityScan.findMany).mockResolvedValue([
-      { scannedAt: new Date("2025-01-01T10:00:00Z"), coveragePercent: 75.5 },
-      { scannedAt: new Date("2025-01-02T10:00:00Z"), coveragePercent: 76.25 },
-      { scannedAt: new Date("2025-01-03T10:00:00Z"), coveragePercent: 77.89 },
+  it("handles null bugsCount", async () => {
+    vi.mocked(db.$queryRaw)
+      .mockResolvedValueOnce([
+        { repositoryId: "repo-1", coveragePercent: 80, bugsCount: null },
+        { repositoryId: "repo-2", coveragePercent: 70, bugsCount: 5 },
+      ])
+      .mockResolvedValueOnce([]);
+
+    const result = await fetchQualityMetrics(currentRange, null);
+
+    expect(result.bugsCount).toBe(5);
+  });
+});
+
+describe("fetchTicketMetrics", () => {
+  const currentRange = createDateRange(30);
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("returns active ticket count", async () => {
+    vi.mocked(db.issue.findMany)
+      .mockResolvedValueOnce([{ id: "1", createdAt: new Date(), status: "IN_PROGRESS" }] as never)
+      .mockResolvedValueOnce([] as never)
+      .mockResolvedValueOnce([] as never);
+    vi.mocked(db.issueStatusTransition.findMany).mockResolvedValue([]);
+
+    const result = await fetchTicketMetrics(currentRange, null);
+
+    expect(result.activeCount).toBe(1);
+  });
+
+  it("returns completed ticket count", async () => {
+    vi.mocked(db.issue.findMany)
+      .mockResolvedValueOnce([] as never)
+      .mockResolvedValueOnce([{ resolvedAt: new Date() }, { resolvedAt: new Date() }, { resolvedAt: new Date() }] as never)
+      .mockResolvedValueOnce([] as never);
+    vi.mocked(db.issueStatusTransition.findMany).mockResolvedValue([]);
+
+    const result = await fetchTicketMetrics(currentRange, null);
+
+    expect(result.completedCount).toBe(3);
+  });
+
+  it("calculates average active ticket age", async () => {
+    const now = Date.now();
+    vi.mocked(db.issue.findMany)
+      .mockResolvedValueOnce([
+        { id: "1", createdAt: new Date(now - 5 * 24 * 60 * 60 * 1000), status: "IN_PROGRESS" },
+        { id: "2", createdAt: new Date(now - 10 * 24 * 60 * 60 * 1000), status: "IN_PROGRESS" },
+      ] as never)
+      .mockResolvedValueOnce([] as never)
+      .mockResolvedValueOnce([] as never);
+    vi.mocked(db.issueStatusTransition.findMany).mockResolvedValue([]);
+
+    const result = await fetchTicketMetrics(currentRange, null);
+
+    expect(result.avgActiveTicketAgeDays).toBeCloseTo(7.5, 0);
+  });
+
+  it("returns null for avgActiveTicketAgeDays when no active tickets", async () => {
+    vi.mocked(db.issue.findMany)
+      .mockResolvedValueOnce([] as never)
+      .mockResolvedValueOnce([] as never)
+      .mockResolvedValueOnce([] as never);
+    vi.mocked(db.issueStatusTransition.findMany).mockResolvedValue([]);
+
+    const result = await fetchTicketMetrics(currentRange, null);
+
+    expect(result.avgActiveTicketAgeDays).toBeNull();
+  });
+});
+
+describe("fetchSecurityMetrics", () => {
+  const currentRange = createDateRange(30);
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("returns CVE counts by severity", async () => {
+    vi.mocked(db.securityVulnerability.groupBy).mockResolvedValue([
+      { severity: "CRITICAL", _count: 2 },
+      { severity: "HIGH", _count: 5 },
+      { severity: "MEDIUM", _count: 10 },
+    ] as never);
+    vi.mocked(db.securityVulnerability.findMany).mockResolvedValue([]);
+
+    const result = await fetchSecurityMetrics(currentRange, null);
+
+    expect(result.cveBySeverity.critical).toBe(2);
+    expect(result.cveBySeverity.high).toBe(5);
+    expect(result.cveBySeverity.medium).toBe(10);
+    expect(result.cveBySeverity.low).toBe(0);
+  });
+
+  it("calculates average time to close", async () => {
+    const now = Date.now();
+    vi.mocked(db.securityVulnerability.groupBy).mockResolvedValue([]);
+    vi.mocked(db.securityVulnerability.findMany).mockResolvedValue([
+      { discoveredAt: new Date(now - 10 * 24 * 60 * 60 * 1000), resolvedAt: new Date(now) },
+      { discoveredAt: new Date(now - 20 * 24 * 60 * 60 * 1000), resolvedAt: new Date(now) },
     ] as never);
 
-    const result = await fetchQualityMetrics(currentRange);
+    const result = await fetchSecurityMetrics(currentRange, null);
 
-    expect(result.coverageTrend).toHaveLength(3);
-    expect(result.coverageTrend[0]).toEqual({ date: "2025-01-01", value: 75.5 });
-    expect(result.coverageTrend[1]).toEqual({ date: "2025-01-02", value: 76.3 });
-    expect(result.coverageTrend[2]).toEqual({ date: "2025-01-03", value: 77.9 });
+    expect(result.avgTimeToCloseDays).toBeCloseTo(15, 0);
   });
 
-  it("returns empty coverage trend when no scans in range", async () => {
-    vi.mocked(db.$queryRaw).mockResolvedValue([]);
-    vi.mocked(db.qualityScan.findMany).mockResolvedValue([]);
+  it("returns null for avgTimeToCloseDays when no resolved vulnerabilities", async () => {
+    vi.mocked(db.securityVulnerability.groupBy).mockResolvedValue([]);
+    vi.mocked(db.securityVulnerability.findMany).mockResolvedValue([]);
 
-    const result = await fetchQualityMetrics(currentRange);
+    const result = await fetchSecurityMetrics(currentRange, null);
 
-    expect(result.coverageTrend).toEqual([]);
-  });
-
-  it("handles mixed coverage data with some nulls", async () => {
-    vi.mocked(db.$queryRaw).mockResolvedValue([
-      { repositoryId: "repo-1", coveragePercent: 80, newCodeCoveragePercent: null, scannedAt: new Date() },
-      { repositoryId: "repo-2", coveragePercent: null, newCodeCoveragePercent: 90, scannedAt: new Date() },
-      { repositoryId: "repo-3", coveragePercent: 60, newCodeCoveragePercent: 70, scannedAt: new Date() },
-    ]);
-    vi.mocked(db.qualityScan.findMany).mockResolvedValue([]);
-
-    const result = await fetchQualityMetrics(currentRange);
-
-    expect(result.overallCoverage).toBe(70);
-    expect(result.newCodeCoverage).toBe(80);
-  });
-
-  it("rounds coverage values to one decimal place", async () => {
-    vi.mocked(db.$queryRaw).mockResolvedValue([{ repositoryId: "repo-1", coveragePercent: 75.333, newCodeCoveragePercent: 85.666, scannedAt: new Date() }]);
-    vi.mocked(db.qualityScan.findMany).mockResolvedValue([]);
-
-    const result = await fetchQualityMetrics(currentRange);
-
-    expect(result.overallCoverage).toBe(75.3);
-    expect(result.newCodeCoverage).toBe(85.7);
+    expect(result.avgTimeToCloseDays).toBeNull();
   });
 });

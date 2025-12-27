@@ -12,7 +12,7 @@ export function TrendLineChart({ data, color = "var(--gold)", unit = "" }: Trend
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
           <XAxis dataKey="date" tickFormatter={formatDateLabel} tick={{ fontSize: 11, fill: "var(--mid-gray)" }} axisLine={false} tickLine={false} interval="preserveStartEnd" />
-          <YAxis tick={{ fontSize: 11, fill: "var(--mid-gray)" }} axisLine={false} tickLine={false} width={35} domain={["dataMin - 5", "dataMax + 5"]} />
+          <YAxis tick={{ fontSize: 11, fill: "var(--mid-gray)" }} axisLine={false} tickLine={false} width={35} domain={[0, "auto"]} />
           <Tooltip content={<CustomTooltip unit={unit} />} />
           <Line type="monotone" dataKey="value" stroke={color} strokeWidth={2} dot={false} activeDot={{ r: 4, fill: color }} />
         </LineChart>

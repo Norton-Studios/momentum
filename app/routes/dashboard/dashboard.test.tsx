@@ -3,8 +3,11 @@ import { MemoryRouter } from "react-router";
 import { describe, expect, it, vi } from "vitest";
 import Dashboard, { meta } from "./dashboard";
 
+const mockChartData = [{ date: "2025-01-01", value: 5 }];
+
 const mockDashboardData = {
   user: { id: "1", email: "john@example.com", name: "John Doe", role: "USER" },
+  teams: [],
   dateRange: {
     startDate: "2024-12-22T00:00:00.000Z",
     endDate: "2025-01-21T23:59:59.999Z",
@@ -18,30 +21,46 @@ const mockDashboardData = {
       pullRequests: { count: 156, trend: { value: 8, type: "negative" } },
     },
     delivery: {
-      deployments: { count: 12, trend: { value: 33, type: "positive" } },
-      cycleTime: { avgTimeToMergeHours: 18.5 },
-      commitTrend: [
-        { date: "2025-01-15", value: 45 },
-        { date: "2025-01-16", value: 52 },
-      ],
-      prActivity: { merged: 45, open: 23, waitingReview: 5 },
+      avgPrAgeDays: 3.5,
+      avgPrAgeChart: mockChartData,
+      openPRs: 34,
+      openPRsChart: mockChartData,
+      commitsToMaster: 156,
+      commitsToMasterChart: mockChartData,
+      avgTimeToReviewHours: 12.5,
+      timeToReviewChart: mockChartData,
+    },
+    tickets: {
+      avgActiveTicketAgeDays: 5.2,
+      avgActiveTicketAgeChart: mockChartData,
+      activeCount: 45,
+      activeCountChart: mockChartData,
+      completedCount: 32,
+      completedChart: mockChartData,
+      cumulativeTimeInColumnHours: 120.5,
     },
     operational: {
-      successRate: { value: 92.2, trend: { value: 2, type: "negative" } },
-      avgDurationMs: 750000,
-      stageBreakdown: [
-        { name: "Build", avgDurationMs: 480000 },
-        { name: "Test", avgDurationMs: 180000 },
-        { name: "Deploy", avgDurationMs: 90000 },
-      ],
+      masterSuccessRate: 92.5,
+      masterSuccessRateChart: mockChartData,
+      prSuccessRate: 88.3,
+      prSuccessRateChart: mockChartData,
+      masterAvgDurationMs: 750000,
+      masterDurationChart: mockChartData,
+      prAvgDurationMs: 650000,
+      prDurationChart: mockChartData,
+      masterFailureSteps: [{ name: "Build", value: 5 }],
+      prFailureSteps: [{ name: "Test", value: 10 }],
     },
     quality: {
       overallCoverage: 76,
-      newCodeCoverage: 85,
-      coverageTrend: [
-        { date: "2025-01-15", value: 74 },
-        { date: "2025-01-20", value: 76 },
-      ],
+      coverageChart: mockChartData,
+      bugsCount: 12,
+      bugsChart: mockChartData,
+    },
+    security: {
+      cveBySeverity: { critical: 0, high: 2, medium: 5, low: 10 },
+      avgTimeToCloseDays: 14.5,
+      timeToCloseChart: mockChartData,
     },
   },
 };
@@ -92,7 +111,7 @@ describe("Dashboard", () => {
     expect(screen.getByText("JD")).toBeInTheDocument();
   });
 
-  it("renders main navigation with all tabs", () => {
+  it("renders main navigation", () => {
     render(
       <MemoryRouter>
         <Dashboard />
@@ -100,7 +119,6 @@ describe("Dashboard", () => {
     );
 
     expect(screen.getByRole("link", { name: "Organization" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Team" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Individual" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Settings" })).toBeInTheDocument();
   });
@@ -142,13 +160,12 @@ describe("Dashboard", () => {
 
     expect(screen.getByText("Repositories")).toBeInTheDocument();
     expect(screen.getByText("Active projects")).toBeInTheDocument();
-
     expect(screen.getByText("Contributors")).toBeInTheDocument();
     expect(screen.getByText("Commits")).toBeInTheDocument();
     expect(screen.getByText("Pull Requests")).toBeInTheDocument();
   });
 
-  it("renders Delivery section with metric cards", () => {
+  it("renders Delivery section with two-column metrics", () => {
     render(
       <MemoryRouter>
         <Dashboard />
@@ -156,8 +173,14 @@ describe("Dashboard", () => {
     );
 
     expect(screen.getByText("Delivery")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { level: 3, name: "Deployment Velocity" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { level: 3, name: "Commit & PR Activity" })).toBeInTheDocument();
+    expect(screen.getByText("Average PR Age")).toBeInTheDocument();
+    expect(screen.getByText("Average Active Ticket Age")).toBeInTheDocument();
+    expect(screen.getByText("Num PRs Open")).toBeInTheDocument();
+    expect(screen.getByText("Num Active Tickets")).toBeInTheDocument();
+    expect(screen.getByText("Commits to Master")).toBeInTheDocument();
+    expect(screen.getByText("Tickets Completed")).toBeInTheDocument();
+    expect(screen.getByText("Time to Review")).toBeInTheDocument();
+    expect(screen.getByText("Cumulative Time in Column")).toBeInTheDocument();
   });
 
   it("renders Operational section with pipeline metrics", () => {
@@ -168,11 +191,15 @@ describe("Dashboard", () => {
     );
 
     expect(screen.getByText("Operational")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { level: 3, name: "Pipeline Success Rate" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { level: 3, name: "Pipeline Duration" })).toBeInTheDocument();
+    expect(screen.getByText("Pipeline Success (Master)")).toBeInTheDocument();
+    expect(screen.getByText("Pipeline Success (PR)")).toBeInTheDocument();
+    expect(screen.getByText("Pipeline Duration (Master)")).toBeInTheDocument();
+    expect(screen.getByText("Pipeline Duration (PR)")).toBeInTheDocument();
+    expect(screen.getByText("Failure Steps (Master)")).toBeInTheDocument();
+    expect(screen.getByText("Failure Steps (PR)")).toBeInTheDocument();
   });
 
-  it("renders Quality section with code coverage", () => {
+  it("renders Quality section with coverage and bugs", () => {
     render(
       <MemoryRouter>
         <Dashboard />
@@ -180,46 +207,35 @@ describe("Dashboard", () => {
     );
 
     expect(screen.getByText("Quality")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { level: 3, name: "Code Coverage" })).toBeInTheDocument();
+    expect(screen.getByText("Code Coverage")).toBeInTheDocument();
+    expect(screen.getByText("Sonar Bugs")).toBeInTheDocument();
   });
 
-  it("renders View All links for metric cards", () => {
+  it("renders Security section with CVE metrics", () => {
     render(
       <MemoryRouter>
         <Dashboard />
       </MemoryRouter>
     );
 
-    const viewAllLinks = screen.getAllByRole("link", { name: "View All" });
-    expect(viewAllLinks.length).toBeGreaterThan(0);
+    expect(screen.getByText("Security")).toBeInTheDocument();
+    expect(screen.getByText("CVEs by Severity")).toBeInTheDocument();
+    expect(screen.getByText("Avg Time to Close CVE")).toBeInTheDocument();
   });
 
-  it("renders metric stats for deployment velocity", () => {
+  it("displays formatted metric values", () => {
     render(
       <MemoryRouter>
         <Dashboard />
       </MemoryRouter>
     );
 
-    expect(screen.getByText("Time to Merge")).toBeInTheDocument();
-    expect(screen.getAllByText("Open PRs").length).toBeGreaterThan(0);
-    expect(screen.getByText("Waiting Review")).toBeInTheDocument();
-  });
-
-  it("renders metric stats for commit and PR activity", () => {
-    const { container } = render(
-      <MemoryRouter>
-        <Dashboard />
-      </MemoryRouter>
-    );
-
-    const statValues = container.querySelectorAll(".stat-value");
-    const statLabels = container.querySelectorAll(".stat-label");
-
-    expect(statValues.length).toBeGreaterThan(0);
-    expect(statLabels.length).toBeGreaterThan(0);
-
-    expect(screen.getByText("PRs Merged")).toBeInTheDocument();
-    expect(screen.getByText("Avg Time to Merge")).toBeInTheDocument();
+    expect(screen.getByText("4d")).toBeInTheDocument();
+    expect(screen.getByText("5d")).toBeInTheDocument();
+    expect(screen.getByText("23")).toBeInTheDocument();
+    expect(screen.getByText("34")).toBeInTheDocument();
+    expect(screen.getByText("45")).toBeInTheDocument();
+    expect(screen.getByText("76.0%")).toBeInTheDocument();
+    expect(screen.getByText("12")).toBeInTheDocument();
   });
 });

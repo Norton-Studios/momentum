@@ -34,6 +34,7 @@ describe("run-tracker", () => {
         durationMs: null,
         errorMessage: null,
         lastFetchedDataAt: null,
+        earliestFetchedDataAt: null,
         metadata: null,
         importBatchId: null,
         createdAt: new Date(),
@@ -78,6 +79,7 @@ describe("run-tracker", () => {
         durationMs: null,
         errorMessage: null,
         lastFetchedDataAt: null,
+        earliestFetchedDataAt: null,
         metadata: null,
         importBatchId: null,
         createdAt: startedAt,
@@ -96,6 +98,7 @@ describe("run-tracker", () => {
         durationMs: 3600000,
         errorMessage: null,
         lastFetchedDataAt,
+        earliestFetchedDataAt: lastFetchedDataAt,
         metadata: null,
         importBatchId: null,
         createdAt: startedAt,
@@ -116,6 +119,70 @@ describe("run-tracker", () => {
           status: "COMPLETED",
           recordsImported,
           lastFetchedDataAt,
+          earliestFetchedDataAt: lastFetchedDataAt,
+          completedAt: expect.any(Date),
+          durationMs: expect.any(Number),
+        },
+      });
+    });
+
+    it("should use provided earliestFetchedDataAt when given", async () => {
+      // Arrange
+      const runId = "run-123";
+      const recordsImported = 50;
+      const startedAt = new Date("2025-01-01T00:00:00Z");
+      const lastFetchedDataAt = new Date("2025-01-15T00:00:00Z");
+      const earliestFetchedDataAt = new Date("2024-12-01T00:00:00Z");
+
+      vi.mocked(mockDb.dataSourceRun.findUnique).mockResolvedValue({
+        id: runId,
+        dataSourceId: "ds-123",
+        scriptName: "repository",
+        status: "RUNNING",
+        startedAt,
+        recordsImported: 0,
+        recordsFailed: 0,
+        completedAt: null,
+        durationMs: null,
+        errorMessage: null,
+        lastFetchedDataAt: null,
+        earliestFetchedDataAt: null,
+        metadata: null,
+        importBatchId: null,
+        createdAt: startedAt,
+        updatedAt: startedAt,
+      });
+
+      vi.mocked(mockDb.dataSourceRun.update).mockResolvedValue({
+        id: runId,
+        dataSourceId: "ds-123",
+        scriptName: "repository",
+        status: "COMPLETED",
+        startedAt,
+        recordsImported,
+        recordsFailed: 0,
+        completedAt: new Date(),
+        durationMs: 3600000,
+        errorMessage: null,
+        lastFetchedDataAt,
+        earliestFetchedDataAt,
+        metadata: null,
+        importBatchId: null,
+        createdAt: startedAt,
+        updatedAt: new Date(),
+      });
+
+      // Act
+      await completeRun(mockDb, runId, recordsImported, lastFetchedDataAt, earliestFetchedDataAt);
+
+      // Assert
+      expect(mockDb.dataSourceRun.update).toHaveBeenCalledWith({
+        where: { id: runId },
+        data: {
+          status: "COMPLETED",
+          recordsImported,
+          lastFetchedDataAt,
+          earliestFetchedDataAt,
           completedAt: expect.any(Date),
           durationMs: expect.any(Number),
         },
@@ -154,6 +221,7 @@ describe("run-tracker", () => {
         durationMs: null,
         errorMessage: null,
         lastFetchedDataAt: null,
+        earliestFetchedDataAt: null,
         metadata: null,
         importBatchId: null,
         createdAt: startedAt,
@@ -172,6 +240,7 @@ describe("run-tracker", () => {
         durationMs: 1000,
         errorMessage,
         lastFetchedDataAt: null,
+        earliestFetchedDataAt: null,
         metadata: null,
         importBatchId: null,
         createdAt: startedAt,

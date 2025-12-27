@@ -1,5 +1,5 @@
 import type { PrismaClient } from "@prisma/client";
-import { calculateDateRange } from "../execution/date-calculator.js";
+import { calculateDateRanges } from "../execution/date-calculator.js";
 import { completeRun, createRun, failRun } from "../execution/run-tracker.js";
 import type { ScriptExecutionResult } from "../orchestrator/runner.js";
 import type { DataSourceScript, ExecutionContext } from "../orchestrator/script-loader.js";
@@ -35,9 +35,23 @@ async function execute(db: PrismaClient, executionContext: ExecutionContext, scr
   }
 
   try {
-    const { startDate, endDate } = await calculateDateRange(db, executionContext.id, script.resource, script.importWindowDays);
-    await script.run(db, { ...executionContext, startDate, endDate, runId });
-    await completeRun(db, runId, 0, endDate);
+    const ranges = await calculateDateRanges(db, executionContext.id, script.resource, script.importWindowDays);
+
+    // Execute forward sync (new data)
+    if (ranges.forward) {
+      await script.run(db, { ...executionContext, startDate: ranges.forward.startDate, endDate: ranges.forward.endDate, runId });
+    }
+
+    // Execute backfill (historical data)
+    if (ranges.backfill) {
+      await script.run(db, { ...executionContext, startDate: ranges.backfill.startDate, endDate: ranges.backfill.endDate, runId });
+    }
+
+    // Complete run with both boundaries
+    const lastFetchedDataAt = ranges.forward?.endDate ?? new Date();
+    const earliestFetchedDataAt = ranges.backfill?.startDate ?? ranges.forward?.startDate;
+
+    await completeRun(db, runId, 0, lastFetchedDataAt, earliestFetchedDataAt);
 
     return { success: true, skipped: false };
   } catch (error) {

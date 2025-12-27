@@ -8,6 +8,7 @@ export function ProjectsSection({ provider, isExpanded, onToggle }: ProjectsSect
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [allProjects, setAllProjects] = useState<Project[]>([]);
   const [hasInitialized, setHasInitialized] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (isExpanded && !hasInitialized) {
@@ -21,10 +22,13 @@ export function ProjectsSection({ provider, isExpanded, onToggle }: ProjectsSect
 
   useEffect(() => {
     if (fetcher.state === "idle" && fetcher.data) {
-      const data = fetcher.data as ProjectsFetcherData;
-      if ("projects" in data) {
-        setAllProjects(data.projects);
-        const enabledIds = new Set(data.projects.filter((p) => p.isEnabled).map((p) => p.id));
+      const responseData = fetcher.data as ProjectsFetcherData | { error: string };
+      if ("error" in responseData) {
+        setError(responseData.error);
+      } else if ("projects" in responseData) {
+        setError(null);
+        setAllProjects(responseData.projects);
+        const enabledIds = new Set(responseData.projects.filter((p) => p.isEnabled).map((p) => p.id));
         setSelectedIds(enabledIds);
       }
     }
@@ -109,7 +113,24 @@ export function ProjectsSection({ provider, isExpanded, onToggle }: ProjectsSect
 
       {isExpanded && (
         <div className="repositories-content">
-          {isLoading && allProjects.length === 0 ? (
+          {error ? (
+            <div className="repositories-error">
+              <p>{error}</p>
+              <button
+                type="button"
+                className="btn-repo-action"
+                onClick={() => {
+                  setError(null);
+                  const formData = new FormData();
+                  formData.append("intent", "fetch-projects");
+                  formData.append("provider", provider);
+                  fetcher.submit(formData, { method: "post" });
+                }}
+              >
+                Retry
+              </button>
+            </div>
+          ) : isLoading && allProjects.length === 0 ? (
             <div className="repositories-loading">
               <div className="loading-skeleton">Loading projects...</div>
             </div>
@@ -131,7 +152,7 @@ export function ProjectsSection({ provider, isExpanded, onToggle }: ProjectsSect
                 items={filteredProjects}
                 selectedIds={selectedIds}
                 onToggle={handleToggle}
-                emptyMessage="No projects found"
+                emptyMessage={searchValue ? "No matching projects" : "No projects found. Ensure your token has permission to browse projects."}
                 renderItem={(project) => (
                   <div className="project-info">
                     <span className="project-name">{project.name}</span>

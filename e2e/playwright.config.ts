@@ -13,7 +13,8 @@ if (existsSync(envPath)) {
 }
 
 export const isCI = !!process.env.CI;
-export const TEST_DB_URL = "postgresql://momentum:momentum@localhost:5433/momentum";
+// Increase connection pool to handle concurrent import + test requests
+export const TEST_DB_URL = "postgresql://momentum:momentum@localhost:5433/momentum?connection_limit=20";
 export const TEST_PORT = isCI ? "3000" : "3001";
 export const BASE_URL = `http://localhost:${TEST_PORT}`;
 
@@ -51,10 +52,10 @@ export default defineConfig({
   ],
 
   webServer: {
-    command: isCI ? "yarn dev:server 2>&1 | tee test-results/server.log" : "yarn test:e2e:server 2>&1 | tee test-results/server.log",
+    command: isCI ? "yarn build && yarn start 2>&1 | tee test-results/server.log" : "yarn test:e2e:server 2>&1 | tee test-results/server.log",
     url: BASE_URL,
     reuseExistingServer: false,
-    timeout: 10 * 1000, // 10 seconds for dev server startup
+    timeout: 120 * 1000, // 2 minutes for build + server startup in CI
     env: {
       DATABASE_URL: TEST_DB_URL,
       PORT: TEST_PORT,

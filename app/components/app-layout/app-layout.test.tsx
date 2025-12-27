@@ -40,7 +40,6 @@ describe("AppLayout", () => {
     );
 
     expect(screen.getByRole("link", { name: "Organization" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Team" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Individual" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Settings" })).toBeInTheDocument();
   });

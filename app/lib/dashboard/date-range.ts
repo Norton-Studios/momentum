@@ -40,10 +40,10 @@ export function parseDateRange(searchParams: URLSearchParams): DateRange {
   const endDate = new Date();
   endDate.setHours(23, 59, 59, 999);
   const startDate = new Date();
-  startDate.setDate(startDate.getDate() - PRESET_DAYS["30d"]);
+  startDate.setDate(startDate.getDate() - PRESET_DAYS["90d"]);
   startDate.setHours(0, 0, 0, 0);
 
-  return { startDate, endDate, preset: "30d" };
+  return { startDate, endDate, preset: "90d" };
 }
 
 export function getPreviousPeriod(range: DateRange): DateRange {

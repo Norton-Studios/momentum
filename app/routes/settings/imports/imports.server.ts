@@ -37,29 +37,35 @@ export async function importsLoader({ request }: LoaderFunctionArgs) {
   const isRunning = batches.some((b) => b.status === "RUNNING");
 
   return data({
-    batches: batches.map((batch) => ({
-      id: batch.id,
-      status: batch.status,
-      triggeredBy: batch.triggeredBy,
-      startedAt: batch.startedAt.toISOString(),
-      completedAt: batch.completedAt?.toISOString() ?? null,
-      durationMs: batch.durationMs,
-      totalScripts: batch.totalScripts,
-      completedScripts: batch.completedScripts,
-      failedScripts: batch.failedScripts,
-      runs: batch.runs.map((run) => ({
-        id: run.id,
-        scriptName: run.scriptName,
-        status: run.status,
-        recordsImported: run.recordsImported,
-        recordsFailed: run.recordsFailed,
-        durationMs: run.durationMs,
-        errorMessage: run.errorMessage,
-        startedAt: run.startedAt.toISOString(),
-        completedAt: run.completedAt?.toISOString() ?? null,
-        dataSource: run.dataSource,
-      })),
-    })),
+    batches: batches.map((batch) => {
+      // Calculate counts from actual runs for real-time progress (batch fields only update at end)
+      const completedScripts = batch.runs.filter((run) => run.status === "COMPLETED").length;
+      const failedScripts = batch.runs.filter((run) => run.status === "FAILED").length;
+
+      return {
+        id: batch.id,
+        status: batch.status,
+        triggeredBy: batch.triggeredBy,
+        startedAt: batch.startedAt.toISOString(),
+        completedAt: batch.completedAt?.toISOString() ?? null,
+        durationMs: batch.durationMs,
+        totalScripts: batch.totalScripts,
+        completedScripts,
+        failedScripts,
+        runs: batch.runs.map((run) => ({
+          id: run.id,
+          scriptName: run.scriptName,
+          status: run.status,
+          recordsImported: run.recordsImported,
+          recordsFailed: run.recordsFailed,
+          durationMs: run.durationMs,
+          errorMessage: run.errorMessage,
+          startedAt: run.startedAt.toISOString(),
+          completedAt: run.completedAt?.toISOString() ?? null,
+          dataSource: run.dataSource,
+        })),
+      };
+    }),
     isRunning,
     userName: user.name,
     user: { name: user.name, email: user.email },

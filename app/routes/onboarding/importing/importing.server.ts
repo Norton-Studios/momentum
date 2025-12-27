@@ -7,6 +7,7 @@ const PROVIDER_SCRIPTS: Record<string, readonly string[]> = {
   GITHUB: ["repository", "contributor", "commit", "pull-request", "project", "issue", "pipeline", "pipeline-run"],
   GITLAB: ["repository", "contributor", "commit", "merge-request", "project", "issue", "pipeline", "pipeline-run"],
   JIRA: ["project", "board", "sprint", "issue", "status-transition"],
+  SONARQUBE: ["sonarqube-project", "quality-scan", "sonarqube-issue"],
 };
 
 export async function importingLoader({ request }: LoaderFunctionArgs) {

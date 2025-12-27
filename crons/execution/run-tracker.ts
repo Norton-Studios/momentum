@@ -20,7 +20,7 @@ export async function createRun(db: DbClient, dataSourceId: string, scriptName: 
   return null;
 }
 
-export async function completeRun(db: DbClient, runId: string, recordsImported: number, lastFetchedDataAt: Date): Promise<void> {
+export async function completeRun(db: DbClient, runId: string, recordsImported: number, lastFetchedDataAt: Date, earliestFetchedDataAt?: Date): Promise<void> {
   const completedAt = new Date();
   const run = await db.dataSourceRun.findUnique({ where: { id: runId } });
 
@@ -36,6 +36,7 @@ export async function completeRun(db: DbClient, runId: string, recordsImported: 
       status: "COMPLETED",
       recordsImported,
       lastFetchedDataAt,
+      earliestFetchedDataAt: earliestFetchedDataAt ?? lastFetchedDataAt,
       completedAt,
       durationMs,
     },

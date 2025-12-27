@@ -86,7 +86,8 @@ describe("importsLoader", () => {
     expect(data.batches[0].status).toBe("COMPLETED");
     expect(data.batches[0].triggeredBy).toBe("Admin User");
     expect(data.batches[0].totalScripts).toBe(5);
-    expect(data.batches[0].completedScripts).toBe(5);
+    // completedScripts is calculated from actual runs (not batch field) for real-time progress
+    expect(data.batches[0].completedScripts).toBe(1);
     expect(data.batches[0].runs).toHaveLength(1);
     expect(data.batches[0].runs[0].scriptName).toBe("repository");
     expect(data.batches[0].runs[0].recordsImported).toBe(100);
