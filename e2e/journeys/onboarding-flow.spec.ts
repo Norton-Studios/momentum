@@ -20,8 +20,8 @@ async function login(page: Page) {
   const passwordField = page.getByLabel("Password");
   await passwordField.fill("TestPassword123!");
 
-  // Wait a moment for any React state updates
-  await page.waitForTimeout(100);
+  // Wait for React state updates before clicking
+  await page.waitForTimeout(500);
 
   // Click the submit button
   await submitButton.click();
