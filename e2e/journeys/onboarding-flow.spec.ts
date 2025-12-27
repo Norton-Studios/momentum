@@ -110,6 +110,9 @@ test.describe
       await page.getByRole("button", { name: /Continue to Dashboard/i }).click();
       await expect(page).toHaveURL(/\/onboarding\/complete/, { timeout: 30000 });
       await expect(page.getByRole("heading", { name: /You're All Set/i })).toBeVisible();
+
+      // Wait for Vite dependency optimization to complete before subsequent tests
+      await page.waitForTimeout(2000);
     });
 
     test("Step 7: Navigate to settings and edit organization details", async ({ page }) => {
