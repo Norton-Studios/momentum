@@ -29,6 +29,13 @@ async function login(page: Page) {
   // Wait for navigation
   await page.waitForURL(/\/(dashboard|onboarding)/, { timeout: 15000 });
   await page.waitForLoadState("networkidle");
+
+  // Verify session cookie is set before proceeding
+  const cookies = await page.context().cookies();
+  const sessionCookie = cookies.find((c) => c.name === "__session");
+  if (!sessionCookie) {
+    throw new Error("Session cookie not set after login");
+  }
 }
 
 test.describe
