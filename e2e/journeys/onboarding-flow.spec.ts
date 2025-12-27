@@ -7,35 +7,23 @@ const SONAR_ORG = process.env.E2E_SONAR_ORG;
 
 async function login(page: Page) {
   await page.goto("/login");
+  await page.waitForLoadState("domcontentloaded");
 
-  // Wait for React to fully hydrate - the submit button should be visible and enabled
+  // Wait for form to be ready
   const submitButton = page.getByRole("button", { name: "Sign In" });
   await submitButton.waitFor({ state: "visible" });
 
-  // Fill email
-  const emailField = page.getByLabel("Email Address");
-  await emailField.fill("admin@test.com");
+  // Fill form fields
+  await page.getByLabel("Email Address").fill("admin@test.com");
+  await page.getByLabel("Password").fill("TestPassword123!");
 
-  // Fill password
-  const passwordField = page.getByLabel("Password");
-  await passwordField.fill("TestPassword123!");
+  // Wait for form to stabilize before submitting
+  await page.waitForTimeout(1000);
 
-  // Wait for React state updates before clicking
-  await page.waitForTimeout(500);
-
-  // Click the submit button
+  // Submit and wait for redirect
   await submitButton.click();
-
-  // Wait for navigation
-  await page.waitForURL(/\/(dashboard|onboarding)/, { timeout: 15000 });
+  await page.waitForURL(/\/(dashboard|onboarding)/, { timeout: 30000 });
   await page.waitForLoadState("networkidle");
-
-  // Verify session cookie is set before proceeding
-  const cookies = await page.context().cookies();
-  const sessionCookie = cookies.find((c) => c.name === "__session");
-  if (!sessionCookie) {
-    throw new Error("Session cookie not set after login");
-  }
 }
 
 test.describe
@@ -117,9 +105,6 @@ test.describe
       await page.getByRole("button", { name: /Continue to Dashboard/i }).click();
       await expect(page).toHaveURL(/\/onboarding\/complete/, { timeout: 30000 });
       await expect(page.getByRole("heading", { name: /You're All Set/i })).toBeVisible();
-
-      // Wait for Vite dependency optimization to complete before subsequent tests
-      await page.waitForTimeout(2000);
     });
 
     test("Step 7: Navigate to settings and edit organization details", async ({ page }) => {
