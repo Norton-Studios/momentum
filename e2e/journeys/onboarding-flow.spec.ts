@@ -7,21 +7,16 @@ const SONAR_ORG = process.env.E2E_SONAR_ORG;
 
 async function login(page: Page) {
   await page.goto("/login");
-  await page.waitForLoadState("domcontentloaded");
+  await page.waitForLoadState("networkidle");
 
-  // Wait for form to be ready
-  const submitButton = page.getByRole("button", { name: "Sign In" });
-  await submitButton.waitFor({ state: "visible" });
+  // Fill form using ID selectors for reliability
+  await page.locator("#email").fill("admin@test.com");
+  await page.locator("#password").fill("TestPassword123!");
 
-  // Fill form fields
-  await page.getByLabel("Email Address").fill("admin@test.com");
-  await page.getByLabel("Password").fill("TestPassword123!");
+  // Submit using form's native submit
+  await page.locator("form").evaluate((form: HTMLFormElement) => form.requestSubmit());
 
-  // Wait for form to stabilize before submitting
-  await page.waitForTimeout(1000);
-
-  // Submit and wait for redirect
-  await submitButton.click();
+  // Wait for redirect
   await page.waitForURL(/\/(dashboard|onboarding)/, { timeout: 30000 });
   await page.waitForLoadState("networkidle");
 }
