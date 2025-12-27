@@ -9,16 +9,13 @@ async function login(page: Page) {
   await page.goto("/login");
   await page.waitForLoadState("networkidle");
 
-  // Wait for Vite HMR to stabilize - it may reload the page during dependency optimization
-  await page.waitForTimeout(3000);
-
-  // Fill form using ID selectors
+  // Fill form
   await page.locator("#email").fill("admin@test.com");
   await page.locator("#password").fill("TestPassword123!");
 
   // Submit and wait for redirect
   await page.locator('button[type="submit"]').click();
-  await page.waitForURL(/\/(dashboard|onboarding)/, { timeout: 30000 });
+  await page.waitForURL(/\/(dashboard|onboarding)/);
   await page.waitForLoadState("networkidle");
 }
 

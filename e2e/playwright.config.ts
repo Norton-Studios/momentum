@@ -52,10 +52,10 @@ export default defineConfig({
   ],
 
   webServer: {
-    command: isCI ? "yarn dev:server 2>&1 | tee test-results/server.log" : "yarn test:e2e:server 2>&1 | tee test-results/server.log",
+    command: isCI ? "yarn build && yarn start 2>&1 | tee test-results/server.log" : "yarn test:e2e:server 2>&1 | tee test-results/server.log",
     url: BASE_URL,
     reuseExistingServer: false,
-    timeout: 60 * 1000, // 60 seconds for dev server startup
+    timeout: 120 * 1000, // 2 minutes for build + server startup in CI
     env: {
       DATABASE_URL: TEST_DB_URL,
       PORT: TEST_PORT,
