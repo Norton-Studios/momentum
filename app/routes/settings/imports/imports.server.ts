@@ -1,11 +1,33 @@
+import { cleanupStaleRuns } from "@crons/execution/run-tracker.js";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { data } from "react-router";
 import { requireAdmin } from "~/auth/auth.server";
 import { db } from "~/db.server";
 import { triggerImport } from "~/lib/import/trigger-import";
 
+const STALE_BATCH_THRESHOLD_MS = 30 * 60 * 1000; // 30 minutes
+
+async function cleanupStaleBatches(): Promise<void> {
+  const staleThreshold = new Date(Date.now() - STALE_BATCH_THRESHOLD_MS);
+
+  await db.importBatch.updateMany({
+    where: {
+      status: "RUNNING",
+      startedAt: { lt: staleThreshold },
+    },
+    data: {
+      status: "FAILED",
+      completedAt: new Date(),
+    },
+  });
+}
+
 export async function importsLoader({ request }: LoaderFunctionArgs) {
   const user = await requireAdmin(request);
+
+  // Clean up stale runs before fetching data
+  await cleanupStaleBatches();
+  await cleanupStaleRuns(db);
 
   const batches = await db.importBatch.findMany({
     include: {

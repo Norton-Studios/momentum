@@ -142,7 +142,8 @@ export async function fetchDeliveryMetrics(dateRange: DateRange, teamId: string 
     .map((pr) => ({
       date: pr.createdAt,
       value: (pr.reviews[0].submittedAt.getTime() - pr.createdAt.getTime()) / MS_PER_HOUR,
-    }));
+    }))
+    .filter((r) => r.value >= 0);
 
   const avgTimeToReviewHours = reviewTimes.length > 0 ? reviewTimes.reduce((sum, r) => sum + r.value, 0) / reviewTimes.length : null;
 

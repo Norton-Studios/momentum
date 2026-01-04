@@ -25,10 +25,15 @@ vi.mock("~/lib/import/trigger-import", () => ({
   triggerImport: vi.fn(),
 }));
 
+vi.mock("@crons/execution/run-tracker.js", () => ({
+  cleanupStaleRuns: vi.fn().mockResolvedValue(0),
+}));
+
 vi.mock("~/db.server", () => ({
   db: {
     importBatch: {
       findMany: vi.fn(),
+      updateMany: vi.fn().mockResolvedValue({ count: 0 }),
     },
   },
 }));
