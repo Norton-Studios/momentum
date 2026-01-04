@@ -37,6 +37,7 @@ describe("getRepositoriesWithFilters", () => {
         url: "https://github.com/org/api",
         forks: 2,
         isArchived: false,
+        defaultBranch: "main",
       },
       {
         id: "repo-2",
@@ -55,6 +56,7 @@ describe("getRepositoriesWithFilters", () => {
         url: "https://github.com/org/web",
         forks: 1,
         isArchived: false,
+        defaultBranch: "main",
       },
     ];
     vi.mocked(db.repository.findMany).mockResolvedValue(mockRepos);
@@ -187,6 +189,7 @@ describe("getRepositoriesWithFilters", () => {
       url: `https://github.com/org/repo-${i}`,
       forks: 0,
       isArchived: false,
+      defaultBranch: "main",
     }));
     vi.mocked(db.repository.findMany).mockResolvedValue(mockRepos);
     vi.mocked(db.repository.count).mockResolvedValue(150);

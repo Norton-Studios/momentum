@@ -20,6 +20,10 @@ vi.mock("~/db.server", () => ({
     importBatch: {
       findFirst: vi.fn(),
       findMany: vi.fn(),
+      updateMany: vi.fn().mockResolvedValue({ count: 0 }),
+    },
+    dataSourceRun: {
+      updateMany: vi.fn().mockResolvedValue({ count: 0 }),
     },
     $transaction: vi.fn((fn) => fn({ $queryRaw: vi.fn() })),
   },

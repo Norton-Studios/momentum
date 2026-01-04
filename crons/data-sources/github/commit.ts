@@ -17,6 +17,7 @@ export const commitScript = {
         dataSourceId: context.id,
         isEnabled: true,
       },
+      select: { id: true, fullName: true, defaultBranch: true },
     });
 
     const errors: string[] = [];
@@ -67,12 +68,13 @@ function transformCommit(commit: GitHubCommit): TransformedCommit | null {
   };
 }
 
-async function fetchCommitsForRepository(octokit: Octokit, owner: string, repoName: string, startDate: Date, endDate: Date): Promise<GitHubCommit[]> {
+async function fetchCommitsForRepository(octokit: Octokit, owner: string, repoName: string, branch: string, startDate: Date, endDate: Date): Promise<GitHubCommit[]> {
   const allCommits: GitHubCommit[] = [];
 
   for await (const response of octokit.paginate.iterator(octokit.repos.listCommits, {
     owner,
     repo: repoName,
+    sha: branch,
     since: startDate.toISOString(),
     until: endDate.toISOString(),
     per_page: 100,
@@ -102,7 +104,7 @@ async function ensureContributorExists(db: DbClient, email: string, name: string
   return contributor.id;
 }
 
-async function upsertCommit(db: DbClient, repoId: string, transformedCommit: TransformedCommit, authorId: string): Promise<void> {
+async function upsertCommit(db: DbClient, repoId: string, transformedCommit: TransformedCommit, authorId: string, branch: string): Promise<void> {
   await db.commit.upsert({
     where: {
       repositoryId_sha: {
@@ -116,12 +118,14 @@ async function upsertCommit(db: DbClient, repoId: string, transformedCommit: Tra
       authorId,
       committedAt: transformedCommit.committedAt,
       repositoryId: repoId,
+      branch,
       linesAdded: transformedCommit.linesAdded,
       linesRemoved: transformedCommit.linesRemoved,
       filesChanged: transformedCommit.filesChanged,
     },
     update: {
       message: transformedCommit.message,
+      branch,
       linesAdded: transformedCommit.linesAdded,
       linesRemoved: transformedCommit.linesRemoved,
       filesChanged: transformedCommit.filesChanged,
@@ -129,13 +133,13 @@ async function upsertCommit(db: DbClient, repoId: string, transformedCommit: Tra
   });
 }
 
-async function storeCommits(db: DbClient, repoId: string, transformedCommits: TransformedCommit[]): Promise<number> {
+async function storeCommits(db: DbClient, repoId: string, transformedCommits: TransformedCommit[], branch: string): Promise<number> {
   let successCount = 0;
 
   for (const commit of transformedCommits) {
     try {
       const authorId = await ensureContributorExists(db, commit.authorEmail, commit.authorName);
-      await upsertCommit(db, repoId, commit, authorId);
+      await upsertCommit(db, repoId, commit, authorId, branch);
       successCount++;
     } catch (error) {
       console.error(`Failed to store commit ${commit.sha}:`, error);
@@ -148,17 +152,17 @@ async function storeCommits(db: DbClient, repoId: string, transformedCommits: Tr
 async function processRepositoryCommits(
   octokit: Octokit,
   db: DbClient,
-  repo: { id: string; fullName: string },
+  repo: { id: string; fullName: string; defaultBranch: string },
   startDate: Date,
   endDate: Date
 ): Promise<{ count: number; error?: string }> {
   try {
     const [owner, repoName] = repo.fullName.split("/");
-    const commits = await fetchCommitsForRepository(octokit, owner, repoName, startDate, endDate);
+    const commits = await fetchCommitsForRepository(octokit, owner, repoName, repo.defaultBranch, startDate, endDate);
 
     const transformedCommits = commits.map(transformCommit).filter((c) => c !== null) as TransformedCommit[];
 
-    const count = await storeCommits(db, repo.id, transformedCommits);
+    const count = await storeCommits(db, repo.id, transformedCommits, repo.defaultBranch);
     return { count };
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);

@@ -5,6 +5,17 @@ import { pipelineScript } from "./pipeline.js";
 import { pipelineRunScript } from "./pipeline-run.js";
 import { projectScript } from "./project.js";
 import { pullRequestScript } from "./pull-request.js";
+import { pullRequestReviewScript } from "./pull-request-review.js";
 import { repositoryScript } from "./repository.js";
 
-export const scripts = [repositoryScript, contributorScript, commitScript, pullRequestScript, projectScript, issueScript, pipelineScript, pipelineRunScript];
+export const scripts = [
+  repositoryScript,
+  contributorScript,
+  commitScript,
+  pullRequestScript,
+  pullRequestReviewScript,
+  projectScript,
+  issueScript,
+  pipelineScript,
+  pipelineRunScript,
+];

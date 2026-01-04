@@ -31,6 +31,13 @@ describe("GitHub data source scripts", () => {
     expect(pullRequestScript?.dataSourceName).toBe("GITHUB");
   });
 
+  it("should contain pull-request-review script", () => {
+    const pullRequestReviewScript = scripts.find((s) => s.resource === "pull-request-review");
+    expect(pullRequestReviewScript).toBeDefined();
+    expect(pullRequestReviewScript?.dataSourceName).toBe("GITHUB");
+    expect(pullRequestReviewScript?.dependsOn).toContain("pull-request");
+  });
+
   it("should have all scripts with run functions", () => {
     for (const script of scripts) {
       expect(typeof script.run).toBe("function");

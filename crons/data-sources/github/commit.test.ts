@@ -77,7 +77,7 @@ describe("commitScript", () => {
 
     const mockDb = {
       repository: {
-        findMany: vi.fn().mockResolvedValue([{ id: "repo-1", fullName: "org/repo1" }]),
+        findMany: vi.fn().mockResolvedValue([{ id: "repo-1", fullName: "org/repo1", defaultBranch: "main" }]),
       },
       contributor: {
         upsert: vi.fn().mockResolvedValue({ id: "contributor-1" }),
@@ -112,6 +112,7 @@ describe("commitScript", () => {
     expect(mockPaginateIterator).toHaveBeenCalledWith(mockReposListCommits, {
       owner: "org",
       repo: "repo1",
+      sha: "main",
       since: "2024-01-01T00:00:00.000Z",
       until: "2024-01-31T00:00:00.000Z",
       per_page: 100,
@@ -131,12 +132,14 @@ describe("commitScript", () => {
         authorId: "contributor-1",
         committedAt: new Date("2024-01-15T10:00:00Z"),
         repositoryId: "repo-1",
+        branch: "main",
         linesAdded: 100,
         linesRemoved: 20,
         filesChanged: 2,
       },
       update: {
         message: "Add feature",
+        branch: "main",
         linesAdded: 100,
         linesRemoved: 20,
         filesChanged: 2,
@@ -179,7 +182,7 @@ describe("commitScript", () => {
 
     const mockDb = {
       repository: {
-        findMany: vi.fn().mockResolvedValue([{ id: "repo-1", fullName: "org/repo1" }]),
+        findMany: vi.fn().mockResolvedValue([{ id: "repo-1", fullName: "org/repo1", defaultBranch: "main" }]),
       },
       contributor: {
         upsert: vi.fn().mockResolvedValue({ id: "contributor-1" }),
@@ -225,7 +228,7 @@ describe("commitScript", () => {
 
     const mockDb = {
       repository: {
-        findMany: vi.fn().mockResolvedValue([{ id: "repo-1", fullName: "org/repo1" }]),
+        findMany: vi.fn().mockResolvedValue([{ id: "repo-1", fullName: "org/repo1", defaultBranch: "main" }]),
       },
       importLog: {
         create: vi.fn().mockResolvedValue({}),

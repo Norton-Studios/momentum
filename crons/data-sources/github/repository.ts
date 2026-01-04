@@ -39,6 +39,7 @@ async function upsertRepositories(db: DbClient, repos: Awaited<ReturnType<typeof
           stars: repo.stargazers_count,
           forks: repo.forks_count,
           isPrivate: repo.private,
+          defaultBranch: repo.default_branch,
           isEnabled: true,
           lastSyncAt: new Date(),
         },
@@ -47,6 +48,7 @@ async function upsertRepositories(db: DbClient, repos: Awaited<ReturnType<typeof
           language: repo.language,
           stars: repo.stargazers_count,
           forks: repo.forks_count,
+          defaultBranch: repo.default_branch,
           lastSyncAt: new Date(),
         },
       })

@@ -1,6 +1,6 @@
 import type { PrismaClient } from "@prisma/client";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { completeRun, createRun, failRun } from "./run-tracker.js";
+import { cleanupStaleRuns, completeRun, createRun, failRun } from "./run-tracker.js";
 
 describe("run-tracker", () => {
   let mockDb: PrismaClient;
@@ -10,6 +10,7 @@ describe("run-tracker", () => {
       dataSourceRun: {
         create: vi.fn(),
         update: vi.fn(),
+        updateMany: vi.fn(),
         findUnique: vi.fn(),
       },
     } as unknown as PrismaClient;
@@ -271,6 +272,41 @@ describe("run-tracker", () => {
 
       // Act & Assert
       await expect(failRun(mockDb, runId, errorMessage)).rejects.toThrow(`DataSourceRun ${runId} not found`);
+    });
+  });
+
+  describe("cleanupStaleRuns", () => {
+    it("should mark stale RUNNING runs as FAILED", async () => {
+      // Arrange
+      vi.mocked(mockDb.dataSourceRun.updateMany).mockResolvedValue({ count: 2 });
+
+      // Act
+      const result = await cleanupStaleRuns(mockDb);
+
+      // Assert
+      expect(result).toBe(2);
+      expect(mockDb.dataSourceRun.updateMany).toHaveBeenCalledWith({
+        where: {
+          status: "RUNNING",
+          startedAt: { lt: expect.any(Date) },
+        },
+        data: {
+          status: "FAILED",
+          errorMessage: "Run timed out - marked as failed after being stuck in RUNNING state",
+          completedAt: expect.any(Date),
+        },
+      });
+    });
+
+    it("should return 0 when no stale runs exist", async () => {
+      // Arrange
+      vi.mocked(mockDb.dataSourceRun.updateMany).mockResolvedValue({ count: 0 });
+
+      // Act
+      const result = await cleanupStaleRuns(mockDb);
+
+      // Assert
+      expect(result).toBe(0);
     });
   });
 });

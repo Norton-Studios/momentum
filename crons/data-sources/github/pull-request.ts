@@ -94,6 +94,7 @@ function transformPullRequest(pr: GitHubPullRequest): TransformedPullRequest {
     sourceBranch: pr.head.ref,
     targetBranch: pr.base.ref,
     url: pr.html_url,
+    createdAt: new Date(pr.created_at),
     mergedAt: pr.merged_at ? new Date(pr.merged_at) : null,
     closedAt: pr.closed_at ? new Date(pr.closed_at) : null,
   };
@@ -160,6 +161,7 @@ async function upsertPullRequest(db: DbClient, repoId: string, transformedPR: Tr
       linesRemoved: 0,
       filesChanged: 0,
       commitsCount: 0,
+      createdAt: transformedPR.createdAt,
       mergedAt: transformedPR.mergedAt,
       closedAt: transformedPR.closedAt,
     },
@@ -172,6 +174,7 @@ async function upsertPullRequest(db: DbClient, repoId: string, transformedPR: Tr
       linesRemoved: 0,
       filesChanged: 0,
       commitsCount: 0,
+      createdAt: transformedPR.createdAt,
       mergedAt: transformedPR.mergedAt,
       closedAt: transformedPR.closedAt,
     },
@@ -246,6 +249,7 @@ interface GitHubPullRequest {
   body?: string | null;
   state: string;
   draft?: boolean;
+  created_at: string;
   merged_at?: string | null;
   closed_at?: string | null;
   updated_at: string;
@@ -268,6 +272,7 @@ interface TransformedPullRequest {
   sourceBranch: string;
   targetBranch: string;
   url: string;
+  createdAt: Date;
   mergedAt?: Date | null;
   closedAt?: Date | null;
 }
