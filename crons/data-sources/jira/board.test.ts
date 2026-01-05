@@ -72,7 +72,7 @@ describe("boardScript", () => {
     it("should create Jira client with context env", async () => {
       mockDb.project.findMany.mockResolvedValue([]);
 
-      await boardScript.run(mockDb as never, mockContext);
+      await boardScript.run(mockDb as never, mockContext as never);
 
       expect(mockCreateJiraClient).toHaveBeenCalledWith(mockContext.env);
     });
@@ -80,7 +80,7 @@ describe("boardScript", () => {
     it("should fetch projects for the data source", async () => {
       mockDb.project.findMany.mockResolvedValue([]);
 
-      await boardScript.run(mockDb as never, mockContext);
+      await boardScript.run(mockDb as never, mockContext as never);
 
       expect(mockDb.project.findMany).toHaveBeenCalledWith({
         where: {
@@ -99,7 +99,7 @@ describe("boardScript", () => {
       ]);
       mockClient.getBoards.mockResolvedValue([]);
 
-      await boardScript.run(mockDb as never, mockContext);
+      await boardScript.run(mockDb as never, mockContext as never);
 
       expect(mockClient.getBoards).toHaveBeenCalledTimes(2);
       expect(mockClient.getBoards).toHaveBeenCalledWith("PROJ1");
@@ -114,7 +114,7 @@ describe("boardScript", () => {
       ]);
       mockDb.board.findFirst.mockResolvedValue(null);
 
-      await boardScript.run(mockDb as never, mockContext);
+      await boardScript.run(mockDb as never, mockContext as never);
 
       expect(mockDb.board.create).toHaveBeenCalledTimes(2);
       expect(mockDb.board.create).toHaveBeenCalledWith({
@@ -140,7 +140,7 @@ describe("boardScript", () => {
       mockClient.getBoards.mockResolvedValue([{ id: 101, name: "Updated Board Name", type: "scrum" }]);
       mockDb.board.findFirst.mockResolvedValue({ id: "board-1" });
 
-      await boardScript.run(mockDb as never, mockContext);
+      await boardScript.run(mockDb as never, mockContext as never);
 
       expect(mockDb.board.update).toHaveBeenCalledWith({
         where: { id: "board-1" },
@@ -160,7 +160,7 @@ describe("boardScript", () => {
       ]);
       mockDb.board.findFirst.mockResolvedValue(null);
 
-      await boardScript.run(mockDb as never, mockContext);
+      await boardScript.run(mockDb as never, mockContext as never);
 
       expect(mockDb.dataSourceRun.update).toHaveBeenCalledWith({
         where: { id: mockContext.runId },
@@ -176,7 +176,7 @@ describe("boardScript", () => {
       mockClient.getBoards.mockRejectedValueOnce(new Error("API rate limit")).mockResolvedValueOnce([{ id: 201, name: "Board", type: "scrum" }]);
       mockDb.board.findFirst.mockResolvedValue(null);
 
-      await boardScript.run(mockDb as never, mockContext);
+      await boardScript.run(mockDb as never, mockContext as never);
 
       // Should still process second project
       expect(mockDb.board.create).toHaveBeenCalledTimes(1);
@@ -190,7 +190,7 @@ describe("boardScript", () => {
       mockDb.project.findMany.mockResolvedValue([{ id: "proj-1", key: "PROJ1" }]);
       mockClient.getBoards.mockRejectedValue(new Error("Connection timeout"));
 
-      await boardScript.run(mockDb as never, mockContext);
+      await boardScript.run(mockDb as never, mockContext as never);
 
       expect(mockDb.importLog.create).toHaveBeenCalledWith({
         data: {
@@ -206,7 +206,7 @@ describe("boardScript", () => {
       mockDb.project.findMany.mockResolvedValue([{ id: "proj-1", key: "PROJ1" }]);
       mockClient.getBoards.mockRejectedValue("String error");
 
-      await boardScript.run(mockDb as never, mockContext);
+      await boardScript.run(mockDb as never, mockContext as never);
 
       expect(mockDb.importLog.create).toHaveBeenCalledWith({
         data: {
@@ -223,7 +223,7 @@ describe("boardScript", () => {
       mockClient.getBoards.mockResolvedValue([{ id: 101, name: "Board", type: "scrum" }]);
       mockDb.board.findFirst.mockResolvedValue(null);
 
-      await boardScript.run(mockDb as never, mockContext);
+      await boardScript.run(mockDb as never, mockContext as never);
 
       expect(mockDb.importLog.create).not.toHaveBeenCalled();
     });

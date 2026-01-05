@@ -1,10 +1,10 @@
 import cron from "node-cron";
-import type { DbClient } from "./db.ts";
+import type { PrismaClient } from "./db.ts";
 import { runOrchestrator } from "./orchestrator/runner.js";
 
 const DEFAULT_CRON_EXPRESSION = "*/15 * * * *";
 
-export function startScheduler(db: DbClient, config: SchedulerConfig = {}): void {
+export function startScheduler(db: PrismaClient, config: SchedulerConfig = {}): void {
   const cronExpression = config.cronExpression ?? DEFAULT_CRON_EXPRESSION;
   console.log(`Starting scheduler: ${cronExpression}`);
 

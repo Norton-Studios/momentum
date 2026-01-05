@@ -1,11 +1,11 @@
-import type { DbClient } from "../db.ts";
+import type { DbClient, PrismaClient } from "../db.ts";
 import { calculateDateRanges } from "../execution/date-calculator.js";
 import { completeRun, createRun, failRun } from "../execution/run-tracker.js";
 import type { ScriptExecutionResult } from "../orchestrator/runner.js";
 import type { DataSourceScript, ExecutionContext } from "../orchestrator/script-loader.js";
 import { acquireAdvisoryLock, releaseAdvisoryLock } from "./advisory-locks.js";
 
-export async function executeScript(db: DbClient, executionContext: ExecutionContext, script: DataSourceScript, batchId: string): Promise<ScriptExecutionResult> {
+export async function executeScript(db: PrismaClient, executionContext: ExecutionContext, script: DataSourceScript, batchId: string): Promise<ScriptExecutionResult> {
   return db.$transaction(
     async (tx) => {
       const dataSourceKey = `${executionContext.provider}:${script.resource}`;

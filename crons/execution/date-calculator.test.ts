@@ -7,7 +7,7 @@ const INITIAL_WINDOW_DAYS = 7;
 const BACKFILL_CHUNK_DAYS = 7;
 
 describe("calculateDateRanges", () => {
-  let mockDb: PrismaClient;
+  let mockDb: DbClient;
 
   beforeEach(() => {
     mockDb = {

@@ -1,5 +1,5 @@
-import type { PrismaClient } from "@prisma/client/extension";
 import { PGraph } from "p-graph/lib/PGraph.js";
+import type { PrismaClient } from "../db.ts";
 import type { ScriptError, ScriptExecutionResult } from "../orchestrator/runner.js";
 import type { DataSourceScriptMap } from "../orchestrator/script-loader.js";
 import { executeScript } from "./execute-script";

@@ -3,7 +3,7 @@ import type { DbClient } from "../db.ts";
 import { acquireAdvisoryLock, acquireGlobalOrchestratorLock, releaseAdvisoryLock, releaseGlobalOrchestratorLock } from "./advisory-locks.js";
 
 describe("advisory-locks", () => {
-  let mockDb: PrismaClient;
+  let mockDb: DbClient;
 
   beforeEach(() => {
     mockDb = {

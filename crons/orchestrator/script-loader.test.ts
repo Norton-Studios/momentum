@@ -25,7 +25,7 @@ vi.mock("../data-sources/github/index.js", () => ({
 
 describe("script-loader", () => {
   describe("getEnabledScripts", () => {
-    let mockDb: PrismaClient;
+    let mockDb: DbClient;
 
     beforeEach(() => {
       mockDb = {

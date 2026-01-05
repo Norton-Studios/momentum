@@ -1,9 +1,9 @@
-import type { DbClient, ImportBatch } from "../db.ts";
+import type { DbClient, ImportBatch, PrismaClient } from "../db.ts";
 import { acquireGlobalOrchestratorLock, releaseGlobalOrchestratorLock } from "../execution/advisory-locks.js";
 import { buildExecutionGraph } from "../execution/execution-graph.js";
 import { type DataSourceScriptMap, getEnabledScripts } from "./script-loader.js";
 
-export async function runOrchestrator(db: DbClient, options: OrchestratorOptions = {}): Promise<OrchestratorResult> {
+export async function runOrchestrator(db: PrismaClient, options: OrchestratorOptions = {}): Promise<OrchestratorResult> {
   // Transaction ensures lock acquire/release use the same connection
   // Data operations use regular db client so they commit immediately (visible for progress)
   return db.$transaction(

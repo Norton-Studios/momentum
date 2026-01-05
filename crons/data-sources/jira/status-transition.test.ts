@@ -79,7 +79,7 @@ describe("statusTransitionScript", () => {
     it("should create Jira client with context env", async () => {
       mockDb.issue.findMany.mockResolvedValue([]);
 
-      await statusTransitionScript.run(mockDb as never, mockContext);
+      await statusTransitionScript.run(mockDb as never, mockContext as never);
 
       expect(mockCreateJiraClient).toHaveBeenCalledWith(mockContext.env);
     });
@@ -87,7 +87,7 @@ describe("statusTransitionScript", () => {
     it("should fetch issues for the data source within date range", async () => {
       mockDb.issue.findMany.mockResolvedValue([]);
 
-      await statusTransitionScript.run(mockDb as never, mockContext);
+      await statusTransitionScript.run(mockDb as never, mockContext as never);
 
       expect(mockDb.issue.findMany).toHaveBeenCalledWith({
         where: {
@@ -112,7 +112,7 @@ describe("statusTransitionScript", () => {
       ]);
       mockClient.getIssueChangelog.mockResolvedValue({ values: [], total: 0, isLast: true });
 
-      await statusTransitionScript.run(mockDb as never, mockContext);
+      await statusTransitionScript.run(mockDb as never, mockContext as never);
 
       expect(mockClient.getIssueChangelog).toHaveBeenCalledTimes(2);
       expect(mockClient.getIssueChangelog).toHaveBeenCalledWith("PROJ-1");
@@ -145,7 +145,7 @@ describe("statusTransitionScript", () => {
         isLast: true,
       });
 
-      await statusTransitionScript.run(mockDb as never, mockContext);
+      await statusTransitionScript.run(mockDb as never, mockContext as never);
 
       expect(mockDb.issueStatusTransition.create).toHaveBeenCalledWith({
         data: {
@@ -181,7 +181,7 @@ describe("statusTransitionScript", () => {
         isLast: true,
       });
 
-      await statusTransitionScript.run(mockDb as never, mockContext);
+      await statusTransitionScript.run(mockDb as never, mockContext as never);
 
       expect(mockDb.issueStatusTransition.create).toHaveBeenCalledWith({
         data: {
@@ -222,7 +222,7 @@ describe("statusTransitionScript", () => {
         isLast: true,
       });
 
-      await statusTransitionScript.run(mockDb as never, mockContext);
+      await statusTransitionScript.run(mockDb as never, mockContext as never);
 
       expect(mockDb.issueStatusTransition.create).not.toHaveBeenCalled();
     });
@@ -243,7 +243,7 @@ describe("statusTransitionScript", () => {
       });
       mockDb.issueStatusTransition.findFirst.mockResolvedValue({ id: "existing-transition" });
 
-      await statusTransitionScript.run(mockDb as never, mockContext);
+      await statusTransitionScript.run(mockDb as never, mockContext as never);
 
       expect(mockDb.issueStatusTransition.create).not.toHaveBeenCalled();
     });
@@ -263,7 +263,7 @@ describe("statusTransitionScript", () => {
         isLast: true,
       });
 
-      await statusTransitionScript.run(mockDb as never, mockContext);
+      await statusTransitionScript.run(mockDb as never, mockContext as never);
 
       expect(mockDb.issueStatusTransition.create).toHaveBeenCalledWith({
         data: expect.objectContaining({
@@ -291,7 +291,7 @@ describe("statusTransitionScript", () => {
         isLast: true,
       });
 
-      await statusTransitionScript.run(mockDb as never, mockContext);
+      await statusTransitionScript.run(mockDb as never, mockContext as never);
 
       expect(mockDb.dataSourceRun.update).toHaveBeenCalledWith({
         where: { id: mockContext.runId },
@@ -317,7 +317,7 @@ describe("statusTransitionScript", () => {
         isLast: true,
       });
 
-      await statusTransitionScript.run(mockDb as never, mockContext);
+      await statusTransitionScript.run(mockDb as never, mockContext as never);
 
       expect(mockDb.importLog.create).not.toHaveBeenCalled();
       expect(mockDb.issueStatusTransition.create).toHaveBeenCalledTimes(1);
@@ -327,7 +327,7 @@ describe("statusTransitionScript", () => {
       mockDb.issue.findMany.mockResolvedValue([{ id: "issue-1", key: "PROJ-1", externalId: "10001" }]);
       mockClient.getIssueChangelog.mockRejectedValue(new Error("Connection timeout"));
 
-      await statusTransitionScript.run(mockDb as never, mockContext);
+      await statusTransitionScript.run(mockDb as never, mockContext as never);
 
       expect(mockDb.importLog.create).toHaveBeenCalledWith({
         data: {
@@ -343,7 +343,7 @@ describe("statusTransitionScript", () => {
       mockDb.issue.findMany.mockResolvedValue([{ id: "issue-1", key: "PROJ-1", externalId: "10001" }]);
       mockClient.getIssueChangelog.mockRejectedValue("String error");
 
-      await statusTransitionScript.run(mockDb as never, mockContext);
+      await statusTransitionScript.run(mockDb as never, mockContext as never);
 
       expect(mockDb.importLog.create).toHaveBeenCalledWith({
         data: {
@@ -359,7 +359,7 @@ describe("statusTransitionScript", () => {
       mockDb.issue.findMany.mockResolvedValue([{ id: "issue-1", key: "PROJ-1", externalId: "10001" }]);
       mockClient.getIssueChangelog.mockResolvedValue({ values: [], total: 0, isLast: true });
 
-      await statusTransitionScript.run(mockDb as never, mockContext);
+      await statusTransitionScript.run(mockDb as never, mockContext as never);
 
       expect(mockDb.importLog.create).not.toHaveBeenCalled();
     });
@@ -389,7 +389,7 @@ describe("statusTransitionScript", () => {
         isLast: true,
       });
 
-      await statusTransitionScript.run(mockDb as never, mockContext);
+      await statusTransitionScript.run(mockDb as never, mockContext as never);
 
       expect(mockDb.contributor.upsert).toHaveBeenCalledWith({
         where: {
@@ -430,7 +430,7 @@ describe("statusTransitionScript", () => {
         isLast: true,
       });
 
-      await statusTransitionScript.run(mockDb as never, mockContext);
+      await statusTransitionScript.run(mockDb as never, mockContext as never);
 
       expect(mockDb.contributor.upsert).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -458,7 +458,7 @@ describe("statusTransitionScript", () => {
         isLast: true,
       });
 
-      await statusTransitionScript.run(mockDb as never, mockContext);
+      await statusTransitionScript.run(mockDb as never, mockContext as never);
 
       expect(mockDb.contributor.upsert).not.toHaveBeenCalled();
       expect(mockDb.issueStatusTransition.create).toHaveBeenCalledWith({
@@ -482,7 +482,7 @@ describe("statusTransitionScript", () => {
         isLast: true,
       });
 
-      await statusTransitionScript.run(mockDb as never, mockContext);
+      await statusTransitionScript.run(mockDb as never, mockContext as never);
 
       expect(mockDb.contributor.upsert).not.toHaveBeenCalled();
       expect(mockDb.issueStatusTransition.create).toHaveBeenCalledWith({

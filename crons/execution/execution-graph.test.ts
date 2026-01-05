@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { DbClient } from "../db.ts";
+import type { PrismaClient } from "../db.ts";
 import type { ScriptError, ScriptExecutionResult } from "../orchestrator/runner.js";
 import { buildExecutionGraph } from "./execution-graph.js";
 
@@ -10,11 +10,11 @@ vi.mock("./execute-script.js", () => ({
 const { executeScript } = await import("./execute-script.js");
 
 describe("buildExecutionGraph", () => {
-  let mockDb: DbClient;
+  let mockDb: PrismaClient;
 
   beforeEach(() => {
     vi.clearAllMocks();
-    mockDb = {} as DbClient;
+    mockDb = {} as unknown as PrismaClient;
   });
 
   it("should create a graph with single node", async () => {
