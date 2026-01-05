@@ -1,5 +1,5 @@
-import type { PrismaClient } from "@prisma/client";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { DbClient } from "../db.ts";
 import { executeScript } from "./execute-script.js";
 
 vi.mock("./advisory-locks.js", () => ({
@@ -28,7 +28,7 @@ describe("executeScript", () => {
     vi.clearAllMocks();
     mockDb = {
       $transaction: vi.fn((fn) => fn(mockDb)),
-    } as unknown as PrismaClient;
+    } as unknown as DbClient;
   });
 
   it("should skip if lock cannot be acquired", async () => {

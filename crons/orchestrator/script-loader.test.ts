@@ -1,5 +1,5 @@
-import type { DataSource, DataSourceConfig, PrismaClient } from "@prisma/client";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { DataSource, DataSourceConfig, DbClient } from "../db.ts";
 import { getEnabledScripts } from "./script-loader.js";
 
 type DataSourceWithConfig = DataSource & { configs: DataSourceConfig[] };
@@ -32,7 +32,7 @@ describe("script-loader", () => {
         dataSource: {
           findMany: vi.fn(),
         },
-      } as unknown as PrismaClient;
+      } as unknown as DbClient;
     });
 
     it("should return scripts for enabled data sources", async () => {

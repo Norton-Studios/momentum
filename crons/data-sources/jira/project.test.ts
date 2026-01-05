@@ -1,6 +1,6 @@
 import type { ExecutionContext } from "@crons/orchestrator/script-loader.js";
-import type { PrismaClient } from "@prisma/client";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { DbClient } from "../../db.ts";
 import { projectScript } from "./project.js";
 
 const mockGetProjects = vi.fn();
@@ -41,7 +41,7 @@ function createMockDb(overrides: Record<string, unknown> = {}) {
       create: vi.fn().mockResolvedValue({}),
     },
     ...overrides,
-  } as unknown as PrismaClient;
+  } as unknown as DbClient;
 }
 
 describe("projectScript", () => {

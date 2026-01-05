@@ -1,6 +1,6 @@
 import type { ExecutionContext } from "@crons/orchestrator/script-loader.js";
-import type { VulnerabilitySeverity, VulnerabilityStatus } from "@prisma/client";
 import type { DbClient } from "~/db.server.js";
+import type { VulnerabilitySeverity, VulnerabilityStatus } from "../../db.ts";
 import { createSonarQubeClient, type SonarQubeIssue } from "./client.js";
 
 export const issueScript = {

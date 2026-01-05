@@ -1,6 +1,6 @@
 import type { ExecutionContext } from "@crons/orchestrator/script-loader.js";
-import type { IssuePriority, IssueStatus, IssueType } from "@prisma/client";
 import type { DbClient } from "~/db.server.js";
+import type { IssuePriority, IssueStatus, IssueType } from "../../db.ts";
 import { createJiraClient, formatJiraDate, type JiraAdfDocument, type JiraIssue, type JiraUser } from "./client.js";
 
 // Custom field IDs - defaults are for Jira Cloud, can be overridden via env

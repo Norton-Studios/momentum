@@ -1,5 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { db } from "./db.ts";
 import { startScheduler } from "./scheduler.js";
 
-const db = new PrismaClient();
 startScheduler(db);

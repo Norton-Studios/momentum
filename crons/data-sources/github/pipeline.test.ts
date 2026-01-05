@@ -1,5 +1,5 @@
-import type { PrismaClient } from "@prisma/client";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { DbClient } from "../../db.ts";
 import { pipelineScript } from "./pipeline.js";
 
 const mockPaginateIterator = vi.fn();
@@ -69,7 +69,7 @@ describe("pipelineScript", () => {
       dataSourceRun: {
         update: vi.fn().mockResolvedValue({}),
       },
-    } as unknown as PrismaClient;
+    } as unknown as DbClient;
 
     const context = {
       id: "ds-123",
@@ -136,7 +136,7 @@ describe("pipelineScript", () => {
       dataSourceRun: {
         update: vi.fn().mockResolvedValue({}),
       },
-    } as unknown as PrismaClient;
+    } as unknown as DbClient;
 
     const context = {
       id: "ds-123",
@@ -172,7 +172,7 @@ describe("pipelineScript", () => {
       dataSourceRun: {
         update: vi.fn().mockResolvedValue({}),
       },
-    } as unknown as PrismaClient;
+    } as unknown as DbClient;
 
     const context = {
       id: "ds-123",
@@ -210,7 +210,7 @@ describe("pipelineScript", () => {
       dataSourceRun: {
         update: vi.fn().mockResolvedValue({}),
       },
-    } as unknown as PrismaClient;
+    } as unknown as DbClient;
 
     const context = {
       id: "ds-123",
@@ -257,7 +257,7 @@ describe("pipelineScript", () => {
       dataSourceRun: {
         update: vi.fn().mockResolvedValue({}),
       },
-    } as unknown as PrismaClient;
+    } as unknown as DbClient;
 
     const context = {
       id: "ds-123",

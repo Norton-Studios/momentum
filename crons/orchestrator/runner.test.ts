@@ -1,5 +1,5 @@
-import type { PrismaClient } from "@prisma/client";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { DbClient } from "../db.ts";
 import { runOrchestrator } from "./runner.js";
 
 vi.mock("../execution/advisory-locks.js", () => ({
@@ -33,7 +33,7 @@ describe("runOrchestrator", () => {
         update: vi.fn(),
       },
       $transaction: vi.fn((fn) => fn({ $queryRaw: vi.fn() })),
-    } as unknown as PrismaClient;
+    } as unknown as DbClient;
   });
 
   it("should exit early if global lock cannot be acquired", async () => {

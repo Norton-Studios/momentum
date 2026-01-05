@@ -37,7 +37,7 @@ describe("fetchContributors", () => {
       { id: "1", name: "Jane Smith", username: "janesmith", avatarUrl: "https://example.com/jane.jpg" },
       { id: "2", name: "John Doe", username: "johndoe", avatarUrl: null },
     ];
-    vi.mocked(db.contributor.findMany).mockResolvedValue(mockContributors);
+    vi.mocked(db.contributor.findMany).mockResolvedValue(mockContributors as never);
 
     const result = await fetchContributors();
 
@@ -60,7 +60,7 @@ describe("fetchCommitMetrics", () => {
       { committedAt: new Date("2025-01-10"), linesAdded: 100, linesRemoved: 20, filesChanged: 5 },
       { committedAt: new Date("2025-01-11"), linesAdded: 50, linesRemoved: 10, filesChanged: 3 },
     ];
-    vi.mocked(db.commit.findMany).mockResolvedValue(mockCommits);
+    vi.mocked(db.commit.findMany).mockResolvedValue(mockCommits as never);
 
     const result = await fetchCommitMetrics("contributor-1", dateRange);
 
@@ -94,7 +94,7 @@ describe("fetchPullRequestMetrics", () => {
       { id: "1", state: "MERGED", createdAt: new Date("2025-01-10"), iterationCount: 2 },
       { id: "2", state: "OPEN", createdAt: new Date("2025-01-11"), iterationCount: 1 },
     ];
-    vi.mocked(db.pullRequest.findMany).mockResolvedValue(mockPRs);
+    vi.mocked(db.pullRequest.findMany).mockResolvedValue(mockPRs as never);
     vi.mocked(db.pullRequest.count).mockResolvedValue(1);
 
     const result = await fetchPullRequestMetrics("contributor-1", dateRange);
@@ -189,7 +189,7 @@ describe("fetchStreakData", () => {
       { committedAt: new Date("2025-01-13") },
       { committedAt: new Date("2025-01-10") },
     ];
-    vi.mocked(db.commit.findMany).mockResolvedValue(mockCommits);
+    vi.mocked(db.commit.findMany).mockResolvedValue(mockCommits as never);
 
     const result = await fetchStreakData("contributor-1");
 
@@ -301,7 +301,7 @@ describe("fetchHeatmapData", () => {
   it("returns heatmap data for date range", async () => {
     const dateRange = createDateRange(7);
     const mockCommits = [{ committedAt: new Date("2025-01-10") }, { committedAt: new Date("2025-01-10") }, { committedAt: new Date("2025-01-12") }];
-    vi.mocked(db.commit.findMany).mockResolvedValue(mockCommits);
+    vi.mocked(db.commit.findMany).mockResolvedValue(mockCommits as never);
 
     const result = await fetchHeatmapData("contributor-1", dateRange);
 

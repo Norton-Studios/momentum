@@ -1,4 +1,4 @@
-import type { PrismaClient } from "@prisma/client";
+import type { DbClient } from "~/db.server.ts";
 
 export type ActivityStatus = "active" | "stale" | "inactive" | "all";
 
@@ -52,7 +52,7 @@ function getActivityFilter(activity: ActivityStatus) {
   }
 }
 
-export async function getRepositoriesWithFilters(db: PrismaClient, dataSourceId: string, filters: RepositoryFilters = {}): Promise<PaginatedRepositories> {
+export async function getRepositoriesWithFilters(db: DbClient, dataSourceId: string, filters: RepositoryFilters = {}): Promise<PaginatedRepositories> {
   const { search, languages, activity = "all", cursor, limit = 100 } = filters;
 
   const where = {
@@ -100,7 +100,7 @@ export async function getRepositoriesWithFilters(db: PrismaClient, dataSourceId:
   };
 }
 
-export async function getUniqueLanguages(db: PrismaClient, dataSourceId: string): Promise<string[]> {
+export async function getUniqueLanguages(db: DbClient, dataSourceId: string): Promise<string[]> {
   const result = await db.repository.findMany({
     where: {
       dataSourceId,
@@ -114,7 +114,7 @@ export async function getUniqueLanguages(db: PrismaClient, dataSourceId: string)
   return result.map((r) => r.language).filter((lang): lang is string => lang !== null);
 }
 
-export async function bulkUpdateRepositorySelection(db: PrismaClient, repositoryIds: string[], isEnabled: boolean): Promise<number> {
+export async function bulkUpdateRepositorySelection(db: DbClient, repositoryIds: string[], isEnabled: boolean): Promise<number> {
   const result = await db.repository.updateMany({
     where: { id: { in: repositoryIds } },
     data: { isEnabled },
@@ -123,7 +123,7 @@ export async function bulkUpdateRepositorySelection(db: PrismaClient, repository
   return result.count;
 }
 
-export async function selectAllMatchingFilters(db: PrismaClient, dataSourceId: string, filters: Omit<RepositoryFilters, "cursor" | "limit">, isEnabled: boolean): Promise<number> {
+export async function selectAllMatchingFilters(db: DbClient, dataSourceId: string, filters: Omit<RepositoryFilters, "cursor" | "limit">, isEnabled: boolean): Promise<number> {
   const { search, languages, activity = "all" } = filters;
 
   const where = {

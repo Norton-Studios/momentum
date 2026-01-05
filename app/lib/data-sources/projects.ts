@@ -1,5 +1,5 @@
 import type { JiraProject } from "@crons/data-sources/jira/client.js";
-import type { PrismaClient } from "@prisma/client";
+import type { DbClient } from "~/db.server.ts";
 
 const BATCH_SIZE = 10;
 
@@ -9,7 +9,7 @@ interface DataSourceWithConfigs {
   configs: Array<{ key: string; value: string }>;
 }
 
-export async function initializeProjects(db: PrismaClient, dataSource: DataSourceWithConfigs, provider: string) {
+export async function initializeProjects(db: DbClient, dataSource: DataSourceWithConfigs, provider: string) {
   if (provider === "jira") {
     const configMap: Record<string, string> = {};
     for (const config of dataSource.configs) {
@@ -53,7 +53,7 @@ export async function fetchJiraProjects(configs: Record<string, string>): Promis
   return response.json();
 }
 
-export async function saveJiraProjects(db: PrismaClient, dataSourceId: string, projects: JiraProject[]) {
+export async function saveJiraProjects(db: DbClient, dataSourceId: string, projects: JiraProject[]) {
   // Process in batches to avoid exhausting the connection pool
   for (let i = 0; i < projects.length; i += BATCH_SIZE) {
     const batch = projects.slice(i, i + BATCH_SIZE);

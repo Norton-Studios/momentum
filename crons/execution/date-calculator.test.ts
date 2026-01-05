@@ -1,5 +1,5 @@
-import type { PrismaClient } from "@prisma/client";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { DbClient } from "../db.ts";
 import { calculateDateRanges } from "./date-calculator.js";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -14,7 +14,7 @@ describe("calculateDateRanges", () => {
       dataSourceRun: {
         findFirst: vi.fn(),
       },
-    } as unknown as PrismaClient;
+    } as unknown as DbClient;
   });
 
   it("first import: returns initial window only, no backfill", async () => {

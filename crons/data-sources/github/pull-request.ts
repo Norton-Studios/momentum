@@ -1,7 +1,7 @@
 import type { ExecutionContext } from "@crons/orchestrator/script-loader.js";
 import { Octokit } from "@octokit/rest";
-import type { PullRequestState } from "@prisma/client";
 import type { DbClient } from "~/db.server.js";
+import type { PullRequestState } from "../../db.ts";
 
 export const pullRequestScript = {
   dataSourceName: "GITHUB",

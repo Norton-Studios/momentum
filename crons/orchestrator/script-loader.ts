@@ -1,9 +1,8 @@
-import type { DataSource, DataSourceConfig } from "@prisma/client";
-import type { DbClient } from "~/db.server.js";
 import { scripts as githubScripts } from "../data-sources/github/index.js";
 import { scripts as gitlabScripts } from "../data-sources/gitlab/index.js";
 import { scripts as jiraScripts } from "../data-sources/jira/index.js";
 import { scripts as sonarqubeScripts } from "../data-sources/sonarqube/index.js";
+import type { DataSource, DataSourceConfig, DbClient } from "../db.ts";
 
 // Static imports for all implemented providers
 // Add new providers here as they're implemented

@@ -1,6 +1,6 @@
-import type { PrismaClient } from "@prisma/client";
+import type { DbClient } from "~/db.server.ts";
 
-export async function toggleRepository(db: PrismaClient, repositoryId: string, isEnabled: boolean) {
+export async function toggleRepository(db: DbClient, repositoryId: string, isEnabled: boolean) {
   if (!repositoryId) {
     throw new Error("Repository ID is required");
   }
@@ -19,7 +19,7 @@ export async function toggleRepository(db: PrismaClient, repositoryId: string, i
   });
 }
 
-export async function toggleRepositoriesBatch(db: PrismaClient, repositoryIds: string[], isEnabled: boolean) {
+export async function toggleRepositoriesBatch(db: DbClient, repositoryIds: string[], isEnabled: boolean) {
   if (repositoryIds.length === 0) {
     return { count: 0 };
   }
