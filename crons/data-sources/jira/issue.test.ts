@@ -87,7 +87,7 @@ describe("issueScript", () => {
     it("should create Jira client with context env", async () => {
       mockDb.project.findMany.mockResolvedValue([]);
 
-      await issueScript.run(mockDb as never, mockContext);
+      await issueScript.run(mockDb as never, mockContext as never);
 
       expect(mockCreateJiraClient).toHaveBeenCalledWith(mockContext.env);
     });
@@ -95,7 +95,7 @@ describe("issueScript", () => {
     it("should fetch projects for the data source", async () => {
       mockDb.project.findMany.mockResolvedValue([]);
 
-      await issueScript.run(mockDb as never, mockContext);
+      await issueScript.run(mockDb as never, mockContext as never);
 
       expect(mockDb.project.findMany).toHaveBeenCalledWith({
         where: {
@@ -111,7 +111,7 @@ describe("issueScript", () => {
       mockDb.project.findMany.mockResolvedValue([{ id: "proj-1", key: "PROJ" }]);
       mockClient.getAllIssues.mockResolvedValue([]);
 
-      await issueScript.run(mockDb as never, mockContext);
+      await issueScript.run(mockDb as never, mockContext as never);
 
       expect(mockClient.getAllIssues).toHaveBeenCalledWith(expect.stringContaining('project = "PROJ"'), expect.any(Array));
     });
@@ -137,7 +137,7 @@ describe("issueScript", () => {
         },
       ]);
 
-      await issueScript.run(mockDb as never, mockContext);
+      await issueScript.run(mockDb as never, mockContext as never);
 
       expect(mockDb.issue.upsert).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -183,7 +183,7 @@ describe("issueScript", () => {
         },
       ]);
 
-      await issueScript.run(mockDb as never, mockContext);
+      await issueScript.run(mockDb as never, mockContext as never);
 
       expect(mockDb.contributor.upsert).toHaveBeenCalledTimes(2);
     });
@@ -206,7 +206,7 @@ describe("issueScript", () => {
         },
       ]);
 
-      await issueScript.run(mockDb as never, mockContext);
+      await issueScript.run(mockDb as never, mockContext as never);
 
       expect(mockDb.issue.upsert).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -236,7 +236,7 @@ describe("issueScript", () => {
         },
       ]);
 
-      await issueScript.run(mockDb as never, mockContext);
+      await issueScript.run(mockDb as never, mockContext as never);
 
       expect(mockDb.issue.upsert).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -265,7 +265,7 @@ describe("issueScript", () => {
         },
       ]);
 
-      await issueScript.run(mockDb as never, mockContext);
+      await issueScript.run(mockDb as never, mockContext as never);
 
       expect(mockDb.issue.upsert).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -291,7 +291,7 @@ describe("issueScript", () => {
         },
       ]);
 
-      await issueScript.run(mockDb as never, mockContext);
+      await issueScript.run(mockDb as never, mockContext as never);
 
       expect(mockDb.dataSourceRun.update).toHaveBeenCalledWith({
         where: { id: mockContext.runId },
@@ -312,7 +312,7 @@ describe("issueScript", () => {
         },
       ]);
 
-      await issueScript.run(mockDb as never, mockContext);
+      await issueScript.run(mockDb as never, mockContext as never);
 
       expect(mockDb.issue.upsert).toHaveBeenCalledTimes(1);
       expect(mockDb.dataSourceRun.update).toHaveBeenCalledWith({
@@ -325,7 +325,7 @@ describe("issueScript", () => {
       mockDb.project.findMany.mockResolvedValue([{ id: "proj-1", key: "PROJ" }]);
       mockClient.getAllIssues.mockRejectedValue(new Error("Timeout"));
 
-      await issueScript.run(mockDb as never, mockContext);
+      await issueScript.run(mockDb as never, mockContext as never);
 
       expect(mockDb.importLog.create).toHaveBeenCalledWith({
         data: {
@@ -352,7 +352,7 @@ describe("issueScript", () => {
         },
       ]);
 
-      await issueScript.run(mockDb as never, mockContext);
+      await issueScript.run(mockDb as never, mockContext as never);
 
       expect(mockDb.issue.upsert).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -410,7 +410,7 @@ describe("issueScript", () => {
         },
       ]);
 
-      await issueScript.run(mockDb as never, mockContext);
+      await issueScript.run(mockDb as never, mockContext as never);
 
       expect(mockDb.issue.upsert).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -481,7 +481,7 @@ describe("issueScript", () => {
         },
       ]);
 
-      await issueScript.run(mockDb as never, mockContext);
+      await issueScript.run(mockDb as never, mockContext as never);
 
       expect(mockDb.issue.upsert).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -549,7 +549,7 @@ describe("issueScript", () => {
         },
       ]);
 
-      await issueScript.run(mockDb as never, mockContext);
+      await issueScript.run(mockDb as never, mockContext as never);
 
       expect(mockDb.issue.upsert).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -580,7 +580,7 @@ describe("issueScript", () => {
         },
       ]);
 
-      await issueScript.run(mockDb as never, mockContext);
+      await issueScript.run(mockDb as never, mockContext as never);
 
       expect(mockDb.issue.upsert).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -607,7 +607,7 @@ describe("issueScript", () => {
         },
       ]);
 
-      await issueScript.run(mockDb as never, mockContext);
+      await issueScript.run(mockDb as never, mockContext as never);
 
       expect(mockDb.issue.upsert).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -644,7 +644,7 @@ describe("issueScript", () => {
         },
       ]);
 
-      await issueScript.run(mockDb as never, mockContext);
+      await issueScript.run(mockDb as never, mockContext as never);
 
       expect(mockDb.contributor.upsert).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -682,7 +682,7 @@ describe("issueScript", () => {
         },
       ]);
 
-      await issueScript.run(mockDb as never, mockContext);
+      await issueScript.run(mockDb as never, mockContext as never);
 
       expect(mockDb.contributor.upsert).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -715,7 +715,7 @@ describe("issueScript", () => {
         },
       ]);
 
-      await issueScript.run(mockDb as never, mockContext);
+      await issueScript.run(mockDb as never, mockContext as never);
 
       expect(mockDb.contributor.upsert).toHaveBeenCalledWith(
         expect.objectContaining({

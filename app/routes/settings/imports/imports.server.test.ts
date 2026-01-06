@@ -41,6 +41,10 @@ vi.mock("~/db.server", () => ({
 import { db } from "~/db.server";
 import { importsAction, importsLoader } from "./imports.server";
 
+function createArgs(request: Request) {
+  return { request, params: {}, context: {}, unstable_pattern: "" } as never;
+}
+
 describe("importsLoader", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -79,11 +83,7 @@ describe("importsLoader", () => {
     ] as never);
 
     const request = new Request("http://localhost/settings/imports");
-    const result = (await importsLoader({
-      request,
-      params: {},
-      context: {},
-    })) as unknown as Response;
+    const result = (await importsLoader(createArgs(request))) as unknown as Response;
     const data = await result.json();
 
     expect(data.batches).toHaveLength(1);
@@ -116,11 +116,7 @@ describe("importsLoader", () => {
     ] as never);
 
     const request = new Request("http://localhost/settings/imports");
-    const result = (await importsLoader({
-      request,
-      params: {},
-      context: {},
-    })) as unknown as Response;
+    const result = (await importsLoader(createArgs(request))) as unknown as Response;
     const data = await result.json();
 
     expect(data.isRunning).toBe(true);
@@ -130,11 +126,7 @@ describe("importsLoader", () => {
     vi.mocked(db.importBatch.findMany).mockResolvedValue([]);
 
     const request = new Request("http://localhost/settings/imports");
-    const result = (await importsLoader({
-      request,
-      params: {},
-      context: {},
-    })) as unknown as Response;
+    const result = (await importsLoader(createArgs(request))) as unknown as Response;
     const data = await result.json();
 
     expect(data.batches).toHaveLength(0);
@@ -158,11 +150,7 @@ describe("importsLoader", () => {
     vi.mocked(db.importBatch.findMany).mockResolvedValue(batches as never);
 
     const request = new Request("http://localhost/settings/imports");
-    const result = (await importsLoader({
-      request,
-      params: {},
-      context: {},
-    })) as unknown as Response;
+    const result = (await importsLoader(createArgs(request))) as unknown as Response;
     const data = await result.json();
 
     expect(data.batches).toHaveLength(50);
@@ -194,11 +182,7 @@ describe("importsAction", () => {
       body: formData,
     });
 
-    const result = (await importsAction({
-      request,
-      params: {},
-      context: {},
-    })) as unknown as Response;
+    const result = (await importsAction(createArgs(request))) as unknown as Response;
     const data = await result.json();
 
     expect(triggerImport).toHaveBeenCalledWith("Admin User");
@@ -220,11 +204,7 @@ describe("importsAction", () => {
       body: formData,
     });
 
-    const result = (await importsAction({
-      request,
-      params: {},
-      context: {},
-    })) as unknown as Response;
+    const result = (await importsAction(createArgs(request))) as unknown as Response;
     const data = await result.json();
 
     expect(result.status).toBe(400);
@@ -246,11 +226,7 @@ describe("importsAction", () => {
       body: formData,
     });
 
-    const result = (await importsAction({
-      request,
-      params: {},
-      context: {},
-    })) as unknown as Response;
+    const result = (await importsAction(createArgs(request))) as unknown as Response;
     const data = await result.json();
 
     expect(data.alreadyRunning).toBe(true);
@@ -266,11 +242,7 @@ describe("importsAction", () => {
       body: formData,
     });
 
-    const result = (await importsAction({
-      request,
-      params: {},
-      context: {},
-    })) as unknown as Response;
+    const result = (await importsAction(createArgs(request))) as unknown as Response;
     const data = await result.json();
 
     expect(result.status).toBe(400);

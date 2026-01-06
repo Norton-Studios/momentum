@@ -1,7 +1,7 @@
-import type { PrismaClient } from "@prisma/client";
+import type { DbClient } from "~/db.server.ts";
 import type { DataSourceProvider } from "./validation";
 
-export async function getOrCreateOrganization(db: PrismaClient) {
+export async function getOrCreateOrganization(db: DbClient) {
   let organization = await db.organization.findFirst({
     select: {
       id: true,
@@ -27,7 +27,7 @@ export async function getOrCreateOrganization(db: PrismaClient) {
   return organization;
 }
 
-export async function upsertDataSource(db: PrismaClient, organizationId: string, provider: string, providerEnum: DataSourceProvider): Promise<string> {
+export async function upsertDataSource(db: DbClient, organizationId: string, provider: string, providerEnum: DataSourceProvider): Promise<string> {
   const existingDataSource = await db.dataSource.findFirst({
     where: {
       organizationId,
@@ -54,7 +54,7 @@ export async function upsertDataSource(db: PrismaClient, organizationId: string,
   return newDataSource.id;
 }
 
-export async function saveDataSourceConfigs(db: PrismaClient, dataSourceId: string, configs: Record<string, string>) {
+export async function saveDataSourceConfigs(db: DbClient, dataSourceId: string, configs: Record<string, string>) {
   await Promise.all(
     Object.entries(configs).map(([key, value]) => {
       const isSecret = key.toLowerCase().includes("token") || key.toLowerCase().includes("password");

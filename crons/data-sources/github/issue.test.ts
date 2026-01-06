@@ -1,5 +1,5 @@
-import type { PrismaClient } from "@prisma/client";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { DbClient } from "../../db.ts";
 import { issueScript } from "./issue.js";
 
 const mockPaginateIterator = vi.fn();
@@ -74,7 +74,7 @@ describe("issueScript", () => {
       dataSourceRun: {
         update: vi.fn().mockResolvedValue({}),
       },
-    } as unknown as PrismaClient;
+    } as unknown as DbClient;
 
     const context = {
       id: "ds-123",
@@ -189,7 +189,7 @@ describe("issueScript", () => {
       dataSourceRun: {
         update: vi.fn().mockResolvedValue({}),
       },
-    } as unknown as PrismaClient;
+    } as unknown as DbClient;
 
     const context = {
       id: "ds-123",
@@ -291,7 +291,7 @@ describe("issueScript", () => {
       dataSourceRun: {
         update: vi.fn().mockResolvedValue({}),
       },
-    } as unknown as PrismaClient;
+    } as unknown as DbClient;
 
     const context = {
       id: "ds-123",
@@ -368,7 +368,7 @@ describe("issueScript", () => {
       dataSourceRun: {
         update: vi.fn().mockResolvedValue({}),
       },
-    } as unknown as PrismaClient;
+    } as unknown as DbClient;
 
     const context = {
       id: "ds-123",
@@ -448,7 +448,7 @@ describe("issueScript", () => {
       dataSourceRun: {
         update: vi.fn().mockResolvedValue({}),
       },
-    } as unknown as PrismaClient;
+    } as unknown as DbClient;
 
     const context = {
       id: "ds-123",
@@ -492,7 +492,7 @@ describe("issueScript", () => {
       dataSourceRun: {
         update: vi.fn().mockResolvedValue({}),
       },
-    } as unknown as PrismaClient;
+    } as unknown as DbClient;
 
     const context = {
       id: "ds-123",
@@ -529,7 +529,7 @@ describe("issueScript", () => {
       dataSourceRun: {
         update: vi.fn().mockResolvedValue({}),
       },
-    } as unknown as PrismaClient;
+    } as unknown as DbClient;
 
     const context = {
       id: "ds-123",
@@ -570,7 +570,7 @@ describe("issueScript", () => {
       dataSourceRun: {
         update: vi.fn().mockResolvedValue({}),
       },
-    } as unknown as PrismaClient;
+    } as unknown as DbClient;
 
     const context = {
       id: "ds-123",
@@ -653,7 +653,7 @@ describe("issueScript", () => {
       dataSourceRun: {
         update: vi.fn().mockResolvedValue({}),
       },
-    } as unknown as PrismaClient;
+    } as unknown as DbClient;
 
     const context = {
       id: "ds-123",

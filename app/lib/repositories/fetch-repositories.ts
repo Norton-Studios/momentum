@@ -1,6 +1,6 @@
 import { Gitlab } from "@gitbeaker/rest";
 import { Octokit } from "@octokit/rest";
-import type { PrismaClient } from "@prisma/client";
+import type { DbClient } from "~/db.server.ts";
 
 interface FetchRepositoriesParams {
   token: string;
@@ -85,12 +85,7 @@ export async function fetchGitlabRepositories({ token, host = "https://gitlab.co
   return allRepos;
 }
 
-export async function saveRepositories(
-  db: PrismaClient,
-  dataSourceId: string,
-  repositories: RepositoryData[],
-  provider: "GITHUB" | "GITLAB" | "BITBUCKET" = "GITHUB"
-): Promise<void> {
+export async function saveRepositories(db: DbClient, dataSourceId: string, repositories: RepositoryData[], provider: "GITHUB" | "GITLAB" | "BITBUCKET" = "GITHUB"): Promise<void> {
   await Promise.all(
     repositories.map((repo) =>
       db.repository.upsert({

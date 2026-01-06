@@ -72,7 +72,7 @@ describe("sprintScript", () => {
     it("should create Jira client with context env", async () => {
       mockDb.board.findMany.mockResolvedValue([]);
 
-      await sprintScript.run(mockDb as never, mockContext);
+      await sprintScript.run(mockDb as never, mockContext as never);
 
       expect(mockCreateJiraClient).toHaveBeenCalledWith(mockContext.env);
     });
@@ -80,7 +80,7 @@ describe("sprintScript", () => {
     it("should fetch scrum boards for the data source", async () => {
       mockDb.board.findMany.mockResolvedValue([]);
 
-      await sprintScript.run(mockDb as never, mockContext);
+      await sprintScript.run(mockDb as never, mockContext as never);
 
       expect(mockDb.board.findMany).toHaveBeenCalledWith({
         where: {
@@ -102,7 +102,7 @@ describe("sprintScript", () => {
       ]);
       mockClient.getSprints.mockResolvedValue([]);
 
-      await sprintScript.run(mockDb as never, mockContext);
+      await sprintScript.run(mockDb as never, mockContext as never);
 
       expect(mockClient.getSprints).toHaveBeenCalledTimes(1);
       expect(mockClient.getSprints).toHaveBeenCalledWith(101);
@@ -115,7 +115,7 @@ describe("sprintScript", () => {
       ]);
       mockClient.getSprints.mockResolvedValue([]);
 
-      await sprintScript.run(mockDb as never, mockContext);
+      await sprintScript.run(mockDb as never, mockContext as never);
 
       expect(mockClient.getSprints).toHaveBeenCalledTimes(2);
       expect(mockClient.getSprints).toHaveBeenCalledWith(101);
@@ -137,7 +137,7 @@ describe("sprintScript", () => {
       ]);
       mockDb.sprint.findFirst.mockResolvedValue(null);
 
-      await sprintScript.run(mockDb as never, mockContext);
+      await sprintScript.run(mockDb as never, mockContext as never);
 
       expect(mockDb.sprint.create).toHaveBeenCalledWith({
         data: {
@@ -169,7 +169,7 @@ describe("sprintScript", () => {
       ]);
       mockDb.sprint.findFirst.mockResolvedValue({ id: "sprint-1" });
 
-      await sprintScript.run(mockDb as never, mockContext);
+      await sprintScript.run(mockDb as never, mockContext as never);
 
       expect(mockDb.sprint.update).toHaveBeenCalledWith({
         where: { id: "sprint-1" },
@@ -197,7 +197,7 @@ describe("sprintScript", () => {
       ]);
       mockDb.sprint.findFirst.mockResolvedValue(null);
 
-      await sprintScript.run(mockDb as never, mockContext);
+      await sprintScript.run(mockDb as never, mockContext as never);
 
       expect(mockDb.sprint.create).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -217,7 +217,7 @@ describe("sprintScript", () => {
       ]);
       mockDb.sprint.findFirst.mockResolvedValue(null);
 
-      await sprintScript.run(mockDb as never, mockContext);
+      await sprintScript.run(mockDb as never, mockContext as never);
 
       expect(mockDb.dataSourceRun.update).toHaveBeenCalledWith({
         where: { id: mockContext.runId },
@@ -235,7 +235,7 @@ describe("sprintScript", () => {
         .mockResolvedValueOnce([{ id: 2001, name: "Sprint", state: "active", startDate: "2024-02-01T00:00:00.000Z" }]);
       mockDb.sprint.findFirst.mockResolvedValue(null);
 
-      await sprintScript.run(mockDb as never, mockContext);
+      await sprintScript.run(mockDb as never, mockContext as never);
 
       expect(mockDb.sprint.create).toHaveBeenCalledTimes(1);
       expect(mockDb.dataSourceRun.update).toHaveBeenCalledWith({
@@ -248,7 +248,7 @@ describe("sprintScript", () => {
       mockDb.board.findMany.mockResolvedValue([{ id: "board-1", externalId: "101", projectId: "proj-1" }]);
       mockClient.getSprints.mockRejectedValue(new Error("Permission denied"));
 
-      await sprintScript.run(mockDb as never, mockContext);
+      await sprintScript.run(mockDb as never, mockContext as never);
 
       expect(mockDb.importLog.create).toHaveBeenCalledWith({
         data: {
@@ -264,7 +264,7 @@ describe("sprintScript", () => {
       mockDb.board.findMany.mockResolvedValue([{ id: "board-1", externalId: "101", projectId: "proj-1" }]);
       mockClient.getSprints.mockRejectedValue("String error");
 
-      await sprintScript.run(mockDb as never, mockContext);
+      await sprintScript.run(mockDb as never, mockContext as never);
 
       expect(mockDb.importLog.create).toHaveBeenCalledWith({
         data: {
@@ -281,7 +281,7 @@ describe("sprintScript", () => {
       mockClient.getSprints.mockResolvedValue([{ id: 1001, name: "Sprint", state: "active", startDate: "2024-02-01T00:00:00.000Z" }]);
       mockDb.sprint.findFirst.mockResolvedValue(null);
 
-      await sprintScript.run(mockDb as never, mockContext);
+      await sprintScript.run(mockDb as never, mockContext as never);
 
       expect(mockDb.importLog.create).not.toHaveBeenCalled();
     });

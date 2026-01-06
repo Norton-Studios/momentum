@@ -1,4 +1,4 @@
-import type { PrismaClient } from "@prisma/client";
+import type { DbClient, PrismaClient } from "../db.ts";
 import { calculateDateRanges } from "../execution/date-calculator.js";
 import { completeRun, createRun, failRun } from "../execution/run-tracker.js";
 import type { ScriptExecutionResult } from "../orchestrator/runner.js";
@@ -26,7 +26,7 @@ export async function executeScript(db: PrismaClient, executionContext: Executio
   );
 }
 
-async function execute(db: PrismaClient, executionContext: ExecutionContext, script: DataSourceScript, batchId: string): Promise<ScriptExecutionResult> {
+async function execute(db: DbClient, executionContext: ExecutionContext, script: DataSourceScript, batchId: string): Promise<ScriptExecutionResult> {
   const runId = await createRun(db, executionContext.id, script.resource, batchId);
 
   if (!runId) {

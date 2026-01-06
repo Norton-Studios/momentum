@@ -97,6 +97,10 @@ vi.mock("~/lib/repositories/toggle-repositories", () => ({
 import { db } from "~/db.server";
 import { action, loader } from "./data-sources.server";
 
+function createArgs(request: Request) {
+  return { request, params: {}, context: {}, unstable_pattern: "" } as never;
+}
+
 describe("data-sources loader", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -118,11 +122,7 @@ describe("data-sources loader", () => {
     ] as never);
 
     const request = new Request("http://localhost/settings/data-sources");
-    const result = (await loader({
-      request,
-      params: {},
-      context: {},
-    })) as unknown as Response;
+    const result = (await loader(createArgs(request))) as unknown as Response;
     const data = await result.json();
 
     expect(data.dataSources).toHaveLength(1);
@@ -136,11 +136,7 @@ describe("data-sources loader", () => {
     vi.mocked(db.dataSource.findMany).mockResolvedValue([]);
 
     const request = new Request("http://localhost/settings/data-sources");
-    const result = (await loader({
-      request,
-      params: {},
-      context: {},
-    })) as unknown as Response;
+    const result = (await loader(createArgs(request))) as unknown as Response;
     const data = await result.json();
 
     expect(data.dataSources).toHaveLength(0);
@@ -164,11 +160,7 @@ describe("data-sources action - test intent", () => {
       body: formData,
     });
 
-    const result = (await action({
-      request,
-      params: {},
-      context: {},
-    })) as unknown as Response;
+    const result = (await action(createArgs(request))) as unknown as Response;
     const data = await result.json();
 
     expect(data.testSuccess).toBe(true);
@@ -207,11 +199,7 @@ describe("data-sources action - connect intent", () => {
       body: formData,
     });
 
-    const result = (await action({
-      request,
-      params: {},
-      context: {},
-    })) as unknown as Response;
+    const result = (await action(createArgs(request))) as unknown as Response;
     const data = await result.json();
 
     expect(data.success).toBe(true);
@@ -250,11 +238,7 @@ describe("data-sources action - connect intent", () => {
       body: formData,
     });
 
-    await action({
-      request,
-      params: {},
-      context: {},
-    });
+    await action(createArgs(request));
 
     expect(db.dataSource.update).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -286,11 +270,7 @@ describe("data-sources action - delete intent", () => {
       body: formData,
     });
 
-    const result = (await action({
-      request,
-      params: {},
-      context: {},
-    })) as unknown as Response;
+    const result = (await action(createArgs(request))) as unknown as Response;
     const data = await result.json();
 
     expect(data.success).toBe(true);
@@ -311,11 +291,7 @@ describe("data-sources action - delete intent", () => {
       body: formData,
     });
 
-    const result = (await action({
-      request,
-      params: {},
-      context: {},
-    })) as unknown as Response;
+    const result = (await action(createArgs(request))) as unknown as Response;
 
     expect(result.status).toBe(500);
   });
@@ -344,11 +320,7 @@ describe("data-sources action - toggle-enabled intent", () => {
       body: formData,
     });
 
-    const result = (await action({
-      request,
-      params: {},
-      context: {},
-    })) as unknown as Response;
+    const result = (await action(createArgs(request))) as unknown as Response;
     const data = await result.json();
 
     expect(data.success).toBe(true);
@@ -368,11 +340,7 @@ describe("data-sources action - toggle-enabled intent", () => {
       body: formData,
     });
 
-    const result = (await action({
-      request,
-      params: {},
-      context: {},
-    })) as unknown as Response;
+    const result = (await action(createArgs(request))) as unknown as Response;
 
     expect(result.status).toBe(400);
   });
@@ -390,11 +358,7 @@ describe("data-sources action - toggle-enabled intent", () => {
       body: formData,
     });
 
-    const result = (await action({
-      request,
-      params: {},
-      context: {},
-    })) as unknown as Response;
+    const result = (await action(createArgs(request))) as unknown as Response;
 
     expect(result.status).toBe(500);
   });
@@ -430,11 +394,7 @@ describe("data-sources action - fetch-repositories intent", () => {
       body: formData,
     });
 
-    const result = (await action({
-      request,
-      params: {},
-      context: {},
-    })) as unknown as Response;
+    const result = (await action(createArgs(request))) as unknown as Response;
     const data = await result.json();
 
     expect(data.repositories).toBeDefined();
@@ -451,11 +411,7 @@ describe("data-sources action - fetch-repositories intent", () => {
       body: formData,
     });
 
-    const result = (await action({
-      request,
-      params: {},
-      context: {},
-    })) as unknown as Response;
+    const result = (await action(createArgs(request))) as unknown as Response;
 
     expect(result.status).toBe(400);
   });
@@ -472,11 +428,7 @@ describe("data-sources action - fetch-repositories intent", () => {
       body: formData,
     });
 
-    const result = (await action({
-      request,
-      params: {},
-      context: {},
-    })) as unknown as Response;
+    const result = (await action(createArgs(request))) as unknown as Response;
 
     expect(result.status).toBe(404);
   });
@@ -501,11 +453,7 @@ describe("data-sources action - toggle-repository intent", () => {
       body: formData,
     });
 
-    const result = (await action({
-      request,
-      params: {},
-      context: {},
-    })) as unknown as Response;
+    const result = (await action(createArgs(request))) as unknown as Response;
     const data = await result.json();
 
     expect(data.success).toBe(true);
@@ -521,11 +469,7 @@ describe("data-sources action - toggle-repository intent", () => {
       body: formData,
     });
 
-    const result = (await action({
-      request,
-      params: {},
-      context: {},
-    })) as unknown as Response;
+    const result = (await action(createArgs(request))) as unknown as Response;
 
     expect(result.status).toBe(400);
   });
@@ -552,11 +496,7 @@ describe("data-sources action - toggle-repositories-batch intent", () => {
       body: formData,
     });
 
-    const result = (await action({
-      request,
-      params: {},
-      context: {},
-    })) as unknown as Response;
+    const result = (await action(createArgs(request))) as unknown as Response;
     const data = await result.json();
 
     expect(data.success).toBe(true);
@@ -593,11 +533,7 @@ describe("data-sources action - fetch-projects intent", () => {
       body: formData,
     });
 
-    const result = (await action({
-      request,
-      params: {},
-      context: {},
-    })) as unknown as Response;
+    const result = (await action(createArgs(request))) as unknown as Response;
     const data = await result.json();
 
     expect(data.projects).toBeDefined();
@@ -614,11 +550,7 @@ describe("data-sources action - fetch-projects intent", () => {
       body: formData,
     });
 
-    const result = (await action({
-      request,
-      params: {},
-      context: {},
-    })) as unknown as Response;
+    const result = (await action(createArgs(request))) as unknown as Response;
 
     expect(result.status).toBe(400);
   });
@@ -635,11 +567,7 @@ describe("data-sources action - fetch-projects intent", () => {
       body: formData,
     });
 
-    const result = (await action({
-      request,
-      params: {},
-      context: {},
-    })) as unknown as Response;
+    const result = (await action(createArgs(request))) as unknown as Response;
 
     expect(result.status).toBe(404);
   });
@@ -666,11 +594,7 @@ describe("data-sources action - toggle-project intent", () => {
       body: formData,
     });
 
-    const result = (await action({
-      request,
-      params: {},
-      context: {},
-    })) as unknown as Response;
+    const result = (await action(createArgs(request))) as unknown as Response;
     const data = await result.json();
 
     expect(data.success).toBe(true);
@@ -686,11 +610,7 @@ describe("data-sources action - toggle-project intent", () => {
       body: formData,
     });
 
-    const result = (await action({
-      request,
-      params: {},
-      context: {},
-    })) as unknown as Response;
+    const result = (await action(createArgs(request))) as unknown as Response;
 
     expect(result.status).toBe(400);
   });
@@ -708,11 +628,7 @@ describe("data-sources action - toggle-project intent", () => {
       body: formData,
     });
 
-    const result = (await action({
-      request,
-      params: {},
-      context: {},
-    })) as unknown as Response;
+    const result = (await action(createArgs(request))) as unknown as Response;
 
     expect(result.status).toBe(404);
   });
@@ -737,11 +653,7 @@ describe("data-sources action - toggle-projects-batch intent", () => {
       body: formData,
     });
 
-    const result = (await action({
-      request,
-      params: {},
-      context: {},
-    })) as unknown as Response;
+    const result = (await action(createArgs(request))) as unknown as Response;
     const data = await result.json();
 
     expect(data.success).toBe(true);
@@ -763,11 +675,7 @@ describe("data-sources action - invalid intent", () => {
       body: formData,
     });
 
-    const result = (await action({
-      request,
-      params: {},
-      context: {},
-    })) as unknown as Response;
+    const result = (await action(createArgs(request))) as unknown as Response;
 
     expect(result.status).toBe(400);
     const data = await result.json();
@@ -789,11 +697,7 @@ describe("data-sources action - connect intent validation", () => {
       body: formData,
     });
 
-    const result = (await action({
-      request,
-      params: {},
-      context: {},
-    })) as unknown as Response;
+    const result = (await action(createArgs(request))) as unknown as Response;
 
     expect(result.status).toBe(400);
     const data = await result.json();
@@ -810,11 +714,7 @@ describe("data-sources action - connect intent validation", () => {
       body: formData,
     });
 
-    const result = (await action({
-      request,
-      params: {},
-      context: {},
-    })) as unknown as Response;
+    const result = (await action(createArgs(request))) as unknown as Response;
 
     expect(result.status).toBe(400);
     const data = await result.json();
@@ -836,11 +736,7 @@ describe("data-sources action - delete intent validation", () => {
       body: formData,
     });
 
-    const result = (await action({
-      request,
-      params: {},
-      context: {},
-    })) as unknown as Response;
+    const result = (await action(createArgs(request))) as unknown as Response;
 
     expect(result.status).toBe(400);
     const data = await result.json();
@@ -862,11 +758,7 @@ describe("data-sources action - test intent validation", () => {
       body: formData,
     });
 
-    const result = (await action({
-      request,
-      params: {},
-      context: {},
-    })) as unknown as Response;
+    const result = (await action(createArgs(request))) as unknown as Response;
 
     expect(result.status).toBe(400);
     const data = await result.json();
@@ -888,11 +780,7 @@ describe("data-sources action - fetch-repositories intent validation", () => {
       body: formData,
     });
 
-    const result = (await action({
-      request,
-      params: {},
-      context: {},
-    })) as unknown as Response;
+    const result = (await action(createArgs(request))) as unknown as Response;
 
     expect(result.status).toBe(400);
     const data = await result.json();
@@ -909,11 +797,7 @@ describe("data-sources action - fetch-repositories intent validation", () => {
       body: formData,
     });
 
-    const result = (await action({
-      request,
-      params: {},
-      context: {},
-    })) as unknown as Response;
+    const result = (await action(createArgs(request))) as unknown as Response;
 
     expect(result.status).toBe(400);
     const data = await result.json();
@@ -935,11 +819,7 @@ describe("data-sources action - fetch-projects intent validation", () => {
       body: formData,
     });
 
-    const result = (await action({
-      request,
-      params: {},
-      context: {},
-    })) as unknown as Response;
+    const result = (await action(createArgs(request))) as unknown as Response;
 
     expect(result.status).toBe(400);
     const data = await result.json();
@@ -956,11 +836,7 @@ describe("data-sources action - fetch-projects intent validation", () => {
       body: formData,
     });
 
-    const result = (await action({
-      request,
-      params: {},
-      context: {},
-    })) as unknown as Response;
+    const result = (await action(createArgs(request))) as unknown as Response;
 
     expect(result.status).toBe(400);
     const data = await result.json();
@@ -1008,11 +884,7 @@ describe("data-sources action - initialize repositories", () => {
       body: formData,
     });
 
-    const result = (await action({
-      request,
-      params: {},
-      context: {},
-    })) as unknown as Response;
+    const result = (await action(createArgs(request))) as unknown as Response;
     const data = await result.json();
 
     expect(fetchGithubRepositories).toHaveBeenCalledWith({
@@ -1058,11 +930,7 @@ describe("data-sources action - initialize repositories", () => {
       body: formData,
     });
 
-    const result = (await action({
-      request,
-      params: {},
-      context: {},
-    })) as unknown as Response;
+    const result = (await action(createArgs(request))) as unknown as Response;
     const data = await result.json();
 
     expect(fetchGitlabRepositories).toHaveBeenCalledWith({
@@ -1091,11 +959,7 @@ describe("data-sources action - initialize repositories", () => {
       body: formData,
     });
 
-    const result = (await action({
-      request,
-      params: {},
-      context: {},
-    })) as unknown as Response;
+    const result = (await action(createArgs(request))) as unknown as Response;
 
     expect(result.status).toBe(500);
     const data = await result.json();
@@ -1121,11 +985,7 @@ describe("data-sources action - initialize repositories", () => {
       body: formData,
     });
 
-    const result = (await action({
-      request,
-      params: {},
-      context: {},
-    })) as unknown as Response;
+    const result = (await action(createArgs(request))) as unknown as Response;
 
     expect(result.status).toBe(500);
     const data = await result.json();
@@ -1165,11 +1025,7 @@ describe("data-sources action - create organization", () => {
       body: formData,
     });
 
-    const result = (await action({
-      request,
-      params: {},
-      context: {},
-    })) as unknown as Response;
+    const result = (await action(createArgs(request))) as unknown as Response;
     const data = await result.json();
 
     expect(db.organization.create).toHaveBeenCalledWith(
@@ -1204,11 +1060,7 @@ describe("data-sources action - test connection failure", () => {
       body: formData,
     });
 
-    const result = (await action({
-      request,
-      params: {},
-      context: {},
-    })) as unknown as Response;
+    const result = (await action(createArgs(request))) as unknown as Response;
 
     expect(result.status).toBe(400);
     const data = await result.json();
@@ -1238,11 +1090,7 @@ describe("data-sources action - toggle repository error", () => {
       body: formData,
     });
 
-    const result = (await action({
-      request,
-      params: {},
-      context: {},
-    })) as unknown as Response;
+    const result = (await action(createArgs(request))) as unknown as Response;
 
     expect(result.status).toBe(404);
     const data = await result.json();
@@ -1268,11 +1116,7 @@ describe("data-sources action - toggle project error", () => {
       body: formData,
     });
 
-    const result = (await action({
-      request,
-      params: {},
-      context: {},
-    })) as unknown as Response;
+    const result = (await action(createArgs(request))) as unknown as Response;
 
     expect(result.status).toBe(500);
     const data = await result.json();

@@ -1,7 +1,7 @@
 import type { ExecutionContext } from "@crons/orchestrator/script-loader.js";
 import { Gitlab } from "@gitbeaker/rest";
-import type { PullRequestState } from "@prisma/client";
 import type { DbClient } from "~/db.server.js";
+import type { PullRequestState } from "../../db.ts";
 
 export const mergeRequestScript = {
   dataSourceName: "GITLAB",

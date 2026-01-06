@@ -1,9 +1,9 @@
-import type { PrismaClient } from "@prisma/client";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { DbClient } from "../db.ts";
 import { cleanupStaleRuns, completeRun, createRun, failRun } from "./run-tracker.js";
 
 describe("run-tracker", () => {
-  let mockDb: PrismaClient;
+  let mockDb: DbClient;
 
   beforeEach(() => {
     mockDb = {
@@ -13,7 +13,7 @@ describe("run-tracker", () => {
         updateMany: vi.fn(),
         findUnique: vi.fn(),
       },
-    } as unknown as PrismaClient;
+    } as unknown as DbClient;
   });
 
   describe("createRun", () => {

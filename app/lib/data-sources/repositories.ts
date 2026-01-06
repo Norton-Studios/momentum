@@ -1,4 +1,4 @@
-import type { PrismaClient } from "@prisma/client";
+import type { DbClient } from "~/db.server.ts";
 import { fetchGithubRepositories, fetchGitlabRepositories, saveRepositories } from "~/lib/repositories/fetch-repositories";
 import { DEFAULT_ACTIVE_THRESHOLD_DAYS } from "~/lib/repositories/toggle-repositories";
 
@@ -8,7 +8,7 @@ interface DataSourceWithConfigs {
   configs: Array<{ key: string; value: string }>;
 }
 
-export async function initializeRepositories(db: PrismaClient, dataSource: DataSourceWithConfigs, provider: string) {
+export async function initializeRepositories(db: DbClient, dataSource: DataSourceWithConfigs, provider: string) {
   if (provider === "github") {
     const token = dataSource.configs.find((c) => c.key === "GITHUB_TOKEN")?.value;
     const org = dataSource.configs.find((c) => c.key === "GITHUB_ORG")?.value;
@@ -34,7 +34,7 @@ export async function initializeRepositories(db: PrismaClient, dataSource: DataS
   }
 }
 
-export async function setDefaultSelections(db: PrismaClient, dataSourceId: string) {
+export async function setDefaultSelections(db: DbClient, dataSourceId: string) {
   const now = new Date();
   const thresholdDate = new Date(now.getTime() - DEFAULT_ACTIVE_THRESHOLD_DAYS * 24 * 60 * 60 * 1000);
 

@@ -1,10 +1,10 @@
-import type { DataSourceProvider } from "@prisma/client";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { data } from "react-router";
 import { requireAdmin } from "~/auth/auth.server";
 import { db } from "~/db.server";
 import { type ActivityStatus, getRepositoriesWithFilters } from "~/lib/repositories/repository-filters";
 import { REPOSITORY_PAGE_SIZE, toggleRepositoriesBatch, toggleRepository } from "~/lib/repositories/toggle-repositories";
+import type { DataSourceProvider } from "../../../../prisma/client/client.ts";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   await requireAdmin(request);

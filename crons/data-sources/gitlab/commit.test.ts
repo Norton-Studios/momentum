@@ -1,5 +1,5 @@
-import type { PrismaClient } from "@prisma/client";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { DbClient } from "../../db.ts";
 import { commitScript } from "./commit.js";
 
 const mockProjectsShow = vi.fn();
@@ -67,7 +67,7 @@ describe("commitScript", () => {
       dataSourceRun: {
         update: vi.fn().mockResolvedValue({}),
       },
-    } as unknown as PrismaClient;
+    } as unknown as DbClient;
 
     const context = {
       id: "ds-123",
@@ -137,7 +137,7 @@ describe("commitScript", () => {
       dataSourceRun: {
         update: vi.fn().mockResolvedValue({}),
       },
-    } as unknown as PrismaClient;
+    } as unknown as DbClient;
 
     const context = {
       id: "ds-123",
@@ -196,7 +196,7 @@ describe("commitScript", () => {
       dataSourceRun: {
         update: vi.fn().mockResolvedValue({}),
       },
-    } as unknown as PrismaClient;
+    } as unknown as DbClient;
 
     const context = {
       id: "ds-123",
@@ -234,7 +234,7 @@ describe("commitScript", () => {
       dataSourceRun: {
         update: vi.fn().mockResolvedValue({}),
       },
-    } as unknown as PrismaClient;
+    } as unknown as DbClient;
 
     const context = {
       id: "ds-123",
@@ -286,7 +286,7 @@ describe("commitScript", () => {
       dataSourceRun: {
         update: vi.fn().mockResolvedValue({}),
       },
-    } as unknown as PrismaClient;
+    } as unknown as DbClient;
 
     const context = {
       id: "ds-123",

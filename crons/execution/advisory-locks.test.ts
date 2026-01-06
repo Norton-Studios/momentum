@@ -1,14 +1,14 @@
-import type { PrismaClient } from "@prisma/client";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { DbClient } from "../db.ts";
 import { acquireAdvisoryLock, acquireGlobalOrchestratorLock, releaseAdvisoryLock, releaseGlobalOrchestratorLock } from "./advisory-locks.js";
 
 describe("advisory-locks", () => {
-  let mockDb: PrismaClient;
+  let mockDb: DbClient;
 
   beforeEach(() => {
     mockDb = {
       $queryRaw: vi.fn(),
-    } as unknown as PrismaClient;
+    } as unknown as DbClient;
   });
 
   describe("acquireGlobalOrchestratorLock", () => {

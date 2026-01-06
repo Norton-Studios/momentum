@@ -1,5 +1,5 @@
-import type { PrismaClient } from "@prisma/client";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { PrismaClient } from "../db.ts";
 import { runOrchestrator } from "./runner.js";
 
 vi.mock("../execution/advisory-locks.js", () => ({

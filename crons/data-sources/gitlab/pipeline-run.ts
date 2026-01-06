@@ -1,7 +1,7 @@
 import type { ExecutionContext } from "@crons/orchestrator/script-loader.js";
 import { Gitlab } from "@gitbeaker/rest";
-import type { PipelineStatus } from "@prisma/client";
 import type { DbClient } from "~/db.server.js";
+import type { PipelineStatus } from "../../db.ts";
 
 export const pipelineRunScript = {
   dataSourceName: "GITLAB",

@@ -1,5 +1,5 @@
-import type { PrismaClient } from "@prisma/client";
 import cron from "node-cron";
+import type { PrismaClient } from "./db.ts";
 import { runOrchestrator } from "./orchestrator/runner.js";
 
 const DEFAULT_CRON_EXPRESSION = "*/15 * * * *";

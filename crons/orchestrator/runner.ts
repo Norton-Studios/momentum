@@ -1,5 +1,4 @@
-import type { ImportBatch, PrismaClient } from "@prisma/client";
-import type { DbClient } from "~/db.server.js";
+import type { DbClient, ImportBatch, PrismaClient } from "../db.ts";
 import { acquireGlobalOrchestratorLock, releaseGlobalOrchestratorLock } from "../execution/advisory-locks.js";
 import { buildExecutionGraph } from "../execution/execution-graph.js";
 import { type DataSourceScriptMap, getEnabledScripts } from "./script-loader.js";

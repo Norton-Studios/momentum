@@ -2,6 +2,9 @@ import "@testing-library/jest-dom/vitest";
 import React from "react";
 import { vi } from "vitest";
 
+// Set dummy DATABASE_URL for tests that transitively import db modules
+process.env.DATABASE_URL ??= "postgresql://test:test@localhost:5432/test";
+
 // Mock ResizeObserver for Recharts charts
 global.ResizeObserver = class ResizeObserver {
   observe() {}
