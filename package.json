@@ -57,7 +57,7 @@
     "@testing-library/user-event": "^14.6.1",
     "@types/bcrypt": "^6.0.0",
     "@types/jsdom": "^27",
-    "@types/node": "24.10.7",
+    "@types/node": "24.10.8",
     "@types/pg": "^8",
     "@types/react": "19.2.8",
     "@types/react-dom": "19.2.3",
