@@ -2,7 +2,7 @@
   "name": "momentum",
   "private": true,
   "type": "module",
-  "packageManager": "yarn@4.12.0",
+  "packageManager": "yarn@4.13.0",
   "scripts": {
     "build": "react-router build",
     "dev": "run-p dev:db dev:server",
