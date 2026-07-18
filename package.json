@@ -36,7 +36,7 @@
     "@react-router/serve": "7.18.1",
     "@tanstack/react-virtual": "^3.13.12",
     "bcrypt": "^6.0.0",
-    "isbot": "5.1.44",
+    "isbot": "5.2.1",
     "node-cron": "4.6.0",
     "p-graph": "2.0.0",
     "pg": "8.22.0",
