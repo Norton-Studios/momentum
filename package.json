@@ -29,7 +29,7 @@
   "dependencies": {
     "@gitbeaker/rest": "43.8.0",
     "@octokit/rest": "22.0.1",
-    "@octokit/types": "17.0.0",
+    "@octokit/types": "18.0.0",
     "@prisma/adapter-pg": "7.10.0",
     "@prisma/client": "7.10.0",
     "@react-router/node": "7.18.3",
