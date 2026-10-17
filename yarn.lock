@@ -3681,11 +3681,11 @@ __metadata:
   linkType: hard
 
 "dotenv@npm:^18.0.0":
-  version: 18.0.6
-  resolution: "dotenv@npm:18.0.6"
+  version: 18.0.8
+  resolution: "dotenv@npm:18.0.8"
   bin:
     dotenv: dist/index.cjs
-  checksum: 10c0/fe26487d82e6e1dcedc890bb7176fdb71d5540ebaf8b2adca5996a4891e133d0108699235e81c943ba6f02f00a4775843b96841bf24595b1fa67d9fb2c242efb
+  checksum: 10c0/88a6a81afe58aaad7f9ae5d97422731c6e7b9efa4db752ea5add7fb6035f5866ce6e10a76fb7ad2d7f606bdf0afc9507ffd7e04d86d9b347b38d4614a3a0c2ac
   languageName: node
   linkType: hard
 
