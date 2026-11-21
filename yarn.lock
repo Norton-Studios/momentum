@@ -1675,9 +1675,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@react-router/dev@npm:7.18.5":
-  version: 7.18.5
-  resolution: "@react-router/dev@npm:7.18.5"
+"@react-router/dev@npm:7.18.6":
+  version: 7.18.6
+  resolution: "@react-router/dev@npm:7.18.6"
   dependencies:
     "@babel/core": "npm:^7.27.7"
     "@babel/generator": "npm:^7.27.5"
@@ -1686,7 +1686,7 @@ __metadata:
     "@babel/preset-typescript": "npm:^7.27.1"
     "@babel/traverse": "npm:^7.27.7"
     "@babel/types": "npm:^7.27.7"
-    "@react-router/node": "npm:7.18.5"
+    "@react-router/node": "npm:7.18.6"
     "@remix-run/node-fetch-server": "npm:^0.13.0"
     arg: "npm:^5.0.1"
     babel-dead-code-elimination: "npm:^1.0.6"
@@ -1708,9 +1708,9 @@ __metadata:
     valibot: "npm:^1.2.0"
     vite-node: "npm:^3.2.2"
   peerDependencies:
-    "@react-router/serve": ^7.18.5
+    "@react-router/serve": ^7.18.6
     "@vitejs/plugin-rsc": ~0.5.21
-    react-router: ^7.18.5
+    react-router: ^7.18.6
     react-server-dom-webpack: ^19.2.3
     typescript: ^5.1.0 || ^6.0.0
     vite: ^5.1.0 || ^6.0.0 || ^7.0.0 || ^8.0.0
@@ -1728,58 +1728,58 @@ __metadata:
       optional: true
   bin:
     react-router: bin.js
-  checksum: 10c0/874172306524ca934a482969f1833304fb5b0970c7221e76634813321e949c17b4778f2a18187529f33bdb5366da02425d24c53220103c3d94290adccbd13849
+  checksum: 10c0/176f7c71c56195258ac9f068568208525536f9022a2391627c1134970a166f6ed159ddd49962c6edc99754e8d1a4bbb4c40ca3ceead9827bdf29736740641176
   languageName: node
   linkType: hard
 
-"@react-router/express@npm:7.18.5":
-  version: 7.18.5
-  resolution: "@react-router/express@npm:7.18.5"
+"@react-router/express@npm:7.18.6":
+  version: 7.18.6
+  resolution: "@react-router/express@npm:7.18.6"
   dependencies:
-    "@react-router/node": "npm:7.18.5"
+    "@react-router/node": "npm:7.18.6"
   peerDependencies:
     express: ^4.17.1 || ^5
-    react-router: 7.18.5
+    react-router: 7.18.6
     typescript: ^5.1.0 || ^6.0.0
   peerDependenciesMeta:
     typescript:
       optional: true
-  checksum: 10c0/96497d5cf2dc3cbad630edb522c80fc9a91fc2a0cfb96a0bf59d8290a513466c243601f959829b368ba333a70ca33ad95364d83a400b8bb246db016325eae6b5
+  checksum: 10c0/4f8e29f06b0d2be7dd76e93cac0f621a1f0c58725f1a8b8b07c06806608b6ca8dad2428ae4b0305b8f446e4dc7d69091cced715d9d5244a967fc498e7f5760e2
   languageName: node
   linkType: hard
 
-"@react-router/node@npm:7.18.5":
-  version: 7.18.5
-  resolution: "@react-router/node@npm:7.18.5"
+"@react-router/node@npm:7.18.6":
+  version: 7.18.6
+  resolution: "@react-router/node@npm:7.18.6"
   dependencies:
     "@mjackson/node-fetch-server": "npm:^0.2.0"
   peerDependencies:
-    react-router: 7.18.5
+    react-router: 7.18.6
     typescript: ^5.1.0 || ^6.0.0
   peerDependenciesMeta:
     typescript:
       optional: true
-  checksum: 10c0/b99c1e3900ec9b32594903bedd5745687e3c24c36e6346807939872db6d543f514a4583b927da1e5d907f30d18f3022e53c4b9ef4813df4e405d8ef9c3e1793a
+  checksum: 10c0/10a8a46d427f69ce0e7b54bc5f4630e423c14e78e329dec7e9ddee5eac74caee9d08ddee5e2d249f76f75278498de356cbe5f0afd25378ac615dcccc30954678
   languageName: node
   linkType: hard
 
-"@react-router/serve@npm:7.18.5":
-  version: 7.18.5
-  resolution: "@react-router/serve@npm:7.18.5"
+"@react-router/serve@npm:7.18.6":
+  version: 7.18.6
+  resolution: "@react-router/serve@npm:7.18.6"
   dependencies:
     "@mjackson/node-fetch-server": "npm:^0.2.0"
-    "@react-router/express": "npm:7.18.5"
-    "@react-router/node": "npm:7.18.5"
+    "@react-router/express": "npm:7.18.6"
+    "@react-router/node": "npm:7.18.6"
     compression: "npm:^1.8.1"
     express: "npm:^4.19.2"
     get-port: "npm:5.1.1"
     morgan: "npm:^1.10.1"
     source-map-support: "npm:^0.5.21"
   peerDependencies:
-    react-router: 7.18.5
+    react-router: 7.18.6
   bin:
     react-router-serve: bin.js
-  checksum: 10c0/b5bbf6c2284a8d0b14ecd91e2d99b73d267b23af12fdd793e134a8abbad1ba126e78c969155875b0191afbb19235c6ba8cb9afbe1d2438a19aac703adfc4a224
+  checksum: 10c0/599f8cf3ac4cb714988f13b7f46bc96a3db70c9abc1bcbbbee8d5a5b487ce4bfeb982e165d8b1f104bd7fa2f681a13e8d83a2651c695f5ac8a57996305857f6f
   languageName: node
   linkType: hard
 
@@ -5146,9 +5146,9 @@ __metadata:
     "@playwright/test": "npm:1.64.1"
     "@prisma/adapter-pg": "npm:7.10.1"
     "@prisma/client": "npm:7.10.1"
-    "@react-router/dev": "npm:7.18.5"
-    "@react-router/node": "npm:7.18.5"
-    "@react-router/serve": "npm:7.18.5"
+    "@react-router/dev": "npm:7.18.6"
+    "@react-router/node": "npm:7.18.6"
+    "@react-router/serve": "npm:7.18.6"
     "@tailwindcss/vite": "npm:4.3.5"
     "@tanstack/react-virtual": "npm:^3.13.12"
     "@testing-library/dom": "npm:^10.4.1"
@@ -5173,7 +5173,7 @@ __metadata:
     prisma: "npm:7.10.1"
     react: "npm:19.3.1"
     react-dom: "npm:19.3.1"
-    react-router: "npm:7.18.5"
+    react-router: "npm:7.18.6"
     recharts: "npm:3.10.1"
     tailwindcss: "npm:4.3.5"
     tsx: "npm:4.23.15"
@@ -5959,9 +5959,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-router@npm:7.18.5":
-  version: 7.18.5
-  resolution: "react-router@npm:7.18.5"
+"react-router@npm:7.18.6":
+  version: 7.18.6
+  resolution: "react-router@npm:7.18.6"
   dependencies:
     cookie: "npm:^1.0.1"
     set-cookie-parser: "npm:^2.6.0"
@@ -5971,7 +5971,7 @@ __metadata:
   peerDependenciesMeta:
     react-dom:
       optional: true
-  checksum: 10c0/dbed9b4d0019873615028e2fe7bf7782ab4f41d9f287595b9a82f4a6d619dc5d3b88449fb3e717282f9f558312f29f88325372a7bb67355472703291607f9280
+  checksum: 10c0/1227a7fc566f47799a2f157213e07dcafff584b08454ec46c74ff05babe3c2adf10c25701ce546141be1b328675b658312af3ae6dcca5c551ee9a5c88732067c
   languageName: node
   linkType: hard
 
