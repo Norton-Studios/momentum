@@ -4519,10 +4519,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"isbot@npm:5.2.3":
-  version: 5.2.3
-  resolution: "isbot@npm:5.2.3"
-  checksum: 10c0/41f50ca62a91325731e781cc2d68a151953e50acaf0311f6a495603ec29ceb7bfe181278463c154022e9430ccf1567453714d7ded2c5d09f9cb56b63ca610a61
+"isbot@npm:5.2.4":
+  version: 5.2.4
+  resolution: "isbot@npm:5.2.4"
+  checksum: 10c0/b117f48d3260c722e39477060004e71f452963fc03a37b94ba49d07e1bd87a0e33d3fb43ff2ca12d05c0aa347fd3ac7ab08a75a79da87558462d8da1393ee6c5
   languageName: node
   linkType: hard
 
@@ -5058,7 +5058,7 @@ __metadata:
     "@vitest/coverage-v8": "npm:5.1.1"
     bcrypt: "npm:^6.0.0"
     dotenv: "npm:^18.0.0"
-    isbot: "npm:5.2.3"
+    isbot: "npm:5.2.4"
     jsdom: "npm:^31.0.0"
     node-cron: "npm:4.6.0"
     npm-run-all2: "npm:^9.0.0"
